@@ -67,7 +67,7 @@ const Welcome = () => {
       <div className="relative z-10 w-full max-w-6xl px-4">
         <div className="text-center mb-6 animate-fade-in-up">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-2 tracking-tight">
-            Complete Business Solution
+            GenericArt Management
           </h1>
           <div className="flex items-center justify-center gap-2 text-white/80">
             <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>

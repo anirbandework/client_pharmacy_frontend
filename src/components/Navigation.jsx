@@ -18,7 +18,7 @@ const Navigation = () => {
               <Menu className="w-6 h-6" />
             </button>
             <h1 className="text-xl font-bold font-bauhaus animate-fade-in">
-              Daily Records System
+              GenericArt
             </h1>
           </div>
           <div className="flex items-center gap-4">
