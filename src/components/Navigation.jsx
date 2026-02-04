@@ -18,7 +18,7 @@ const Navigation = () => {
               <Menu className="w-6 h-6" />
             </button>
             <h1 className="text-xl font-bold font-bauhaus animate-fade-in">
-              GenericArt
+              Genericart
             </h1>
           </div>
           <div className="flex items-center gap-4">
