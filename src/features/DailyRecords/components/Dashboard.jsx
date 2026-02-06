@@ -13,6 +13,7 @@ const Dashboard = () => {
   const fetchDashboard = async () => {
     try {
       const response = await dailyRecordsAPI.getDashboardSummary()
+      console.log('Dashboard API response:', response.data)
       setSummary(response.data)
     } catch (error) {
       console.error('Error fetching dashboard:', error)
@@ -33,7 +34,7 @@ const Dashboard = () => {
     { 
       icon: Calendar, 
       label: 'Total Records', 
-      value: summary?.total_records || 0, 
+      value: summary?.last_7_days?.total_records || 0, 
       color: 'from-blue-500 to-blue-600',
       bgColor: 'from-blue-50 to-blue-100',
       textColor: 'text-blue-600',
@@ -42,7 +43,7 @@ const Dashboard = () => {
     { 
       icon: DollarSign, 
       label: 'Total Sales', 
-      value: `₹${(summary?.total_sales || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`, 
+      value: `₹${(summary?.last_7_days?.total_sales || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`, 
       color: 'from-green-500 to-green-600',
       bgColor: 'from-green-50 to-green-100',
       textColor: 'text-green-600',
@@ -50,8 +51,8 @@ const Dashboard = () => {
     },
     { 
       icon: FileText, 
-      label: 'Avg Bills/Day', 
-      value: (summary?.avg_bills || 0).toFixed(1), 
+      label: 'Avg Daily Sales', 
+      value: `₹${(summary?.last_7_days?.average_daily_sales || 0).toFixed(0)}`, 
       color: 'from-purple-500 to-purple-600',
       bgColor: 'from-purple-50 to-purple-100',
       textColor: 'text-purple-600',
@@ -59,8 +60,8 @@ const Dashboard = () => {
     },
     { 
       icon: TrendingUp, 
-      label: 'Avg Sale/Bill', 
-      value: `₹${(summary?.avg_per_bill || 0).toFixed(0)}`, 
+      label: 'Latest Sale', 
+      value: `₹${(summary?.latest_record?.total_sales || 0).toFixed(0)}`, 
       color: 'from-yellow-500 to-yellow-600',
       bgColor: 'from-yellow-50 to-yellow-100',
       textColor: 'text-yellow-600',
@@ -69,7 +70,7 @@ const Dashboard = () => {
     { 
       icon: AlertTriangle, 
       label: 'High Variances', 
-      value: summary?.high_variance_count || 0, 
+      value: summary?.last_7_days?.days_with_variance || 0, 
       color: 'from-red-500 to-red-600',
       bgColor: 'from-red-50 to-red-100',
       textColor: 'text-red-600',
@@ -78,8 +79,8 @@ const Dashboard = () => {
     },
     { 
       icon: BarChart3, 
-      label: 'This Month', 
-      value: `₹${(summary?.current_month_sales || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`, 
+      label: 'Last 7 Days', 
+      value: `₹${(summary?.last_7_days?.total_sales || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`, 
       color: 'from-primary-500 to-primary-600',
       bgColor: 'from-primary-50 to-primary-100',
       textColor: 'text-primary-600',
@@ -128,16 +129,16 @@ const Dashboard = () => {
         <h3 className="text-sm md:text-base font-bold mb-3">Quick Insights</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
-            <div className="text-lg md:text-xl font-bold mb-0.5">{summary?.best_day || 'N/A'}</div>
-            <div className="text-xs text-white/80">Best Performing Day</div>
+            <div className="text-lg md:text-xl font-bold mb-0.5">{summary?.latest_record?.date ? new Date(summary.latest_record.date).toLocaleDateString('en-US', { weekday: 'long' }) : 'N/A'}</div>
+            <div className="text-xs text-white/80">Latest Record Day</div>
           </div>
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
-            <div className="text-lg md:text-xl font-bold mb-0.5">₹{(summary?.highest_sale || 0).toFixed(0)}</div>
-            <div className="text-xs text-white/80">Highest Single Day Sale</div>
+            <div className="text-lg md:text-xl font-bold mb-0.5">₹{(summary?.latest_record?.total_sales || 0).toFixed(0)}</div>
+            <div className="text-xs text-white/80">Latest Day Sale</div>
           </div>
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
-            <div className="text-lg md:text-xl font-bold mb-0.5">{summary?.consistency_score || 'N/A'}%</div>
-            <div className="text-xs text-white/80">Consistency Score</div>
+            <div className="text-lg md:text-xl font-bold mb-0.5">₹{(summary?.latest_record?.difference || 0).toFixed(0)}</div>
+            <div className="text-xs text-white/80">Latest Difference</div>
           </div>
         </div>
       </div>

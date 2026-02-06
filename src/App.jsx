@@ -7,6 +7,7 @@ import './App.css'
 
 const Welcome = lazy(() => import('./features/Welcome'))
 const DailyRecords = lazy(() => import('./features/DailyRecords'))
+const CustomerTracking = lazy(() => import('./features/CustomerTracking'))
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -29,6 +30,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<Welcome />} />
                 <Route path="/daily-records" element={<DailyRecords />} />
+                <Route path="/customer-tracking" element={<CustomerTracking />} />
               </Routes>
             </Suspense>
           </div>

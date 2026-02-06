@@ -1,6 +1,6 @@
 import React from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { FileText } from 'lucide-react'
+import { FileText, Users } from 'lucide-react'
 import { useSidebar } from '../contexts/SidebarContext'
 
 const Sidebar = () => {
@@ -9,7 +9,8 @@ const Sidebar = () => {
   const { isOpen, closeSidebar } = useSidebar()
 
   const navItems = [
-    { id: 'daily-records', label: 'Daily Records', path: '/daily-records', icon: FileText }
+    { id: 'daily-records', label: 'Daily Records', path: '/daily-records', icon: FileText },
+    { id: 'customer-tracking', label: 'Customer Tracking', path: '/customer-tracking', icon: Users }
   ]
 
   return (
