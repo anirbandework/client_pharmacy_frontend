@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import { dailyRecordsAPI } from '../services/dailyRecords'
 
-const DailyRecordForm = ({ onSuccess }) => {
+const DailyRecordForm = ({ onSuccess, editData }) => {
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
     day: new Date().toLocaleDateString('en-US', { weekday: 'long' }),
     cash_balance: 1000,
+    average_bill: 0,
     no_of_bills: '',
     actual_cash: '',
     online_sales: '',
@@ -14,7 +15,8 @@ const DailyRecordForm = ({ onSuccess }) => {
     cash_reserve: '',
     reserve_comments: '',
     expense_amount: '',
-    notes: ''
+    notes: '',
+    created_by: 'admin'
   })
 
   const [calculations, setCalculations] = useState({
@@ -26,6 +28,15 @@ const DailyRecordForm = ({ onSuccess }) => {
   })
 
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (editData) {
+      setFormData({
+        ...editData,
+        date: editData.date.split('T')[0]
+      })
+    }
+  }, [editData])
 
   useEffect(() => {
     calculateFields()
@@ -61,16 +72,23 @@ const DailyRecordForm = ({ onSuccess }) => {
 
     try {
       const numericData = { ...formData }
-      const numericFields = ['cash_balance', 'no_of_bills', 'actual_cash', 'online_sales', 
+      const numericFields = ['cash_balance', 'average_bill', 'no_of_bills', 'actual_cash', 'online_sales', 
                            'unbilled_sales', 'software_figure', 'cash_reserve', 'expense_amount']
       
       numericFields.forEach(field => {
         if (numericData[field]) numericData[field] = parseFloat(numericData[field])
       })
+      
+      numericData.average_bill = calculations.averageBill
 
-      await dailyRecordsAPI.create(numericData)
+      if (editData?.id) {
+        await dailyRecordsAPI.update(editData.id, numericData, 'admin')
+        alert('Record updated successfully!')
+      } else {
+        await dailyRecordsAPI.create(numericData)
+        alert('Record saved successfully!')
+      }
       onSuccess?.()
-      alert('Record saved successfully!')
     } catch (error) {
       alert('Error: ' + (error.response?.data?.detail || error.message))
     } finally {
@@ -279,7 +297,7 @@ const DailyRecordForm = ({ onSuccess }) => {
         disabled={loading}
         className="w-full bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white text-sm font-semibold py-2.5 px-6 rounded-lg shadow-glow hover:shadow-glow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-95"
       >
-        {loading ? 'Saving...' : 'Save Record'}
+        {loading ? 'Saving...' : editData ? 'Update Record' : 'Save Record'}
       </button>
     </form>
   )
