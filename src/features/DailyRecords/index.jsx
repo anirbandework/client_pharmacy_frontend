@@ -36,7 +36,7 @@ const DailyRecords = () => {
     <Layout>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="bg-gradient-to-r from-primary-600 via-accent-600 to-primary-700 rounded-xl shadow-lg p-4 md:p-6 mb-4 animate-fade-in relative overflow-hidden">
+        <div className="hidden md:block bg-gradient-to-r from-primary-600 via-accent-600 to-primary-700 rounded-xl shadow-lg p-4 md:p-6 mb-4 animate-fade-in relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
           
           <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
@@ -57,7 +57,7 @@ const DailyRecords = () => {
         </div>
 
         {/* Tab Navigation */}
-        <div className="mb-4 overflow-x-auto pb-2 -mx-4 px-4">
+        <div className="mb-3 md:mb-4 overflow-x-auto pb-2 -mx-4 px-4">
           <div className="inline-flex bg-white rounded-xl shadow-md p-1.5 border border-primary-100 gap-1 min-w-full md:min-w-0">
             {tabs.map((tab) => (
               <button
