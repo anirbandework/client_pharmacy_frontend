@@ -33,8 +33,16 @@ export const dailyRecordsAPI = {
   }),
   
   // Audit
-  getModifications: (id) => axiosInstance.get(`${API_BASE}/${id}/modifications`),
+  getModifications: (id) => axiosInstance.get(`${API_BASE}//${id}/modifications`),
   getAuditLogs: (params) => axiosInstance.get(`${API_BASE}/audit/logs`, { params }),
   getAuditUsers: () => axiosInstance.get(`${API_BASE}/audit/users`),
-  getRecordActivity: (id) => axiosInstance.get(`${API_BASE}/audit/activity/${id}`)
+  getRecordActivity: (id) => axiosInstance.get(`${API_BASE}/audit/activity/${id}`),
+  
+  // AI Analytics
+  getAIComprehensive: (days = 90) => axiosInstance.get(`${API_BASE}/ai-analytics/comprehensive`, { params: { days } }),
+  getAITrends: (days = 90) => axiosInstance.get(`${API_BASE}/ai-analytics/trends`, { params: { days } }),
+  getAIPredictions: (days = 90, forecastDays = 30) => axiosInstance.get(`${API_BASE}/ai-analytics/predictions`, { params: { days, forecast_days: forecastDays } }),
+  getAIChartData: (days = 90) => axiosInstance.get(`${API_BASE}/ai-analytics/chart-data`, { params: { days } }),
+  getAIInsights: (days = 90) => axiosInstance.get(`${API_BASE}/ai-analytics/insights`, { params: { days } }),
+  getAIDashboard: () => axiosInstance.get(`${API_BASE}/ai-analytics/dashboard`)
 }

@@ -88,35 +88,34 @@ const Dashboard = () => {
   ]
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
         {stats.map((stat, index) => (
           <div 
             key={index} 
-            className="group bg-white rounded-2xl shadow-soft border border-primary-100 p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer overflow-hidden relative"
+            className="group bg-white rounded-xl shadow-soft border border-primary-100 p-3 md:p-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer overflow-hidden relative"
           >
-            {/* Background Gradient */}
             <div className={`absolute inset-0 bg-gradient-to-br ${stat.bgColor} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
             
             <div className="relative z-10">
-              <div className="flex items-start justify-between mb-4">
-                <div className={`p-3 bg-gradient-to-br ${stat.color} rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                  <stat.icon className="w-6 h-6 text-white" />
+              <div className="flex items-start justify-between mb-2 md:mb-3">
+                <div className={`p-2 bg-gradient-to-br ${stat.color} rounded-lg shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                  <stat.icon className="w-4 h-4 md:w-5 md:h-5 text-white" />
                 </div>
-                <div className={`flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full ${
+                <div className={`flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${
                   stat.isNegative ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'
                 }`}>
-                  {stat.isNegative ? <ArrowDown className="w-3 h-3" /> : <ArrowUp className="w-3 h-3" />}
+                  {stat.isNegative ? <ArrowDown className="w-2 h-2" /> : <ArrowUp className="w-2 h-2" />}
                   {stat.change}
                 </div>
               </div>
               
-              <div className="text-3xl font-bold text-gray-900 mb-2 group-hover:scale-105 transition-transform">
+              <div className="text-lg md:text-2xl font-bold text-gray-900 mb-1 group-hover:scale-105 transition-transform">
                 {stat.value}
               </div>
               
-              <div className="text-sm text-gray-500 uppercase tracking-wide font-medium">
+              <div className="text-[10px] md:text-xs text-gray-500 uppercase tracking-wide font-medium">
                 {stat.label}
               </div>
             </div>
@@ -125,20 +124,20 @@ const Dashboard = () => {
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-gradient-to-r from-primary-600 to-accent-600 rounded-2xl shadow-lg p-6 text-white">
-        <h3 className="text-lg font-bold mb-4">Quick Insights</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-            <div className="text-2xl font-bold mb-1">{summary?.best_day || 'N/A'}</div>
-            <div className="text-sm text-white/80">Best Performing Day</div>
+      <div className="bg-gradient-to-r from-primary-600 to-accent-600 rounded-xl shadow-lg p-4 md:p-5 text-white">
+        <h3 className="text-sm md:text-base font-bold mb-3">Quick Insights</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+            <div className="text-lg md:text-xl font-bold mb-0.5">{summary?.best_day || 'N/A'}</div>
+            <div className="text-xs text-white/80">Best Performing Day</div>
           </div>
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-            <div className="text-2xl font-bold mb-1">₹{(summary?.highest_sale || 0).toFixed(0)}</div>
-            <div className="text-sm text-white/80">Highest Single Day Sale</div>
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+            <div className="text-lg md:text-xl font-bold mb-0.5">₹{(summary?.highest_sale || 0).toFixed(0)}</div>
+            <div className="text-xs text-white/80">Highest Single Day Sale</div>
           </div>
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-            <div className="text-2xl font-bold mb-1">{summary?.consistency_score || 'N/A'}%</div>
-            <div className="text-sm text-white/80">Consistency Score</div>
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+            <div className="text-lg md:text-xl font-bold mb-0.5">{summary?.consistency_score || 'N/A'}%</div>
+            <div className="text-xs text-white/80">Consistency Score</div>
           </div>
         </div>
       </div>
