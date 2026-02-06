@@ -21,18 +21,27 @@ const AuditLogs = () => {
       const filters = { limit }
       if (selectedUser !== 'all') filters.user = selectedUser
       
+      console.log('Fetching audit logs with filters:', filters)
       const logsRes = await dailyRecordsAPI.getAuditLogs(filters)
+      console.log('Audit logs response:', logsRes.data)
       setLogs(logsRes.data.logs || [])
       
       try {
+        console.log('Fetching audit users')
         const usersRes = await dailyRecordsAPI.getAuditUsers()
-        setUsers(usersRes.data.users || usersRes.data || [])
+        console.log('Audit users response:', usersRes.data)
+        const usersList = usersRes.data.users || usersRes.data || []
+        // Extract usernames if users are objects
+        const usernames = usersList.map(u => typeof u === 'string' ? u : u.username)
+        setUsers(usernames)
       } catch (err) {
+        console.error('Error fetching users:', err)
         setUsers([])
       }
     } catch (error) {
       console.error('Error fetching audit data:', error)
-      setError(error.message || 'Failed to load audit logs')
+      console.error('Error details:', error.response?.data)
+      setError(error.response?.data?.detail || error.message || 'Failed to load audit logs')
       setLogs([])
     } finally {
       setLoading(false)
