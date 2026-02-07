@@ -1,58 +1,45 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowRight, Users, FileText, Package, TrendingUp, DollarSign, Bell } from 'lucide-react'
+import { useState } from 'react'
+import { useAuth } from '../../contexts/AuthContext'
+import { ArrowRight, Lock, User } from 'lucide-react'
 
 const Welcome = () => {
   const navigate = useNavigate()
+  const { adminLogin, staffLogin, adminRegister } = useAuth()
+  const [loginType, setLoginType] = useState('staff')
+  const [isRegister, setIsRegister] = useState(false)
+  const [uuid, setUuid] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [fullName, setFullName] = useState('')
+  const [phone, setPhone] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  const handleEnter = () => {
-    navigate('/daily-records')
-  }
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
 
-  const features = [
-    { 
-      icon: Users, 
-      title: 'Customer Tracking', 
-      desc: 'Auto reminders & repeat customers',
-      status: 'Soon',
-      color: 'from-blue-500 to-blue-600'
-    },
-    { 
-      icon: FileText, 
-      title: 'Invoice Analyzer', 
-      desc: 'Visual tracking with color coding',
-      status: 'Soon',
-      color: 'from-purple-500 to-purple-600'
-    },
-    { 
-      icon: Package, 
-      title: 'Stock Audit', 
-      desc: 'Random audits & reconciliation',
-      status: 'Soon',
-      color: 'from-green-500 to-green-600'
-    },
-    { 
-      icon: TrendingUp, 
-      title: 'Daily Records', 
-      desc: 'Secure business tracking',
-      status: 'Active',
-      color: 'from-primary-500 to-primary-600'
-    },
-    { 
-      icon: DollarSign, 
-      title: 'Profit Analysis', 
-      desc: 'Bill-wise profit margins',
-      status: 'Soon',
-      color: 'from-yellow-500 to-yellow-600'
-    },
-    { 
-      icon: Bell, 
-      title: 'Smart Alerts', 
-      desc: 'WhatsApp notifications',
-      status: 'Soon',
-      color: 'from-red-500 to-red-600'
+    try {
+      if (loginType === 'staff') {
+        await staffLogin(uuid)
+        navigate('/daily-records')
+      } else if (isRegister) {
+        await adminRegister({ email, password, full_name: fullName, phone })
+        setIsRegister(false)
+        setError('Registration successful! Please login.')
+      } else {
+        await adminLogin(email, password)
+        navigate('/admin')
+      }
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
     }
-  ]
+  }
 
   return (
     <div className="h-screen bg-gradient-to-br from-primary-600 via-primary-700 to-accent-600 relative overflow-hidden font-bauhaus flex items-center justify-center">
@@ -64,54 +51,134 @@ const Welcome = () => {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 w-full max-w-6xl px-4">
-        <div className="text-center mb-6 animate-fade-in-up">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-2 tracking-tight">
+      <div className="relative z-10 w-full max-w-md px-4">
+        <div className="text-center mb-8 animate-fade-in-up">
+          <h1 className="text-5xl font-bold text-white mb-2 tracking-tight">
             Genericart
           </h1>
-          <div className="flex items-center justify-center gap-2 text-white/80">
-            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-            <span className="text-sm">System Ready</span>
-          </div>
+          <p className="text-white/80 text-sm">Pharmacy Management System</p>
         </div>
 
-        {/* Features Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6 animate-fade-in" style={{ animationDelay: '0.1s' }}>
-          {features.map((feature, index) => (
-            <div
-              key={index}
-              className="bg-white/10 backdrop-blur-lg rounded-xl p-3 border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105 cursor-pointer group"
+        {/* Login Form */}
+        <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20 shadow-2xl animate-fade-in">
+          {/* Login Type Toggle */}
+          <div className="flex gap-2 mb-6">
+            <button
+              onClick={() => { setLoginType('staff'); setIsRegister(false); }}
+              className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all ${
+                loginType === 'staff'
+                  ? 'bg-white text-primary-600 shadow-lg'
+                  : 'bg-white/10 text-white hover:bg-white/20'
+              }`}
             >
-              <div className="flex items-start justify-between mb-2">
-                <div className={`p-2 bg-gradient-to-br ${feature.color} rounded-lg`}>
-                  <feature.icon className="w-4 h-4 text-white" />
-                </div>
-                <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                  feature.status === 'Active' 
-                    ? 'bg-green-400/20 text-green-100 border border-green-400/30' 
-                    : 'bg-white/10 text-white/70 border border-white/20'
-                }`}>
-                  {feature.status}
-                </span>
-              </div>
-              <h3 className="text-white font-semibold text-sm mb-1">{feature.title}</h3>
-              <p className="text-white/70 text-xs leading-relaxed">{feature.desc}</p>
-            </div>
-          ))}
-        </div>
+              <User className="w-4 h-4 inline mr-2" />
+              Staff Login
+            </button>
+            <button
+              onClick={() => { setLoginType('admin'); setIsRegister(false); }}
+              className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all ${
+                loginType === 'admin'
+                  ? 'bg-white text-primary-600 shadow-lg'
+                  : 'bg-white/10 text-white hover:bg-white/20'
+              }`}
+            >
+              <Lock className="w-4 h-4 inline mr-2" />
+              Admin Login
+            </button>
+          </div>
 
-        {/* CTA Button */}
-        <div className="text-center animate-scale-in" style={{ animationDelay: '0.2s' }}>
-          <button
-            onClick={handleEnter}
-            className="group relative inline-flex"
-          >
-            <div className="absolute inset-0 bg-white rounded-xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity"></div>
-            <div className="relative bg-white text-primary-600 px-8 py-3 rounded-xl text-sm font-semibold shadow-glow-lg hover:shadow-glow transition-all duration-300 transform hover:scale-110 active:scale-95 flex items-center gap-2">
-              Access Dashboard
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {loginType === 'staff' ? (
+              <div>
+                <label className="block text-white/90 text-sm font-medium mb-2">Staff UUID</label>
+                <input
+                  type="text"
+                  value={uuid}
+                  onChange={(e) => setUuid(e.target.value)}
+                  placeholder="Enter your UUID"
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50"
+                  required
+                />
+              </div>
+            ) : (
+              <>
+                {isRegister && (
+                  <>
+                    <div>
+                      <label className="block text-white/90 text-sm font-medium mb-2">Full Name</label>
+                      <input
+                        type="text"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        placeholder="Enter full name"
+                        className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-white/90 text-sm font-medium mb-2">Phone</label>
+                      <input
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="Enter phone number"
+                        className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50"
+                        required
+                      />
+                    </div>
+                  </>
+                )}
+                <div>
+                  <label className="block text-white/90 text-sm font-medium mb-2">Email</label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="admin@pharmacy.com"
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-white/90 text-sm font-medium mb-2">Password</label>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter password"
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50"
+                    required
+                  />
+                </div>
+              </>
+            )}
+
+            {error && (
+              <div className="bg-red-500/20 border border-red-500/50 text-white px-4 py-2 rounded-lg text-sm">
+                {error}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-white text-primary-600 py-3 rounded-lg font-semibold hover:bg-white/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {loading ? (isRegister ? 'Registering...' : 'Logging in...') : (isRegister ? 'Register' : 'Login')}
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </form>
+
+          {loginType === 'admin' && (
+            <div className="mt-4 text-center">
+              <button
+                onClick={() => setIsRegister(!isRegister)}
+                className="text-white/80 text-sm hover:text-white underline"
+              >
+                {isRegister ? 'Already have an account? Login' : 'New admin? Register here'}
+              </button>
             </div>
-          </button>
+          )}
         </div>
       </div>
     </div>

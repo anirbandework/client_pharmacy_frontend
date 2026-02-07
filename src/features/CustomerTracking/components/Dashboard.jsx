@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { customerTrackingAPI } from '../services/customerTracking'
-import { Users, Phone, CheckCircle, Clock, TrendingUp } from 'lucide-react'
+import { Users, Phone, CheckCircle, Clock, Calendar } from 'lucide-react'
 
 const Dashboard = () => {
   const [summary, setSummary] = useState(null)
@@ -24,14 +24,18 @@ const Dashboard = () => {
   if (loading) return <div className="text-center py-8">Loading...</div>
 
   const stats = [
-    { label: 'Total Contacts', value: summary?.total_contacts || 0, icon: Users, color: 'blue' },
-    { label: 'Contacted Today', value: summary?.contacted_today || 0, icon: Phone, color: 'green' },
-    { label: 'Converted', value: summary?.converted || 0, icon: CheckCircle, color: 'purple' },
-    { label: 'Pending Follow-ups', value: summary?.pending_followups || 0, icon: Clock, color: 'orange' }
+    { label: 'Contacts Processed', value: summary?.contacts_processed || 0, icon: Users, color: 'blue' },
+    { label: 'Interactions', value: summary?.interactions || 0, icon: Phone, color: 'green' },
+    { label: 'Conversions', value: summary?.conversions || 0, icon: CheckCircle, color: 'purple' },
+    { label: 'Customer Visits', value: summary?.customer_visits || 0, icon: Clock, color: 'orange' }
   ]
 
   return (
     <div className="space-y-4">
+      <div className="flex items-center gap-2 mb-2">
+        <Calendar className="w-5 h-5 text-primary-600" />
+        <h2 className="text-lg font-semibold">Today's Summary - {summary?.date}</h2>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat, idx) => (
           <div key={idx} className="bg-white rounded-lg shadow p-6">
@@ -45,6 +49,12 @@ const Dashboard = () => {
           </div>
         ))}
       </div>
+      {summary?.revenue !== undefined && (
+        <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-lg shadow p-6 text-white">
+          <p className="text-sm opacity-90">Total Revenue</p>
+          <p className="text-3xl font-bold">₹{summary.revenue.toFixed(2)}</p>
+        </div>
+      )}
     </div>
   )
 }

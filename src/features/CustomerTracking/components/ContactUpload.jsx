@@ -4,6 +4,7 @@ import { Upload, FileText, CheckCircle, AlertCircle } from 'lucide-react'
 
 const ContactUpload = ({ onSuccess }) => {
   const [file, setFile] = useState(null)
+  const [uploadedBy, setUploadedBy] = useState('')
   const [uploading, setUploading] = useState(false)
   const [message, setMessage] = useState(null)
 
@@ -21,13 +22,20 @@ const ContactUpload = ({ onSuccess }) => {
   }
 
   const handleUpload = async () => {
-    if (!file) return
+    if (!file || !uploadedBy) {
+      setMessage({ type: 'error', text: 'Please select a file and enter your name' })
+      return
+    }
     
     setUploading(true)
     try {
-      await customerTrackingAPI.uploadContacts(file)
-      setMessage({ type: 'success', text: 'Contacts uploaded successfully!' })
+      const { data } = await customerTrackingAPI.uploadContacts(file, uploadedBy)
+      setMessage({ 
+        type: 'success', 
+        text: `Uploaded successfully! Total: ${data.total_processed}, WhatsApp: ${data.whatsapp_contacts}, Non-WhatsApp: ${data.non_whatsapp_contacts}, Duplicates: ${data.duplicates_found}` 
+      })
       setFile(null)
+      setUploadedBy('')
       onSuccess?.()
     } catch (error) {
       setMessage({ type: 'error', text: error.response?.data?.detail || 'Upload failed' })
@@ -40,6 +48,17 @@ const ContactUpload = ({ onSuccess }) => {
     <div className="bg-white rounded-lg shadow p-6">
       <h2 className="text-xl font-bold mb-4">Upload Contact Records</h2>
       
+      <div className="mb-4">
+        <label className="block text-sm font-medium mb-2">Uploaded By</label>
+        <input
+          type="text"
+          placeholder="Enter your name"
+          value={uploadedBy}
+          onChange={(e) => setUploadedBy(e.target.value)}
+          className="w-full px-3 py-2 border rounded"
+        />
+      </div>
+
       <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
         <Upload className="w-12 h-12 mx-auto text-gray-400 mb-4" />
         <input

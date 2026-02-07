@@ -4,9 +4,13 @@ import Dashboard from './components/Dashboard'
 import ContactUpload from './components/ContactUpload'
 import ContactsList from './components/ContactsList'
 import StaffManagement from './components/StaffManagement'
+import StaffTasks from './components/StaffTasks'
 import CustomerProfile from './components/CustomerProfile'
-import Analytics from './components/Analytics'
-import { LayoutDashboard, Upload, List, Users, UserCircle, BarChart3, Sparkles } from 'lucide-react'
+import AIAnalytics from './components/AIAnalytics'
+import QuickPurchase from './components/QuickPurchase'
+import Reminders from './components/Reminders'
+import WhatsAppBulk from './components/WhatsAppBulk'
+import { LayoutDashboard, Upload, List, Users, UserCircle, Sparkles, ShoppingCart, Bell, MessageCircle, ClipboardList, Brain } from 'lucide-react'
 
 const CustomerTracking = () => {
   const [activeTab, setActiveTab] = useState('dashboard')
@@ -18,11 +22,15 @@ const CustomerTracking = () => {
 
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, color: 'from-blue-500 to-blue-600' },
+    { id: 'analytics', label: 'Analytics', icon: Brain, color: 'from-purple-600 to-purple-700' },
+    { id: 'purchase', label: 'Purchase', icon: ShoppingCart, color: 'from-emerald-500 to-emerald-600' },
     { id: 'upload', label: 'Upload', icon: Upload, color: 'from-green-500 to-green-600' },
     { id: 'contacts', label: 'Contacts', icon: List, color: 'from-purple-500 to-purple-600' },
+    { id: 'whatsapp', label: 'WhatsApp', icon: MessageCircle, color: 'from-green-600 to-green-700' },
+    { id: 'reminders', label: 'Reminders', icon: Bell, color: 'from-yellow-500 to-yellow-600' },
     { id: 'staff', label: 'Staff', icon: Users, color: 'from-pink-500 to-pink-600' },
-    { id: 'customers', label: 'Customers', icon: UserCircle, color: 'from-indigo-500 to-indigo-600' },
-    { id: 'analytics', label: 'Analytics', icon: BarChart3, color: 'from-orange-500 to-orange-600' }
+    { id: 'tasks', label: 'Tasks', icon: ClipboardList, color: 'from-cyan-500 to-cyan-600' },
+    { id: 'customers', label: 'Customers', icon: UserCircle, color: 'from-indigo-500 to-indigo-600' }
   ]
 
   return (
@@ -73,11 +81,15 @@ const CustomerTracking = () => {
         {/* Content */}
         <div className="animate-fade-in space-y-4">
           {activeTab === 'dashboard' && <Dashboard key={refresh} />}
+          {activeTab === 'analytics' && <AIAnalytics />}
+          {activeTab === 'purchase' && <QuickPurchase />}
           {activeTab === 'upload' && <ContactUpload onSuccess={handleSuccess} />}
           {activeTab === 'contacts' && <ContactsList refresh={refresh} />}
+          {activeTab === 'whatsapp' && <WhatsAppBulk />}
+          {activeTab === 'reminders' && <Reminders />}
           {activeTab === 'staff' && <StaffManagement />}
+          {activeTab === 'tasks' && <StaffTasks />}
           {activeTab === 'customers' && <CustomerProfile />}
-          {activeTab === 'analytics' && <Analytics />}
         </div>
       </div>
     </Layout>

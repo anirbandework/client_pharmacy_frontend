@@ -7,12 +7,13 @@ const Sidebar = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const { isOpen, closeSidebar } = useSidebar()
+  const userType = localStorage.getItem('user_type')
 
   const navItems = [
     { id: 'daily-records', label: 'Daily Records', path: '/daily-records', icon: FileText },
     { id: 'customer-tracking', label: 'Customer Tracking', path: '/customer-tracking', icon: Users },
     { id: 'stock-audit', label: 'Stock Audit', path: '/stock-audit', icon: Package }
-  ]
+  ].filter(() => userType !== 'admin')
 
   return (
     <>
