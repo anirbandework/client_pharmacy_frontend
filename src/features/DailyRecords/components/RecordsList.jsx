@@ -65,20 +65,29 @@ const RecordsList = ({ onEdit, refresh }) => {
           <table className="w-full">
             <thead className="bg-gradient-to-r from-primary-600 to-accent-600 text-white">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Date</th>
-                <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Day</th>
-                <th className="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider">Bills</th>
-                <th className="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider">Cash</th>
-                <th className="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider">Online</th>
-                <th className="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider">Total Sales</th>
-                <th className="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider">Difference</th>
-                <th className="px-6 py-4 text-center text-xs font-bold uppercase tracking-wider">Actions</th>
+                <th className="px-4 py-4 text-left text-xs font-bold uppercase tracking-wider">Date</th>
+                <th className="px-4 py-4 text-left text-xs font-bold uppercase tracking-wider">Day</th>
+                <th className="px-4 py-4 text-right text-xs font-bold uppercase tracking-wider">Cash Balance</th>
+                <th className="px-4 py-4 text-right text-xs font-bold uppercase tracking-wider">Bills</th>
+                <th className="px-4 py-4 text-right text-xs font-bold uppercase tracking-wider">Avg Bill</th>
+                <th className="px-4 py-4 text-right text-xs font-bold uppercase tracking-wider">Actual Cash</th>
+                <th className="px-4 py-4 text-right text-xs font-bold uppercase tracking-wider">Total Cash</th>
+                <th className="px-4 py-4 text-right text-xs font-bold uppercase tracking-wider">Online</th>
+                <th className="px-4 py-4 text-right text-xs font-bold uppercase tracking-wider">Total Sales</th>
+                <th className="px-4 py-4 text-right text-xs font-bold uppercase tracking-wider">Unbilled</th>
+                <th className="px-4 py-4 text-right text-xs font-bold uppercase tracking-wider">Software</th>
+                <th className="px-4 py-4 text-right text-xs font-bold uppercase tracking-wider">Recorded</th>
+                <th className="px-4 py-4 text-right text-xs font-bold uppercase tracking-wider">Difference</th>
+                <th className="px-4 py-4 text-right text-xs font-bold uppercase tracking-wider">Reserve</th>
+                <th className="px-4 py-4 text-right text-xs font-bold uppercase tracking-wider">Expenses</th>
+                <th className="px-4 py-4 text-left text-xs font-bold uppercase tracking-wider">Notes</th>
+                <th className="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {records.length === 0 ? (
                 <tr>
-                  <td colSpan="8" className="px-6 py-12 text-center text-gray-500">
+                  <td colSpan="17" className="px-6 py-12 text-center text-gray-500">
                     <Calendar className="w-12 h-12 mx-auto mb-3 text-gray-300" />
                     <div className="text-lg font-semibold">No records found</div>
                     <div className="text-sm">Start by adding your first daily record</div>
@@ -86,51 +95,66 @@ const RecordsList = ({ onEdit, refresh }) => {
                 </tr>
               ) : (
                 records.map((record) => {
-                  const totalSales = (record.actual_cash || 0) + (record.online_sales || 0) + (record.cash_reserve || 0) + (record.expense_amount || 0)
-                  const recordedSales = (record.unbilled_sales || 0) + (record.software_figure || 0)
-                  const diff = totalSales - recordedSales
-                  
                   return (
                     <tr key={record.id} className="hover:bg-primary-50 transition-colors group">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <div className="p-2 bg-primary-100 rounded-lg group-hover:bg-primary-200 transition-colors">
-                            <Calendar className="w-4 h-4 text-primary-600" />
-                          </div>
-                          <div>
-                            <div className="text-sm font-semibold text-gray-900">{new Date(record.date).toLocaleDateString('en-IN')}</div>
-                            <div className="text-xs text-gray-500">{new Date(record.date).toLocaleDateString('en-IN', { year: 'numeric' })}</div>
-                          </div>
-                        </div>
+                      <td className="px-4 py-3">
+                        <div className="text-sm font-semibold text-gray-900">{new Date(record.date).toLocaleDateString('en-IN')}</div>
                       </td>
-                      <td className="px-6 py-4">
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                      <td className="px-4 py-3">
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
                           {record.day}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-right">
+                      <td className="px-4 py-3 text-right">
+                        <span className="text-sm text-gray-900">₹{(record.cash_balance || 0).toFixed(2)}</span>
+                      </td>
+                      <td className="px-4 py-3 text-right">
                         <span className="text-sm font-semibold text-gray-900">{record.no_of_bills || 0}</span>
                       </td>
-                      <td className="px-6 py-4 text-right">
+                      <td className="px-4 py-3 text-right">
+                        <span className="text-sm text-gray-900">₹{(record.average_bill || 0).toFixed(2)}</span>
+                      </td>
+                      <td className="px-4 py-3 text-right">
                         <span className="text-sm text-gray-900">₹{(record.actual_cash || 0).toFixed(2)}</span>
                       </td>
-                      <td className="px-6 py-4 text-right">
+                      <td className="px-4 py-3 text-right">
+                        <span className="text-sm text-gray-900">₹{(record.total_cash || 0).toFixed(2)}</span>
+                      </td>
+                      <td className="px-4 py-3 text-right">
                         <span className="text-sm text-gray-900">₹{(record.online_sales || 0).toFixed(2)}</span>
                       </td>
-                      <td className="px-6 py-4 text-right">
-                        <span className="text-sm font-bold text-gray-900">₹{totalSales.toFixed(2)}</span>
+                      <td className="px-4 py-3 text-right">
+                        <span className="text-sm font-bold text-gray-900">₹{(record.total_sales || 0).toFixed(2)}</span>
                       </td>
-                      <td className="px-6 py-4 text-right">
-                        <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold ${
-                          Math.abs(diff) > 50 
+                      <td className="px-4 py-3 text-right">
+                        <span className="text-sm text-gray-900">₹{(record.unbilled_sales || 0).toFixed(2)}</span>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <span className="text-sm text-gray-900">₹{(record.software_figure || 0).toFixed(2)}</span>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <span className="text-sm text-gray-900">₹{(record.recorded_sales || 0).toFixed(2)}</span>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold ${
+                          Math.abs(record.sales_difference || 0) > 50 
                             ? 'bg-red-100 text-red-700 ring-2 ring-red-400' 
                             : 'bg-green-100 text-green-700'
                         }`}>
-                          {diff > 0 ? <TrendingUp className="w-3 h-3" /> : diff < 0 ? <TrendingDown className="w-3 h-3" /> : null}
-                          ₹{Math.abs(diff).toFixed(2)}
+                          {(record.sales_difference || 0) > 0 ? <TrendingUp className="w-3 h-3" /> : (record.sales_difference || 0) < 0 ? <TrendingDown className="w-3 h-3" /> : null}
+                          ₹{Math.abs(record.sales_difference || 0).toFixed(2)}
                         </span>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-3 text-right">
+                        <span className="text-sm text-gray-900">₹{(record.cash_reserve || 0).toFixed(2)}</span>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <span className="text-sm text-gray-900">₹{(record.expense_amount || 0).toFixed(2)}</span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="text-sm text-gray-600 truncate max-w-xs block" title={record.notes}>{record.notes || '-'}</span>
+                      </td>
+                      <td className="px-4 py-3">
                         <div className="flex items-center justify-center gap-2">
                           <button 
                             onClick={() => onEdit(record)} 
