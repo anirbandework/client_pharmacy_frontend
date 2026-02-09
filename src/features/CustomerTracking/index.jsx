@@ -10,7 +10,10 @@ import AIAnalytics from './components/AIAnalytics'
 import QuickPurchase from './components/QuickPurchase'
 import Reminders from './components/Reminders'
 import WhatsAppBulk from './components/WhatsAppBulk'
-import { LayoutDashboard, Upload, List, Users, UserCircle, Sparkles, ShoppingCart, Bell, MessageCircle, ClipboardList, Brain } from 'lucide-react'
+import Prescriptions from './components/Prescriptions'
+import MedicalConditions from './components/MedicalConditions'
+import CallScripts from './components/CallScripts'
+import { LayoutDashboard, Upload, List, Users, UserCircle, Sparkles, ShoppingCart, Bell, MessageCircle, ClipboardList, Brain, Pill, Activity, Phone } from 'lucide-react'
 
 const CustomerTracking = () => {
   const [activeTab, setActiveTab] = useState('dashboard')
@@ -23,6 +26,9 @@ const CustomerTracking = () => {
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, color: 'from-blue-500 to-blue-600' },
     { id: 'analytics', label: 'Analytics', icon: Brain, color: 'from-purple-600 to-purple-700' },
+    { id: 'call-scripts', label: 'Call Scripts', icon: Phone, color: 'from-teal-500 to-teal-600' },
+    { id: 'prescriptions', label: 'Prescriptions', icon: Pill, color: 'from-blue-600 to-blue-700' },
+    { id: 'conditions', label: 'Conditions', icon: Activity, color: 'from-red-500 to-red-600' },
     { id: 'purchase', label: 'Purchase', icon: ShoppingCart, color: 'from-emerald-500 to-emerald-600' },
     { id: 'upload', label: 'Upload', icon: Upload, color: 'from-green-500 to-green-600' },
     { id: 'contacts', label: 'Contacts', icon: List, color: 'from-purple-500 to-purple-600' },
@@ -82,6 +88,9 @@ const CustomerTracking = () => {
         <div className="animate-fade-in space-y-4">
           {activeTab === 'dashboard' && <Dashboard key={refresh} />}
           {activeTab === 'analytics' && <AIAnalytics />}
+          {activeTab === 'call-scripts' && <CallScripts />}
+          {activeTab === 'prescriptions' && <Prescriptions />}
+          {activeTab === 'conditions' && <MedicalConditions />}
           {activeTab === 'purchase' && <QuickPurchase />}
           {activeTab === 'upload' && <ContactUpload onSuccess={handleSuccess} />}
           {activeTab === 'contacts' && <ContactsList refresh={refresh} />}

@@ -38,5 +38,23 @@ export const customerTrackingAPI = {
 
   // Analytics
   getDailySummary: (params) => axiosInstance.get(`${API_BASE}/analytics/daily-summary`, { params }),
-  getAIAnalytics: (days = 30) => axiosInstance.get(`${API_BASE}/ai-analytics/comprehensive`, { params: { days } })
+  getAIAnalytics: (days = 30) => axiosInstance.get(`${API_BASE}/ai-analytics/comprehensive`, { params: { days } }),
+
+  // Prescription Management
+  addPrescription: (customerId, data) => axiosInstance.post(`${API_BASE}/customers/${customerId}/prescriptions`, data),
+  getPrescriptions: (customerId) => axiosInstance.get(`${API_BASE}/customers/${customerId}/prescriptions`),
+
+  // Medical Conditions
+  addMedicalCondition: (customerId, data) => axiosInstance.post(`${API_BASE}/customers/${customerId}/medical-conditions`, data),
+  getMedicalConditions: (customerId) => axiosInstance.get(`${API_BASE}/customers/${customerId}/medical-conditions`),
+
+  // Call Scripts
+  getCallDetails: (customerId) => axiosInstance.get(`${API_BASE}/customers/${customerId}/call-details`),
+  generateCallScript: (customerId, callType = 'general') => axiosInstance.post(`${API_BASE}/customers/${customerId}/call-script`, null, { params: { call_type: callType } }),
+  updateCallOutcome: (scriptId, callSuccessful, customerResponse = '') => axiosInstance.put(`${API_BASE}/call-scripts/${scriptId}/outcome`, null, { params: { call_successful: callSuccessful, customer_response: customerResponse } }),
+  getPriorityCallScripts: (priority, limit = 50) => axiosInstance.get(`${API_BASE}/call-scripts/priority/${priority}`, { params: { limit } }),
+
+  // Enhanced Analytics
+  getPrescriptionCompliance: (params) => axiosInstance.get(`${API_BASE}/analytics/prescription-compliance`, { params }),
+  getCallEffectiveness: (params) => axiosInstance.get(`${API_BASE}/analytics/call-effectiveness`, { params })
 }

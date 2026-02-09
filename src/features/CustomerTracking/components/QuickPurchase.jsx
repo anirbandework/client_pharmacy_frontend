@@ -8,6 +8,7 @@ const QuickPurchase = () => {
   const [formData, setFormData] = useState({
     name: '', age: '', gender: 'Male', address: '',
     chronic_conditions: '', allergies: '',
+    primary_doctor: '', doctor_phone: '',
     category: 'first_time_prescription'
   })
   const [items, setItems] = useState([{
@@ -64,7 +65,7 @@ const QuickPurchase = () => {
       // Reset form
       setPhone('')
       setCustomer(null)
-      setFormData({ name: '', age: '', gender: 'Male', address: '', chronic_conditions: '', allergies: '', category: 'first_time_prescription' })
+      setFormData({ name: '', age: '', gender: 'Male', address: '', chronic_conditions: '', allergies: '', primary_doctor: '', doctor_phone: '', category: 'first_time_prescription' })
       setItems([{ medicine_name: '', brand_name: '', generic_name: '', quantity: 1, unit_price: 0, is_generic: false, is_prescription: true, duration_days: 0 }])
     } catch (error) {
       setMessage({ type: 'error', text: error.response?.data?.detail || 'Failed to record purchase' })
@@ -115,6 +116,11 @@ const QuickPurchase = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <input type="text" placeholder="Chronic Conditions" value={formData.chronic_conditions} onChange={(e) => setFormData({ ...formData, chronic_conditions: e.target.value })} className="px-3 py-2 border rounded" />
           <input type="text" placeholder="Allergies" value={formData.allergies} onChange={(e) => setFormData({ ...formData, allergies: e.target.value })} className="px-3 py-2 border rounded" />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <input type="text" placeholder="Primary Doctor" value={formData.primary_doctor} onChange={(e) => setFormData({ ...formData, primary_doctor: e.target.value })} className="px-3 py-2 border rounded" />
+          <input type="text" placeholder="Doctor Phone" value={formData.doctor_phone} onChange={(e) => setFormData({ ...formData, doctor_phone: e.target.value })} className="px-3 py-2 border rounded" />
         </div>
 
         <select value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })} className="w-full px-3 py-2 border rounded">
