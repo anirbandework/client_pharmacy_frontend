@@ -1,6 +1,6 @@
 import React from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { FileText, Users, Package, ShoppingCart } from 'lucide-react'
+import { FileText, Users, Package, ShoppingCart, Wallet, Settings } from 'lucide-react'
 import { useSidebar } from '../contexts/SidebarContext'
 
 const Sidebar = () => {
@@ -10,11 +10,14 @@ const Sidebar = () => {
   const userType = localStorage.getItem('user_type')
 
   const navItems = [
-    { id: 'daily-records', label: 'Daily Records', path: '/daily-records', icon: FileText },
-    { id: 'purchase-invoice', label: 'Purchase Invoice', path: '/purchase-invoice', icon: ShoppingCart },
-    { id: 'customer-tracking', label: 'Customer Tracking', path: '/customer-tracking', icon: Users },
-    { id: 'stock-audit', label: 'Stock Audit', path: '/stock-audit', icon: Package }
-  ].filter(() => userType !== 'admin')
+    { id: 'daily-records', label: 'Daily Records', path: '/daily-records', icon: FileText, roles: ['staff'] },
+    { id: 'purchase-invoice', label: 'Purchase Invoice', path: '/purchase-invoice', icon: ShoppingCart, roles: ['staff'] },
+    { id: 'customer-tracking', label: 'Customer Tracking', path: '/customer-tracking', icon: Users, roles: ['staff'] },
+    { id: 'stock-audit', label: 'Stock Audit', path: '/stock-audit', icon: Package, roles: ['staff'] },
+    { id: 'salary-staff', label: 'My Salary', path: '/my-salary', icon: Wallet, roles: ['staff'] },
+    { id: 'admin-panel', label: 'Admin Panel', path: '/admin', icon: Settings, roles: ['admin'] },
+    { id: 'salary-admin', label: 'Salary Management', path: '/salary-management', icon: Wallet, roles: ['admin'] }
+  ].filter(item => item.roles.includes(userType))
 
   return (
     <>

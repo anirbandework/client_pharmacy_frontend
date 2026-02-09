@@ -2,17 +2,17 @@ import React, { useState, useEffect } from 'react'
 import { dailyRecordsAPI } from '../services/dailyRecords'
 import { TrendingUp, DollarSign, FileText, AlertTriangle, Calendar, BarChart3, ArrowUp, ArrowDown } from 'lucide-react'
 
-const Dashboard = () => {
+const Dashboard = ({ shopId }) => {
   const [summary, setSummary] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetchDashboard()
-  }, [])
+    if (shopId) fetchDashboard()
+  }, [shopId])
 
   const fetchDashboard = async () => {
     try {
-      const response = await dailyRecordsAPI.getDashboardSummary()
+      const response = await dailyRecordsAPI.getDashboardSummary({ shop_id: shopId })
       console.log('Dashboard API response:', response.data)
       setSummary(response.data)
     } catch (error) {

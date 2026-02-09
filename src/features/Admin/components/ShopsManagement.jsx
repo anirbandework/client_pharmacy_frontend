@@ -45,9 +45,10 @@ export default function ShopsManagement() {
   };
 
   const handleDelete = async (id) => {
-    if (!confirm('Delete this shop?')) return;
+    if (!confirm('Are you sure you want to delete this shop and ALL its staff members? This action cannot be undone.')) return;
     try {
-      await adminApi.deleteShop(id);
+      const response = await adminApi.deleteShop(id);
+      alert(response.message || 'Shop deleted successfully');
       loadShops();
     } catch (err) {
       alert(err.message);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { dailyRecordsAPI } from '../services/dailyRecords'
 
-const DailyRecordForm = ({ onSuccess, editData }) => {
+const DailyRecordForm = ({ onSuccess, editData, shopId }) => {
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
     day: new Date().toLocaleDateString('en-US', { weekday: 'long' }),
@@ -16,7 +16,8 @@ const DailyRecordForm = ({ onSuccess, editData }) => {
     reserve_comments: '',
     expense_amount: '',
     notes: '',
-    created_by: 'admin'
+    created_by: 'admin',
+    shop_id: shopId
   })
 
   const [calculations, setCalculations] = useState({
@@ -33,10 +34,13 @@ const DailyRecordForm = ({ onSuccess, editData }) => {
     if (editData) {
       setFormData({
         ...editData,
-        date: editData.date.split('T')[0]
+        date: editData.date.split('T')[0],
+        shop_id: shopId
       })
+    } else {
+      setFormData(prev => ({ ...prev, shop_id: shopId }))
     }
-  }, [editData])
+  }, [editData, shopId])
 
   useEffect(() => {
     calculateFields()

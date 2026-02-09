@@ -7,7 +7,7 @@ const Navigation = () => {
   const { toggleSidebar } = useSidebar()
   const { logout } = useAuth()
   const userType = localStorage.getItem('user_type')
-  const shopName = localStorage.getItem('shop_name')
+  const shopInfo = JSON.parse(localStorage.getItem('shop_info') || '{}')
 
   return (
     <nav className="fixed top-0 left-0 right-0 bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-soft z-50 backdrop-blur-sm">
@@ -22,12 +22,12 @@ const Navigation = () => {
               <Menu className="w-6 h-6" />
             </button>
             <h1 className="text-xl font-bold font-bauhaus animate-fade-in">
-              Genericart
+              Genericart {userType === 'staff' && shopInfo.shop_name && `- ${shopInfo.shop_name}`}
             </h1>
           </div>
           <div className="flex items-center gap-3">
             <div className="px-3 py-1.5 bg-white/10 rounded-full backdrop-blur-sm">
-              <span className="text-sm font-medium">{userType === 'admin' ? 'Admin' : shopName || 'Staff'}</span>
+              <span className="text-sm font-medium">{userType === 'admin' ? 'Admin' : 'Staff'}</span>
             </div>
             <button
               onClick={logout}

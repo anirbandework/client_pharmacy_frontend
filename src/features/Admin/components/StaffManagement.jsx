@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { adminApi } from '../services/adminApi';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
 export default function StaffManagement() {
   const [shops, setShops] = useState([]);
@@ -7,8 +8,10 @@ export default function StaffManagement() {
   const [staff, setStaff] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editingStaff, setEditingStaff] = useState(null);
+  const [expandedStaff, setExpandedStaff] = useState({});
   const [formData, setFormData] = useState({
-    full_name: '', phone: '', email: '', role: 'staff',
+    name: '', phone: '', email: '', role: 'staff', staff_code: '', monthly_salary: '',
+    joining_date: '', salary_eligibility_days: 4,
     can_manage_staff: false, can_view_analytics: true,
     can_manage_inventory: true, can_manage_customers: true
   });
@@ -45,7 +48,7 @@ export default function StaffManagement() {
       }
       setShowForm(false);
       setEditingStaff(null);
-      setFormData({ full_name: '', phone: '', email: '', role: 'staff', can_manage_staff: false, can_view_analytics: true, can_manage_inventory: true, can_manage_customers: true });
+      setFormData({ name: '', phone: '', email: '', role: 'staff', staff_code: '', monthly_salary: '', joining_date: '', salary_eligibility_days: 4, can_manage_staff: false, can_view_analytics: true, can_manage_inventory: true, can_manage_customers: true });
       loadStaff();
     } catch (err) {
       alert(err.message);
@@ -54,7 +57,7 @@ export default function StaffManagement() {
 
   const handleEdit = (s) => {
     setEditingStaff(s);
-    setFormData({ full_name: s.full_name, phone: s.phone, email: s.email, role: s.role, can_manage_staff: s.can_manage_staff, can_view_analytics: s.can_view_analytics, can_manage_inventory: s.can_manage_inventory, can_manage_customers: s.can_manage_customers });
+    setFormData({ name: s.name, phone: s.phone, email: s.email, role: s.role, staff_code: s.staff_code, monthly_salary: s.monthly_salary || 0, joining_date: s.joining_date || '', salary_eligibility_days: s.salary_eligibility_days || 4, can_manage_staff: s.can_manage_staff, can_view_analytics: s.can_view_analytics, can_manage_inventory: s.can_manage_inventory, can_manage_customers: s.can_manage_customers });
     setShowForm(true);
   };
 
@@ -66,6 +69,18 @@ export default function StaffManagement() {
     } catch (err) {
       alert(err.message);
     }
+  };
+
+  const calculatePaymentDate = (joiningDate, paymentDays) => {
+    if (!joiningDate) return 'Not set';
+    const joinDate = new Date(joiningDate);
+    const paymentDate = new Date(joinDate);
+    paymentDate.setDate(joinDate.getDate() + paymentDays);
+    return paymentDate.toLocaleDateString('en-GB');
+  };
+
+  const toggleExpand = (staffId) => {
+    setExpandedStaff(prev => ({ ...prev, [staffId]: !prev[staffId] }));
   };
 
   return (
@@ -88,13 +103,23 @@ export default function StaffManagement() {
         <form onSubmit={handleSubmit} className="bg-white p-6 rounded-xl shadow-lg mb-4 border border-primary-100">
           <h3 className="text-lg font-bold mb-4">{editingStaff ? 'Edit Staff' : 'New Staff'}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input placeholder="Full Name" value={formData.full_name} onChange={(e) => setFormData({...formData, full_name: e.target.value})} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" required />
+            <input placeholder="Full Name" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" required />
+            <input placeholder="Staff Code" value={formData.staff_code} onChange={(e) => setFormData({...formData, staff_code: e.target.value})} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" required={!editingStaff} disabled={editingStaff} />
             <input placeholder="Phone" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" required />
             <input placeholder="Email" type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" />
+            <input placeholder="Monthly Salary" type="number" value={formData.monthly_salary} onChange={(e) => setFormData({...formData, monthly_salary: e.target.value})} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" />
             <select value={formData.role} onChange={(e) => setFormData({...formData, role: e.target.value})} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent">
               <option value="staff">Staff</option>
               <option value="manager">Manager</option>
             </select>
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">Joining Date</label>
+              <input type="date" value={formData.joining_date} onChange={(e) => setFormData({...formData, joining_date: e.target.value})} max={new Date().toISOString().split('T')[0]} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent w-full" />
+            </div>
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">Payment After Days</label>
+              <input type="number" value={formData.salary_eligibility_days} onChange={(e) => setFormData({...formData, salary_eligibility_days: e.target.value})} min="0" placeholder="Days after joining to pay salary" className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent w-full" />
+            </div>
           </div>
           <div className="mt-4 grid grid-cols-2 gap-3">
             <label className="flex items-center gap-2 text-sm">
@@ -124,21 +149,37 @@ export default function StaffManagement() {
         {staff.map(s => (
           <div key={s.id} className="bg-white p-4 rounded-xl shadow-md border border-primary-100 hover:shadow-lg transition-all">
             <div className="flex justify-between items-start">
-              <div>
-                <h3 className="text-xl font-bold text-gray-800">{s.full_name}</h3>
-                <p className="text-sm text-gray-500 mb-2 font-mono bg-gray-100 inline-block px-2 py-1 rounded">UUID: {s.uuid}</p>
-                <p className="text-sm text-gray-600">Phone: {s.phone}</p>
-                {s.email && <p className="text-sm text-gray-600">Email: {s.email}</p>}
-                <p className="text-sm text-gray-600">Role: <span className="font-semibold capitalize">{s.role}</span></p>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {s.can_manage_staff && <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-semibold">Manage Staff</span>}
-                  {s.can_view_analytics && <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-semibold">View Analytics</span>}
-                  {s.can_manage_inventory && <span className="bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs font-semibold">Manage Inventory</span>}
-                  {s.can_manage_customers && <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs font-semibold">Manage Customers</span>}
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-xl font-bold text-gray-800">{s.name}</h3>
+                  <button onClick={() => toggleExpand(s.id)} className="p-1 hover:bg-gray-100 rounded">
+                    {expandedStaff[s.id] ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                  </button>
                 </div>
-                <span className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-semibold ${s.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                  {s.is_active ? 'Active' : 'Inactive'}
-                </span>
+                <p className="text-sm text-gray-500 mb-2 font-mono bg-gray-100 inline-block px-2 py-1 rounded">UUID: {s.uuid}</p>
+                <p className="text-sm text-gray-600">Staff Code: <span className="font-semibold">{s.staff_code}</span></p>
+                
+                {expandedStaff[s.id] && (
+                  <>
+                    <p className="text-sm text-gray-600">Phone: {s.phone}</p>
+                    {s.email && <p className="text-sm text-gray-600">Email: {s.email}</p>}
+                    <p className="text-sm text-gray-600">Role: <span className="font-semibold capitalize">{s.role}</span></p>
+                    {s.monthly_salary > 0 && <p className="text-sm text-gray-600">Salary: <span className="font-semibold">₹{s.monthly_salary}</span></p>}
+                    {s.joining_date && <p className="text-sm text-gray-600">Joining Date: <span className="font-semibold">{new Date(s.joining_date).toLocaleDateString('en-GB')}</span></p>}
+                    {s.salary_eligibility_days && <p className="text-sm text-gray-600">Payment: <span className="font-semibold">{s.salary_eligibility_days} days after joining</span></p>}
+                    {s.joining_date && s.salary_eligibility_days && <p className="text-sm text-gray-600">Next Payment Due: <span className="font-semibold">{calculatePaymentDate(s.joining_date, s.salary_eligibility_days)}</span></p>}
+                    {s.is_eligible_for_salary !== undefined && <p className="text-sm text-gray-600">Salary Eligible: <span className={`font-semibold ${s.is_eligible_for_salary ? 'text-green-600' : 'text-red-600'}`}>{s.is_eligible_for_salary ? 'Yes' : 'No'}</span></p>}
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {s.can_manage_staff && <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-semibold">Manage Staff</span>}
+                      {s.can_view_analytics && <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-semibold">View Analytics</span>}
+                      {s.can_manage_inventory && <span className="bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs font-semibold">Manage Inventory</span>}
+                      {s.can_manage_customers && <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs font-semibold">Manage Customers</span>}
+                    </div>
+                    <span className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-semibold ${s.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                      {s.is_active ? 'Active' : 'Inactive'}
+                    </span>
+                  </>
+                )}
               </div>
               <div className="flex gap-2">
                 <button onClick={() => handleEdit(s)} className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-1 rounded-lg text-sm hover:shadow-md transition-all">Edit</button>

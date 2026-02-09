@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { dailyRecordsAPI } from '../services/dailyRecords'
 import { Edit2, Trash2, Eye, Calendar, TrendingUp, TrendingDown, ChevronLeft, ChevronRight, Search } from 'lucide-react'
 
-const RecordsList = ({ onEdit, refresh }) => {
+const RecordsList = ({ onEdit, refresh, shopId }) => {
   const [records, setRecords] = useState([])
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(1)
@@ -12,13 +12,13 @@ const RecordsList = ({ onEdit, refresh }) => {
   const limit = 10
 
   useEffect(() => {
-    fetchRecords()
-  }, [refresh, page, search, startDate, endDate])
+    if (shopId) fetchRecords()
+  }, [refresh, page, search, startDate, endDate, shopId])
 
   const fetchRecords = async () => {
     setLoading(true)
     try {
-      const params = { limit, skip: (page - 1) * limit }
+      const params = { limit, skip: (page - 1) * limit, shop_id: shopId }
       if (startDate) params.start_date = startDate
       if (endDate) params.end_date = endDate
       const response = await dailyRecordsAPI.getAll(params)

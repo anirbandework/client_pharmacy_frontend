@@ -49,6 +49,20 @@ export function AuthProvider({ children }) {
     localStorage.setItem('auth_token', data.access_token)
     localStorage.setItem('user_type', data.user_type)
     
+    // Fetch and store admin profile
+    const profileResponse = await fetch(`${API_BASE_URL}/api/auth/admin/me`, {
+      headers: { 'Authorization': `Bearer ${data.access_token}` }
+    })
+    if (profileResponse.ok) {
+      const profile = await profileResponse.json()
+      localStorage.setItem('user_profile', JSON.stringify({
+        id: profile.id,
+        email: profile.email,
+        full_name: profile.full_name,
+        phone: profile.phone
+      }))
+    }
+    
     await checkAuth()
     return data
   }
@@ -76,8 +90,32 @@ export function AuthProvider({ children }) {
     const data = await response.json()
     localStorage.setItem('auth_token', data.access_token)
     localStorage.setItem('user_type', data.user_type)
-    localStorage.setItem('shop_id', data.shop_id)
-    localStorage.setItem('shop_name', data.shop_name)
+    localStorage.setItem('shop_info', JSON.stringify({
+      shop_id: data.shop_id,
+      shop_name: data.shop_name
+    }))
+    
+    // Fetch and store staff profile
+    const profileResponse = await fetch(`${API_BASE_URL}/api/auth/staff/me`, {
+      headers: { 'Authorization': `Bearer ${data.access_token}` }
+    })
+    if (profileResponse.ok) {
+      const profile = await profileResponse.json()
+      localStorage.setItem('user_profile', JSON.stringify({
+        id: profile.id,
+        shop_id: profile.shop_id,
+        uuid: profile.uuid,
+        name: profile.name,
+        staff_code: profile.staff_code,
+        phone: profile.phone,
+        email: profile.email,
+        role: profile.role,
+        can_manage_staff: profile.can_manage_staff,
+        can_view_analytics: profile.can_view_analytics,
+        can_manage_inventory: profile.can_manage_inventory,
+        can_manage_customers: profile.can_manage_customers
+      }))
+    }
     
     await checkAuth()
     return data

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Layout from '../../components/Layout'
 import DailyRecordForm from './components/DailyRecordForm'
 import ExcelUpload from './components/ExcelUpload'
@@ -9,11 +9,34 @@ import VarianceReport from './components/VarianceReport'
 import AuditLogs from './components/AuditLogs'
 import AIAnalytics from './components/AIAnalytics'
 import { FileText, Upload, LayoutDashboard, List, BarChart3, AlertTriangle, History, Sparkles, Brain } from 'lucide-react'
+import { adminApi } from '../Admin/services/adminApi'
 
 const DailyRecords = () => {
   const [activeTab, setActiveTab] = useState('dashboard')
   const [refresh, setRefresh] = useState(0)
   const [editRecord, setEditRecord] = useState(null)
+  const [shops, setShops] = useState([])
+  const [selectedShop, setSelectedShop] = useState(null)
+  const userType = localStorage.getItem('user_type')
+  const shopInfo = JSON.parse(localStorage.getItem('shop_info') || '{}')
+
+  useEffect(() => {
+    if (userType === 'admin') {
+      loadShops()
+    } else {
+      setSelectedShop(shopInfo.shop_id)
+    }
+  }, [])
+
+  const loadShops = async () => {
+    try {
+      const data = await adminApi.getShops()
+      setShops(data)
+      if (data.length > 0) setSelectedShop(data[0].id)
+    } catch (err) {
+      console.error(err)
+    }
+  }
 
   const handleSuccess = () => {
     setRefresh(prev => prev + 1)
@@ -49,6 +72,13 @@ const DailyRecords = () => {
                 <p className="text-white/90 text-xs md:text-sm">Business tracking & analytics</p>
               </div>
             </div>
+            {userType === 'admin' && (
+              <select value={selectedShop || ''} onChange={(e) => setSelectedShop(Number(e.target.value))} className="bg-white/20 backdrop-blur-sm text-white border border-white/30 px-3 py-2 rounded-lg text-sm">
+                {shops.map(shop => (
+                  <option key={shop.id} value={shop.id} className="text-gray-900">{shop.shop_name}</option>
+                ))}
+              </select>
+            )}
             <div className="bg-white/20 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/30">
               <div className="text-white/80 text-[10px] uppercase tracking-wider">Records</div>
               <div className="text-xl md:text-2xl font-bold text-white">{refresh}</div>
@@ -82,16 +112,18 @@ const DailyRecords = () => {
         </div>
 
         {/* Content */}
-        <div className="animate-fade-in space-y-4">
-          {activeTab === 'dashboard' && <Dashboard key={refresh} />}
-          {activeTab === 'ai' && <AIAnalytics />}
-          {activeTab === 'form' && <DailyRecordForm onSuccess={handleSuccess} editData={editRecord} />}
-          {activeTab === 'list' && <RecordsList onEdit={(record) => { setEditRecord(record); setActiveTab('form'); }} refresh={refresh} />}
-          {activeTab === 'analytics' && <MonthlyAnalytics />}
-          {activeTab === 'variances' && <VarianceReport />}
-          {activeTab === 'audit' && <AuditLogs />}
-          {activeTab === 'upload' && <ExcelUpload onSuccess={handleSuccess} />}
-        </div>
+        {selectedShop && (
+          <div className="animate-fade-in space-y-4">
+            {activeTab === 'dashboard' && <Dashboard key={refresh} shopId={selectedShop} />}
+            {activeTab === 'ai' && <AIAnalytics shopId={selectedShop} />}
+            {activeTab === 'form' && <DailyRecordForm onSuccess={handleSuccess} editData={editRecord} shopId={selectedShop} />}
+            {activeTab === 'list' && <RecordsList onEdit={(record) => { setEditRecord(record); setActiveTab('form'); }} refresh={refresh} shopId={selectedShop} />}
+            {activeTab === 'analytics' && <MonthlyAnalytics shopId={selectedShop} />}
+            {activeTab === 'variances' && <VarianceReport shopId={selectedShop} />}
+            {activeTab === 'audit' && <AuditLogs shopId={selectedShop} />}
+            {activeTab === 'upload' && <ExcelUpload onSuccess={handleSuccess} shopId={selectedShop} />}
+          </div>
+        )}
       </div>
     </Layout>
   )
