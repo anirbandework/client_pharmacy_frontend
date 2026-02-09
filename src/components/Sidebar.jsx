@@ -1,6 +1,6 @@
 import React from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { FileText, Users, Package } from 'lucide-react'
+import { FileText, Users, Package, ShoppingCart } from 'lucide-react'
 import { useSidebar } from '../contexts/SidebarContext'
 
 const Sidebar = () => {
@@ -11,6 +11,7 @@ const Sidebar = () => {
 
   const navItems = [
     { id: 'daily-records', label: 'Daily Records', path: '/daily-records', icon: FileText },
+    { id: 'purchase-invoice', label: 'Purchase Invoice', path: '/purchase-invoice', icon: ShoppingCart },
     { id: 'customer-tracking', label: 'Customer Tracking', path: '/customer-tracking', icon: Users },
     { id: 'stock-audit', label: 'Stock Audit', path: '/stock-audit', icon: Package }
   ].filter(() => userType !== 'admin')

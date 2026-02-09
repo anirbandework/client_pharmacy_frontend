@@ -8,6 +8,7 @@ import './App.css'
 
 const Welcome = lazy(() => import('./features/Welcome'))
 const DailyRecords = lazy(() => import('./features/DailyRecords'))
+const PurchaseInvoice = lazy(() => import('./features/PurchaseInvoice'))
 const CustomerTracking = lazy(() => import('./features/CustomerTracking'))
 const StockAudit = lazy(() => import('./features/StockAudit'))
 const AdminDashboard = lazy(() => import('./features/Admin'))
@@ -36,6 +37,7 @@ function App() {
                   <Route path="/login" element={<Welcome />} />
                   <Route path="/admin" element={<AdminDashboard />} />
                   <Route path="/daily-records" element={<DailyRecords />} />
+                  <Route path="/purchase-invoice" element={<PurchaseInvoice />} />
                   <Route path="/customer-tracking" element={<CustomerTracking />} />
                   <Route path="/stock-audit" element={<StockAudit />} />
                 </Routes>

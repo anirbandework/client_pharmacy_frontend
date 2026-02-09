@@ -7,16 +7,21 @@ const RecordsList = ({ onEdit, refresh }) => {
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
   const limit = 10
 
   useEffect(() => {
     fetchRecords()
-  }, [refresh, page, search])
+  }, [refresh, page, search, startDate, endDate])
 
   const fetchRecords = async () => {
     setLoading(true)
     try {
-      const response = await dailyRecordsAPI.getAll({ limit, skip: (page - 1) * limit })
+      const params = { limit, skip: (page - 1) * limit }
+      if (startDate) params.start_date = startDate
+      if (endDate) params.end_date = endDate
+      const response = await dailyRecordsAPI.getAll(params)
       setRecords(response.data)
     } catch (error) {
       console.error('Error fetching records:', error)
@@ -45,17 +50,37 @@ const RecordsList = ({ onEdit, refresh }) => {
 
   return (
     <div className="space-y-4">
-      {/* Search Bar */}
+      {/* Search and Filters */}
       <div className="bg-white rounded-xl shadow-soft border border-primary-100 p-4">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search by date, day, or notes..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all"
-          />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search by date, day, or notes..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all"
+            />
+          </div>
+          <div>
+            <input
+              type="date"
+              placeholder="Start Date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all"
+            />
+          </div>
+          <div>
+            <input
+              type="date"
+              placeholder="End Date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all"
+            />
+          </div>
         </div>
       </div>
 
