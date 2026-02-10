@@ -53,7 +53,7 @@ const Welcome = () => {
       {/* Content Container */}
       <div className="relative z-10 w-full max-w-[120rem] mx-auto px-4 md:px-6 py-4 md:py-8 flex lg:flex-row flex-col gap-6 md:gap-12 items-start">
         {/* Left Side - About Section */}
-        <div className="flex-1 space-y-4 md:space-y-6 animate-fade-in-up">
+        <div className="hidden lg:block flex-1 space-y-4 md:space-y-6 animate-fade-in-up">
           {/* Header Card */}
           <div className="bg-white/20 backdrop-blur-xl border border-white/30 rounded-2xl p-4 md:p-6 shadow-xl">
             <h2 className="text-2xl md:text-4xl font-bold text-center">
