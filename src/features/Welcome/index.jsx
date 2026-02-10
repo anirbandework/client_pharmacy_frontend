@@ -42,7 +42,7 @@ const Welcome = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-blue-900 to-purple-900 relative overflow-hidden flex items-start justify-center pt-8">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-blue-900 to-purple-900 relative overflow-hidden flex items-start justify-center pt-4 md:pt-8">
       {/* Animated Background Blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 right-20 w-96 h-96 bg-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
@@ -51,18 +51,18 @@ const Welcome = () => {
       </div>
 
       {/* Content Container */}
-      <div className="relative z-10 w-full max-w-[120rem] mx-auto px-6 py-8 flex lg:flex-row flex-col gap-12 items-start">
+      <div className="relative z-10 w-full max-w-[120rem] mx-auto px-4 md:px-6 py-4 md:py-8 flex lg:flex-row flex-col gap-6 md:gap-12 items-start">
         {/* Left Side - About Section */}
-        <div className="flex-1 space-y-6 animate-fade-in-up">
+        <div className="flex-1 space-y-4 md:space-y-6 animate-fade-in-up">
           {/* Header Card */}
-          <div className="bg-white/20 backdrop-blur-xl border border-white/30 rounded-2xl p-6 shadow-xl">
-            <h2 className="text-4xl font-bold text-center">
+          <div className="bg-white/20 backdrop-blur-xl border border-white/30 rounded-2xl p-4 md:p-6 shadow-xl">
+            <h2 className="text-2xl md:text-4xl font-bold text-center">
               <span className="bg-gradient-to-r from-blue-200 via-white to-purple-200 bg-clip-text text-transparent">XPert-Pharma</span>
             </h2>
-            <p className="text-center text-white/90 text-lg mt-2">Complete Pharmacy Management Solution</p>
+            <p className="text-center text-white/90 text-base md:text-lg mt-2">Complete Pharmacy Management Solution</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
             <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300">
               <div className="flex items-start gap-3">
                 <div className="p-3 bg-blue-500/20 rounded-xl">
@@ -144,10 +144,10 @@ const Welcome = () => {
 
         {/* Right Side - Login Form */}
         <div className="w-full lg:w-[500px] animate-fade-in self-center" style={{ animationDelay: '0.2s' }}>
-          <div className="bg-white/10 backdrop-blur-2xl border border-white/20 rounded-3xl p-8 shadow-2xl">
+          <div className="bg-white/10 backdrop-blur-2xl border border-white/20 rounded-3xl p-6 md:p-8 shadow-2xl">
             {/* Logo and Tagline */}
-            <div className="bg-white rounded-2xl p-6 mb-6 text-center">
-              <img src="/vite.jpg" alt="Xpert-Pharma" className="h-16 mx-auto mb-3" />
+            <div className="bg-white rounded-2xl p-4 md:p-6 mb-6 text-center">
+              <img src="/vite.jpg" alt="Xpert-Pharma" className="h-12 md:h-16 mx-auto mb-3" />
               <p className="text-sm text-gray-700 font-medium">Specialised in Pharmacy management.</p>
             </div>
             
