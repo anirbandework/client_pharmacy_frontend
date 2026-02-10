@@ -54,9 +54,9 @@ const Welcome = () => {
       <div className="relative z-10 w-full max-w-md px-4">
         <div className="text-center mb-8 animate-fade-in-up">
           <h1 className="text-5xl font-bold text-white mb-2 tracking-tight">
-            Genericart
+            Xpert-Pharma
           </h1>
-          <p className="text-white/80 text-sm">Pharmacy Management System</p>
+          <p className="text-white/80 text-sm">Specialised in Pharmacy management.</p>
         </div>
 
         {/* Login Form */}

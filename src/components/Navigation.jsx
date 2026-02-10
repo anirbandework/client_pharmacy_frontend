@@ -22,7 +22,7 @@ const Navigation = () => {
               <Menu className="w-6 h-6" />
             </button>
             <h1 className="text-xl font-bold font-bauhaus animate-fade-in">
-              Genericart {userType === 'staff' && shopInfo.shop_name && `- ${shopInfo.shop_name}`}
+              Xpert-Pharma {userType === 'staff' && shopInfo.shop_name && `- ${shopInfo.shop_name}`}
             </h1>
           </div>
           <div className="flex items-center gap-3">
