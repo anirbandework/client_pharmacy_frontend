@@ -2,7 +2,7 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
-import { ArrowRight, Lock, User } from 'lucide-react'
+import { ArrowRight, Lock, User, BarChart3, Package, Users, Search, DollarSign, TrendingUp } from 'lucide-react'
 
 const Welcome = () => {
   const navigate = useNavigate()
@@ -42,143 +42,247 @@ const Welcome = () => {
   }
 
   return (
-    <div className="h-screen bg-gradient-to-br from-primary-600 via-primary-700 to-accent-600 relative overflow-hidden font-bauhaus flex items-center justify-center">
-      {/* Animated Background */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute top-1/2 -left-40 w-96 h-96 bg-accent-400/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute bottom-20 right-1/3 w-64 h-64 bg-primary-400/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-blue-900 to-purple-900 relative overflow-hidden flex items-start justify-center pt-8">
+      {/* Animated Background Blobs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 right-20 w-96 h-96 bg-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 left-20 w-96 h-96 bg-purple-500/30 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 w-full max-w-md px-4">
-        <div className="text-center mb-8 animate-fade-in-up">
-          <h1 className="text-5xl font-bold text-white mb-2 tracking-tight">
-            Xpert-Pharma
-          </h1>
-          <p className="text-white/80 text-sm">Specialised in Pharmacy management.</p>
-        </div>
-
-        {/* Login Form */}
-        <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20 shadow-2xl animate-fade-in">
-          {/* Login Type Toggle */}
-          <div className="flex gap-2 mb-6">
-            <button
-              onClick={() => { setLoginType('staff'); setIsRegister(false); }}
-              className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all ${
-                loginType === 'staff'
-                  ? 'bg-white text-primary-600 shadow-lg'
-                  : 'bg-white/10 text-white hover:bg-white/20'
-              }`}
-            >
-              <User className="w-4 h-4 inline mr-2" />
-              Staff Login
-            </button>
-            <button
-              onClick={() => { setLoginType('admin'); setIsRegister(false); }}
-              className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all ${
-                loginType === 'admin'
-                  ? 'bg-white text-primary-600 shadow-lg'
-                  : 'bg-white/10 text-white hover:bg-white/20'
-              }`}
-            >
-              <Lock className="w-4 h-4 inline mr-2" />
-              Admin Login
-            </button>
+      {/* Content Container */}
+      <div className="relative z-10 w-full max-w-[120rem] mx-auto px-6 py-8 flex lg:flex-row flex-col gap-12 items-start">
+        {/* Left Side - About Section */}
+        <div className="flex-1 space-y-6 animate-fade-in-up">
+          {/* Header Card */}
+          <div className="bg-white/20 backdrop-blur-xl border border-white/30 rounded-2xl p-6 shadow-xl">
+            <h2 className="text-4xl font-bold text-center">
+              <span className="bg-gradient-to-r from-blue-200 via-white to-purple-200 bg-clip-text text-transparent">XPert-Pharma</span>
+            </h2>
+            <p className="text-center text-white/90 text-lg mt-2">Complete Pharmacy Management Solution</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {loginType === 'staff' ? (
-              <div>
-                <label className="block text-white/90 text-sm font-medium mb-2">Staff UUID</label>
-                <input
-                  type="text"
-                  value={uuid}
-                  onChange={(e) => setUuid(e.target.value)}
-                  placeholder="Enter your UUID"
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50"
-                  required
-                />
-              </div>
-            ) : (
-              <>
-                {isRegister && (
-                  <>
-                    <div>
-                      <label className="block text-white/90 text-sm font-medium mb-2">Full Name</label>
-                      <input
-                        type="text"
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        placeholder="Enter full name"
-                        className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-white/90 text-sm font-medium mb-2">Phone</label>
-                      <input
-                        type="tel"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        placeholder="Enter phone number"
-                        className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50"
-                        required
-                      />
-                    </div>
-                  </>
-                )}
-                <div>
-                  <label className="block text-white/90 text-sm font-medium mb-2">Email</label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="admin@pharmacy.com"
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50"
-                    required
-                  />
+          <div className="grid grid-cols-2 gap-6">
+            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300">
+              <div className="flex items-start gap-3">
+                <div className="p-3 bg-blue-500/20 rounded-xl">
+                  <BarChart3 className="w-6 h-6 text-blue-300" />
                 </div>
                 <div>
-                  <label className="block text-white/90 text-sm font-medium mb-2">Password</label>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter password"
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50"
-                    required
-                  />
+                  <h3 className="font-semibold text-white mb-1 text-sm">Daily Records</h3>
+                  <p className="text-xs text-blue-100 leading-relaxed">Track sales & cash flow</p>
                 </div>
-              </>
-            )}
-
-            {error && (
-              <div className="bg-red-500/20 border border-red-500/50 text-white px-4 py-2 rounded-lg text-sm">
-                {error}
               </div>
-            )}
+            </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-white text-primary-600 py-3 rounded-lg font-semibold hover:bg-white/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            >
-              {loading ? (isRegister ? 'Registering...' : 'Logging in...') : (isRegister ? 'Register' : 'Login')}
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </form>
+            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300">
+              <div className="flex items-start gap-3">
+                <div className="p-3 bg-purple-500/20 rounded-xl">
+                  <Package className="w-6 h-6 text-purple-300" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white mb-1 text-sm">Invoice Tracking</h3>
+                  <p className="text-xs text-blue-100 leading-relaxed">Monitor stock & expiry alerts</p>
+                </div>
+              </div>
+            </div>
 
-          {loginType === 'admin' && (
-            <div className="mt-4 text-center">
+            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300">
+              <div className="flex items-start gap-3">
+                <div className="p-3 bg-green-500/20 rounded-xl">
+                  <Users className="w-6 h-6 text-green-300" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white mb-1 text-sm">Staff Management</h3>
+                  <p className="text-xs text-blue-100 leading-relaxed">Manage employees & attendance</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300">
+              <div className="flex items-start gap-3">
+                <div className="p-3 bg-yellow-500/20 rounded-xl">
+                  <Search className="w-6 h-6 text-yellow-300" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white mb-1 text-sm">Stock Audit</h3>
+                  <p className="text-xs text-blue-100 leading-relaxed">Audit trails & analytics</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300">
+              <div className="flex items-start gap-3">
+                <div className="p-3 bg-indigo-500/20 rounded-xl">
+                  <DollarSign className="w-6 h-6 text-indigo-300" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white mb-1 text-sm">Salary Processing</h3>
+                  <p className="text-xs text-blue-100 leading-relaxed">Automated salary calculations</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300">
+              <div className="flex items-start gap-3">
+                <div className="p-3 bg-pink-500/20 rounded-xl">
+                  <TrendingUp className="w-6 h-6 text-pink-300" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white mb-1 text-sm">Analytics & Reports</h3>
+                  <p className="text-xs text-blue-100 leading-relaxed">Performance metrics & insights</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Vertical Divider */}
+        <div className="hidden lg:block self-stretch">
+          <div className="h-full w-px bg-gradient-to-b from-transparent via-white/30 to-transparent"></div>
+        </div>
+
+        {/* Right Side - Login Form */}
+        <div className="w-full lg:w-[500px] animate-fade-in self-center" style={{ animationDelay: '0.2s' }}>
+          <div className="bg-white/10 backdrop-blur-2xl border border-white/20 rounded-3xl p-8 shadow-2xl">
+            {/* Logo and Tagline */}
+            <div className="bg-white rounded-2xl p-6 mb-6 text-center">
+              <img src="/vite.jpg" alt="Xpert-Pharma" className="h-16 mx-auto mb-3" />
+              <p className="text-sm text-gray-700 font-medium">Specialised in Pharmacy management.</p>
+            </div>
+            
+            {/* Login Type Toggle */}
+            <div className="flex gap-2 mb-6 p-1.5 bg-white/10 backdrop-blur-sm rounded-xl border border-white/10">
               <button
-                onClick={() => setIsRegister(!isRegister)}
-                className="text-white/80 text-sm hover:text-white underline"
+                onClick={() => { setLoginType('staff'); setIsRegister(false); }}
+                className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all duration-300 ${
+                  loginType === 'staff'
+                    ? 'bg-white text-blue-600 shadow-lg'
+                    : 'text-white hover:bg-white/10'
+                }`}
               >
-                {isRegister ? 'Already have an account? Login' : 'New admin? Register here'}
+                <User className="w-4 h-4 inline mr-2" />
+                Staff Login
+              </button>
+              <button
+                onClick={() => { setLoginType('admin'); setIsRegister(false); }}
+                className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all duration-300 ${
+                  loginType === 'admin'
+                    ? 'bg-white text-blue-600 shadow-lg'
+                    : 'text-white hover:bg-white/10'
+                }`}
+              >
+                <Lock className="w-4 h-4 inline mr-2" />
+                Admin Login
               </button>
             </div>
-          )}
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {loginType === 'staff' ? (
+                <>
+                  <div className="space-y-2">
+                    <label className="block text-white text-sm font-semibold">Staff UUID</label>
+                    <input
+                      type="text"
+                      value={uuid}
+                      onChange={(e) => setUuid(e.target.value)}
+                      placeholder="Enter your UUID"
+                      className="w-full px-4 py-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/30 transition-all"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-white text-sm font-semibold">Phone Number</label>
+                    <input
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="Enter phone number"
+                      className="w-full px-4 py-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/30 transition-all"
+                      required
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  {isRegister && (
+                    <>
+                      <div className="space-y-2">
+                        <label className="block text-white text-sm font-semibold">Full Name</label>
+                        <input
+                          type="text"
+                          value={fullName}
+                          onChange={(e) => setFullName(e.target.value)}
+                          placeholder="Enter full name"
+                          className="w-full px-4 py-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/30 transition-all"
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="block text-white text-sm font-semibold">Phone</label>
+                        <input
+                          type="tel"
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                          placeholder="Enter phone number"
+                          className="w-full px-4 py-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/30 transition-all"
+                          required
+                        />
+                      </div>
+                    </>
+                  )}
+                  <div className="space-y-2">
+                    <label className="block text-white text-sm font-semibold">Email</label>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="admin@pharmacy.com"
+                      className="w-full px-4 py-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/30 transition-all"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-white text-sm font-semibold">Password</label>
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Enter password"
+                      className="w-full px-4 py-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/30 transition-all"
+                      required
+                    />
+                  </div>
+                </>
+              )}
+
+              {error && (
+                <div className="bg-red-500/20 backdrop-blur-sm border border-red-400/50 text-white px-4 py-2 rounded-xl text-sm font-medium animate-fade-in">
+                  {error}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-white text-blue-600 py-3 rounded-xl font-semibold hover:bg-blue-50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg"
+              >
+                {loading ? (isRegister ? 'Registering...' : 'Logging in...') : (isRegister ? 'Register' : 'Login')}
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </form>
+
+            {loginType === 'admin' && (
+              <div className="mt-4 text-center">
+                <button
+                  onClick={() => setIsRegister(!isRegister)}
+                  className="text-white text-sm hover:text-blue-200 font-medium transition-colors"
+                >
+                  {isRegister ? 'Already have an account? Login' : 'New admin? Register here'}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
