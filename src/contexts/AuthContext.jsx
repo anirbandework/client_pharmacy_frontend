@@ -36,32 +36,51 @@ export function AuthProvider({ children }) {
     setLoading(false)
   }
 
-  const adminLogin = async (email, password) => {
-    const response = await fetch(`${API_BASE_URL}/api/auth/admin/login`, {
+  // Admin OTP Flow
+  const adminSendOTP = async (phone, password) => {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 30000)
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/admin/send-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, password }),
+        signal: controller.signal
+      })
+
+      clearTimeout(timeoutId)
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to send OTP')
+      }
+
+      return response.json()
+    } catch (err) {
+      clearTimeout(timeoutId)
+      if (err.name === 'AbortError') {
+        throw new Error('Request timeout. Please try again.')
+      }
+      throw err
+    }
+  }
+
+  const adminVerifyOTP = async (phone, otpCode) => {
+    const response = await fetch(`${API_BASE_URL}/api/auth/admin/verify-otp`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ phone, otp_code: otpCode })
     })
 
-    if (!response.ok) throw new Error('Invalid credentials')
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.detail || 'Invalid OTP')
+    }
 
     const data = await response.json()
     localStorage.setItem('auth_token', data.access_token)
     localStorage.setItem('user_type', data.user_type)
-    
-    // Fetch and store admin profile
-    const profileResponse = await fetch(`${API_BASE_URL}/api/auth/admin/me`, {
-      headers: { 'Authorization': `Bearer ${data.access_token}` }
-    })
-    if (profileResponse.ok) {
-      const profile = await profileResponse.json()
-      localStorage.setItem('user_profile', JSON.stringify({
-        id: profile.id,
-        email: profile.email,
-        full_name: profile.full_name,
-        phone: profile.phone
-      }))
-    }
     
     await checkAuth()
     return data
@@ -74,18 +93,55 @@ export function AuthProvider({ children }) {
       body: JSON.stringify(registerData)
     })
 
-    if (!response.ok) throw new Error('Registration failed')
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.detail || 'Registration failed')
+    }
+
     return response.json()
   }
 
-  const staffLogin = async (uuid) => {
-    const response = await fetch(`${API_BASE_URL}/api/auth/staff/login`, {
+  // Staff OTP Flow
+  const staffSendOTP = async (uuid, phone) => {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 30000)
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/staff/send-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uuid, phone }),
+        signal: controller.signal
+      })
+
+      clearTimeout(timeoutId)
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to send OTP')
+      }
+
+      return response.json()
+    } catch (err) {
+      clearTimeout(timeoutId)
+      if (err.name === 'AbortError') {
+        throw new Error('Request timeout. Please try again.')
+      }
+      throw err
+    }
+  }
+
+  const staffVerifyOTP = async (uuid, phone, otpCode) => {
+    const response = await fetch(`${API_BASE_URL}/api/auth/staff/verify-otp`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ uuid })
+      body: JSON.stringify({ uuid, phone, otp_code: otpCode })
     })
 
-    if (!response.ok) throw new Error('Invalid UUID or staff inactive')
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.detail || 'Invalid OTP')
+    }
 
     const data = await response.json()
     localStorage.setItem('auth_token', data.access_token)
@@ -94,28 +150,6 @@ export function AuthProvider({ children }) {
       shop_id: data.shop_id,
       shop_name: data.shop_name
     }))
-    
-    // Fetch and store staff profile
-    const profileResponse = await fetch(`${API_BASE_URL}/api/auth/staff/me`, {
-      headers: { 'Authorization': `Bearer ${data.access_token}` }
-    })
-    if (profileResponse.ok) {
-      const profile = await profileResponse.json()
-      localStorage.setItem('user_profile', JSON.stringify({
-        id: profile.id,
-        shop_id: profile.shop_id,
-        uuid: profile.uuid,
-        name: profile.name,
-        staff_code: profile.staff_code,
-        phone: profile.phone,
-        email: profile.email,
-        role: profile.role,
-        can_manage_staff: profile.can_manage_staff,
-        can_view_analytics: profile.can_view_analytics,
-        can_manage_inventory: profile.can_manage_inventory,
-        can_manage_customers: profile.can_manage_customers
-      }))
-    }
     
     await checkAuth()
     return data
@@ -128,7 +162,16 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, adminLogin, adminRegister, staffLogin, logout }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      loading, 
+      adminSendOTP, 
+      adminVerifyOTP, 
+      adminRegister, 
+      staffSendOTP, 
+      staffVerifyOTP, 
+      logout 
+    }}>
       {children}
     </AuthContext.Provider>
   )
