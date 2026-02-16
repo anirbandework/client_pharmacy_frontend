@@ -1,6 +1,6 @@
 import axiosInstance from './axios'
 
-const API_BASE = '/api/stock'
+const API_BASE = '/api/stock-audit'
 
 export const stockAuditAPI = {
   getRacks: () => axiosInstance.get(`${API_BASE}/racks`),
@@ -27,13 +27,18 @@ export const stockAuditAPI = {
   deleteSale: (saleId) => axiosInstance.delete(`${API_BASE}/sales/${saleId}`),
   getRandomSection: () => axiosInstance.get(`${API_BASE}/audit/random-section`),
   startAuditSession: (data) => axiosInstance.post(`${API_BASE}/audit/sessions`, data),
-  auditItem: (itemId, physicalQuantity, auditedBy, notes) => axiosInstance.put(`${API_BASE}/items/${itemId}/audit`, null, { 
-    params: { physical_quantity: physicalQuantity, audited_by: auditedBy, notes }
+  auditItem: (itemId, physicalQuantity, notes) => axiosInstance.put(`${API_BASE}/items/${itemId}/audit`, null, { 
+    params: { physical_quantity: physicalQuantity, notes }
   }),
   getDiscrepancies: (params) => axiosInstance.get(`${API_BASE}/audit/discrepancies`, { params }),
   getAuditSummary: (params) => axiosInstance.get(`${API_BASE}/audit/summary`, { params }),
   calculateStock: (data) => axiosInstance.post(`${API_BASE}/calculate-stock`, data),
   getLowStock: (params) => axiosInstance.get(`${API_BASE}/reports/low-stock`, { params }),
   getExpiring: (params) => axiosInstance.get(`${API_BASE}/reports/expiring`, { params }),
-  getStockMovement: (params) => axiosInstance.get(`${API_BASE}/reports/stock-movement`, { params })
+  getStockMovement: (params) => axiosInstance.get(`${API_BASE}/reports/stock-movement`, { params }),
+  addAdjustment: (data) => axiosInstance.post(`${API_BASE}/adjustments`, data),
+  getAdjustments: (params) => axiosInstance.get(`${API_BASE}/adjustments`, { params }),
+  getAIAnalytics: (params) => axiosInstance.get(`${API_BASE}/ai-analytics/comprehensive`, { params }),
+  getAICharts: (params) => axiosInstance.get(`${API_BASE}/ai-analytics/charts`, { params }),
+  getAIInsights: (params) => axiosInstance.get(`${API_BASE}/ai-analytics/insights`, { params })
 }

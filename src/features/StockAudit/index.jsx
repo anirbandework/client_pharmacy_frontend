@@ -4,8 +4,10 @@ import Dashboard from './components/Dashboard'
 import RackManagement from './components/RackManagement'
 import StockItems from './components/StockItems'
 import AuditSession from './components/AuditSession'
+import StockAdjustments from './components/StockAdjustments'
 import Reports from './components/Reports'
-import { LayoutDashboard, Package, Grid, Shuffle, FileText, Sparkles } from 'lucide-react'
+import AIAnalytics from './components/AIAnalytics'
+import { LayoutDashboard, Package, Grid, Shuffle, Settings, FileText, Sparkles, Brain } from 'lucide-react'
 
 const StockAudit = () => {
   const [activeTab, setActiveTab] = useState('dashboard')
@@ -16,7 +18,9 @@ const StockAudit = () => {
     { id: 'racks', label: 'Racks', icon: Package, color: 'from-green-500 to-green-600' },
     { id: 'items', label: 'Items', icon: Grid, color: 'from-purple-500 to-purple-600' },
     { id: 'audit', label: 'Audit', icon: Shuffle, color: 'from-orange-500 to-orange-600' },
-    { id: 'reports', label: 'Reports', icon: FileText, color: 'from-red-500 to-red-600' }
+    { id: 'adjustments', label: 'Adjustments', icon: Settings, color: 'from-pink-500 to-pink-600' },
+    { id: 'reports', label: 'Reports', icon: FileText, color: 'from-red-500 to-red-600' },
+    { id: 'ai-analytics', label: 'AI Analytics', icon: Brain, color: 'from-purple-600 to-indigo-600' }
   ]
 
   return (
@@ -60,7 +64,9 @@ const StockAudit = () => {
           {activeTab === 'racks' && <RackManagement />}
           {activeTab === 'items' && <StockItems />}
           {activeTab === 'audit' && <AuditSession />}
+          {activeTab === 'adjustments' && <StockAdjustments />}
           {activeTab === 'reports' && <Reports />}
+          {activeTab === 'ai-analytics' && <AIAnalytics />}
         </div>
       </div>
     </Layout>

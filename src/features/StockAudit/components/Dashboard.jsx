@@ -20,24 +20,32 @@ const Dashboard = () => {
 
   const stats = [
     { label: 'Total Items', value: summary?.total_items || 0, icon: Package, color: 'blue' },
-    { label: 'Low Stock', value: summary?.low_stock || 0, icon: AlertTriangle, color: 'red' },
-    { label: 'Audited Today', value: summary?.audited_today || 0, icon: CheckCircle, color: 'green' },
-    { label: 'Discrepancies', value: summary?.discrepancies || 0, icon: TrendingUp, color: 'orange' }
+    { label: 'Total Sections', value: summary?.total_sections || 0, icon: Package, color: 'green' },
+    { label: 'Discrepancies', value: summary?.items_with_discrepancies || 0, icon: AlertTriangle, color: 'red' },
+    { label: 'Pending Audits', value: summary?.pending_audits || 0, icon: TrendingUp, color: 'orange' },
+    { label: 'Completion Rate', value: `${summary?.audit_completion_rate?.toFixed(1) || 0}%`, icon: CheckCircle, color: 'green' }
   ]
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      {stats.map((stat, idx) => (
-        <div key={idx} className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">{stat.label}</p>
-              <p className="text-2xl font-bold mt-1">{stat.value}</p>
-            </div>
-            <stat.icon className={`w-10 h-10 text-${stat.color}-500`} />
-          </div>
+    <div>
+      {summary?.last_audit_date && (
+        <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+          <p className="text-sm text-gray-700">Last Audit: <span className="font-semibold">{new Date(summary.last_audit_date).toLocaleString()}</span></p>
         </div>
-      ))}
+      )}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        {stats.map((stat, idx) => (
+          <div key={idx} className="bg-white rounded-lg shadow p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">{stat.label}</p>
+                <p className="text-2xl font-bold mt-1">{stat.value}</p>
+              </div>
+              <stat.icon className={`w-10 h-10 text-${stat.color}-500`} />
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
