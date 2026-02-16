@@ -111,7 +111,16 @@ const StockItems = () => {
             <input type="text" placeholder="Brand Name" value={formData.brand_name} onChange={(e) => setFormData({ ...formData, brand_name: e.target.value })} className="px-3 py-2 border rounded" />
             <input type="text" placeholder="Batch Number" value={formData.batch_number} onChange={(e) => setFormData({ ...formData, batch_number: e.target.value })} className="px-3 py-2 border rounded" required />
             <input type="number" step="0.01" placeholder="Unit Price" value={formData.unit_price} onChange={(e) => setFormData({ ...formData, unit_price: e.target.value })} className="px-3 py-2 border rounded" required />
-            <input type="date" placeholder="Expiry Date" value={formData.expiry_date} onChange={(e) => setFormData({ ...formData, expiry_date: e.target.value })} className="px-3 py-2 border rounded" />
+            <div className="relative">
+              <input 
+                type={formData.expiry_date ? 'date' : 'text'} 
+                placeholder="Expiry Date" 
+                value={formData.expiry_date} 
+                onChange={(e) => setFormData({ ...formData, expiry_date: e.target.value })} 
+                onFocus={(e) => e.target.type = 'date'}
+                className="px-3 py-2 border rounded w-full" 
+              />
+            </div>
             <input type="text" placeholder="Manufacturer" value={formData.manufacturer} onChange={(e) => setFormData({ ...formData, manufacturer: e.target.value })} className="px-3 py-2 border rounded" />
             <select value={formData.section_id} onChange={(e) => setFormData({ ...formData, section_id: e.target.value })} className="px-3 py-2 border rounded" required>
               <option value="">Select Section</option>
@@ -137,6 +146,7 @@ const StockItems = () => {
               <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">Section</th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">Qty (S/P)</th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">Unit Price</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">Total Value</th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">Expiry</th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">Discrepancy</th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">Last Audit</th>
@@ -170,6 +180,9 @@ const StockItems = () => {
                   </div>
                 </td>
                 <td className="px-4 py-3 font-semibold text-green-700">₹{item.unit_price}</td>
+                <td className="px-4 py-3 font-semibold text-blue-700">
+                  {item.total_value ? `₹${item.total_value.toLocaleString('en-IN')}` : <span className="text-gray-400">-</span>}
+                </td>
                 <td className="px-4 py-3 text-sm">
                   {item.expiry_date ? (
                     <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${
