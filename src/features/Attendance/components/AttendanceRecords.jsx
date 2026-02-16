@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { attendanceAPI } from '../services/attendanceApi'
 import { List, UserCheck, UserX } from 'lucide-react'
-import { adminApi } from '../../Admin/services/adminApi'
+import { adminApi } from '../../Login/services/adminApi'
 
 const AttendanceRecords = ({ shopId }) => {
   const [records, setRecords] = useState([])

@@ -9,7 +9,7 @@ import VarianceReport from './components/VarianceReport'
 import AuditLogs from './components/AuditLogs'
 import AIAnalytics from './components/AIAnalytics'
 import { FileText, Upload, LayoutDashboard, List, BarChart3, AlertTriangle, History, Sparkles, Brain } from 'lucide-react'
-import { adminApi } from '../Admin/services/adminApi'
+import { adminApi } from '../Login/services/adminApi'
 
 const DailyRecords = () => {
   const [activeTab, setActiveTab] = useState('dashboard')
