@@ -30,7 +30,10 @@ const Dashboard = () => {
     <div>
       {summary?.last_audit_date && (
         <div className="mb-4 p-3 bg-blue-50 rounded-lg">
-          <p className="text-sm text-gray-700">Last Audit: <span className="font-semibold">{new Date(summary.last_audit_date).toLocaleString()}</span></p>
+          <p className="text-sm text-gray-700">
+            Last Audit: <span className="font-semibold">{new Date(summary.last_audit_date).toLocaleString()}</span>
+            {summary.last_audited_by && <span className="ml-3">by <span className="font-semibold">{summary.last_audited_by}</span></span>}
+          </p>
         </div>
       )}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
