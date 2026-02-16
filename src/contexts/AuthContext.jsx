@@ -17,7 +17,9 @@ export function AuthProvider({ children }) {
     if (token) {
       try {
         const userType = localStorage.getItem('user_type')
-        const endpoint = userType === 'admin' ? '/api/auth/admin/me' : '/api/auth/staff/me'
+        let endpoint = '/api/auth/staff/me'
+        if (userType === 'admin') endpoint = '/api/auth/admin/me'
+        if (userType === 'super_admin') endpoint = '/api/auth/super-admin/me'
         
         const response = await fetch(`${API_BASE_URL}${endpoint}`, {
           headers: { 'Authorization': `Bearer ${token}` }
@@ -155,6 +157,75 @@ export function AuthProvider({ children }) {
     return data
   }
 
+  const superAdminLogin = async (email, password) => {
+    const response = await fetch(`${API_BASE_URL}/api/auth/super-admin/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.detail || 'Login failed')
+    }
+
+    const data = await response.json()
+    localStorage.setItem('auth_token', data.access_token)
+    localStorage.setItem('user_type', data.user_type)
+    
+    await checkAuth()
+    return data
+  }
+
+  const superAdminSendOTP = async (phone, password) => {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 30000)
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/super-admin/send-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, password }),
+        signal: controller.signal
+      })
+
+      clearTimeout(timeoutId)
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to send OTP')
+      }
+
+      return response.json()
+    } catch (err) {
+      clearTimeout(timeoutId)
+      if (err.name === 'AbortError') {
+        throw new Error('Request timeout. Please try again.')
+      }
+      throw err
+    }
+  }
+
+  const superAdminVerifyOTP = async (phone, otpCode) => {
+    const response = await fetch(`${API_BASE_URL}/api/auth/super-admin/verify-otp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone, otp_code: otpCode })
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.detail || 'Invalid OTP')
+    }
+
+    const data = await response.json()
+    localStorage.setItem('auth_token', data.access_token)
+    localStorage.setItem('user_type', data.user_type)
+    
+    await checkAuth()
+    return data
+  }
+
   const logout = () => {
     localStorage.clear()
     setUser(null)
@@ -169,7 +240,10 @@ export function AuthProvider({ children }) {
       adminVerifyOTP, 
       adminRegister, 
       staffSendOTP, 
-      staffVerifyOTP, 
+      staffVerifyOTP,
+      superAdminLogin,
+      superAdminSendOTP,
+      superAdminVerifyOTP,
       logout 
     }}>
       {children}

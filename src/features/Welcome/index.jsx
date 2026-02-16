@@ -3,18 +3,16 @@ import { useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import OTPInput from '../../components/OTPInput'
-import { ArrowRight, ArrowLeft, Lock, User, BarChart3, Package, Users, Search, DollarSign, TrendingUp } from 'lucide-react'
+import { ArrowRight, ArrowLeft, Lock, User, BarChart3, Package, Users, Search, DollarSign, TrendingUp, Shield } from 'lucide-react'
 
 const Welcome = () => {
   const navigate = useNavigate()
-  const { adminSendOTP, adminVerifyOTP, adminRegister, staffSendOTP, staffVerifyOTP } = useAuth()
+  const { adminSendOTP, adminVerifyOTP, staffSendOTP, staffVerifyOTP, superAdminSendOTP, superAdminVerifyOTP } = useAuth()
   const [loginType, setLoginType] = useState('staff')
-  const [isRegister, setIsRegister] = useState(false)
   const [step, setStep] = useState('credentials')
   const [uuid, setUuid] = useState('')
   const [phone, setPhone] = useState('+91')
   const [password, setPassword] = useState('')
-  const [fullName, setFullName] = useState('')
   const [otp, setOtp] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -33,7 +31,9 @@ const Welcome = () => {
     setLoading(true)
 
     try {
-      if (loginType === 'staff') {
+      if (loginType === 'super_admin') {
+        await superAdminSendOTP(phone, password)
+      } else if (loginType === 'staff') {
         await staffSendOTP(uuid, phone)
       } else {
         await adminSendOTP(phone, password)
@@ -56,26 +56,13 @@ const Welcome = () => {
       if (loginType === 'staff') {
         await staffVerifyOTP(uuid, phone, otp)
         navigate('/daily-records')
+      } else if (loginType === 'super_admin') {
+        await superAdminVerifyOTP(phone, otp)
+        navigate('/super-admin')
       } else {
         await adminVerifyOTP(phone, otp)
         navigate('/admin')
       }
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleRegister = async (e) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
-
-    try {
-      await adminRegister({ phone, password, full_name: fullName })
-      setIsRegister(false)
-      setError('Registration successful! Please login.')
     } catch (err) {
       setError(err.message)
     } finally {
@@ -207,90 +194,41 @@ const Welcome = () => {
             {/* Login Type Toggle */}
             <div className="flex gap-2 mb-6 p-1.5 bg-white/10 backdrop-blur-sm rounded-xl border border-white/10">
               <button
-                onClick={() => { setLoginType('staff'); setIsRegister(false); }}
-                className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all duration-300 ${
+                onClick={() => { setLoginType('staff'); resetForm(); }}
+                className={`flex-1 py-2.5 px-4 rounded-lg text-xs font-semibold transition-all duration-300 ${
                   loginType === 'staff'
                     ? 'bg-white text-blue-600 shadow-lg'
                     : 'text-white hover:bg-white/10'
                 }`}
               >
-                <User className="w-4 h-4 inline mr-2" />
-                Staff Login
+                <User className="w-4 h-4 inline mr-1" />
+                Staff
               </button>
               <button
-                onClick={() => { setLoginType('admin'); setIsRegister(false); }}
-                className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all duration-300 ${
+                onClick={() => { setLoginType('admin'); resetForm(); }}
+                className={`flex-1 py-2.5 px-4 rounded-lg text-xs font-semibold transition-all duration-300 ${
                   loginType === 'admin'
                     ? 'bg-white text-blue-600 shadow-lg'
                     : 'text-white hover:bg-white/10'
                 }`}
               >
-                <Lock className="w-4 h-4 inline mr-2" />
-                Admin Login
+                <Lock className="w-4 h-4 inline mr-1" />
+                Admin
+              </button>
+              <button
+                onClick={() => { setLoginType('super_admin'); resetForm(); }}
+                className={`flex-1 py-2.5 px-4 rounded-lg text-xs font-semibold transition-all duration-300 ${
+                  loginType === 'super_admin'
+                    ? 'bg-white text-blue-600 shadow-lg'
+                    : 'text-white hover:bg-white/10'
+                }`}
+              >
+                <Shield className="w-4 h-4 inline mr-1" />
+                Super
               </button>
             </div>
 
-            {isRegister ? (
-              <form onSubmit={handleRegister} className="space-y-4">
-                <div className="space-y-2">
-                  <label className="block text-white text-sm font-semibold">Full Name</label>
-                  <input
-                    type="text"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    placeholder="Enter full name"
-                    className="w-full px-4 py-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/30 transition-all"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="block text-white text-sm font-semibold">Phone Number</label>
-                  <input
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+919383169659"
-                    className="w-full px-4 py-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/30 transition-all"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="block text-white text-sm font-semibold">Password</label>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter password (min 6 chars)"
-                    className="w-full px-4 py-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/30 transition-all"
-                    required
-                  />
-                </div>
-
-                {error && (
-                  <div className="bg-red-500/20 backdrop-blur-sm border border-red-400/50 text-white px-4 py-2 rounded-xl text-sm font-medium">
-                    {error}
-                  </div>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-white text-blue-600 py-3 rounded-xl font-semibold hover:bg-blue-50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg"
-                >
-                  {loading ? 'Registering...' : 'Register'}
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-
-                <div className="text-center">
-                  <button
-                    onClick={() => { setIsRegister(false); setError(''); }}
-                    className="text-white text-sm hover:text-blue-200 font-medium transition-colors"
-                  >
-                    Already have an account? Login
-                  </button>
-                </div>
-              </form>
-            ) : step === 'credentials' ? (
+            {step === 'credentials' ? (
               <form onSubmit={handleSendOTP} className="space-y-4">
                 {loginType === 'staff' && (
                   <div className="space-y-2">
@@ -316,7 +254,7 @@ const Welcome = () => {
                     required
                   />
                 </div>
-                {loginType === 'admin' && (
+                {(loginType === 'admin' || loginType === 'super_admin') && (
                   <div className="space-y-2">
                     <label className="block text-white text-sm font-semibold">Password</label>
                     <input
@@ -344,17 +282,6 @@ const Welcome = () => {
                   {loading ? 'Sending OTP...' : 'Send OTP'}
                   <ArrowRight className="w-4 h-4" />
                 </button>
-
-                {loginType === 'admin' && (
-                  <div className="text-center">
-                    <button
-                      onClick={() => { setIsRegister(true); setError(''); }}
-                      className="text-white text-sm hover:text-blue-200 font-medium transition-colors"
-                    >
-                      New admin? Register here
-                    </button>
-                  </div>
-                )}
               </form>
             ) : (
               <form onSubmit={handleVerifyOTP} className="space-y-4">

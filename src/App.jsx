@@ -12,7 +12,8 @@ const PurchaseInvoice = lazy(() => import('./features/PurchaseInvoice'))
 const CustomerTracking = lazy(() => import('./features/CustomerTracking'))
 const StockAudit = lazy(() => import('./features/StockAudit'))
 const Attendance = lazy(() => import('./features/Attendance'))
-const AdminDashboard = lazy(() => import('./features/Admin'))
+const AdminDashboard = lazy(() => import('./features/Login'))
+const SuperAdminDashboard = lazy(() => import('./features/Login/SuperAdminDashboard'))
 const AdminSalaryManagement = lazy(() => import('./features/SalaryManagement/components/AdminSalaryManagement'))
 const StaffSalaryProfile = lazy(() => import('./features/SalaryManagement/components/StaffSalaryProfile'))
 
@@ -39,6 +40,7 @@ function App() {
                   <Route path="/" element={<Welcome />} />
                   <Route path="/login" element={<Welcome />} />
                   <Route path="/admin" element={<AdminDashboard />} />
+                  <Route path="/super-admin" element={<SuperAdminDashboard />} />
                   <Route path="/daily-records" element={<DailyRecords />} />
                   <Route path="/purchase-invoice" element={<PurchaseInvoice />} />
                   <Route path="/customer-tracking" element={<CustomerTracking />} />

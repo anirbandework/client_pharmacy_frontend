@@ -15,6 +15,79 @@ const handleResponse = async (res) => {
   return res.json();
 };
 
+export const superAdminApi = {
+  register: async (data) => {
+    const res = await fetch(`${API_BASE_URL}/api/auth/super-admin/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    return handleResponse(res);
+  },
+
+  sendOTP: async (phone, password) => {
+    const res = await fetch(`${API_BASE_URL}/api/auth/super-admin/send-otp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone, password })
+    });
+    return handleResponse(res);
+  },
+
+  verifyOTP: async (phone, otpCode) => {
+    const res = await fetch(`${API_BASE_URL}/api/auth/super-admin/verify-otp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone, otp_code: otpCode })
+    });
+    return handleResponse(res);
+  },
+
+  getProfile: async () => {
+    const res = await fetch(`${API_BASE_URL}/api/auth/super-admin/me`, {
+      headers: getAuthHeaders()
+    });
+    return handleResponse(res);
+  },
+
+  createAdmin: async (data) => {
+    const res = await fetch(`${API_BASE_URL}/api/auth/super-admin/admins`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data)
+    });
+    return handleResponse(res);
+  },
+
+  getAllAdmins: async () => {
+    const res = await fetch(`${API_BASE_URL}/api/auth/super-admin/admins`, {
+      headers: getAuthHeaders()
+    });
+    return handleResponse(res);
+  },
+
+  getAdminsByOrg: async (orgId) => {
+    const res = await fetch(`${API_BASE_URL}/api/auth/super-admin/admins/organization/${orgId}`, {
+      headers: getAuthHeaders()
+    });
+    return handleResponse(res);
+  },
+
+  getAllShops: async () => {
+    const res = await fetch(`${API_BASE_URL}/api/auth/super-admin/shops`, {
+      headers: getAuthHeaders()
+    });
+    return handleResponse(res);
+  },
+
+  getAllStaff: async () => {
+    const res = await fetch(`${API_BASE_URL}/api/auth/super-admin/staff`, {
+      headers: getAuthHeaders()
+    });
+    return handleResponse(res);
+  }
+};
+
 export const adminApi = {
   register: async (data) => {
     const res = await fetch(`${API_BASE_URL}/api/auth/admin/register`, {
