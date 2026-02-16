@@ -148,6 +148,7 @@ export function AuthProvider({ children }) {
     const data = await response.json()
     localStorage.setItem('auth_token', data.access_token)
     localStorage.setItem('user_type', data.user_type)
+    localStorage.setItem('user_name', data.user_name)
     localStorage.setItem('shop_info', JSON.stringify({
       shop_id: data.shop_id,
       shop_name: data.shop_name

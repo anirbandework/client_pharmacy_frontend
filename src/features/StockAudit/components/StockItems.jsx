@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { stockAuditAPI } from '../services/stockAudit'
-import { Plus, Edit, Trash2 } from 'lucide-react'
+import { Plus, Edit, Trash2, Download } from 'lucide-react'
 
 const StockItems = () => {
   const [items, setItems] = useState([])
@@ -76,13 +76,32 @@ const StockItems = () => {
     }
   }
 
+  const handleExport = async () => {
+    try {
+      const response = await stockAuditAPI.exportStockItems()
+      const url = window.URL.createObjectURL(response.data)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `stock_items_${Date.now()}.xlsx`
+      a.click()
+      window.URL.revokeObjectURL(url)
+    } catch (error) {
+      alert('Failed to export stock items')
+    }
+  }
+
   return (
     <div className="bg-white rounded-lg shadow p-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Stock Items</h2>
-        <button onClick={() => { setShowForm(!showForm); setEditingItem(null); setFormData({ item_name: '', generic_name: '', brand_name: '', batch_number: '', unit_price: '', expiry_date: '', manufacturer: '', section_id: '', quantity_software: '' }); }} className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700">
-          <Plus className="w-4 h-4" />Add Item
-        </button>
+        <div className="flex gap-2">
+          <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+            <Download className="w-4 h-4" />Export Excel
+          </button>
+          <button onClick={() => { setShowForm(!showForm); setEditingItem(null); setFormData({ item_name: '', generic_name: '', brand_name: '', batch_number: '', unit_price: '', expiry_date: '', manufacturer: '', section_id: '', quantity_software: '' }); }} className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700">
+            <Plus className="w-4 h-4" />Add Item
+          </button>
+        </div>
       </div>
       {showForm && (
         <form onSubmit={handleSubmit} className="mb-6 p-4 bg-gray-50 rounded">
@@ -107,33 +126,86 @@ const StockItems = () => {
         </form>
       )}
       <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-4 py-3 text-left text-sm font-medium">Item</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">Generic</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">Batch</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">Section</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">Qty</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">Price</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">Expiry</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">Actions</th>
+        <table className="w-full border-collapse">
+          <thead>
+            <tr className="bg-gradient-to-r from-primary-50 to-primary-100 border-b-2 border-primary-200">
+              <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">Item</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">Generic/Brand</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">Batch</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">Manufacturer</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">Rack</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">Section</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">Qty (S/P)</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">Unit Price</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">Expiry</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">Discrepancy</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">Last Audit</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y">
-            {items.map((item) => (
-              <tr key={item.id} className="hover:bg-gray-50">
-                <td className="px-4 py-3">{item.item_name}</td>
-                <td className="px-4 py-3">{item.generic_name}</td>
-                <td className="px-4 py-3">{item.batch_number}</td>
-                <td className="px-4 py-3">{sections.find(s => s.id === item.section_id)?.section_name}</td>
-                <td className="px-4 py-3">{item.quantity_software}</td>
-                <td className="px-4 py-3">₹{item.unit_price}</td>
-                <td className="px-4 py-3">{item.expiry_date || 'N/A'}</td>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {items.map((item, idx) => (
+              <tr key={item.id} className={`transition-colors hover:bg-primary-50 ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
+                <td className="px-4 py-3 font-semibold text-gray-900">{item.item_name}</td>
+                <td className="px-4 py-3">
+                  <div className="text-sm text-gray-900">{item.generic_name}</div>
+                  {item.brand_name && <div className="text-xs text-gray-500 mt-0.5">{item.brand_name}</div>}
+                </td>
+                <td className="px-4 py-3 text-sm text-gray-700 font-mono">{item.batch_number}</td>
+                <td className="px-4 py-3 text-sm text-gray-600">{item.manufacturer || <span className="text-gray-400">-</span>}</td>
+                <td className="px-4 py-3">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                    {item.rack_name || '-'}
+                  </span>
+                </td>
+                <td className="px-4 py-3">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    {item.section_name || sections.find(s => s.id === item.section_id)?.section_name}
+                  </span>
+                </td>
+                <td className="px-4 py-3">
+                  <div className="text-sm">
+                    <span className="font-semibold text-gray-900">{item.quantity_software}</span>
+                    {item.quantity_physical !== null && <span className="text-gray-500"> / {item.quantity_physical}</span>}
+                  </div>
+                </td>
+                <td className="px-4 py-3 font-semibold text-green-700">₹{item.unit_price}</td>
+                <td className="px-4 py-3 text-sm">
+                  {item.expiry_date ? (
+                    <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${
+                      new Date(item.expiry_date) < new Date() 
+                        ? 'bg-red-100 text-red-800' 
+                        : new Date(item.expiry_date) < new Date(Date.now() + 30*24*60*60*1000)
+                        ? 'bg-orange-100 text-orange-800'
+                        : 'bg-green-100 text-green-800'
+                    }`}>
+                      {new Date(item.expiry_date).toLocaleDateString()}
+                    </span>
+                  ) : <span className="text-gray-400">N/A</span>}
+                </td>
+                <td className="px-4 py-3">
+                  {item.audit_discrepancy !== 0 && item.audit_discrepancy !== null ? (
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800">
+                      {item.audit_discrepancy > 0 ? '+' : ''}{item.audit_discrepancy}
+                    </span>
+                  ) : <span className="text-gray-400">-</span>}
+                </td>
+                <td className="px-4 py-3 text-xs text-gray-500">
+                  {item.last_audit_date ? (
+                    <div>
+                      <div>{new Date(item.last_audit_date).toLocaleDateString()}</div>
+                      <div className="text-gray-400">{new Date(item.last_audit_date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                    </div>
+                  ) : <span className="text-gray-400 italic">Never</span>}
+                </td>
                 <td className="px-4 py-3">
                   <div className="flex gap-2">
-                    <button onClick={() => handleEdit(item)} className="text-blue-600 hover:text-blue-800"><Edit className="w-4 h-4" /></button>
-                    <button onClick={() => handleDelete(item.id)} className="text-red-600 hover:text-red-800"><Trash2 className="w-4 h-4" /></button>
+                    <button onClick={() => handleEdit(item)} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-colors">
+                      <Edit className="w-4 h-4" />
+                    </button>
+                    <button onClick={() => handleDelete(item.id)} className="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
                 </td>
               </tr>

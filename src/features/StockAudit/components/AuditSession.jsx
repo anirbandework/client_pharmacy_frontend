@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { stockAuditAPI } from '../services/stockAudit'
-import { Shuffle, CheckCircle } from 'lucide-react'
+import { Shuffle, CheckCircle, Download } from 'lucide-react'
 
 const AuditSession = () => {
   const [section, setSection] = useState(null)
@@ -30,14 +30,33 @@ const AuditSession = () => {
     }
   }
 
+  const handleExport = async () => {
+    try {
+      const response = await stockAuditAPI.exportAuditRecords({ days: 30 })
+      const url = window.URL.createObjectURL(response.data)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `audit_records_${Date.now()}.xlsx`
+      a.click()
+      window.URL.revokeObjectURL(url)
+    } catch (error) {
+      alert('Failed to export audit records')
+    }
+  }
+
   return (
     <div className="space-y-4">
       <div className="bg-white rounded-lg shadow p-6">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">Random Audit Session</h2>
-          <button onClick={startAudit} className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700">
-            <Shuffle className="w-4 h-4" />Start Random Audit
-          </button>
+          <div className="flex gap-2">
+            <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+              <Download className="w-4 h-4" />Export Records
+            </button>
+            <button onClick={startAudit} className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700">
+              <Shuffle className="w-4 h-4" />Start Random Audit
+            </button>
+          </div>
         </div>
         {section && (
           <div className="mb-4 p-4 bg-blue-50 rounded">

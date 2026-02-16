@@ -40,5 +40,8 @@ export const stockAuditAPI = {
   getAdjustments: (params) => axiosInstance.get(`${API_BASE}/adjustments`, { params }),
   getAIAnalytics: (params) => axiosInstance.get(`${API_BASE}/ai-analytics/comprehensive`, { params }),
   getAICharts: (params) => axiosInstance.get(`${API_BASE}/ai-analytics/charts`, { params }),
-  getAIInsights: (params) => axiosInstance.get(`${API_BASE}/ai-analytics/insights`, { params })
+  getAIInsights: (params) => axiosInstance.get(`${API_BASE}/ai-analytics/insights`, { params }),
+  exportStockItems: () => axiosInstance.get(`${API_BASE}/export/stock-items`, { responseType: 'blob' }),
+  exportAuditRecords: (params) => axiosInstance.get(`${API_BASE}/export/audit-records`, { params, responseType: 'blob' }),
+  exportAdjustments: (params) => axiosInstance.get(`${API_BASE}/export/adjustments`, { params, responseType: 'blob' })
 }

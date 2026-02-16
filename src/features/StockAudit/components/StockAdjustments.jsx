@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { stockAuditAPI } from '../services/stockAudit';
-import { Plus, AlertCircle } from 'lucide-react';
+import { Plus, AlertCircle, Download } from 'lucide-react';
 
 export default function StockAdjustments() {
   const [adjustments, setAdjustments] = useState([]);
@@ -45,6 +45,20 @@ export default function StockAdjustments() {
     }
   };
 
+  const handleExport = async () => {
+    try {
+      const response = await stockAuditAPI.exportAdjustments({ days: 30 });
+      const url = window.URL.createObjectURL(response.data);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `adjustments_${Date.now()}.xlsx`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      alert('Failed to export adjustments');
+    }
+  };
+
   const getTypeColor = (type) => {
     const colors = {
       correction: 'bg-blue-100 text-blue-700',
@@ -61,9 +75,14 @@ export default function StockAdjustments() {
     <div className="bg-white rounded-lg shadow p-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Stock Adjustments</h2>
-        <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700">
-          <Plus className="w-4 h-4" />Record Adjustment
-        </button>
+        <div className="flex gap-2">
+          <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+            <Download className="w-4 h-4" />Export Excel
+          </button>
+          <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700">
+            <Plus className="w-4 h-4" />Record Adjustment
+          </button>
+        </div>
       </div>
 
       {showForm && (
