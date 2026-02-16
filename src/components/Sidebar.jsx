@@ -1,6 +1,6 @@
 import React from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { FileText, Users, Package, ShoppingCart, Wallet, Settings, Clock, Shield } from 'lucide-react'
+import { FileText, Users, Package, ShoppingCart, Wallet, Settings, Clock, Shield, Bell } from 'lucide-react'
 import { useSidebar } from '../contexts/SidebarContext'
 
 const Sidebar = () => {
@@ -16,8 +16,10 @@ const Sidebar = () => {
     { id: 'customer-tracking', label: 'Customer Tracking', path: '/customer-tracking', icon: Users, roles: ['staff'] },
     { id: 'stock-audit', label: 'Stock Audit', path: '/stock-audit', icon: Package, roles: ['staff'] },
     { id: 'attendance', label: 'Attendance', path: '/attendance', icon: Clock, roles: ['staff', 'admin'] },
+    { id: 'my-notifications', label: 'Notifications', path: '/my-notifications', icon: Bell, roles: ['staff'] },
     { id: 'salary-staff', label: 'My Salary', path: '/my-salary', icon: Wallet, roles: ['staff'] },
     { id: 'admin-panel', label: 'Admin Panel', path: '/admin', icon: Settings, roles: ['admin'] },
+    { id: 'notifications', label: 'Notifications', path: '/notifications', icon: Bell, roles: ['admin'] },
     { id: 'salary-admin', label: 'Salary Management', path: '/salary-management', icon: Wallet, roles: ['admin'] }
   ].filter(item => item.roles.includes(userType))
 
