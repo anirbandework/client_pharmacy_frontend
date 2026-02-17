@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { superAdminApi } from '../services/adminApi';
+import { Info, Edit2, Trash2 } from 'lucide-react';
 
 export default function AdminsManagement() {
   const [admins, setAdmins] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [editingAdmin, setEditingAdmin] = useState(null);
   const [formData, setFormData] = useState({
-    organization_id: '', phone: '', password: '', full_name: '', email: ''
+    organization_id: '', phone: '', full_name: '', email: ''
   });
 
   useEffect(() => { loadAdmins(); }, []);
@@ -22,9 +24,31 @@ export default function AdminsManagement() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await superAdminApi.createAdmin(formData);
+      if (editingAdmin) {
+        await superAdminApi.updateAdmin(editingAdmin.id, formData);
+      } else {
+        await superAdminApi.createAdmin(formData);
+      }
       setShowForm(false);
-      setFormData({ organization_id: '', phone: '', password: '', full_name: '', email: '' });
+      setEditingAdmin(null);
+      setFormData({ organization_id: '', phone: '', full_name: '', email: '' });
+      loadAdmins();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  const handleEdit = (admin) => {
+    setEditingAdmin(admin);
+    setFormData({ organization_id: admin.organization_id, phone: admin.phone, full_name: admin.full_name, email: admin.email || '' });
+    setShowForm(true);
+  };
+
+  const handleDelete = async (adminId, adminName) => {
+    if (!confirm(`Delete ${adminName}? This will delete all their shops and staff!`)) return;
+    try {
+      const result = await superAdminApi.deleteAdmin(adminId);
+      alert(`Deleted: ${result.shops_deleted} shops, ${result.staff_deleted} staff`);
       loadAdmins();
     } catch (err) {
       alert(err.message);
@@ -52,16 +76,19 @@ export default function AdminsManagement() {
 
       {showForm && (
         <form onSubmit={handleSubmit} className="bg-white p-6 rounded-xl shadow-lg mb-4 border border-primary-100">
-          <h3 className="text-lg font-bold mb-4">Create New Admin</h3>
+          <h3 className="text-lg font-bold mb-4">{editingAdmin ? 'Edit Admin' : 'Create New Admin'}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input placeholder="Organization ID" value={formData.organization_id} onChange={(e) => setFormData({...formData, organization_id: e.target.value})} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" required />
+            <input placeholder="Organization ID" value={formData.organization_id} onChange={(e) => setFormData({...formData, organization_id: e.target.value})} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" required disabled={editingAdmin} />
             <input placeholder="Full Name" value={formData.full_name} onChange={(e) => setFormData({...formData, full_name: e.target.value})} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" required />
             <input placeholder="Phone" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" required />
             <input placeholder="Email" type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" />
-            <input placeholder="Password" type="password" value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" required />
+          </div>
+          <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700 flex items-start gap-2">
+            <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
+            <span>Admin will set their own password during first login</span>
           </div>
           <button type="submit" className="mt-4 bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-2 rounded-lg shadow-md hover:shadow-lg transition-all">
-            Create Admin
+            {editingAdmin ? 'Update Admin' : 'Create Admin'}
           </button>
         </form>
       )}
@@ -84,6 +111,14 @@ export default function AdminsManagement() {
                       <span className={`inline-block mt-2 px-2 py-1 rounded-full text-xs font-semibold ${admin.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                         {admin.is_active ? 'Active' : 'Inactive'}
                       </span>
+                    </div>
+                    <div className="flex gap-2">
+                      <button onClick={() => handleEdit(admin)} className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all">
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      <button onClick={() => handleDelete(admin.id, admin.full_name)} className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
                   </div>
                 </div>

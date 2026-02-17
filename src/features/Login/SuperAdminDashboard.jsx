@@ -1,17 +1,15 @@
 import { useState } from 'react';
 import Layout from '../../components/Layout';
+import AdminsHierarchy from './components/AdminsHierarchy';
 import AdminsManagement from './components/AdminsManagement';
-import AllShops from './components/AllShops';
-import AllStaff from './components/AllStaff';
-import { Shield, Store, Users } from 'lucide-react';
+import { Shield, Network } from 'lucide-react';
 
 export default function SuperAdminDashboard() {
-  const [activeTab, setActiveTab] = useState('admins');
+  const [activeTab, setActiveTab] = useState('hierarchy');
 
   const tabs = [
-    { id: 'admins', label: 'Admins', icon: Shield, color: 'from-purple-500 to-purple-600' },
-    { id: 'shops', label: 'All Shops', icon: Store, color: 'from-blue-500 to-blue-600' },
-    { id: 'staff', label: 'All Staff', icon: Users, color: 'from-green-500 to-green-600' }
+    { id: 'hierarchy', label: 'Hierarchy', icon: Network, color: 'from-indigo-500 to-indigo-600' },
+    { id: 'admins', label: 'Admins', icon: Shield, color: 'from-purple-500 to-purple-600' }
   ];
 
   return (
@@ -55,9 +53,8 @@ export default function SuperAdminDashboard() {
         </div>
 
         <div className="animate-fade-in space-y-4">
+          {activeTab === 'hierarchy' && <AdminsHierarchy />}
           {activeTab === 'admins' && <AdminsManagement />}
-          {activeTab === 'shops' && <AllShops />}
-          {activeTab === 'staff' && <AllStaff />}
         </div>
       </div>
     </Layout>

@@ -66,22 +66,66 @@ export const superAdminApi = {
     return handleResponse(res);
   },
 
-  getAdminsByOrg: async (orgId) => {
+  getAllAdminsByOrg: async (orgId) => {
     const res = await fetch(`${API_BASE_URL}/api/auth/super-admin/admins/organization/${orgId}`, {
       headers: getAuthHeaders()
     });
     return handleResponse(res);
   },
 
-  getAllShops: async () => {
-    const res = await fetch(`${API_BASE_URL}/api/auth/super-admin/shops`, {
+  getDashboard: async () => {
+    const res = await fetch(`${API_BASE_URL}/api/auth/super-admin/dashboard`, {
       headers: getAuthHeaders()
     });
     return handleResponse(res);
   },
 
-  getAllStaff: async () => {
-    const res = await fetch(`${API_BASE_URL}/api/auth/super-admin/staff`, {
+  updateAdmin: async (adminId, data) => {
+    const res = await fetch(`${API_BASE_URL}/api/auth/super-admin/admins/${adminId}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data)
+    });
+    return handleResponse(res);
+  },
+
+  deleteAdmin: async (adminId) => {
+    const res = await fetch(`${API_BASE_URL}/api/auth/super-admin/admins/${adminId}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    });
+    return handleResponse(res);
+  },
+
+  updateShop: async (shopId, data) => {
+    const res = await fetch(`${API_BASE_URL}/api/auth/super-admin/shops/${shopId}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data)
+    });
+    return handleResponse(res);
+  },
+
+  deleteShop: async (shopId) => {
+    const res = await fetch(`${API_BASE_URL}/api/auth/super-admin/shops/${shopId}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    });
+    return handleResponse(res);
+  },
+
+  updateStaff: async (staffId, data) => {
+    const res = await fetch(`${API_BASE_URL}/api/auth/super-admin/staff/${staffId}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data)
+    });
+    return handleResponse(res);
+  },
+
+  deleteStaff: async (staffId) => {
+    const res = await fetch(`${API_BASE_URL}/api/auth/super-admin/staff/${staffId}`, {
+      method: 'DELETE',
       headers: getAuthHeaders()
     });
     return handleResponse(res);
@@ -145,8 +189,8 @@ export const adminApi = {
     return handleResponse(res);
   },
 
-  createStaff: async (shopId, data) => {
-    const res = await fetch(`${API_BASE_URL}/api/auth/admin/shops/${shopId}/staff`, {
+  createStaff: async (shopCode, data) => {
+    const res = await fetch(`${API_BASE_URL}/api/auth/admin/shops/code/${shopCode}/staff`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(data)
@@ -154,8 +198,8 @@ export const adminApi = {
     return handleResponse(res);
   },
 
-  getShopStaff: async (shopId) => {
-    const res = await fetch(`${API_BASE_URL}/api/auth/shops/${shopId}/staff`, {
+  getShopStaff: async (shopCode) => {
+    const res = await fetch(`${API_BASE_URL}/api/auth/shops/code/${shopCode}/staff`, {
       headers: getAuthHeaders()
     });
     return handleResponse(res);

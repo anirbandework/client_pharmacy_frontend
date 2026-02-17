@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { adminApi } from '../services/adminApi';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, Info } from 'lucide-react';
 
 export default function StaffManagement() {
   const [shops, setShops] = useState([]);
@@ -23,7 +23,7 @@ export default function StaffManagement() {
     try {
       const data = await adminApi.getShops();
       setShops(data);
-      if (data.length > 0) setSelectedShop(data[0].id);
+      if (data.length > 0) setSelectedShop(data[0].shop_code);
     } catch (err) {
       alert(err.message);
     }
@@ -88,9 +88,9 @@ export default function StaffManagement() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
         <div>
           <label className="block mb-2 text-sm font-semibold text-gray-700">Select Shop:</label>
-          <select value={selectedShop || ''} onChange={(e) => setSelectedShop(Number(e.target.value))} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent w-64">
+          <select value={selectedShop || ''} onChange={(e) => setSelectedShop(e.target.value)} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent w-64">
             {shops.map(shop => (
-              <option key={shop.id} value={shop.id}>{shop.shop_name}</option>
+              <option key={shop.id} value={shop.shop_code}>{shop.shop_name}</option>
             ))}
           </select>
         </div>
@@ -138,6 +138,10 @@ export default function StaffManagement() {
               <input type="checkbox" checked={formData.can_manage_customers} onChange={(e) => setFormData({...formData, can_manage_customers: e.target.checked})} className="rounded" />
               Can Manage Customers
             </label>
+          </div>
+          <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700 flex items-start gap-2">
+            <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
+            <span>Staff will set their own password during first login</span>
           </div>
           <button type="submit" className="mt-4 bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-2 rounded-lg shadow-md hover:shadow-lg transition-all">
             {editingStaff ? 'Update' : 'Create'} Staff

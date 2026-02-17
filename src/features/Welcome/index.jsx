@@ -3,20 +3,24 @@ import { useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import OTPInput from '../../components/OTPInput'
-import { ArrowRight, ArrowLeft, Lock, User, BarChart3, Package, Users, Search, DollarSign, TrendingUp, Shield } from 'lucide-react'
+import { ArrowRight, ArrowLeft, Lock, User, BarChart3, Package, Users, Search, DollarSign, TrendingUp, Shield, Eye, EyeOff, Info } from 'lucide-react'
 
 const Welcome = () => {
   const navigate = useNavigate()
-  const { adminSendOTP, adminVerifyOTP, staffSendOTP, staffVerifyOTP, superAdminSendOTP, superAdminVerifyOTP } = useAuth()
+  const { adminSendOTP, adminVerifyOTP, adminSignup, staffSendOTP, staffVerifyOTP, staffSignup, superAdminSendOTP, superAdminVerifyOTP } = useAuth()
   const [loginType, setLoginType] = useState('staff')
+  const [isNewUser, setIsNewUser] = useState(false)
   const [step, setStep] = useState('credentials')
   const [uuid, setUuid] = useState('')
   const [phone, setPhone] = useState('+91')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [otp, setOtp] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [countdown, setCountdown] = useState(0)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   useEffect(() => {
     if (countdown > 0) {
@@ -28,15 +32,31 @@ const Welcome = () => {
   const handleSendOTP = async (e) => {
     e.preventDefault()
     setError('')
+
+    if (isNewUser && password !== confirmPassword) {
+      setError('Passwords do not match')
+      return
+    }
+
     setLoading(true)
 
     try {
-      if (loginType === 'super_admin') {
-        await superAdminSendOTP(phone, password)
-      } else if (loginType === 'staff') {
-        await staffSendOTP(uuid, phone)
+      if (isNewUser) {
+        // Signup flow
+        if (loginType === 'admin') {
+          await adminSignup(phone, password)
+        } else if (loginType === 'staff') {
+          await staffSignup(phone, password)
+        }
       } else {
-        await adminSendOTP(phone, password)
+        // Login flow
+        if (loginType === 'super_admin') {
+          await superAdminSendOTP(phone, password)
+        } else if (loginType === 'staff') {
+          await staffSendOTP(phone, password)
+        } else {
+          await adminSendOTP(phone, password)
+        }
       }
       setStep('otp')
       setCountdown(30)
@@ -54,7 +74,7 @@ const Welcome = () => {
 
     try {
       if (loginType === 'staff') {
-        await staffVerifyOTP(uuid, phone, otp)
+        await staffVerifyOTP(phone, otp)
         navigate('/daily-records')
       } else if (loginType === 'super_admin') {
         await superAdminVerifyOTP(phone, otp)
@@ -79,6 +99,8 @@ const Welcome = () => {
     setStep('credentials')
     setOtp('')
     setError('')
+    setIsNewUser(false)
+    setConfirmPassword('')
   }
 
   return (
@@ -230,19 +252,6 @@ const Welcome = () => {
 
             {step === 'credentials' ? (
               <form onSubmit={handleSendOTP} className="space-y-4">
-                {loginType === 'staff' && (
-                  <div className="space-y-2">
-                    <label className="block text-white text-sm font-semibold">Staff UUID</label>
-                    <input
-                      type="text"
-                      value={uuid}
-                      onChange={(e) => setUuid(e.target.value)}
-                      placeholder="Enter your UUID"
-                      className="w-full px-4 py-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/30 transition-all"
-                      required
-                    />
-                  </div>
-                )}
                 <div className="space-y-2">
                   <label className="block text-white text-sm font-semibold">Phone Number</label>
                   <input
@@ -254,17 +263,60 @@ const Welcome = () => {
                     required
                   />
                 </div>
-                {(loginType === 'admin' || loginType === 'super_admin') && (
-                  <div className="space-y-2">
-                    <label className="block text-white text-sm font-semibold">Password</label>
-                    <input
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Enter password"
-                      className="w-full px-4 py-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/30 transition-all"
-                      required
-                    />
+                {((loginType === 'admin' || loginType === 'super_admin') || loginType === 'staff') && (
+                  <>
+                    <div className="space-y-2">
+                      <label className="block text-white text-sm font-semibold">
+                        {isNewUser ? 'Set Password' : 'Password'}
+                      </label>
+                      <div className="relative">
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          placeholder={isNewUser ? "Create a password (min 6 characters)" : "Enter password"}
+                          className="w-full px-4 py-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/30 transition-all"
+                          required
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-white/70 hover:text-white transition-colors"
+                        >
+                          {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    {isNewUser && (
+                      <div className="space-y-2">
+                        <label className="block text-white text-sm font-semibold">Confirm Password</label>
+                        <div className="relative">
+                          <input
+                            type={showConfirmPassword ? "text" : "password"}
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            placeholder="Re-enter your password"
+                            className="w-full px-4 py-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/30 transition-all"
+                            required
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-white/70 hover:text-white transition-colors"
+                          >
+                            {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {isNewUser && (
+                  <div className="bg-blue-500/20 backdrop-blur-sm border border-blue-400/50 text-white px-3 py-2 rounded-lg text-xs flex items-center gap-2">
+                    <Info className="w-4 h-4 flex-shrink-0" />
+                    <span>Enter the phone number provided by your {loginType === 'admin' ? 'SuperAdmin' : 'Admin'}</span>
                   </div>
                 )}
 
@@ -279,9 +331,38 @@ const Welcome = () => {
                   disabled={loading}
                   className="w-full bg-white text-blue-600 py-3 rounded-xl font-semibold hover:bg-blue-50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg"
                 >
-                  {loading ? 'Sending OTP...' : 'Send OTP'}
+                  {loading ? (isNewUser ? 'Setting up...' : 'Sending OTP...') : (isNewUser ? 'Set Password & Send OTP' : 'Send OTP')}
                   <ArrowRight className="w-4 h-4" />
                 </button>
+
+                {/* New User Toggle - Only for Admin and Staff */}
+                {(loginType === 'admin' || loginType === 'staff') && (
+                  <div className="text-center text-sm text-white/80">
+                    {isNewUser ? (
+                      <span>
+                        Already have an account?{' '}
+                        <button
+                          type="button"
+                          onClick={() => setIsNewUser(false)}
+                          className="text-white font-semibold hover:text-blue-200 transition-colors underline"
+                        >
+                          Existing User
+                        </button>
+                      </span>
+                    ) : (
+                      <span>
+                        First time here?{' '}
+                        <button
+                          type="button"
+                          onClick={() => setIsNewUser(true)}
+                          className="text-white font-semibold hover:text-blue-200 transition-colors underline"
+                        >
+                          New User
+                        </button>
+                      </span>
+                    )}
+                  </div>
+                )}
               </form>
             ) : (
               <form onSubmit={handleVerifyOTP} className="space-y-4">

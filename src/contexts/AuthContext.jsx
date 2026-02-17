@@ -81,30 +81,34 @@ export function AuthProvider({ children }) {
     }
 
     const data = await response.json()
+    const payload = JSON.parse(atob(data.access_token.split('.')[1]))
+    
     localStorage.setItem('auth_token', data.access_token)
-    localStorage.setItem('user_type', data.user_type)
+    localStorage.setItem('user_type', data.user_type || payload.user_type)
+    localStorage.setItem('user_name', data.user_name || payload.user_name)
+    localStorage.setItem('organization_id', data.organization_id || payload.organization_id)
     
     await checkAuth()
     return data
   }
 
-  const adminRegister = async (registerData) => {
-    const response = await fetch(`${API_BASE_URL}/api/auth/admin/register`, {
+  const adminSignup = async (phone, password) => {
+    const response = await fetch(`${API_BASE_URL}/api/auth/admin/signup`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(registerData)
+      body: JSON.stringify({ phone, password })
     })
 
     if (!response.ok) {
       const error = await response.json()
-      throw new Error(error.detail || 'Registration failed')
+      throw new Error(error.detail || 'Signup failed')
     }
 
     return response.json()
   }
 
   // Staff OTP Flow
-  const staffSendOTP = async (uuid, phone) => {
+  const staffSendOTP = async (phone, password) => {
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 30000)
 
@@ -112,7 +116,7 @@ export function AuthProvider({ children }) {
       const response = await fetch(`${API_BASE_URL}/api/auth/staff/send-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uuid, phone }),
+        body: JSON.stringify({ phone, password }),
         signal: controller.signal
       })
 
@@ -133,11 +137,11 @@ export function AuthProvider({ children }) {
     }
   }
 
-  const staffVerifyOTP = async (uuid, phone, otpCode) => {
+  const staffVerifyOTP = async (phone, otpCode) => {
     const response = await fetch(`${API_BASE_URL}/api/auth/staff/verify-otp`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ uuid, phone, otp_code: otpCode })
+      body: JSON.stringify({ phone, otp_code: otpCode })
     })
 
     if (!response.ok) {
@@ -146,16 +150,31 @@ export function AuthProvider({ children }) {
     }
 
     const data = await response.json()
+    const payload = JSON.parse(atob(data.access_token.split('.')[1]))
+    
     localStorage.setItem('auth_token', data.access_token)
-    localStorage.setItem('user_type', data.user_type)
-    localStorage.setItem('user_name', data.user_name)
-    localStorage.setItem('shop_info', JSON.stringify({
-      shop_id: data.shop_id,
-      shop_name: data.shop_name
-    }))
+    localStorage.setItem('user_type', data.user_type || payload.user_type)
+    localStorage.setItem('user_name', data.user_name || payload.user_name)
+    localStorage.setItem('shop_code', data.shop_code || payload.shop_code)
+    localStorage.setItem('shop_name', data.shop_name || payload.shop_name)
     
     await checkAuth()
     return data
+  }
+
+  const staffSignup = async (phone, password) => {
+    const response = await fetch(`${API_BASE_URL}/api/auth/staff/signup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone, password })
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.detail || 'Signup failed')
+    }
+
+    return response.json()
   }
 
   const superAdminLogin = async (email, password) => {
@@ -220,8 +239,11 @@ export function AuthProvider({ children }) {
     }
 
     const data = await response.json()
+    const payload = JSON.parse(atob(data.access_token.split('.')[1]))
+    
     localStorage.setItem('auth_token', data.access_token)
-    localStorage.setItem('user_type', data.user_type)
+    localStorage.setItem('user_type', data.user_type || payload.user_type)
+    localStorage.setItem('user_name', data.user_name || payload.user_name)
     
     await checkAuth()
     return data
@@ -239,9 +261,10 @@ export function AuthProvider({ children }) {
       loading, 
       adminSendOTP, 
       adminVerifyOTP, 
-      adminRegister, 
+      adminSignup, 
       staffSendOTP, 
       staffVerifyOTP,
+      staffSignup,
       superAdminLogin,
       superAdminSendOTP,
       superAdminVerifyOTP,
