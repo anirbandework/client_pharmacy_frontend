@@ -9,6 +9,11 @@ export default function StaffNotifications() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => { loadNotifications(); }, [includeRead]);
+  
+  useEffect(() => {
+    const interval = setInterval(loadNotifications, 30000);
+    return () => clearInterval(interval);
+  }, [includeRead]);
 
   const loadNotifications = async () => {
     try {

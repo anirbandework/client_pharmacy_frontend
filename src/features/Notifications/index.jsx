@@ -2,16 +2,44 @@ import { useState } from 'react';
 import Layout from '../../components/Layout';
 import SendNotification from './components/SendNotification';
 import SentNotifications from './components/SentNotifications';
+import StaffNotifications from './components/StaffNotifications';
+import { useAuth } from '../../contexts/AuthContext';
 import { Bell, Send, List } from 'lucide-react';
 
-export default function AdminNotifications() {
+export default function NotificationsPage() {
   const [activeTab, setActiveTab] = useState('sent');
   const [showSendModal, setShowSendModal] = useState(false);
+  const { user } = useAuth();
+  
+  // Get user type from localStorage as fallback
+  const userType = localStorage.getItem('user_type') || user?.user_type;
+  
+  if (userType === 'staff') {
+    return (
+      <Layout>
+        <div className="max-w-7xl mx-auto">
+          <div className="hidden md:block bg-gradient-to-r from-primary-600 via-accent-600 to-primary-700 rounded-xl shadow-lg p-4 md:p-6 mb-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 md:p-3 bg-white/20 backdrop-blur-sm rounded-xl">
+                <Bell className="w-5 h-5 md:w-6 md:h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl md:text-2xl font-bold text-white">My Notifications</h1>
+                <p className="text-white/90 text-xs md:text-sm">View your notifications</p>
+              </div>
+            </div>
+          </div>
+          <StaffNotifications />
+        </div>
+      </Layout>
+    );
+  }
 
   const tabs = [
     { id: 'sent', label: 'Sent', icon: List, color: 'from-blue-500 to-blue-600' }
   ];
 
+  // Admin view
   return (
     <Layout>
       <div className="max-w-7xl mx-auto">
