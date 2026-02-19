@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { FileText, Users, Package, ShoppingCart, Wallet, Settings, Clock, Shield, Bell, MessageCircle, Send } from 'lucide-react'
+import { FileText, Users, Package, ShoppingCart, Wallet, Settings, Clock, Shield, Bell, MessageCircle, Send, Receipt } from 'lucide-react'
 import { useSidebar } from '../contexts/SidebarContext'
 import { feedbackAPI } from '../features/Feedback/services/feedbackApi'
 import FeedbackFormModal from '../features/Feedback/components/FeedbackFormModal'
@@ -35,7 +35,7 @@ const Sidebar = () => {
   const navItems = [
     { id: 'super-admin-panel', label: 'Super Admin', path: '/super-admin', icon: Shield, roles: ['super_admin'] },
     { id: 'feedback-management', label: 'Feedback', path: '/feedback-management', icon: Bell, roles: ['super_admin'] },
-    { id: 'daily-records', label: 'Daily Records', path: '/daily-records', icon: FileText, roles: ['staff'] },
+    { id: 'billing', label: 'Billing', path: '/billing', icon: Receipt, roles: ['staff'] },
     { id: 'purchase-invoice', label: 'Purchase Invoice', path: '/purchase-invoice', icon: ShoppingCart, roles: ['staff'] },
     { id: 'customer-tracking', label: 'Customer Tracking', path: '/customer-tracking', icon: Users, roles: ['staff'] },
     { id: 'stock-audit', label: 'Stock Audit', path: '/stock-audit', icon: Package, roles: ['staff'] },

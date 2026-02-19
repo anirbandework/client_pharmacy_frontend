@@ -77,6 +77,7 @@ const AuditSession = () => {
                     {item.manufacturer && <p className="text-gray-600">Manufacturer: {item.manufacturer}</p>}
                     <p className="text-gray-600">Software Stock: {item.quantity_software}</p>
                     {item.quantity_physical !== undefined && <p className="text-gray-600">Physical Stock: {item.quantity_physical}</p>}
+                    {item.mrp && <p className="text-gray-600">MRP: ₹{item.mrp}</p>}
                     {item.unit_price && <p className="text-gray-600">Unit Price: ₹{item.unit_price}</p>}
                     {item.expiry_date && <p className="text-orange-600">Expiry: {new Date(item.expiry_date).toLocaleDateString()}</p>}
                     {item.audit_discrepancy !== undefined && item.audit_discrepancy !== 0 && <p className="text-red-600 font-semibold">Discrepancy: {item.audit_discrepancy}</p>}

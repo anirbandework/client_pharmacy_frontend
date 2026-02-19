@@ -7,10 +7,10 @@ import LoadingSpinner from './components/LoadingSpinner'
 import './App.css'
 
 const Welcome = lazy(() => import('./features/Welcome'))
-const DailyRecords = lazy(() => import('./features/DailyRecords'))
 const PurchaseInvoice = lazy(() => import('./features/PurchaseInvoice'))
 const CustomerTracking = lazy(() => import('./features/CustomerTracking'))
 const StockAudit = lazy(() => import('./features/StockAudit'))
+const Billing = lazy(() => import('./features/Billing'))
 const Attendance = lazy(() => import('./features/Attendance'))
 const AdminDashboard = lazy(() => import('./features/Login'))
 const SuperAdminDashboard = lazy(() => import('./features/Login/SuperAdminDashboard'))
@@ -49,10 +49,10 @@ function App() {
                   <Route path="/my-feedback" element={<MyFeedback />} />
                   <Route path="/notifications" element={<AdminNotifications />} />
                   <Route path="/my-notifications" element={<StaffNotificationsPage />} />
-                  <Route path="/daily-records" element={<DailyRecords />} />
                   <Route path="/purchase-invoice" element={<PurchaseInvoice />} />
                   <Route path="/customer-tracking" element={<CustomerTracking />} />
                   <Route path="/stock-audit" element={<StockAudit />} />
+                  <Route path="/billing" element={<Billing />} />
                   <Route path="/attendance" element={<Attendance />} />
                   <Route path="/salary-management" element={<AdminSalaryManagement />} />
                   <Route path="/my-salary" element={<StaffSalaryProfile />} />

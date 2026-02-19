@@ -12,6 +12,7 @@ const StockItems = () => {
     generic_name: '', 
     brand_name: '', 
     batch_number: '', 
+    mrp: '',
     unit_price: '', 
     expiry_date: '', 
     manufacturer: '', 
@@ -41,7 +42,7 @@ const StockItems = () => {
       } else {
         await stockAuditAPI.addItem(formData)
       }
-      setFormData({ item_name: '', generic_name: '', brand_name: '', batch_number: '', unit_price: '', expiry_date: '', manufacturer: '', section_id: '', quantity_software: '' })
+      setFormData({ item_name: '', generic_name: '', brand_name: '', batch_number: '', mrp: '', unit_price: '', expiry_date: '', manufacturer: '', section_id: '', quantity_software: '' })
       setShowForm(false)
       setEditingItem(null)
       fetchData()
@@ -57,6 +58,7 @@ const StockItems = () => {
       generic_name: item.generic_name,
       brand_name: item.brand_name,
       batch_number: item.batch_number,
+      mrp: item.mrp,
       unit_price: item.unit_price,
       expiry_date: item.expiry_date,
       manufacturer: item.manufacturer,
@@ -98,7 +100,7 @@ const StockItems = () => {
           <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
             <Download className="w-4 h-4" />Export Excel
           </button>
-          <button onClick={() => { setShowForm(!showForm); setEditingItem(null); setFormData({ item_name: '', generic_name: '', brand_name: '', batch_number: '', unit_price: '', expiry_date: '', manufacturer: '', section_id: '', quantity_software: '' }); }} className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700">
+          <button onClick={() => { setShowForm(!showForm); setEditingItem(null); setFormData({ item_name: '', generic_name: '', brand_name: '', batch_number: '', mrp: '', unit_price: '', expiry_date: '', manufacturer: '', section_id: '', quantity_software: '' }); }} className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700">
             <Plus className="w-4 h-4" />Add Item
           </button>
         </div>
@@ -110,6 +112,7 @@ const StockItems = () => {
             <input type="text" placeholder="Generic Name" value={formData.generic_name} onChange={(e) => setFormData({ ...formData, generic_name: e.target.value })} className="px-3 py-2 border rounded" />
             <input type="text" placeholder="Brand Name" value={formData.brand_name} onChange={(e) => setFormData({ ...formData, brand_name: e.target.value })} className="px-3 py-2 border rounded" />
             <input type="text" placeholder="Batch Number" value={formData.batch_number} onChange={(e) => setFormData({ ...formData, batch_number: e.target.value })} className="px-3 py-2 border rounded" required />
+            <input type="number" step="0.01" placeholder="MRP" value={formData.mrp} onChange={(e) => setFormData({ ...formData, mrp: e.target.value })} className="px-3 py-2 border rounded" />
             <input type="number" step="0.01" placeholder="Unit Price" value={formData.unit_price} onChange={(e) => setFormData({ ...formData, unit_price: e.target.value })} className="px-3 py-2 border rounded" required />
             <div className="relative">
               <input 
@@ -145,6 +148,7 @@ const StockItems = () => {
               <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">Rack</th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">Section</th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">Qty (S/P)</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">MRP</th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">Unit Price</th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">Total Value</th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase tracking-wider">Expiry</th>
@@ -179,6 +183,7 @@ const StockItems = () => {
                     {item.quantity_physical !== null && <span className="text-gray-500"> / {item.quantity_physical}</span>}
                   </div>
                 </td>
+                <td className="px-4 py-3 font-semibold text-purple-700">{item.mrp ? `₹${item.mrp}` : <span className="text-gray-400">-</span>}</td>
                 <td className="px-4 py-3 font-semibold text-green-700">₹{item.unit_price}</td>
                 <td className="px-4 py-3 font-semibold text-blue-700">
                   {item.total_value ? `₹${item.total_value.toLocaleString('en-IN')}` : <span className="text-gray-400">-</span>}

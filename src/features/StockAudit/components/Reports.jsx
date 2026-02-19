@@ -116,6 +116,7 @@ const Reports = () => {
                           <>
                             {itemData.quantity_software !== undefined && <p className="text-gray-700">Software Stock: {itemData.quantity_software}</p>}
                             {itemData.quantity_physical !== undefined && <p className="text-gray-700">Physical Stock: {itemData.quantity_physical}</p>}
+                            {itemData.mrp && <p className="text-gray-600">MRP: ₹{itemData.mrp}</p>}
                             {itemData.unit_price && <p className="text-gray-600">Unit Price: ₹{itemData.unit_price}</p>}
                             {itemData.expiry_date && <p className="text-orange-600">Expires: {new Date(itemData.expiry_date).toLocaleDateString()}</p>}
                             {itemData.audit_discrepancy !== undefined && itemData.audit_discrepancy !== 0 && <p className="text-red-600 font-semibold">Discrepancy: {itemData.audit_discrepancy}</p>}
