@@ -75,7 +75,7 @@ const Welcome = () => {
     try {
       if (loginType === 'staff') {
         await staffVerifyOTP(phone, otp)
-        navigate('/daily-records')
+        navigate('/billing')
       } else if (loginType === 'super_admin') {
         await superAdminVerifyOTP(phone, otp)
         navigate('/super-admin')
