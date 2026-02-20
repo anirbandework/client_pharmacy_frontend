@@ -22,6 +22,10 @@ const CreateBill = ({ onBillCreated }) => {
   const [amountPaid, setAmountPaid] = useState('')
   const [loading, setLoading] = useState(false)
   const [createdBill, setCreatedBill] = useState(null)
+  
+  // Customer tracking fields
+  const [customerCategory, setCustomerCategory] = useState('first_time_prescription')
+  const [wasContactedBefore, setWasContactedBefore] = useState(false)
 
   const searchMedicines = async (term) => {
     if (term.length < 2) {
@@ -89,6 +93,8 @@ const CreateBill = ({ onBillCreated }) => {
     try {
       const billData = {
         ...customerInfo,
+        customer_category: customerCategory,
+        was_contacted_before: wasContactedBefore,
         payment_method: paymentMethod,
         payment_reference: paymentReference || undefined,
         amount_paid: parseFloat(amountPaid),
@@ -165,6 +171,34 @@ const CreateBill = ({ onBillCreated }) => {
             onChange={(e) => setCustomerInfo({...customerInfo, doctor_name: e.target.value})}
             className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
           />
+        </div>
+        
+        {/* Customer Tracking */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          <div>
+            <label className="block text-sm font-medium mb-2">Customer Category</label>
+            <select
+              value={customerCategory}
+              onChange={(e) => setCustomerCategory(e.target.value)}
+              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
+            >
+              <option value="first_time_prescription">First Time with Prescription</option>
+              <option value="regular_branded">Regular (Branded Medicines)</option>
+              <option value="generic_informed">Generic Informed</option>
+              <option value="contact_sheet">From Contact Sheet</option>
+            </select>
+          </div>
+          <div className="flex items-center">
+            <label className="flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={wasContactedBefore}
+                onChange={(e) => setWasContactedBefore(e.target.checked)}
+                className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+              />
+              <span className="ml-2 text-sm font-medium">Was contacted by store before?</span>
+            </label>
+          </div>
         </div>
       </div>
 
