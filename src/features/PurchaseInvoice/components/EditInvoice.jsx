@@ -293,14 +293,38 @@ const EditInvoice = ({ invoice, onClose, onSave }) => {
                     </button>
                   </div>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
-                    <input type="text" placeholder="Product Name" value={item.product_name} onChange={(e) => handleItemChange(idx, 'product_name', e.target.value)} className="px-2 py-1 border rounded" />
-                    <input type="text" placeholder="HSN" value={item.hsn_code} onChange={(e) => handleItemChange(idx, 'hsn_code', e.target.value)} className="px-2 py-1 border rounded" />
-                    <input type="text" placeholder="Batch" value={item.batch_number} onChange={(e) => handleItemChange(idx, 'batch_number', e.target.value)} className="px-2 py-1 border rounded" />
-                    <input type="text" placeholder="Expiry" value={item.expiry_date} onChange={(e) => handleItemChange(idx, 'expiry_date', e.target.value)} className="px-2 py-1 border rounded" />
-                    <input type="number" placeholder="Qty" value={item.quantity} onChange={(e) => handleItemChange(idx, 'quantity', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded" />
-                    <input type="number" placeholder="Rate" value={item.unit_price} onChange={(e) => handleItemChange(idx, 'unit_price', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded" />
-                    <input type="number" placeholder="CGST%" value={item.cgst_percent} onChange={(e) => handleItemChange(idx, 'cgst_percent', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded" />
-                    <input type="number" placeholder="SGST%" value={item.sgst_percent} onChange={(e) => handleItemChange(idx, 'sgst_percent', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded" />
+                    <div>
+                      <label className="text-xs text-gray-500">Product Name</label>
+                      <input type="text" placeholder="Product Name" value={item.product_name} onChange={(e) => handleItemChange(idx, 'product_name', e.target.value)} className="px-2 py-1 border rounded w-full" />
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-500">HSN Code</label>
+                      <input type="text" placeholder="HSN" value={item.hsn_code} onChange={(e) => handleItemChange(idx, 'hsn_code', e.target.value)} className="px-2 py-1 border rounded w-full" />
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-500">Batch</label>
+                      <input type="text" placeholder="Batch" value={item.batch_number} onChange={(e) => handleItemChange(idx, 'batch_number', e.target.value)} className="px-2 py-1 border rounded w-full" />
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-500">Expiry</label>
+                      <input type="text" placeholder="Expiry" value={item.expiry_date} onChange={(e) => handleItemChange(idx, 'expiry_date', e.target.value)} className="px-2 py-1 border rounded w-full" />
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-500">Quantity</label>
+                      <input type="number" placeholder="Qty" value={item.quantity} onChange={(e) => handleItemChange(idx, 'quantity', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-500">Rate</label>
+                      <input type="number" placeholder="Rate" value={item.unit_price} onChange={(e) => handleItemChange(idx, 'unit_price', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-500">CGST %</label>
+                      <input type="number" placeholder="CGST%" value={item.cgst_percent} onChange={(e) => handleItemChange(idx, 'cgst_percent', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-500">SGST %</label>
+                      <input type="number" placeholder="SGST%" value={item.sgst_percent} onChange={(e) => handleItemChange(idx, 'sgst_percent', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
+                    </div>
                   </div>
                   <div className="mt-2 text-sm text-gray-600">
                     Amount: ₹{item.taxable_amount.toFixed(2)} | GST: ₹{(item.cgst_amount + item.sgst_amount).toFixed(2)} | Total: ₹{item.total_amount.toFixed(2)}
