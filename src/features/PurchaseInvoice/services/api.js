@@ -32,7 +32,8 @@ export const purchaseInvoiceAPI = {
     const formData = new FormData()
     formData.append('file', file)
     return axiosInstance.post('/api/purchase-invoices/upload', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
+      headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 60000  // 60 seconds for file upload and AI processing
     })
   },
   

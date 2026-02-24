@@ -14,7 +14,11 @@ const CreateBill = ({ onBillCreated }) => {
     customer_email: '',
     doctor_name: ''
   })
-  const [paymentMethod, setPaymentMethod] = useState('cash')
+  const [paymentAmounts, setPaymentAmounts] = useState({
+    cash: '',
+    card: '',
+    online: ''
+  })
   const [paymentReference, setPaymentReference] = useState('')
   const [taxPercent, setTaxPercent] = useState(5.0)
   const [discountPercent, setDiscountPercent] = useState(0)
@@ -48,12 +52,12 @@ const CreateBill = ({ onBillCreated }) => {
     }
     setBillItems([...billItems, {
       stock_item_id: medicine.id,
-      item_name: medicine.item_name,
+      item_name: medicine.product_name,
       batch_number: medicine.batch_number,
       quantity_available: medicine.quantity_available,
       unit_price: medicine.unit_price || 0,
       quantity: 1,
-      mrp: medicine.mrp || medicine.unit_price || 0,
+      mrp: medicine.mrp || '',
       rack_number: medicine.rack_number,
       section_name: medicine.section_name
     }])
@@ -76,7 +80,9 @@ const CreateBill = ({ onBillCreated }) => {
     const discountAmount = subtotal * (discountPercent / 100)
     const afterDiscount = subtotal - discountAmount
     const tax = afterDiscount * (taxPercent / 100)
-    return { subtotal, discountAmount, tax, total: afterDiscount + tax }
+    const total = afterDiscount + tax
+    const totalPaid = (parseFloat(paymentAmounts.cash) || 0) + (parseFloat(paymentAmounts.card) || 0) + (parseFloat(paymentAmounts.online) || 0)
+    return { subtotal, discountAmount, tax, total, totalPaid }
   }
 
   const handleSubmit = async () => {
@@ -84,8 +90,11 @@ const CreateBill = ({ onBillCreated }) => {
       toast.error('Add at least one item')
       return
     }
-    if (!amountPaid || parseFloat(amountPaid) < calculateTotal().total) {
-      toast.error('Amount paid is insufficient')
+    
+    const { total, totalPaid } = calculateTotal()
+    
+    if (totalPaid < total) {
+      toast.error(`Insufficient payment. Total: ₹${total.toFixed(2)}, Paid: ₹${totalPaid.toFixed(2)}`)
       return
     }
 
@@ -95,9 +104,10 @@ const CreateBill = ({ onBillCreated }) => {
         ...customerInfo,
         customer_category: customerCategory,
         was_contacted_before: wasContactedBefore,
-        payment_method: paymentMethod,
+        cash_amount: parseFloat(paymentAmounts.cash) || 0,
+        card_amount: parseFloat(paymentAmounts.card) || 0,
+        online_amount: parseFloat(paymentAmounts.online) || 0,
         payment_reference: paymentReference || undefined,
-        amount_paid: parseFloat(amountPaid),
         discount_percent: discountPercent,
         notes: notes || undefined,
         items: billItems.map(item => ({
@@ -112,17 +122,16 @@ const CreateBill = ({ onBillCreated }) => {
       const { data } = await billingAPI.createBill(billData)
       toast.success(`Bill created: ${data.bill_number}`)
       
-      // Show bill preview
       setCreatedBill(data)
       
       // Reset form
       setBillItems([])
       setCustomerInfo({ customer_name: '', customer_phone: '', customer_email: '', doctor_name: '' })
+      setPaymentAmounts({ cash: '', card: '', online: '' })
       setPaymentReference('')
       setTaxPercent(5.0)
       setDiscountPercent(0)
       setNotes('')
-      setAmountPaid('')
       onBillCreated?.()
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Failed to create bill')
@@ -131,7 +140,7 @@ const CreateBill = ({ onBillCreated }) => {
     }
   }
 
-  const { subtotal, discountAmount, tax, total } = calculateTotal()
+  const { subtotal, discountAmount, tax, total, totalPaid } = calculateTotal()
 
   const printBill = () => {
     window.print()
@@ -229,7 +238,7 @@ const CreateBill = ({ onBillCreated }) => {
               >
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="font-semibold">{medicine.item_name}</p>
+                    <p className="font-semibold">{medicine.product_name}</p>
                     <p className="text-sm text-gray-600">
                       Batch: {medicine.batch_number} | Stock: {medicine.quantity_available} | 
                       Location: {medicine.rack_number} - {medicine.section_name}
@@ -342,17 +351,42 @@ const CreateBill = ({ onBillCreated }) => {
           </div>
 
           {/* Payment */}
-          <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">Payment Method</label>
-              <select
-                value={paymentMethod}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
-              >
-                <option value="cash">Cash</option>
-                <option value="online">Online</option>
-              </select>
+          <div className="mt-4 space-y-4">
+            <h4 className="font-semibold">Payment Details</h4>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Cash Amount</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={paymentAmounts.cash}
+                  onChange={(e) => setPaymentAmounts({...paymentAmounts, cash: e.target.value})}
+                  placeholder="0.00"
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Card Amount</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={paymentAmounts.card}
+                  onChange={(e) => setPaymentAmounts({...paymentAmounts, card: e.target.value})}
+                  placeholder="0.00"
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Online Amount</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={paymentAmounts.online}
+                  onChange={(e) => setPaymentAmounts({...paymentAmounts, online: e.target.value})}
+                  placeholder="0.00"
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
+                />
+              </div>
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">Payment Reference (Optional)</label>
@@ -360,20 +394,27 @@ const CreateBill = ({ onBillCreated }) => {
                 type="text"
                 value={paymentReference}
                 onChange={(e) => setPaymentReference(e.target.value)}
-                placeholder="Transaction ID"
+                placeholder="Transaction ID / Card Reference"
                 className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Amount Paid</label>
-              <input
-                type="number"
-                step="0.01"
-                value={amountPaid}
-                onChange={(e) => setAmountPaid(e.target.value)}
-                placeholder="Enter amount"
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
-              />
+            <div className="bg-blue-50 p-3 rounded-lg">
+              <div className="flex justify-between text-sm">
+                <span>Total Paid:</span>
+                <span className="font-semibold">₹{totalPaid.toFixed(2)}</span>
+              </div>
+              {totalPaid >= total && totalPaid > 0 && (
+                <div className="flex justify-between text-sm text-green-600 mt-1">
+                  <span>Change:</span>
+                  <span className="font-semibold">₹{(totalPaid - total).toFixed(2)}</span>
+                </div>
+              )}
+              {totalPaid < total && totalPaid > 0 && (
+                <div className="flex justify-between text-sm text-red-600 mt-1">
+                  <span>Remaining:</span>
+                  <span className="font-semibold">₹{(total - totalPaid).toFixed(2)}</span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -387,12 +428,6 @@ const CreateBill = ({ onBillCreated }) => {
               className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
             />
           </div>
-
-          {amountPaid && parseFloat(amountPaid) >= total && (
-            <div className="mt-2 text-sm text-green-600">
-              Change: ₹{(parseFloat(amountPaid) - total).toFixed(2)}
-            </div>
-          )}
 
           <button
             onClick={handleSubmit}
@@ -480,7 +515,7 @@ const CreateBill = ({ onBillCreated }) => {
                         <td className="py-1">{index + 1}</td>
                         <td className="py-1">{item.item_name}</td>
                         <td className="py-1">{item.batch_number}</td>
-                        <td className="py-1 text-right">{item.mrp?.toFixed(2) || '-'}</td>
+                        <td className="py-1 text-right">{item.mrp || '-'}</td>
                         <td className="py-1 text-right">{item.quantity}</td>
                         <td className="py-1 text-right">{item.unit_price.toFixed(2)}</td>
                         <td className="py-1 text-right">{item.sgst_amount.toFixed(2)} ({item.sgst_percent}%)</td>
@@ -496,7 +531,10 @@ const CreateBill = ({ onBillCreated }) => {
                 <div className="border-t-2 border-black pt-2 text-xs">
                   <div className="flex justify-between items-start">
                     <div>
-                      <p><strong>Total MRP Amount:</strong> ₹{createdBill.items.reduce((sum, item) => sum + (item.mrp || item.unit_price) * item.quantity, 0).toFixed(2)}</p>
+                      <p><strong>Total MRP Amount:</strong> ₹{createdBill.items.reduce((sum, item) => {
+                        const mrpValue = item.mrp ? parseFloat(item.mrp.toString().match(/[\d.]+/)?.[0] || item.unit_price) : item.unit_price;
+                        return sum + mrpValue * item.quantity;
+                      }, 0).toFixed(2)}</p>
                       <p className="mt-1"><strong>GST IN:</strong> {STORE_CONFIG.gstIn}</p>
                     </div>
                     <div className="text-right space-y-1">

@@ -24,6 +24,8 @@ const EditInvoice = ({ invoice, onClose, onSave }) => {
   })
   const [customFieldKey, setCustomFieldKey] = useState('')
   const [customFieldValue, setCustomFieldValue] = useState('')
+  const [customItemColumns, setCustomItemColumns] = useState([]) // New: Track custom columns for items
+  const [newColumnName, setNewColumnName] = useState('') // New: For adding new columns
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
@@ -46,11 +48,14 @@ const EditInvoice = ({ invoice, onClose, onSave }) => {
         custom_fields: invoice.custom_fields || {},
         items: invoice.items.map(item => ({
           id: item.id,
+          manufacturer: item.manufacturer || '',
           hsn_code: item.hsn_code || '',
           product_name: item.product_name || '',
           batch_number: item.batch_number || '',
-          expiry_date: item.expiry_date || '',
           quantity: item.quantity || 0,
+          package: item.package || '',
+          expiry_date: item.expiry_date || '',
+          mrp: item.mrp || '',
           free_quantity: item.free_quantity || 0,
           unit_price: item.unit_price || 0,
           discount_percent: item.discount_percent || 0,
@@ -66,6 +71,15 @@ const EditInvoice = ({ invoice, onClose, onSave }) => {
           custom_fields: item.custom_fields || {}
         }))
       })
+      
+      // Extract custom column names from items
+      const customCols = new Set()
+      invoice.items.forEach(item => {
+        if (item.custom_fields) {
+          Object.keys(item.custom_fields).forEach(key => customCols.add(key))
+        }
+      })
+      setCustomItemColumns(Array.from(customCols))
     }
   }, [invoice])
 
@@ -75,7 +89,17 @@ const EditInvoice = ({ invoice, onClose, onSave }) => {
 
   const handleItemChange = (index, field, value) => {
     const newItems = [...formData.items]
-    newItems[index][field] = value
+    
+    // Handle custom fields separately
+    if (field.startsWith('custom_')) {
+      const customFieldName = field.replace('custom_', '')
+      newItems[index].custom_fields = {
+        ...newItems[index].custom_fields,
+        [customFieldName]: value
+      }
+    } else {
+      newItems[index][field] = value
+    }
     
     // Auto-calculate totals
     if (['quantity', 'unit_price', 'cgst_percent', 'sgst_percent'].includes(field)) {
@@ -112,11 +136,13 @@ const EditInvoice = ({ invoice, onClose, onSave }) => {
     setFormData(prev => ({
       ...prev,
       items: [...prev.items, {
+        manufacturer: '',
         hsn_code: '',
         product_name: '',
         batch_number: '',
-        expiry_date: '',
         quantity: 1,
+        package: '',
+        expiry_date: '',
         free_quantity: 0,
         unit_price: 0,
         discount_percent: 0,
@@ -155,6 +181,32 @@ const EditInvoice = ({ invoice, onClose, onSave }) => {
     const newFields = { ...formData.custom_fields }
     delete newFields[key]
     setFormData(prev => ({ ...prev, custom_fields: newFields }))
+  }
+
+  const addCustomItemColumn = () => {
+    if (newColumnName && !customItemColumns.includes(newColumnName)) {
+      setCustomItemColumns(prev => [...prev, newColumnName])
+      // Add the column to all existing items
+      const newItems = formData.items.map(item => ({
+        ...item,
+        custom_fields: { ...item.custom_fields, [newColumnName]: '' }
+      }))
+      setFormData(prev => ({ ...prev, items: newItems }))
+      setNewColumnName('')
+      toast.success(`Column "${newColumnName}" added to all items`)
+    }
+  }
+
+  const removeCustomItemColumn = (columnName) => {
+    setCustomItemColumns(prev => prev.filter(col => col !== columnName))
+    // Remove the column from all items
+    const newItems = formData.items.map(item => {
+      const newCustomFields = { ...item.custom_fields }
+      delete newCustomFields[columnName]
+      return { ...item, custom_fields: newCustomFields }
+    })
+    setFormData(prev => ({ ...prev, items: newItems }))
+    toast.success(`Column "${columnName}" removed`)
   }
 
   const handleSave = async () => {
@@ -279,10 +331,43 @@ const EditInvoice = ({ invoice, onClose, onSave }) => {
           <div className="border-t pt-4">
             <div className="flex justify-between items-center mb-3">
               <h3 className="font-semibold text-gray-700">Items</h3>
-              <button onClick={addItem} className="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-1 text-sm">
-                <Plus className="w-4 h-4" /> Add Item
-              </button>
+              <div className="flex gap-2">
+                <button onClick={addItem} className="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-1 text-sm">
+                  <Plus className="w-4 h-4" /> Add Item
+                </button>
+              </div>
             </div>
+            
+            {/* Add Custom Column */}
+            <div className="mb-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <p className="text-sm font-semibold text-gray-700 mb-2">Add Custom Column (applies to all items)</p>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Column Name (e.g., MRP, Discount, Notes)"
+                  value={newColumnName}
+                  onChange={(e) => setNewColumnName(e.target.value)}
+                  className="flex-1 px-3 py-2 border rounded-lg text-sm"
+                />
+                <button onClick={addCustomItemColumn} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
+              {customItemColumns.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <span className="text-xs text-gray-600">Custom Columns:</span>
+                  {customItemColumns.map(col => (
+                    <div key={col} className="flex items-center gap-1 bg-blue-100 px-2 py-1 rounded text-xs">
+                      <span>{col}</span>
+                      <button onClick={() => removeCustomItemColumn(col)} className="text-red-600 hover:text-red-800">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            
             <div className="space-y-3 max-h-96 overflow-y-auto">
               {formData.items.map((item, idx) => (
                 <div key={idx} className="border rounded-lg p-3 bg-gray-50">
@@ -298,6 +383,10 @@ const EditInvoice = ({ invoice, onClose, onSave }) => {
                       <input type="text" placeholder="Product Name" value={item.product_name} onChange={(e) => handleItemChange(idx, 'product_name', e.target.value)} className="px-2 py-1 border rounded w-full" />
                     </div>
                     <div>
+                      <label className="text-xs text-gray-500">Mfg</label>
+                      <input type="text" placeholder="Manufacturer" value={item.manufacturer} onChange={(e) => handleItemChange(idx, 'manufacturer', e.target.value)} className="px-2 py-1 border rounded w-full" />
+                    </div>
+                    <div>
                       <label className="text-xs text-gray-500">HSN Code</label>
                       <input type="text" placeholder="HSN" value={item.hsn_code} onChange={(e) => handleItemChange(idx, 'hsn_code', e.target.value)} className="px-2 py-1 border rounded w-full" />
                     </div>
@@ -306,12 +395,20 @@ const EditInvoice = ({ invoice, onClose, onSave }) => {
                       <input type="text" placeholder="Batch" value={item.batch_number} onChange={(e) => handleItemChange(idx, 'batch_number', e.target.value)} className="px-2 py-1 border rounded w-full" />
                     </div>
                     <div>
-                      <label className="text-xs text-gray-500">Expiry</label>
-                      <input type="text" placeholder="Expiry" value={item.expiry_date} onChange={(e) => handleItemChange(idx, 'expiry_date', e.target.value)} className="px-2 py-1 border rounded w-full" />
-                    </div>
-                    <div>
                       <label className="text-xs text-gray-500">Quantity</label>
                       <input type="number" placeholder="Qty" value={item.quantity} onChange={(e) => handleItemChange(idx, 'quantity', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-500">Pkg</label>
+                      <input type="text" placeholder="Package" value={item.package} onChange={(e) => handleItemChange(idx, 'package', e.target.value)} className="px-2 py-1 border rounded w-full" />
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-500">Expiry</label>
+                      <input type="text" placeholder="MM/YYYY" value={item.expiry_date} onChange={(e) => handleItemChange(idx, 'expiry_date', e.target.value)} className="px-2 py-1 border rounded w-full" />
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-500">MRP</label>
+                      <input type="text" placeholder="e.g. 69.00/STRIP" value={item.mrp || ''} onChange={(e) => handleItemChange(idx, 'mrp', e.target.value)} className="px-2 py-1 border rounded w-full" />
                     </div>
                     <div>
                       <label className="text-xs text-gray-500">Rate</label>
@@ -325,6 +422,20 @@ const EditInvoice = ({ invoice, onClose, onSave }) => {
                       <label className="text-xs text-gray-500">SGST %</label>
                       <input type="number" placeholder="SGST%" value={item.sgst_percent} onChange={(e) => handleItemChange(idx, 'sgst_percent', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
                     </div>
+                    
+                    {/* Custom Columns */}
+                    {customItemColumns.map(colName => (
+                      <div key={colName}>
+                        <label className="text-xs text-blue-600 font-semibold">{colName}</label>
+                        <input
+                          type="text"
+                          placeholder={colName}
+                          value={item.custom_fields?.[colName] || ''}
+                          onChange={(e) => handleItemChange(idx, `custom_${colName}`, e.target.value)}
+                          className="px-2 py-1 border border-blue-300 rounded w-full bg-blue-50"
+                        />
+                      </div>
+                    ))}
                   </div>
                   <div className="mt-2 text-sm text-gray-600">
                     Amount: ₹{item.taxable_amount.toFixed(2)} | GST: ₹{(item.cgst_amount + item.sgst_amount).toFixed(2)} | Total: ₹{item.total_amount.toFixed(2)}
