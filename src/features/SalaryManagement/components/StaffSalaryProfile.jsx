@@ -3,6 +3,7 @@ import Layout from '../../../components/Layout'
 import PasswordProtectedRoute from '../../../components/PasswordProtectedRoute'
 import { salaryAPI } from '../services/salaryApi'
 import { User, DollarSign, Calendar, CheckCircle, Clock, AlertTriangle, Upload, CreditCard, QrCode } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 const StaffSalaryProfile = () => {
   const [profile, setProfile] = useState(null)
@@ -29,7 +30,7 @@ const StaffSalaryProfile = () => {
       const { data } = await salaryAPI.getMyProfile()
       setProfile(data)
     } catch (err) {
-      console.error(err)
+      toast.error('Failed to load profile')
     }
   }
 
@@ -38,7 +39,7 @@ const StaffSalaryProfile = () => {
       const { data } = await salaryAPI.getMyHistory()
       setHistory(data)
     } catch (err) {
-      console.error(err)
+      toast.error('Failed to load salary history')
     }
   }
 
@@ -54,7 +55,7 @@ const StaffSalaryProfile = () => {
         preferred_payment_method: data.preferred_payment_method || 'upi'
       })
     } catch (err) {
-      console.error(err)
+      toast.error('Failed to load payment info')
     }
   }
 
@@ -63,11 +64,11 @@ const StaffSalaryProfile = () => {
     setLoading(true)
     try {
       await salaryAPI.updateMyPaymentInfo(formData)
-      alert('Payment information updated successfully')
+      toast.success('Payment information updated successfully')
       setShowEditModal(false)
       loadPaymentInfo()
     } catch (err) {
-      alert(err.response?.data?.detail || 'Failed to update payment info')
+      toast.error(err.response?.data?.detail || 'Failed to update payment info')
     } finally {
       setLoading(false)
     }
@@ -79,10 +80,10 @@ const StaffSalaryProfile = () => {
     setLoading(true)
     try {
       await salaryAPI.uploadMyQRCode(file)
-      alert('QR code uploaded successfully')
+      toast.success('QR code uploaded successfully')
       loadPaymentInfo()
     } catch (err) {
-      alert(err.response?.data?.detail || 'Failed to upload QR code')
+      toast.error(err.response?.data?.detail || 'Failed to upload QR code')
     } finally {
       setLoading(false)
     }

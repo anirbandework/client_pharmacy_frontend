@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Layout from '../../../components/Layout'
 import { salaryAPI } from '../services/salaryApi'
 import { DollarSign, Users, AlertTriangle, Calendar, CheckCircle, XCircle, Clock, QrCode, CreditCard } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 const AdminSalaryManagement = () => {
   const [dashboard, setDashboard] = useState(null)
@@ -25,7 +26,7 @@ const AdminSalaryManagement = () => {
       const { data } = await salaryAPI.getDashboard()
       setDashboard(data)
     } catch (err) {
-      console.error(err)
+      toast.error('Failed to load dashboard')
     }
   }
 
@@ -35,7 +36,7 @@ const AdminSalaryManagement = () => {
       const { data } = await salaryAPI.getSalaryRecords({ month: selectedMonth, year: selectedYear })
       setRecords(data)
     } catch (err) {
-      console.error(err)
+      toast.error('Failed to load salary records')
     } finally {
       setLoading(false)
     }
@@ -46,28 +47,29 @@ const AdminSalaryManagement = () => {
       const { data } = await salaryAPI.getAlerts()
       setAlerts(data)
     } catch (err) {
-      console.error(err)
+      toast.error('Failed to load alerts')
     }
   }
 
   const handlePaySalary = async (recordId, paidBy, notes) => {
     try {
       await salaryAPI.paySalary(recordId, { paid_by_admin: paidBy, notes })
-      alert('Salary paid successfully')
+      toast.success('Salary paid successfully')
       setShowPayModal(null)
       loadDashboard()
       loadRecords()
     } catch (err) {
-      alert(err.response?.data?.detail || 'Failed to pay salary')
+      toast.error(err.response?.data?.detail || 'Failed to pay salary')
     }
   }
 
   const handleDismissAlert = async (alertId) => {
     try {
       await salaryAPI.dismissAlert(alertId)
+      toast.success('Alert dismissed')
       loadAlerts()
     } catch (err) {
-      console.error(err)
+      toast.error('Failed to dismiss alert')
     }
   }
 
@@ -76,7 +78,7 @@ const AdminSalaryManagement = () => {
       const { data } = await salaryAPI.getStaffPaymentInfo(staffId)
       setShowQRModal(data)
     } catch (err) {
-      alert('Failed to load payment info')
+      toast.error('Failed to load payment info')
     }
   }
 
@@ -84,11 +86,12 @@ const AdminSalaryManagement = () => {
     try {
       const { data } = await salaryAPI.generateMonthlyRecords(selectedYear, selectedMonth)
       setGenerateResult(data)
+      toast.success(`Generated ${data.created} salary records`)
       setTimeout(() => setGenerateResult(null), 5000)
       loadDashboard()
       loadRecords()
     } catch (err) {
-      alert(err.response?.data?.detail || 'Failed to generate records')
+      toast.error(err.response?.data?.detail || 'Failed to generate records')
     }
   }
 
