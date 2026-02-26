@@ -46,7 +46,7 @@ Direct access via: **`/super-admin-login`**
 - Access: Both methods
 
 ### **SuperAdmin 2**
-- Phone: `7085144096`
+- Phone: `9643579321`
 - Password: `test@123`
 - Access: Both methods
 

@@ -82,7 +82,7 @@ const Welcome = () => {
       } else {
         // Admin login - check if SuperAdmin phone
         const normalizedPhone = phone.replace(/\D/g, '')
-        const isSuperAdmin = normalizedPhone.endsWith('9383169659') || normalizedPhone.endsWith('7085144096')
+        const isSuperAdmin = normalizedPhone.endsWith('9383169659') || normalizedPhone.endsWith('9643579321')
         
         if (isSuperAdmin) {
           // Auto-upgrade to SuperAdmin
