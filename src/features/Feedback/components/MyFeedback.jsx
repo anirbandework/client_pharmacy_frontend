@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import Layout from '../../../components/Layout'
+import PasswordProtectedRoute from '../../../components/PasswordProtectedRoute'
 import { feedbackAPI } from '../services/feedbackApi'
 import { MessageSquare, Star, Smile, Meh, Frown, Angry, Laugh, Rocket, Bug, Lightbulb, AlertCircle, Heart, Bookmark, User, Clock, CheckCircle } from 'lucide-react'
 
@@ -40,7 +41,8 @@ const MyFeedback = () => {
 
   return (
     <Layout>
-      <div className="max-w-5xl mx-auto">
+      <PasswordProtectedRoute moduleName="My Feedback">
+        <div className="max-w-5xl mx-auto">
         <div className="bg-gradient-to-r from-purple-600 via-pink-600 to-purple-700 rounded-xl shadow-lg p-6 mb-6">
           <div className="flex items-center gap-3">
             <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl">
@@ -119,6 +121,7 @@ const MyFeedback = () => {
           )}
         </div>
       </div>
+      </PasswordProtectedRoute>
     </Layout>
   )
 }

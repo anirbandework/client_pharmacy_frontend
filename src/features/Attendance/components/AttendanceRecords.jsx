@@ -1,21 +1,21 @@
 import React, { useState, useEffect } from 'react'
 import { attendanceAPI } from '../services/attendanceApi'
-import { List, UserCheck, UserX } from 'lucide-react'
+import { List } from 'lucide-react'
 import { adminApi } from '../../Login/services/adminApi'
 
-const AttendanceRecords = ({ shopId }) => {
+const AttendanceRecords = ({ shopCode }) => {
   const [records, setRecords] = useState([])
   const [staff, setStaff] = useState([])
   const [filters, setFilters] = useState({ staff_id: '', from_date: '', to_date: '' })
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    if (shopId) loadStaff()
-  }, [shopId])
+    if (shopCode) loadStaff()
+  }, [shopCode])
 
   const loadStaff = async () => {
     try {
-      const data = await adminApi.getShopStaff(shopId)
+      const data = await adminApi.getAllStaff()
       setStaff(data)
     } catch (error) {
       console.error(error)
@@ -25,22 +25,12 @@ const AttendanceRecords = ({ shopId }) => {
   const fetchRecords = async () => {
     setLoading(true)
     try {
-      const res = await attendanceAPI.getRecords(shopId, filters.staff_id, filters.from_date, filters.to_date)
+      const res = await attendanceAPI.getRecords(shopCode, filters.staff_id, filters.from_date, filters.to_date)
       setRecords(res.data)
     } catch (error) {
       console.error(error)
     } finally {
       setLoading(false)
-    }
-  }
-
-  const handleCheckOut = async (staffId) => {
-    try {
-      await attendanceAPI.adminCheckOut(staffId, {})
-      alert('Staff checked out!')
-      fetchRecords()
-    } catch (error) {
-      alert(error.response?.data?.detail || 'Checkout failed')
     }
   }
 
@@ -74,29 +64,27 @@ const AttendanceRecords = ({ shopId }) => {
                   <th className="px-3 py-2 text-center">Check-in</th>
                   <th className="px-3 py-2 text-center">Check-out</th>
                   <th className="px-3 py-2 text-center">Hours</th>
+                  <th className="px-3 py-2 text-center">Breaks</th>
                   <th className="px-3 py-2 text-center">Status</th>
-                  <th className="px-3 py-2 text-center">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {records.map((r) => (
                   <tr key={r.id} className="border-t">
                     <td className="px-3 py-2">{r.date}</td>
-                    <td className="px-3 py-2">{r.staff_name}</td>
+                    <td className="px-3 py-2">{r.staff_name || 'N/A'}</td>
                     <td className="px-3 py-2 text-center">{r.check_in_time ? new Date(r.check_in_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '-'}</td>
                     <td className="px-3 py-2 text-center">{r.check_out_time ? new Date(r.check_out_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '-'}</td>
                     <td className="px-3 py-2 text-center">{r.total_hours ? (r.total_hours / 60).toFixed(1) : '-'}</td>
                     <td className="px-3 py-2 text-center">
+                      {r.total_break_minutes > 0 ? (
+                        <span className="text-xs text-orange-600">{Math.floor(r.total_break_minutes / 60)}h {r.total_break_minutes % 60}m</span>
+                      ) : '-'}
+                    </td>
+                    <td className="px-3 py-2 text-center">
                       <span className={`text-xs px-2 py-1 rounded ${r.is_late ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'}`}>
                         {r.is_late ? 'Late' : 'On time'}
                       </span>
-                    </td>
-                    <td className="px-3 py-2 text-center">
-                      {!r.check_out_time && (
-                        <button onClick={() => handleCheckOut(r.staff_id)} className="text-xs bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">
-                          Check Out
-                        </button>
-                      )}
                     </td>
                   </tr>
                 ))}

@@ -2,20 +2,20 @@ import React, { useState, useEffect } from 'react'
 import { attendanceAPI } from '../services/attendanceApi'
 import { Calendar } from 'lucide-react'
 
-const MonthlyReport = ({ shopId }) => {
+const MonthlyReport = ({ shopCode }) => {
   const [year, setYear] = useState(new Date().getFullYear())
   const [month, setMonth] = useState(new Date().getMonth() + 1)
   const [report, setReport] = useState(null)
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    if (shopId) fetchReport()
-  }, [shopId, year, month])
+    if (shopCode) fetchReport()
+  }, [shopCode, year, month])
 
   const fetchReport = async () => {
     setLoading(true)
     try {
-      const res = await attendanceAPI.getMonthlyReport(year, month, shopId)
+      const res = await attendanceAPI.getMonthlyReport(year, month, shopCode)
       setReport(res.data)
     } catch (error) {
       console.error(error)
@@ -37,7 +37,10 @@ const MonthlyReport = ({ shopId }) => {
             ))}
           </select>
           <select value={year} onChange={(e) => setYear(Number(e.target.value))} className="px-3 py-2 text-sm border rounded-lg">
-            {[2024, 2025].map(y => <option key={y} value={y}>{y}</option>)}
+            {Array.from({ length: 10 }, (_, i) => {
+              const y = new Date().getFullYear() - 5 + i
+              return <option key={y} value={y}>{y}</option>
+            })}
           </select>
         </div>
 

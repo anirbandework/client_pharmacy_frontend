@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { feedbackAPI } from '../services/feedbackApi'
 import { X, Star, Smile, Meh, Frown, Angry, Laugh, Rocket, Bug, Lightbulb, AlertCircle, Heart, Bookmark, ThumbsUp, ThumbsDown, Send } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 const FeedbackFormModal = ({ isOpen, onClose }) => {
   const [mood, setMood] = useState('')
@@ -45,7 +46,7 @@ const FeedbackFormModal = ({ isOpen, onClose }) => {
         setSubmitted(false)
       }, 2000)
     } catch (error) {
-      alert('Failed to submit feedback')
+      // Global error handler will show toast
     }
   }
 

@@ -2,20 +2,20 @@ import React, { useState, useEffect } from 'react'
 import { attendanceAPI } from '../services/attendanceApi'
 import { Users, CheckCircle, XCircle, Clock, Calendar } from 'lucide-react'
 
-const Dashboard = ({ shopId }) => {
+const Dashboard = ({ shopCode }) => {
   const [summary, setSummary] = useState(null)
   const [todayList, setTodayList] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (shopId) fetchData()
-  }, [shopId])
+    if (shopCode) fetchData()
+  }, [shopCode])
 
   const fetchData = async () => {
     try {
       const [summaryRes, todayRes] = await Promise.all([
-        attendanceAPI.getSummary(shopId),
-        attendanceAPI.getToday(shopId)
+        attendanceAPI.getSummary(shopCode),
+        attendanceAPI.getToday(shopCode)
       ])
       setSummary(summaryRes.data)
       setTodayList(todayRes.data)

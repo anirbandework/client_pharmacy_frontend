@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Layout from '../../../components/Layout'
 import { feedbackAPI } from '../services/feedbackApi'
 import { MessageSquare, TrendingUp, Users, Star, Smile, Meh, Frown, Angry, Laugh, Rocket, Bug, Lightbulb, AlertCircle, Heart, Bookmark, Phone, MapPin, Building, User } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 const SuperAdminFeedback = () => {
   const [feedbacks, setFeedbacks] = useState([])
@@ -39,7 +40,7 @@ const SuperAdminFeedback = () => {
       setStatus('')
       fetchData()
     } catch (error) {
-      alert('Failed to respond')
+      // Global error handler will show toast
     }
   }
 

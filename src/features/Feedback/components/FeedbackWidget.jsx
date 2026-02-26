@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { feedbackAPI } from '../services/feedbackApi'
 import { MessageCircle, Send, X, Star, Smile, Meh, Frown, Angry, Laugh, Rocket, Bug, Lightbulb, AlertCircle, Heart, Bookmark, ThumbsUp, ThumbsDown } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import toast from 'react-hot-toast'
 
 const FeedbackWidget = () => {
   const navigate = useNavigate()
@@ -64,7 +65,7 @@ const FeedbackWidget = () => {
         resetForm()
       }, 2000)
     } catch (error) {
-      alert('Failed to submit feedback')
+      // Global error handler will show toast
     }
   }
 

@@ -16,15 +16,6 @@ const handleResponse = async (res) => {
 };
 
 export const superAdminApi = {
-  register: async (data) => {
-    const res = await fetch(`${API_BASE_URL}/api/auth/super-admin/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-    return handleResponse(res);
-  },
-
   sendOTP: async (phone, password) => {
     const res = await fetch(`${API_BASE_URL}/api/auth/super-admin/send-otp`, {
       method: 'POST',
@@ -43,14 +34,7 @@ export const superAdminApi = {
     return handleResponse(res);
   },
 
-  getProfile: async () => {
-    const res = await fetch(`${API_BASE_URL}/api/auth/super-admin/me`, {
-      headers: getAuthHeaders()
-    });
-    return handleResponse(res);
-  },
-
-  createAdmin: async (data) => {
+  getDashboard: async () => {
     const res = await fetch(`${API_BASE_URL}/api/auth/super-admin/admins`, {
       method: 'POST',
       headers: getAuthHeaders(),

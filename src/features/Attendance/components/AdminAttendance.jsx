@@ -6,7 +6,8 @@ import MonthlyReport from './MonthlyReport'
 import LeaveManagement from './LeaveManagement'
 import Settings from './Settings'
 import AttendanceRecords from './AttendanceRecords'
-import { LayoutDashboard, Wifi, BarChart3, FileText, Clock, Settings as SettingsIcon, List } from 'lucide-react'
+import ConnectedStaff from './ConnectedStaff'
+import { LayoutDashboard, Wifi, BarChart3, FileText, Clock, Settings as SettingsIcon, List, Users } from 'lucide-react'
 import { adminApi } from '../../Login/services/adminApi'
 
 const AdminAttendance = () => {
@@ -22,7 +23,7 @@ const AdminAttendance = () => {
     try {
       const data = await adminApi.getShops()
       setShops(data)
-      if (data.length > 0) setSelectedShop(data[0].id)
+      if (data.length > 0) setSelectedShop(data[0].shop_code) // Use shop_code instead of id
     } catch (err) {
       console.error(err)
     }
@@ -30,9 +31,10 @@ const AdminAttendance = () => {
 
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, color: 'from-blue-500 to-blue-600' },
+    { id: 'connected', label: 'Connected', icon: Users, color: 'from-green-500 to-green-600' },
     { id: 'records', label: 'Records', icon: List, color: 'from-indigo-500 to-indigo-600' },
-    { id: 'wifi', label: 'WiFi Setup', icon: Wifi, color: 'from-green-500 to-green-600' },
-    { id: 'report', label: 'Monthly Report', icon: BarChart3, color: 'from-purple-500 to-purple-600' },
+    { id: 'wifi', label: 'WiFi Setup', icon: Wifi, color: 'from-purple-500 to-purple-600' },
+    { id: 'report', label: 'Monthly Report', icon: BarChart3, color: 'from-orange-500 to-orange-600' },
     { id: 'leaves', label: 'Leave Requests', icon: FileText, color: 'from-pink-500 to-pink-600' },
     { id: 'settings', label: 'Settings', icon: SettingsIcon, color: 'from-gray-500 to-gray-600' }
   ]
@@ -51,9 +53,15 @@ const AdminAttendance = () => {
                 <p className="text-white/90 text-sm">WiFi-based automatic tracking</p>
               </div>
             </div>
-            <select value={selectedShop || ''} onChange={(e) => setSelectedShop(Number(e.target.value))} className="bg-white/20 backdrop-blur-sm text-white border border-white/30 px-3 py-2 rounded-lg text-sm">
+            <select 
+              value={selectedShop || ''} 
+              onChange={(e) => setSelectedShop(e.target.value)} 
+              className="bg-white/20 backdrop-blur-sm text-white border border-white/30 px-3 py-2 rounded-lg text-sm"
+            >
               {shops.map(shop => (
-                <option key={shop.id} value={shop.id} className="text-gray-900">{shop.shop_name}</option>
+                <option key={shop.shop_code} value={shop.shop_code} className="text-gray-900">
+                  {shop.shop_name}
+                </option>
               ))}
             </select>
           </div>
@@ -79,12 +87,13 @@ const AdminAttendance = () => {
 
         {selectedShop && (
           <div className="animate-fade-in">
-            {activeTab === 'dashboard' && <Dashboard shopId={selectedShop} />}
-            {activeTab === 'records' && <AttendanceRecords shopId={selectedShop} />}
-            {activeTab === 'wifi' && <WiFiSetup shopId={selectedShop} />}
-            {activeTab === 'report' && <MonthlyReport shopId={selectedShop} />}
-            {activeTab === 'leaves' && <LeaveManagement shopId={selectedShop} />}
-            {activeTab === 'settings' && <Settings shopId={selectedShop} />}
+            {activeTab === 'dashboard' && <Dashboard shopCode={selectedShop} />}
+            {activeTab === 'connected' && <ConnectedStaff shopCode={selectedShop} />}
+            {activeTab === 'records' && <AttendanceRecords shopCode={selectedShop} />}
+            {activeTab === 'wifi' && <WiFiSetup shopCode={selectedShop} />}
+            {activeTab === 'report' && <MonthlyReport shopCode={selectedShop} />}
+            {activeTab === 'leaves' && <LeaveManagement shopCode={selectedShop} />}
+            {activeTab === 'settings' && <Settings shopCode={selectedShop} />}
           </div>
         )}
       </div>

@@ -1,9 +1,11 @@
-import React, { Suspense, lazy } from 'react'
+import React, { Suspense, lazy, useEffect, useState } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from './contexts/AuthContext'
 import ErrorBoundary from './components/ErrorBoundary'
 import LoadingSpinner from './components/LoadingSpinner'
+import WiFiHeartbeatService from './features/Attendance/components/WiFiHeartbeatService'
 import './App.css'
 
 const Welcome = lazy(() => import('./features/Welcome'))
@@ -18,8 +20,8 @@ const AdminNotifications = lazy(() => import('./features/Notifications'))
 const StaffNotificationsPage = lazy(() => import('./features/Notifications/StaffNotificationsPage'))
 const AdminSalaryManagement = lazy(() => import('./features/SalaryManagement/components/AdminSalaryManagement'))
 const StaffSalaryProfile = lazy(() => import('./features/SalaryManagement/components/StaffSalaryProfile'))
-const SuperAdminFeedback = lazy(() => import('./features/Feedback/components/SuperAdminFeedback'))
-const MyFeedback = lazy(() => import('./features/Feedback/components/MyFeedback'))
+const SuperAdminFeedback = lazy(() => import('./features/feedback/components/SuperAdminFeedback'))
+const MyFeedback = lazy(() => import('./features/feedback/components/MyFeedback'))
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,10 +35,27 @@ const queryClient = new QueryClient({
 })
 
 function App() {
+  const [userType, setUserType] = useState(localStorage.getItem('user_type'))
+
+  useEffect(() => {
+    // Check localStorage periodically for login/logout changes
+    const checkUserType = () => {
+      const currentUserType = localStorage.getItem('user_type')
+      if (currentUserType !== userType) {
+        setUserType(currentUserType)
+      }
+    }
+    
+    const interval = setInterval(checkUserType, 1000)
+    return () => clearInterval(interval)
+  }, [userType])
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <ErrorBoundary>
+          <Toaster position="top-right" />
+          {userType === 'staff' && <WiFiHeartbeatService />}
           <Router>
             <div className="min-h-screen">
               <Suspense fallback={<LoadingSpinner />}>
