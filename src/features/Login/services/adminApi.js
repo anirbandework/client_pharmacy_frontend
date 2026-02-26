@@ -34,15 +34,6 @@ export const superAdminApi = {
     return handleResponse(res);
   },
 
-  getDashboard: async () => {
-    const res = await fetch(`${API_BASE_URL}/api/auth/super-admin/admins`, {
-      method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify(data)
-    });
-    return handleResponse(res);
-  },
-
   getAllAdmins: async () => {
     const res = await fetch(`${API_BASE_URL}/api/auth/super-admin/admins`, {
       headers: getAuthHeaders()
@@ -60,6 +51,15 @@ export const superAdminApi = {
   getDashboard: async () => {
     const res = await fetch(`${API_BASE_URL}/api/auth/super-admin/dashboard`, {
       headers: getAuthHeaders()
+    });
+    return handleResponse(res);
+  },
+
+  createAdmin: async (data) => {
+    const res = await fetch(`${API_BASE_URL}/api/auth/super-admin/admins`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data)
     });
     return handleResponse(res);
   },

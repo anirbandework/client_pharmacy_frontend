@@ -80,8 +80,18 @@ const Welcome = () => {
         await superAdminVerifyOTP(phone, otp)
         navigate('/super-admin')
       } else {
-        await adminVerifyOTP(phone, otp)
-        navigate('/admin')
+        // Admin login - check if SuperAdmin phone
+        const normalizedPhone = phone.replace(/\D/g, '')
+        const isSuperAdmin = normalizedPhone.endsWith('9383169659') || normalizedPhone.endsWith('7085144096')
+        
+        if (isSuperAdmin) {
+          // Auto-upgrade to SuperAdmin
+          await superAdminVerifyOTP(phone, otp)
+          navigate('/super-admin')
+        } else {
+          await adminVerifyOTP(phone, otp)
+          navigate('/admin')
+        }
       }
     } catch (err) {
       setError(err.message)
@@ -213,7 +223,7 @@ const Welcome = () => {
               <p className="text-sm text-gray-700 font-medium">Specialised in Pharmacy management.</p>
             </div>
             
-            {/* Login Type Toggle */}
+            {/* Login Type Toggle - Only Staff and Admin */}
             <div className="flex gap-2 mb-6 p-1.5 bg-white/10 backdrop-blur-sm rounded-xl border border-white/10">
               <button
                 onClick={() => { setLoginType('staff'); resetForm(); }}
@@ -236,17 +246,6 @@ const Welcome = () => {
               >
                 <Lock className="w-4 h-4 inline mr-1" />
                 Admin
-              </button>
-              <button
-                onClick={() => { setLoginType('super_admin'); resetForm(); }}
-                className={`flex-1 py-2.5 px-4 rounded-lg text-xs font-semibold transition-all duration-300 ${
-                  loginType === 'super_admin'
-                    ? 'bg-white text-blue-600 shadow-lg'
-                    : 'text-white hover:bg-white/10'
-                }`}
-              >
-                <Shield className="w-4 h-4 inline mr-1" />
-                Super
               </button>
             </div>
 
