@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { FileText, Users, Package, ShoppingCart, Wallet, Settings, Clock, Shield, Bell, MessageCircle, Send, Receipt, UserCheck } from 'lucide-react'
 import { useSidebar } from '../contexts/SidebarContext'
-import { feedbackAPI } from '../features/feedback/services/feedbackApi'
-import FeedbackFormModal from '../features/feedback/components/FeedbackFormModal'
+import { feedbackAPI } from '../features/Feedback/services/feedbackApi'
+import FeedbackFormModal from '../features/Feedback/components/FeedbackFormModal'
 
 const Sidebar = () => {
   const navigate = useNavigate()
