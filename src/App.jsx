@@ -5,6 +5,7 @@ import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from './contexts/AuthContext'
 import ErrorBoundary from './components/ErrorBoundary'
 import LoadingSpinner from './components/LoadingSpinner'
+import ProtectedRoute from './components/ProtectedRoute'
 import WiFiHeartbeatService from './features/Attendance/components/WiFiHeartbeatService'
 import './App.css'
 
@@ -15,6 +16,7 @@ const StockAudit = lazy(() => import('./features/StockAudit'))
 const Billing = lazy(() => import('./features/Billing'))
 const CustomerTracking = lazy(() => import('./features/CustomerTracking'))
 const Attendance = lazy(() => import('./features/Attendance'))
+const MyAttendance = lazy(() => import('./features/Attendance/MyAttendance'))
 const AdminDashboard = lazy(() => import('./features/Login'))
 const SuperAdminDashboard = lazy(() => import('./features/Login/SuperAdminDashboard'))
 const AdminNotifications = lazy(() => import('./features/Notifications'))
@@ -23,6 +25,8 @@ const AdminSalaryManagement = lazy(() => import('./features/SalaryManagement/com
 const StaffSalaryProfile = lazy(() => import('./features/SalaryManagement/components/StaffSalaryProfile'))
 const SuperAdminFeedback = lazy(() => import('./features/Feedback/components/SuperAdminFeedback'))
 const MyFeedback = lazy(() => import('./features/Feedback/components/MyFeedback'))
+const RBAC = lazy(() => import('./features/RBAC'))
+const Unauthorized = lazy(() => import('./pages/Unauthorized'))
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -66,17 +70,20 @@ function App() {
                   <Route path="/super-admin-login" element={<SuperAdminLogin />} />
                   <Route path="/admin" element={<AdminDashboard />} />
                   <Route path="/super-admin" element={<SuperAdminDashboard />} />
+                  <Route path="/rbac" element={<RBAC />} />
                   <Route path="/feedback-management" element={<SuperAdminFeedback />} />
                   <Route path="/my-feedback" element={<MyFeedback />} />
-                  <Route path="/notifications" element={<AdminNotifications />} />
-                  <Route path="/my-notifications" element={<StaffNotificationsPage />} />
-                  <Route path="/purchase-invoice" element={<PurchaseInvoice />} />
-                  <Route path="/stock-audit" element={<StockAudit />} />
-                  <Route path="/billing" element={<Billing />} />
-                  <Route path="/customer-tracking" element={<CustomerTracking />} />
-                  <Route path="/attendance" element={<Attendance />} />
-                  <Route path="/salary-management" element={<AdminSalaryManagement />} />
-                  <Route path="/my-salary" element={<StaffSalaryProfile />} />
+                  <Route path="/unauthorized" element={<Unauthorized />} />
+                  <Route path="/notifications" element={<ProtectedRoute requiredModule="notifications_admin"><AdminNotifications /></ProtectedRoute>} />
+                  <Route path="/my-notifications" element={<ProtectedRoute requiredModule="my_notifications"><StaffNotificationsPage /></ProtectedRoute>} />
+                  <Route path="/purchase-invoice" element={<ProtectedRoute requiredModule="purchase_invoice"><PurchaseInvoice /></ProtectedRoute>} />
+                  <Route path="/stock-audit" element={<ProtectedRoute requiredModule="stock_audit"><StockAudit /></ProtectedRoute>} />
+                  <Route path="/billing" element={<ProtectedRoute requiredModule="billing"><Billing /></ProtectedRoute>} />
+                  <Route path="/customer-tracking" element={<ProtectedRoute requiredModule="customer_tracking"><CustomerTracking /></ProtectedRoute>} />
+                  <Route path="/my-attendance" element={<ProtectedRoute requiredModule="attendance_staff"><MyAttendance /></ProtectedRoute>} />
+                  <Route path="/attendance" element={<ProtectedRoute requiredModule="attendance_admin"><Attendance /></ProtectedRoute>} />
+                  <Route path="/salary-management" element={<ProtectedRoute requiredModule="salary_management"><AdminSalaryManagement /></ProtectedRoute>} />
+                  <Route path="/my-salary" element={<ProtectedRoute requiredModule="my_salary"><StaffSalaryProfile /></ProtectedRoute>} />
                 </Routes>
               </Suspense>
             </div>

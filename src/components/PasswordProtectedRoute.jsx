@@ -24,6 +24,7 @@ const PasswordProtectedRoute = ({ children, moduleName }) => {
   const [loading, setLoading] = useState(false)
   const [isInsideShop, setIsInsideShop] = useState(false)
   const [checkingLocation, setCheckingLocation] = useState(true)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     checkShopLocation()
@@ -55,18 +56,19 @@ const PasswordProtectedRoute = ({ children, moduleName }) => {
     e.preventDefault()
     
     if (!password.trim()) {
-      toast.error('Please enter your password')
+      setError('Please enter your password')
       return
     }
 
     setLoading(true)
+    setError('')
     try {
       await api.post('/auth/staff/verify-password', { password })
       setIsVerified(true)
       setPassword('')
       toast.success('Password verified successfully')
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Invalid password')
+      setError(error.response?.data?.detail || 'Invalid password')
     } finally {
       setLoading(false)
     }
@@ -140,6 +142,9 @@ const PasswordProtectedRoute = ({ children, moduleName }) => {
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
+                {error && (
+                  <p className="mt-2 text-sm text-red-600">{error}</p>
+                )}
               </div>
 
               <button

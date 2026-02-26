@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { FileText, Users, Package, ShoppingCart, Wallet, Settings, Clock, Shield, Bell, MessageCircle, Send, Receipt, UserCheck } from 'lucide-react'
+import { FileText, Users, Package, ShoppingCart, Wallet, Settings, Clock, Shield, Bell, MessageCircle, Send, Receipt, UserCheck, TrendingUp } from 'lucide-react'
 import { useSidebar } from '../contexts/SidebarContext'
 import { feedbackAPI } from '../features/Feedback/services/feedbackApi'
 import FeedbackFormModal from '../features/Feedback/components/FeedbackFormModal'
+import axios from 'axios'
 
 const Sidebar = () => {
   const navigate = useNavigate()
@@ -12,16 +13,65 @@ const Sidebar = () => {
   const userType = localStorage.getItem('user_type')
   const [unreadCount, setUnreadCount] = useState(0)
   const [showFeedbackForm, setShowFeedbackForm] = useState(false)
+  const [navItems, setNavItems] = useState([])
+  const [loading, setLoading] = useState(true)
 
   const showFeedback = userType === 'staff' || userType === 'admin'
 
+  // Icon mapping from backend icon names to Lucide components
+  const iconMap = {
+    Receipt, UserCheck, ShoppingCart, Package, Clock, Bell, Wallet, Settings, Shield
+  }
+
+  const getIcon = (iconName) => iconMap[iconName] || Settings
+
   useEffect(() => {
+    fetchPermissions()
     if (showFeedback) {
       fetchUnreadCount()
       const interval = setInterval(fetchUnreadCount, 30000)
       return () => clearInterval(interval)
     }
   }, [showFeedback])
+
+  const fetchPermissions = async () => {
+    try {
+      const token = localStorage.getItem('auth_token')
+      
+      // SuperAdmin gets hardcoded items
+      if (userType === 'super_admin') {
+        setNavItems([
+          { id: 'super-admin-panel', label: 'Super Admin', path: '/super-admin', icon: Shield },
+          { id: 'rbac', label: 'RBAC', path: '/rbac', icon: Shield },
+          { id: 'feedback-management', label: 'Feedback', path: '/feedback-management', icon: Bell }
+        ])
+        setLoading(false)
+        return
+      }
+
+      // Fetch RBAC permissions for admin/staff
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/rbac/my-permissions`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+
+      const modules = response.data.modules || []
+      const items = modules.map(m => ({
+        id: m.module_key,
+        label: m.module_name,
+        path: m.path,
+        icon: getIcon(m.icon)
+      }))
+
+      setNavItems(items)
+    } catch (error) {
+      console.error('Failed to fetch permissions:', error)
+      // Fallback to empty on error
+      setNavItems([])
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const fetchUnreadCount = async () => {
     try {
@@ -31,21 +81,6 @@ const Sidebar = () => {
       console.error('Failed to fetch unread count:', error)
     }
   }
-
-  const navItems = [
-    { id: 'super-admin-panel', label: 'Super Admin', path: '/super-admin', icon: Shield, roles: ['super_admin'] },
-    { id: 'feedback-management', label: 'Feedback', path: '/feedback-management', icon: Bell, roles: ['super_admin'] },
-    { id: 'billing', label: 'Billing', path: '/billing', icon: Receipt, roles: ['staff'] },
-    { id: 'customer-tracking', label: 'Customer Tracking', path: '/customer-tracking', icon: UserCheck, roles: ['staff'] },
-    { id: 'purchase-invoice', label: 'Purchase Invoice', path: '/purchase-invoice', icon: ShoppingCart, roles: ['staff'] },
-    { id: 'stock-audit', label: 'Stock Audit', path: '/stock-audit', icon: Package, roles: ['staff'] },
-    { id: 'attendance', label: 'Attendance', path: '/attendance', icon: Clock, roles: ['staff', 'admin'] },
-    { id: 'my-notifications', label: 'Notifications', path: '/my-notifications', icon: Bell, roles: ['staff'] },
-    { id: 'salary-staff', label: 'My Salary', path: '/my-salary', icon: Wallet, roles: ['staff'] },
-    { id: 'admin-panel', label: 'Admin Panel', path: '/admin', icon: Settings, roles: ['admin'] },
-    { id: 'notifications', label: 'Notifications', path: '/notifications', icon: Bell, roles: ['admin'] },
-    { id: 'salary-admin', label: 'Salary Management', path: '/salary-management', icon: Wallet, roles: ['admin'] }
-  ].filter(item => item.roles.includes(userType))
 
   return (
     <>
@@ -57,22 +92,28 @@ const Sidebar = () => {
       >
         <div className="p-4 h-full flex flex-col">
           <nav className="space-y-2 flex-1">
-            {navItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => {
-                  navigate(item.path)
-                }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 transform hover:scale-105 active:scale-95 ${
-                  location.pathname === item.path
-                    ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-glow'
-                    : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'
-                }`}
-              >
-                <item.icon className="w-5 h-5" />
-                <span className="font-medium">{item.label}</span>
-              </button>
-            ))}
+            {loading ? (
+              <div className="text-center py-4 text-gray-500">Loading...</div>
+            ) : navItems.length === 0 ? (
+              <div className="text-center py-4 text-gray-500 text-sm">No modules available</div>
+            ) : (
+              navItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    navigate(item.path)
+                  }}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 transform hover:scale-105 active:scale-95 ${
+                    location.pathname === item.path
+                      ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-glow'
+                      : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'
+                  }`}
+                >
+                  <item.icon className="w-5 h-5" />
+                  <span className="font-medium">{item.label}</span>
+                </button>
+              ))
+            )}
           </nav>
 
           {showFeedback && (
