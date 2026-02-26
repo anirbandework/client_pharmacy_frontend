@@ -21,8 +21,8 @@ const AdminNotifications = lazy(() => import('./features/Notifications'))
 const StaffNotificationsPage = lazy(() => import('./features/Notifications/StaffNotificationsPage'))
 const AdminSalaryManagement = lazy(() => import('./features/SalaryManagement/components/AdminSalaryManagement'))
 const StaffSalaryProfile = lazy(() => import('./features/SalaryManagement/components/StaffSalaryProfile'))
-const SuperAdminFeedback = lazy(() => import('./features/feedback/components/SuperAdminFeedback'))
-const MyFeedback = lazy(() => import('./features/feedback/components/MyFeedback'))
+const SuperAdminFeedback = lazy(() => import('./features/feedback/components/SuperAdminFeedback.jsx'))
+const MyFeedback = lazy(() => import('./features/feedback/components/MyFeedback.jsx'))
 
 const queryClient = new QueryClient({
   defaultOptions: {
