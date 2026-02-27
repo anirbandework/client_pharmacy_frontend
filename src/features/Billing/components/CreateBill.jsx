@@ -1,10 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { billingAPI } from '../services/billing'
 import { Search, Plus, Trash2, Save, X, Printer } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { STORE_CONFIG } from '../config/storeConfig'
 
 const CreateBill = ({ onBillCreated }) => {
+  const [storeConfig, setStoreConfig] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [searchResults, setSearchResults] = useState([])
   const [billItems, setBillItems] = useState([])
@@ -30,6 +30,19 @@ const CreateBill = ({ onBillCreated }) => {
   // Customer tracking fields
   const [customerCategory, setCustomerCategory] = useState('first_time_prescription')
   const [wasContactedBefore, setWasContactedBefore] = useState(false)
+
+  useEffect(() => {
+    fetchShopConfig()
+  }, [])
+
+  const fetchShopConfig = async () => {
+    try {
+      const { data } = await billingAPI.getShopConfig()
+      setStoreConfig(data.config)
+    } catch (error) {
+      console.error('Failed to load shop config:', error)
+    }
+  }
 
   const searchMedicines = async (term) => {
     if (term.length < 2) {
@@ -443,6 +456,11 @@ const CreateBill = ({ onBillCreated }) => {
       {createdBill && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto print:max-w-full print:h-auto print:overflow-visible">
+            {!storeConfig ? (
+              <div className="p-8 text-center">
+                <p className="text-gray-600">Loading configuration...</p>
+              </div>
+            ) : (
             <div className="p-8">
               {/* Header Buttons */}
               <div className="flex justify-end gap-2 mb-4 print:hidden">
@@ -465,13 +483,13 @@ const CreateBill = ({ onBillCreated }) => {
                 <div className="border-b-2 border-black pb-3 mb-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <img src={STORE_CONFIG.logo} alt="" className="w-20 h-20 object-contain" />
+                      <img src={storeConfig.logo} alt="" className="w-20 h-20 object-contain" />
                       <div className="text-left">
-                        <h2 className="text-lg font-bold uppercase">{STORE_CONFIG.storeName}</h2>
-                        <p className="text-xs mt-0.5">D.L No. {STORE_CONFIG.dlNumbers.dl20} | {STORE_CONFIG.dlNumbers.dl21}</p>
-                        <p className="text-xs">F.L No. {STORE_CONFIG.flNumber}</p>
-                        <p className="text-xs mt-0.5">{STORE_CONFIG.address.line1}</p>
-                        <p className="text-xs">{STORE_CONFIG.address.state}, {STORE_CONFIG.address.pincode} | Phone: {STORE_CONFIG.phone}</p>
+                        <h2 className="text-lg font-bold uppercase">{storeConfig.storeName}</h2>
+                        <p className="text-xs mt-0.5">D.L No. {storeConfig.dlNumbers.dl20} | {storeConfig.dlNumbers.dl21}</p>
+                        <p className="text-xs">F.L No. {storeConfig.flNumber}</p>
+                        <p className="text-xs mt-0.5">{storeConfig.address.line1}</p>
+                        <p className="text-xs">{storeConfig.address.state}, {storeConfig.address.pincode} | Phone: {storeConfig.phone}</p>
                       </div>
                     </div>
                     <div className="text-right">
@@ -535,7 +553,7 @@ const CreateBill = ({ onBillCreated }) => {
                         const mrpValue = item.mrp ? parseFloat(item.mrp.toString().match(/[\d.]+/)?.[0] || item.unit_price) : item.unit_price;
                         return sum + mrpValue * item.quantity;
                       }, 0).toFixed(2)}</p>
-                      <p className="mt-1"><strong>GST IN:</strong> {STORE_CONFIG.gstIn}</p>
+                      <p className="mt-1"><strong>GST IN:</strong> {storeConfig.gstIn}</p>
                     </div>
                     <div className="text-right space-y-1">
                       <p><strong>Subtotal:</strong> ₹{createdBill.subtotal.toFixed(2)}</p>
@@ -551,6 +569,7 @@ const CreateBill = ({ onBillCreated }) => {
                 </div>
               </div>
             </div>
+            )}
           </div>
         </div>
       )}

@@ -2,7 +2,7 @@ import toast from 'react-hot-toast'
 import React, { useState, useEffect } from 'react'
 import { attendanceAPI } from '../services/attendanceApi'
 import { FileText, Check, X, Filter } from 'lucide-react'
-import { adminApi } from '../../Login/services/adminApi'
+import { adminApi } from '../../Admin&SuperAdmin/services/admin&superAminApi'
 
 const LeaveManagement = ({ shopCode }) => {
   const [leaves, setLeaves] = useState([])

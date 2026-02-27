@@ -25,8 +25,16 @@ const PasswordProtectedRoute = ({ children, moduleName }) => {
   const [isInsideShop, setIsInsideShop] = useState(false)
   const [checkingLocation, setCheckingLocation] = useState(true)
   const [error, setError] = useState('')
+  const userType = localStorage.getItem('user_type')
 
   useEffect(() => {
+    // Skip password protection for admin users
+    if (userType === 'admin') {
+      setCheckingLocation(false)
+      setIsInsideShop(false)
+      return
+    }
+    
     checkShopLocation()
     const interval = setInterval(checkShopLocation, 10000) // Check every 10 seconds
     return () => clearInterval(interval)

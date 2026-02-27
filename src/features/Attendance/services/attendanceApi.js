@@ -4,7 +4,7 @@ export const attendanceAPI = {
   // WiFi Heartbeat (Staff only)
   wifiHeartbeat: (data) => axios.post('/attendance/wifi/heartbeat', data),
   wifiDisconnect: () => axios.post('/attendance/wifi/disconnect'),
-  getWiFiStatus: () => axios.get('/attendance/wifi/status'),
+  getWiFiStatus: (shopCode = null) => axios.get('/attendance/wifi/status' + (shopCode ? `?shop_code=${shopCode}` : '')),
   
   // WiFi Setup (Admin only)
   setupWiFi: (shopCode, data) => axios.post(`/attendance/wifi/setup?shop_code=${shopCode}`, data),

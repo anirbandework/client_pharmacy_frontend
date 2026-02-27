@@ -5,8 +5,16 @@ import { attendanceAPI } from '../features/Attendance/services/attendanceApi'
 const GeofenceGuard = ({ children, moduleName = 'this module' }) => {
   const [wifiStatus, setWifiStatus] = useState(null)
   const [loading, setLoading] = useState(true)
+  const userType = localStorage.getItem('user_type')
 
   useEffect(() => {
+    // Skip geofence check for admin users
+    if (userType === 'admin') {
+      setLoading(false)
+      setWifiStatus({ can_access_modules: true })
+      return
+    }
+    
     checkWifiStatus()
     const interval = setInterval(checkWifiStatus, 10000)
     return () => clearInterval(interval)
@@ -26,8 +34,11 @@ const GeofenceGuard = ({ children, moduleName = 'this module' }) => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <p className="text-gray-600 text-center max-w-md">
+          Connecting... This may take a few minutes. Please wait patiently or refresh the page.
+        </p>
       </div>
     )
   }
@@ -52,6 +63,12 @@ const GeofenceGuard = ({ children, moduleName = 'this module' }) => {
         <p className="text-red-700 mb-6">
           You must be checked in at the shop to access {moduleName}.
         </p>
+        
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+          <p className="text-sm text-blue-800">
+            <strong>Note:</strong> If you are inside the shop and still seeing this message, it may take a few minutes to connect. Please wait patiently or refresh the page.
+          </p>
+        </div>
         
         <div className="bg-white rounded-lg p-6 mb-6 text-left">
           <div className="flex items-start gap-3 mb-4">

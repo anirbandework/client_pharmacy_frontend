@@ -2,17 +2,27 @@ import React, { useState, useEffect } from 'react'
 import { billingAPI } from '../services/billing'
 import { Eye, Trash2, Search, Printer } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { STORE_CONFIG } from '../config/storeConfig'
 
 const BillHistory = () => {
   const [bills, setBills] = useState([])
   const [loading, setLoading] = useState(true)
   const [searchPhone, setSearchPhone] = useState('')
   const [selectedBill, setSelectedBill] = useState(null)
+  const [storeConfig, setStoreConfig] = useState(null)
 
   useEffect(() => {
     fetchBills()
+    fetchConfig()
   }, [])
+
+  const fetchConfig = async () => {
+    try {
+      const { data } = await billingAPI.getShopConfig()
+      setStoreConfig(data.config)
+    } catch (error) {
+      console.error('Failed to load config:', error)
+    }
+  }
 
   const fetchBills = async () => {
     try {
@@ -128,10 +138,13 @@ const BillHistory = () => {
                   <td className="px-4 py-3">{bill.customer_name || '-'}</td>
                   <td className="px-4 py-3">{bill.customer_phone || '-'}</td>
                   <td className="px-4 py-3">
-                    <span className={`px-2 py-1 rounded-full text-xs ${
-                      bill.payment_method === 'cash' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
-                    }`}>
-                      {bill.payment_method}
+                    <span className="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800">
+                      {bill.cash_amount > 0 && 'Cash'}
+                      {bill.card_amount > 0 && 'Card'}
+                      {bill.online_amount > 0 && 'Online'}
+                      {bill.cash_amount > 0 && bill.card_amount > 0 && '+'}
+                      {bill.cash_amount > 0 && bill.online_amount > 0 && '+'}
+                      {bill.card_amount > 0 && bill.online_amount > 0 && '+'}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right">₹{bill.subtotal.toFixed(2)}</td>
@@ -162,7 +175,7 @@ const BillHistory = () => {
       </div>
 
       {/* Bill Details Modal */}
-      {selectedBill && (
+      {selectedBill && storeConfig && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto print:max-w-full print:h-auto print:overflow-visible">
             <div className="p-8">
@@ -188,13 +201,13 @@ const BillHistory = () => {
                     <div className="flex items-center justify-between">
                       {/* Logo and Store Info - Left Aligned */}
                       <div className="flex items-center gap-3">
-                        <img src={STORE_CONFIG.logo} alt="" className="w-20 h-20 object-contain" />
+                        <img src={storeConfig.logo} alt="" className="w-20 h-20 object-contain" />
                         <div className="text-left">
-                          <h2 className="text-lg font-bold uppercase">{STORE_CONFIG.storeName}</h2>
-                          <p className="text-xs mt-0.5">D.L No. {STORE_CONFIG.dlNumbers.dl20} | {STORE_CONFIG.dlNumbers.dl21}</p>
-                          <p className="text-xs">F.L No. {STORE_CONFIG.flNumber}</p>
-                          <p className="text-xs mt-0.5">{STORE_CONFIG.address.line1}</p>
-                          <p className="text-xs">{STORE_CONFIG.address.state}, {STORE_CONFIG.address.pincode} | Phone: {STORE_CONFIG.phone}</p>
+                          <h2 className="text-lg font-bold uppercase">{storeConfig.storeName}</h2>
+                          <p className="text-xs mt-0.5">D.L No. {storeConfig.dlNumbers.dl20} | {storeConfig.dlNumbers.dl21}</p>
+                          <p className="text-xs">F.L No. {storeConfig.flNumber}</p>
+                          <p className="text-xs mt-0.5">{storeConfig.address.line1}</p>
+                          <p className="text-xs">{storeConfig.address.state}, {storeConfig.address.pincode} | Phone: {storeConfig.phone}</p>
                         </div>
                       </div>
                       
@@ -240,7 +253,7 @@ const BillHistory = () => {
                           <td className="py-1">{index + 1}</td>
                           <td className="py-1">{item.item_name}</td>
                           <td className="py-1">{item.batch_number}</td>
-                          <td className="py-1 text-right">{item.mrp?.toFixed(2) || '-'}</td>
+                          <td className="py-1 text-right">{item.mrp || '-'}</td>
                           <td className="py-1 text-right">{item.quantity}</td>
                           <td className="py-1 text-right">{item.unit_price.toFixed(2)}</td>
                           <td className="py-1 text-right">{item.sgst_amount.toFixed(2)} ({item.sgst_percent}%)</td>
@@ -256,8 +269,11 @@ const BillHistory = () => {
                   <div className="border-t-2 border-black pt-2 text-xs">
                     <div className="flex justify-between items-start">
                       <div>
-                        <p><strong>Total MRP Amount:</strong> ₹{selectedBill.items.reduce((sum, item) => sum + (item.mrp || item.unit_price) * item.quantity, 0).toFixed(2)}</p>
-                        <p className="mt-1"><strong>GST IN:</strong> {STORE_CONFIG.gstIn}</p>
+                        <p><strong>Total MRP Amount:</strong> ₹{selectedBill.items.reduce((sum, item) => {
+                          const mrpValue = item.mrp ? parseFloat(item.mrp.toString().match(/[\d.]+/)?.[0] || item.unit_price) : item.unit_price;
+                          return sum + mrpValue * item.quantity;
+                        }, 0).toFixed(2)}</p>
+                        <p className="mt-1"><strong>GST IN:</strong> {storeConfig.gstIn}</p>
                       </div>
                       <div className="text-right space-y-1">
                         <p><strong>Subtotal:</strong> ₹{selectedBill.subtotal.toFixed(2)}</p>

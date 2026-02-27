@@ -55,7 +55,7 @@ export function AuthProvider({ children }) {
 
       if (!response.ok) {
         const error = await response.json()
-        throw new Error(error.detail || 'Failed to send OTP')
+        throw new Error(error.error || error.message || error.detail || 'Failed to send OTP')
       }
 
       return response.json()
@@ -77,7 +77,7 @@ export function AuthProvider({ children }) {
 
     if (!response.ok) {
       const error = await response.json()
-      throw new Error(error.detail || 'Invalid OTP')
+      throw new Error(error.error || error.message || error.detail || 'Invalid OTP')
     }
 
     const data = await response.json()
@@ -101,7 +101,7 @@ export function AuthProvider({ children }) {
 
     if (!response.ok) {
       const error = await response.json()
-      throw new Error(error.detail || 'Signup failed')
+      throw new Error(error.error || error.message || error.detail || 'Signup failed')
     }
 
     return response.json()
@@ -124,7 +124,7 @@ export function AuthProvider({ children }) {
 
       if (!response.ok) {
         const error = await response.json()
-        throw new Error(error.detail || 'Failed to send OTP')
+        throw new Error(error.error || error.message || error.detail || 'Failed to send OTP')
       }
 
       return response.json()
@@ -146,7 +146,7 @@ export function AuthProvider({ children }) {
 
     if (!response.ok) {
       const error = await response.json()
-      throw new Error(error.detail || 'Invalid OTP')
+      throw new Error(error.error || error.message || error.detail || 'Invalid OTP')
     }
 
     const data = await response.json()
@@ -171,7 +171,7 @@ export function AuthProvider({ children }) {
 
     if (!response.ok) {
       const error = await response.json()
-      throw new Error(error.detail || 'Signup failed')
+      throw new Error(error.error || error.message || error.detail || 'Signup failed')
     }
 
     return response.json()
@@ -186,7 +186,7 @@ export function AuthProvider({ children }) {
 
     if (!response.ok) {
       const error = await response.json()
-      throw new Error(error.detail || 'Login failed')
+      throw new Error(error.error || error.message || error.detail || 'Login failed')
     }
 
     const data = await response.json()
@@ -213,7 +213,7 @@ export function AuthProvider({ children }) {
 
       if (!response.ok) {
         const error = await response.json()
-        throw new Error(error.detail || 'Failed to send OTP')
+        throw new Error(error.error || error.message || error.detail || 'Failed to send OTP')
       }
 
       return response.json()
@@ -235,7 +235,7 @@ export function AuthProvider({ children }) {
 
     if (!response.ok) {
       const error = await response.json()
-      throw new Error(error.detail || 'Invalid OTP')
+      throw new Error(error.error || error.message || error.detail || 'Invalid OTP')
     }
 
     const data = await response.json()

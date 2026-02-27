@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { adminApi } from '../services/adminApi';
-import { ChevronDown, ChevronUp, Info } from 'lucide-react';
+import { adminApi } from '../../services/admin&superAminApi';
+import { ChevronDown, ChevronUp, Info, Ban, CheckCircle, AlertTriangle } from 'lucide-react';
+import ConfirmDialog from '../../../../components/ConfirmDialog';
 
 export default function StaffManagement() {
   const [shops, setShops] = useState([]);
@@ -9,6 +10,7 @@ export default function StaffManagement() {
   const [showForm, setShowForm] = useState(false);
   const [editingStaff, setEditingStaff] = useState(null);
   const [expandedStaff, setExpandedStaff] = useState({});
+  const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, staff: null });
   const [formData, setFormData] = useState({
     name: '', phone: '', email: '', role: 'staff', staff_code: '', monthly_salary: '',
     joining_date: '', salary_eligibility_days: 4,
@@ -61,10 +63,15 @@ export default function StaffManagement() {
     setShowForm(true);
   };
 
-  const handleDelete = async (id) => {
-    if (!confirm('Delete this staff member?')) return;
+  const handleToggleActive = (staff) => {
+    setConfirmDialog({ isOpen: true, staff });
+  };
+
+  const confirmToggleActive = async () => {
+    const staff = confirmDialog.staff;
+    setConfirmDialog({ isOpen: false, staff: null });
     try {
-      await adminApi.deleteStaff(id);
+      await adminApi.updateStaff(staff.id, { is_active: !staff.is_active });
       loadStaff();
     } catch (err) {
       alert(err.message);
@@ -186,13 +193,45 @@ export default function StaffManagement() {
                 )}
               </div>
               <div className="flex gap-2">
+                <button onClick={() => handleToggleActive(s)} className={`${s.is_active ? 'bg-gradient-to-r from-orange-500 to-orange-600' : 'bg-gradient-to-r from-green-500 to-green-600'} text-white px-3 py-1 rounded-lg text-sm hover:shadow-md transition-all flex items-center gap-1`}>
+                  {s.is_active ? <><Ban className="w-3 h-3" /> Deactivate</> : <><CheckCircle className="w-3 h-3" /> Activate</>}
+                </button>
                 <button onClick={() => handleEdit(s)} className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-1 rounded-lg text-sm hover:shadow-md transition-all">Edit</button>
-                <button onClick={() => handleDelete(s.id)} className="bg-gradient-to-r from-red-500 to-red-600 text-white px-3 py-1 rounded-lg text-sm hover:shadow-md transition-all">Delete</button>
               </div>
             </div>
           </div>
         ))}
       </div>
+
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        onClose={() => setConfirmDialog({ isOpen: false, staff: null })}
+        onConfirm={confirmToggleActive}
+        title={confirmDialog.staff?.is_active ? `Deactivate ${confirmDialog.staff?.name}?` : `Activate ${confirmDialog.staff?.name}?`}
+      >
+        {confirmDialog.staff?.is_active ? (
+          <>
+            <div className="flex items-start gap-2 p-3 bg-orange-50 rounded-lg border border-orange-200">
+              <AlertTriangle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+              <span className="text-sm text-orange-800">Staff cannot login</span>
+            </div>
+            <div className="flex items-start gap-2 p-3 bg-green-50 rounded-lg border border-green-200">
+              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <span className="text-sm text-green-800">All work history remains intact (bills, attendance, salary records)</span>
+            </div>
+            <div className="flex items-start gap-2 p-3 bg-green-50 rounded-lg border border-green-200">
+              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <span className="text-sm text-green-800">Historical data preserved for auditing</span>
+            </div>
+            <div className="flex items-start gap-2 p-3 bg-green-50 rounded-lg border border-green-200">
+              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <span className="text-sm text-green-800">Can be reactivated anytime</span>
+            </div>
+          </>
+        ) : (
+          <p className="text-gray-600">This staff member will be able to login again.</p>
+        )}
+      </ConfirmDialog>
     </div>
   );
 }

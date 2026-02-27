@@ -3,7 +3,7 @@ import axiosInstance from '../../StockAudit/services/axios'
 const API_BASE = '/api/feedback'
 
 export const feedbackAPI = {
-  submitFeedback: (data) => axiosInstance.post(`${API_BASE}/staff/feedback`, data),
+  submitFeedback: (data) => axiosInstance.post(`${API_BASE}/user/feedback`, data),
   getMyFeedback: () => axiosInstance.get(`${API_BASE}/my-feedback`),
   getUnreadCount: () => axiosInstance.get(`${API_BASE}/my-feedback/unread-count`),
   markAsRead: (feedbackId) => axiosInstance.put(`${API_BASE}/my-feedback/${feedbackId}/mark-read`),

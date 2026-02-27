@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { notificationsApi } from '../services/notificationsApi';
-import { adminApi } from '../../Login/services/adminApi';
+import { adminApi } from '../../Admin&SuperAdmin/services/admin&superAminApi';
 import { Send, X } from 'lucide-react';
 
 export default function SendNotification({ onClose, onSuccess }) {

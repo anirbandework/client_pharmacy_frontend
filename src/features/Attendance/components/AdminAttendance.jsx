@@ -8,7 +8,7 @@ import Settings from './Settings'
 import AttendanceRecords from './AttendanceRecords'
 import ConnectedStaff from './ConnectedStaff'
 import { LayoutDashboard, Wifi, BarChart3, FileText, Clock, Settings as SettingsIcon, List, Users } from 'lucide-react'
-import { adminApi } from '../../Login/services/adminApi'
+import { adminApi } from '../../Admin&SuperAdmin/services/admin&superAminApi'
 
 const AdminAttendance = () => {
   const [activeTab, setActiveTab] = useState('dashboard')

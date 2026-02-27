@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
-import { superAdminApi } from '../services/adminApi';
-import { Info, Edit2, Trash2 } from 'lucide-react';
+import { superAdminApi } from '../../services/admin&superAminApi';
+import { Info, Edit2, Trash2, Ban, CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
+import ConfirmDialog from '../../../../components/ConfirmDialog';
 
 export default function AdminsManagement() {
   const [admins, setAdmins] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editingAdmin, setEditingAdmin] = useState(null);
+  const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, type: null, admin: null, meta: null });
   const [formData, setFormData] = useState({
     organization_id: '', phone: '', full_name: '', email: ''
   });
@@ -44,11 +46,26 @@ export default function AdminsManagement() {
     setShowForm(true);
   };
 
-  const handleDelete = async (adminId, adminName) => {
-    if (!confirm(`Delete ${adminName}? This will delete all their shops and staff!`)) return;
+  const handleDelete = (admin) => {
+    const orgAdmins = groupedAdmins[admin.organization_id] || [];
+    const isLastAdmin = orgAdmins.length === 1;
+    setConfirmDialog({ isOpen: true, type: 'delete', admin, meta: { isLastAdmin, orgId: admin.organization_id } });
+  };
+
+  const handleToggleActive = (admin) => {
+    setConfirmDialog({ isOpen: true, type: admin.is_active ? 'deactivate' : 'activate', admin });
+  };
+
+  const confirmAction = async () => {
+    const { type, admin } = confirmDialog;
+    setConfirmDialog({ isOpen: false, type: null, admin: null, meta: null });
     try {
-      const result = await superAdminApi.deleteAdmin(adminId);
-      alert(`Deleted: ${result.shops_deleted} shops, ${result.staff_deleted} staff`);
+      if (type === 'delete') {
+        const result = await superAdminApi.deleteAdmin(admin.id);
+        alert(`Deleted: ${result.shops_deleted} shops, ${result.staff_deleted} staff`);
+      } else {
+        await superAdminApi.updateAdmin(admin.id, { is_active: !admin.is_active });
+      }
       loadAdmins();
     } catch (err) {
       alert(err.message);
@@ -113,10 +130,13 @@ export default function AdminsManagement() {
                       </span>
                     </div>
                     <div className="flex gap-2">
+                      <button onClick={() => handleToggleActive(admin)} className={`p-2 ${admin.is_active ? 'bg-orange-500 hover:bg-orange-600' : 'bg-green-500 hover:bg-green-600'} text-white rounded-lg transition-all`} title={admin.is_active ? 'Deactivate' : 'Activate'}>
+                        {admin.is_active ? <Ban className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
+                      </button>
                       <button onClick={() => handleEdit(admin)} className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all">
                         <Edit2 className="w-4 h-4" />
                       </button>
-                      <button onClick={() => handleDelete(admin.id, admin.full_name)} className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all">
+                      <button onClick={() => handleDelete(admin)} className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
@@ -127,6 +147,70 @@ export default function AdminsManagement() {
           </div>
         ))}
       </div>
+
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        onClose={() => setConfirmDialog({ isOpen: false, type: null, admin: null, meta: null })}
+        onConfirm={confirmAction}
+        title={
+          confirmDialog.type === 'delete' ? `Delete ${confirmDialog.admin?.full_name}?` :
+          confirmDialog.type === 'deactivate' ? `Deactivate ${confirmDialog.admin?.full_name}?` :
+          `Activate ${confirmDialog.admin?.full_name}?`
+        }
+      >
+        {confirmDialog.type === 'delete' && confirmDialog.meta?.isLastAdmin ? (
+          <>
+            <div className="flex items-start gap-2 p-3 bg-red-50 rounded-lg border border-red-200">
+              <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <span className="text-sm text-red-800 font-semibold">This is the LAST admin in {confirmDialog.meta.orgId}</span>
+            </div>
+            <div className="flex items-start gap-2 p-3 bg-red-50 rounded-lg border border-red-200">
+              <XCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <span className="text-sm text-red-800">All shops will be permanently deleted</span>
+            </div>
+            <div className="flex items-start gap-2 p-3 bg-red-50 rounded-lg border border-red-200">
+              <XCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <span className="text-sm text-red-800">All staff will be permanently deleted</span>
+            </div>
+            <div className="flex items-start gap-2 p-3 bg-red-50 rounded-lg border border-red-200">
+              <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <span className="text-sm text-red-800 font-semibold">This action cannot be undone</span>
+            </div>
+          </>
+        ) : confirmDialog.type === 'delete' ? (
+          <>
+            <div className="flex items-start gap-2 p-3 bg-green-50 rounded-lg border border-green-200">
+              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <span className="text-sm text-green-800">Shops and staff will remain accessible to other admins in {confirmDialog.meta?.orgId}</span>
+            </div>
+            <div className="flex items-start gap-2 p-3 bg-red-50 rounded-lg border border-red-200">
+              <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <span className="text-sm text-red-800 font-semibold">This action cannot be undone</span>
+            </div>
+          </>
+        ) : confirmDialog.type === 'deactivate' ? (
+          <>
+            <div className="flex items-start gap-2 p-3 bg-orange-50 rounded-lg border border-orange-200">
+              <AlertTriangle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+              <span className="text-sm text-orange-800">Admin cannot login</span>
+            </div>
+            <div className="flex items-start gap-2 p-3 bg-green-50 rounded-lg border border-green-200">
+              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <span className="text-sm text-green-800">All data remains intact</span>
+            </div>
+            <div className="flex items-start gap-2 p-3 bg-green-50 rounded-lg border border-green-200">
+              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <span className="text-sm text-green-800">Shops and staff accessible to other admins in organization</span>
+            </div>
+            <div className="flex items-start gap-2 p-3 bg-green-50 rounded-lg border border-green-200">
+              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <span className="text-sm text-green-800">Can be reactivated anytime</span>
+            </div>
+          </>
+        ) : (
+          <p className="text-gray-600">This admin will be able to login again.</p>
+        )}
+      </ConfirmDialog>
     </div>
   );
 }

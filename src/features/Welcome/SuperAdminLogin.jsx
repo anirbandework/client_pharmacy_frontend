@@ -93,7 +93,7 @@ const SuperAdminLogin = () => {
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+919383169659"
+                  placeholder="+91 12345 67890"
                   className="w-full px-4 py-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white/30 transition-all"
                   required
                 />

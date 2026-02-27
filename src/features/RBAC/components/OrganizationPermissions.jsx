@@ -46,21 +46,17 @@ const OrganizationPermissions = () => {
 
   const togglePermission = async (moduleKey, field) => {
     const perm = getPermission(moduleKey)
-    const newValue = !perm[field]
+    const currentValue = perm[field] === true
+    const newValue = !currentValue
     
     try {
       await rbacAPI.updateModulePermission(selectedOrg.id, moduleKey, {
         [field]: newValue
       })
       
-      setPermissions(prev => {
-        const existing = prev.find(p => p.module_key === moduleKey)
-        if (existing) {
-          return prev.map(p => p.module_key === moduleKey ? { ...p, [field]: newValue } : p)
-        } else {
-          return [...prev, { module_key: moduleKey, [field]: newValue }]
-        }
-      })
+      setPermissions(prev => 
+        prev.map(p => p.module_key === moduleKey ? { ...p, [field]: newValue } : p)
+      )
       
       toast.success('Permission updated')
     } catch (error) {

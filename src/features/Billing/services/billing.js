@@ -3,6 +3,12 @@ import axiosInstance from './axios'
 const API_BASE = '/api/billing'
 
 export const billingAPI = {
+  getShopConfig: () => axiosInstance.get(`${API_BASE}/shop/bill-config`),
+  
+  getAdminShopConfig: () => axiosInstance.get(`${API_BASE}/admin/bill-config`),
+  
+  updateAdminShopConfig: (config) => axiosInstance.put(`${API_BASE}/admin/bill-config`, config),
+  
   searchMedicines: (searchTerm, limit = 20) => 
     axiosInstance.get(`${API_BASE}/search-medicines`, { params: { q: searchTerm, limit } }),
   

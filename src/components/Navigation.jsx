@@ -7,6 +7,9 @@ const Navigation = () => {
   const { toggleSidebar } = useSidebar()
   const { logout } = useAuth()
   const userType = localStorage.getItem('user_type')
+  const userName = localStorage.getItem('user_name')
+  const organizationId = localStorage.getItem('organization_id')
+  const shopName = localStorage.getItem('shop_name')
   const shopInfo = JSON.parse(localStorage.getItem('shop_info') || '{}')
 
   return (
@@ -21,16 +24,34 @@ const Navigation = () => {
             >
               <Menu className="w-6 h-6" />
             </button>
-            <h1 className="text-xl font-bold font-bauhaus animate-fade-in">
-              Xpert-Pharma {userType === 'staff' && shopInfo.shop_name && `- ${shopInfo.shop_name}`}
-            </h1>
+            {userType === 'super_admin' && userName ? (
+              <div className="px-3 py-1.5 bg-white/10 rounded-full backdrop-blur-sm">
+                <span className="text-sm font-medium">{userName}</span>
+              </div>
+            ) : userType === 'admin' && organizationId ? (
+              <h1 className="text-xl font-bold font-bauhaus animate-fade-in">{organizationId}</h1>
+            ) : userType === 'staff' && (shopName || shopInfo.shop_name) ? (
+              <h1 className="text-xl font-bold font-bauhaus animate-fade-in">
+                {shopName || shopInfo.shop_name}
+              </h1>
+            ) : null}
           </div>
           <div className="flex items-center gap-3">
-            <div className="px-3 py-1.5 bg-white/10 rounded-full backdrop-blur-sm">
-              <span className="text-sm font-medium">
-                {userType === 'super_admin' ? 'Super Admin' : userType === 'admin' ? 'Admin' : 'Staff'}
-              </span>
-            </div>
+            {userType === 'admin' && userName && (
+              <div className="px-3 py-1.5 bg-white/10 rounded-full backdrop-blur-sm">
+                <span className="text-sm font-medium">{userName}</span>
+              </div>
+            )}
+            {userType === 'staff' && userName && (
+              <div className="px-3 py-1.5 bg-white/10 rounded-full backdrop-blur-sm">
+                <span className="text-sm font-medium">{userName}</span>
+              </div>
+            )}
+            {userType === 'super_admin' && (
+              <div className="px-3 py-1.5 bg-white/10 rounded-full backdrop-blur-sm">
+                <span className="text-sm font-medium">Super Admin</span>
+              </div>
+            )}
             <button
               onClick={logout}
               className="px-4 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg transition-all duration-200 text-sm font-medium"

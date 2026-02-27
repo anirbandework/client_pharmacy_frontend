@@ -7,8 +7,9 @@ import Dashboard from './components/Dashboard'
 import Reports from './components/Reports'
 import DailyRecords from './components/DailyRecords'
 import Analytics from './components/Analytics'
+import BillConfigManager from './components/BillConfigManager'
 import GeofenceGuard from '../../components/GeofenceGuard'
-import { LayoutDashboard, Plus, FileText, BarChart3, Receipt, Calendar, TrendingUp } from 'lucide-react'
+import { LayoutDashboard, Plus, FileText, BarChart3, Receipt, Calendar, TrendingUp, Settings } from 'lucide-react'
 
 const Billing = () => {
   const [activeTab, setActiveTab] = useState('dashboard')
@@ -20,7 +21,8 @@ const Billing = () => {
     { id: 'history', label: 'Bill History', icon: FileText, color: 'from-purple-500 to-purple-600' },
     { id: 'reports', label: 'Reports', icon: BarChart3, color: 'from-orange-500 to-orange-600' },
     { id: 'daily', label: 'Daily Records', icon: Calendar, color: 'from-pink-500 to-pink-600' },
-    { id: 'analytics', label: 'Analytics', icon: TrendingUp, color: 'from-indigo-500 to-indigo-600' }
+    { id: 'analytics', label: 'Analytics', icon: TrendingUp, color: 'from-indigo-500 to-indigo-600' },
+    { id: 'config', label: 'Bill Config', icon: Settings, color: 'from-gray-500 to-gray-600' }
   ]
 
   return (
@@ -68,6 +70,7 @@ const Billing = () => {
           {activeTab === 'reports' && <Reports />}
           {activeTab === 'daily' && <DailyRecords />}
           {activeTab === 'analytics' && <Analytics />}
+          {activeTab === 'config' && <BillConfigManager />}
         </div>
       </div>
       </GeofenceGuard>

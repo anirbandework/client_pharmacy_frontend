@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { superAdminApi } from '../services/adminApi';
-import { ChevronDown, ChevronRight, Users, Store, User, Edit2, Trash2, Eye, EyeOff, Briefcase } from 'lucide-react';
+import { superAdminApi } from '../../services/admin&superAminApi';
+import { ChevronDown, ChevronRight, Users, Store, User, Edit2, Trash2, Eye, EyeOff, Briefcase, AlertTriangle, CheckCircle, XCircle, Ban } from 'lucide-react';
+import ConfirmDialog from '../../../../components/ConfirmDialog';
 
 export default function AdminsHierarchy() {
   const [dashboard, setDashboard] = useState(null);
@@ -10,6 +11,7 @@ export default function AdminsHierarchy() {
   const [editingAdmin, setEditingAdmin] = useState(null);
   const [editingShop, setEditingShop] = useState(null);
   const [editingStaff, setEditingStaff] = useState(null);
+  const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, type: null, entity: null, meta: null });
   const [formData, setFormData] = useState({ full_name: '', email: '', phone: '', is_active: true });
   const [shopFormData, setShopFormData] = useState({ shop_name: '', address: '', phone: '', is_active: true });
   const [staffFormData, setStaffFormData] = useState({ name: '', phone: '', email: '', role: 'staff', is_active: true });
@@ -55,37 +57,50 @@ export default function AdminsHierarchy() {
     }
   };
 
-  const handleDelete = async (adminId, adminName, orgId) => {
+  const handleDelete = (admin, orgId) => {
     const org = dashboard.organizations.find(o => o.organization_id === orgId);
     const isLastAdmin = org.admins.length === 1;
-    const warningMsg = isLastAdmin 
-      ? `Delete ${adminName}? This is the LAST admin in ${orgId}. All ${org.total_shops} shops and ${org.total_staff} staff will be deleted!`
-      : `Delete ${adminName}? Shops and staff will remain accessible to other admins in ${orgId}.`;
-    
-    if (!confirm(warningMsg)) return;
-    try {
-      const result = await superAdminApi.deleteAdmin(adminId);
-      alert(result.message + `\nShops deleted: ${result.shops_deleted}, Staff deleted: ${result.staff_deleted}`);
-      loadDashboard();
-    } catch (err) {
-      alert(err.message);
-    }
+    setConfirmDialog({ isOpen: true, type: 'deleteAdmin', entity: admin, meta: { orgId, isLastAdmin, org } });
   };
 
-  const handleDeleteShop = async (shopId, shopName, staffCount) => {
-    if (!confirm(`Delete ${shopName}? This will delete all ${staffCount} staff members!`)) return;
-    try {
-      await superAdminApi.deleteShop(shopId);
-      loadDashboard();
-    } catch (err) {
-      alert(err.message);
-    }
+  const handleToggleAdmin = (admin, orgId) => {
+    setConfirmDialog({ isOpen: true, type: admin.is_active ? 'deactivateAdmin' : 'activateAdmin', entity: admin, meta: { orgId } });
   };
 
-  const handleDeleteStaff = async (staffId, staffName) => {
-    if (!confirm(`Delete ${staffName}?`)) return;
+  const handleToggleShop = (shop) => {
+    setConfirmDialog({ isOpen: true, type: shop.is_active ? 'deactivateShop' : 'activateShop', entity: shop });
+  };
+
+  const handleToggleStaff = (staff) => {
+    setConfirmDialog({ isOpen: true, type: staff.is_active ? 'deactivateStaff' : 'activateStaff', entity: staff });
+  };
+
+  const handleDeleteShop = (shop) => {
+    setConfirmDialog({ isOpen: true, type: 'deleteShop', entity: shop });
+  };
+
+  const handleDeleteStaff = (staff) => {
+    setConfirmDialog({ isOpen: true, type: 'deleteStaff', entity: staff });
+  };
+
+  const confirmAction = async () => {
+    const { type, entity, meta } = confirmDialog;
+    setConfirmDialog({ isOpen: false, type: null, entity: null, meta: null });
     try {
-      await superAdminApi.deleteStaff(staffId);
+      if (type === 'deleteAdmin') {
+        const result = await superAdminApi.deleteAdmin(entity.id);
+        alert(result.message + `\nShops deleted: ${result.shops_deleted}, Staff deleted: ${result.staff_deleted}`);
+      } else if (type === 'deleteShop') {
+        await superAdminApi.deleteShop(entity.id);
+      } else if (type === 'deleteStaff') {
+        await superAdminApi.deleteStaff(entity.id);
+      } else if (type === 'deactivateAdmin' || type === 'activateAdmin') {
+        await superAdminApi.updateAdmin(entity.id, { is_active: !entity.is_active });
+      } else if (type === 'deactivateShop' || type === 'activateShop') {
+        await superAdminApi.updateShop(entity.id, { is_active: !entity.is_active });
+      } else if (type === 'deactivateStaff' || type === 'activateStaff') {
+        await superAdminApi.updateStaff(entity.id, { is_active: !entity.is_active });
+      }
       loadDashboard();
     } catch (err) {
       alert(err.message);
@@ -227,10 +242,13 @@ export default function AdminsHierarchy() {
                               </div>
                             </div>
                             <div className="flex gap-2">
+                              <button onClick={() => handleToggleAdmin(admin, org.organization_id)} className={`p-1.5 ${admin.is_active ? 'bg-orange-500 hover:bg-orange-600' : 'bg-green-500 hover:bg-green-600'} text-white rounded-lg transition-all`} title={admin.is_active ? 'Deactivate' : 'Activate'}>
+                                {admin.is_active ? <Ban className="w-3.5 h-3.5" /> : <CheckCircle className="w-3.5 h-3.5" />}
+                              </button>
                               <button onClick={() => startEdit(admin)} className="p-1.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all">
                                 <Edit2 className="w-3.5 h-3.5" />
                               </button>
-                              <button onClick={() => handleDelete(admin.id, admin.full_name, org.organization_id)} className="p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all">
+                              <button onClick={() => handleDelete(admin, org.organization_id)} className="p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all">
                                 <Trash2 className="w-3.5 h-3.5" />
                               </button>
                             </div>
@@ -285,10 +303,13 @@ export default function AdminsHierarchy() {
                                   <p className="text-xs text-gray-500">Created by: {shop.created_by_admin}</p>
                                 </div>
                                 <div className="flex gap-2">
+                                  <button onClick={() => handleToggleShop(shop)} className={`p-1.5 ${shop.is_active ? 'bg-orange-500 hover:bg-orange-600' : 'bg-green-500 hover:bg-green-600'} text-white rounded-lg transition-all`} title={shop.is_active ? 'Deactivate' : 'Activate'}>
+                                    {shop.is_active ? <Ban className="w-3.5 h-3.5" /> : <CheckCircle className="w-3.5 h-3.5" />}
+                                  </button>
                                   <button onClick={() => startEditShop(shop)} className="p-1.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all">
                                     <Edit2 className="w-3.5 h-3.5" />
                                   </button>
-                                  <button onClick={() => handleDeleteShop(shop.id, shop.shop_name, shop.total_staff)} className="p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all">
+                                  <button onClick={() => handleDeleteShop(shop)} className="p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all">
                                     <Trash2 className="w-3.5 h-3.5" />
                                   </button>
                                 </div>
@@ -349,10 +370,13 @@ export default function AdminsHierarchy() {
                                           </div>
                                         </div>
                                         <div className="flex gap-2">
+                                          <button onClick={() => handleToggleStaff(staff)} className={`p-1.5 ${staff.is_active ? 'bg-orange-500 hover:bg-orange-600' : 'bg-green-500 hover:bg-green-600'} text-white rounded-lg transition-all`} title={staff.is_active ? 'Deactivate' : 'Activate'}>
+                                            {staff.is_active ? <Ban className="w-3.5 h-3.5" /> : <CheckCircle className="w-3.5 h-3.5" />}
+                                          </button>
                                           <button onClick={() => startEditStaff(staff)} className="p-1.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all">
                                             <Edit2 className="w-3.5 h-3.5" />
                                           </button>
-                                          <button onClick={() => handleDeleteStaff(staff.id, staff.name)} className="p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all">
+                                          <button onClick={() => handleDeleteStaff(staff)} className="p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all">
                                             <Trash2 className="w-3.5 h-3.5" />
                                           </button>
                                         </div>
@@ -373,6 +397,140 @@ export default function AdminsHierarchy() {
           </div>
         ))}
       </div>
+
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        onClose={() => setConfirmDialog({ isOpen: false, type: null, entity: null, meta: null })}
+        onConfirm={confirmAction}
+        title={
+          confirmDialog.type === 'deleteAdmin' ? `Delete ${confirmDialog.entity?.full_name}?` :
+          confirmDialog.type === 'deactivateAdmin' ? `Deactivate ${confirmDialog.entity?.full_name}?` :
+          confirmDialog.type === 'activateAdmin' ? `Activate ${confirmDialog.entity?.full_name}?` :
+          confirmDialog.type === 'deleteShop' ? `Delete ${confirmDialog.entity?.shop_name}?` :
+          confirmDialog.type === 'deactivateShop' ? `Deactivate ${confirmDialog.entity?.shop_name}?` :
+          confirmDialog.type === 'activateShop' ? `Activate ${confirmDialog.entity?.shop_name}?` :
+          confirmDialog.type === 'deleteStaff' ? `Delete ${confirmDialog.entity?.name}?` :
+          confirmDialog.type === 'deactivateStaff' ? `Deactivate ${confirmDialog.entity?.name}?` :
+          confirmDialog.type === 'activateStaff' ? `Activate ${confirmDialog.entity?.name}?` : ''
+        }
+      >
+        {confirmDialog.type === 'deleteAdmin' && confirmDialog.meta?.isLastAdmin ? (
+          <>
+            <div className="flex items-start gap-2 p-3 bg-red-50 rounded-lg border border-red-200">
+              <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <span className="text-sm text-red-800 font-semibold">This is the LAST admin in {confirmDialog.meta.orgId}</span>
+            </div>
+            <div className="flex items-start gap-2 p-3 bg-red-50 rounded-lg border border-red-200">
+              <XCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <span className="text-sm text-red-800">All {confirmDialog.meta.org.total_shops} shops will be permanently deleted</span>
+            </div>
+            <div className="flex items-start gap-2 p-3 bg-red-50 rounded-lg border border-red-200">
+              <XCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <span className="text-sm text-red-800">All {confirmDialog.meta.org.total_staff} staff will be permanently deleted</span>
+            </div>
+            <div className="flex items-start gap-2 p-3 bg-red-50 rounded-lg border border-red-200">
+              <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <span className="text-sm text-red-800 font-semibold">This action cannot be undone</span>
+            </div>
+          </>
+        ) : confirmDialog.type === 'deleteAdmin' ? (
+          <>
+            <div className="flex items-start gap-2 p-3 bg-green-50 rounded-lg border border-green-200">
+              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <span className="text-sm text-green-800">Shops and staff will remain accessible to other admins in {confirmDialog.meta?.orgId}</span>
+            </div>
+            <div className="flex items-start gap-2 p-3 bg-red-50 rounded-lg border border-red-200">
+              <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <span className="text-sm text-red-800 font-semibold">This action cannot be undone</span>
+            </div>
+          </>
+        ) : confirmDialog.type === 'deactivateAdmin' ? (
+          <>
+            <div className="flex items-start gap-2 p-3 bg-orange-50 rounded-lg border border-orange-200">
+              <AlertTriangle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+              <span className="text-sm text-orange-800">Admin cannot login</span>
+            </div>
+            <div className="flex items-start gap-2 p-3 bg-green-50 rounded-lg border border-green-200">
+              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <span className="text-sm text-green-800">All data remains intact</span>
+            </div>
+            <div className="flex items-start gap-2 p-3 bg-green-50 rounded-lg border border-green-200">
+              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <span className="text-sm text-green-800">Shops and staff accessible to other admins in {confirmDialog.meta?.orgId}</span>
+            </div>
+            <div className="flex items-start gap-2 p-3 bg-green-50 rounded-lg border border-green-200">
+              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <span className="text-sm text-green-800">Can be reactivated anytime</span>
+            </div>
+          </>
+        ) : confirmDialog.type === 'activateAdmin' ? (
+          <p className="text-gray-600">This admin will be able to login again.</p>
+        ) : confirmDialog.type === 'deactivateShop' ? (
+          <>
+            <div className="flex items-start gap-2 p-3 bg-orange-50 rounded-lg border border-orange-200">
+              <AlertTriangle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+              <span className="text-sm text-orange-800">All staff in this shop cannot login</span>
+            </div>
+            <div className="flex items-start gap-2 p-3 bg-green-50 rounded-lg border border-green-200">
+              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <span className="text-sm text-green-800">All historical data remains intact (bills, inventory, attendance, salary)</span>
+            </div>
+            <div className="flex items-start gap-2 p-3 bg-green-50 rounded-lg border border-green-200">
+              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <span className="text-sm text-green-800">Shop data visible to admins but marked inactive</span>
+            </div>
+            <div className="flex items-start gap-2 p-3 bg-green-50 rounded-lg border border-green-200">
+              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <span className="text-sm text-green-800">Can be reactivated anytime</span>
+            </div>
+          </>
+        ) : confirmDialog.type === 'activateShop' ? (
+          <p className="text-gray-600">This shop and all its staff will be able to login again.</p>
+        ) : confirmDialog.type === 'deactivateStaff' ? (
+          <>
+            <div className="flex items-start gap-2 p-3 bg-orange-50 rounded-lg border border-orange-200">
+              <AlertTriangle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+              <span className="text-sm text-orange-800">Staff cannot login</span>
+            </div>
+            <div className="flex items-start gap-2 p-3 bg-green-50 rounded-lg border border-green-200">
+              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <span className="text-sm text-green-800">All work history remains intact (bills, attendance, salary records)</span>
+            </div>
+            <div className="flex items-start gap-2 p-3 bg-green-50 rounded-lg border border-green-200">
+              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <span className="text-sm text-green-800">Historical data preserved for auditing</span>
+            </div>
+            <div className="flex items-start gap-2 p-3 bg-green-50 rounded-lg border border-green-200">
+              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <span className="text-sm text-green-800">Can be reactivated anytime</span>
+            </div>
+          </>
+        ) : confirmDialog.type === 'activateStaff' ? (
+          <p className="text-gray-600">This staff member will be able to login again.</p>
+        ) : confirmDialog.type === 'deleteShop' ? (
+          <>
+            <div className="flex items-start gap-2 p-3 bg-red-50 rounded-lg border border-red-200">
+              <XCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <span className="text-sm text-red-800">All {confirmDialog.entity?.total_staff} staff members will be permanently deleted</span>
+            </div>
+            <div className="flex items-start gap-2 p-3 bg-red-50 rounded-lg border border-red-200">
+              <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <span className="text-sm text-red-800 font-semibold">This action cannot be undone</span>
+            </div>
+          </>
+        ) : confirmDialog.type === 'deleteStaff' ? (
+          <>
+            <div className="flex items-start gap-2 p-3 bg-red-50 rounded-lg border border-red-200">
+              <XCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <span className="text-sm text-red-800">Staff member will be permanently deleted</span>
+            </div>
+            <div className="flex items-start gap-2 p-3 bg-red-50 rounded-lg border border-red-200">
+              <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <span className="text-sm text-red-800 font-semibold">This action cannot be undone</span>
+            </div>
+          </>
+        ) : null}
+      </ConfirmDialog>
     </div>
   );
 }

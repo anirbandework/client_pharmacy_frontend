@@ -113,6 +113,13 @@ export const superAdminApi = {
       headers: getAuthHeaders()
     });
     return handleResponse(res);
+  },
+
+  getAnalytics: async () => {
+    const res = await fetch(`${API_BASE_URL}/api/auth/super-admin/analytics`, {
+      headers: getAuthHeaders()
+    });
+    return handleResponse(res);
   }
 };
 
