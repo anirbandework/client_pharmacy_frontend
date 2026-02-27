@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import Layout from '../../../components/Layout'
-import { salaryAPI } from '../services/salaryApi'
+import { salaryAPI, API_BASE_URL } from '../services/salaryApi'
+import { adminApi } from '../../Admin&SuperAdmin/services/admin&superAminApi'
 import { DollarSign, Users, AlertTriangle, Calendar, CheckCircle, XCircle, Clock, QrCode, CreditCard } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 const AdminSalaryManagement = () => {
+  const [shops, setShops] = useState([])
+  const [selectedShop, setSelectedShop] = useState(null)
   const [dashboard, setDashboard] = useState(null)
   const [records, setRecords] = useState([])
   const [alerts, setAlerts] = useState([])
@@ -13,18 +16,42 @@ const AdminSalaryManagement = () => {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
   const [showPayModal, setShowPayModal] = useState(null)
   const [showQRModal, setShowQRModal] = useState(null)
+  const [showQREnlarged, setShowQREnlarged] = useState(false)
   const [generateResult, setGenerateResult] = useState(null)
 
   useEffect(() => {
-    loadDashboard()
-    loadRecords()
-    loadAlerts()
+    loadShops()
   }, [])
+
+  useEffect(() => {
+    if (selectedShop) {
+      loadDashboard()
+      loadRecords()
+      loadAlerts()
+    }
+  }, [selectedShop, selectedMonth, selectedYear])
+
+  const loadShops = async () => {
+    try {
+      const data = await adminApi.getShops()
+      setShops(data)
+      if (data.length > 0) setSelectedShop(data[0].shop_code)
+    } catch (err) {
+      console.error(err)
+    }
+  }
 
   const loadDashboard = async () => {
     try {
-      const { data } = await salaryAPI.getDashboard()
-      setDashboard(data)
+      const { data } = await salaryAPI.getMonthlySummary(selectedYear, selectedMonth, selectedShop)
+      setDashboard({
+        total_staff: data.total_staff,
+        pending_payments: data.pending_count,
+        overdue_payments: data.overdue_count,
+        upcoming_payments: 0,
+        total_pending_amount: data.pending_amount,
+        total_overdue_amount: data.total_salary_amount - data.paid_amount - data.pending_amount
+      })
     } catch (err) {
       toast.error('Failed to load dashboard')
     }
@@ -33,7 +60,7 @@ const AdminSalaryManagement = () => {
   const loadRecords = async () => {
     setLoading(true)
     try {
-      const { data } = await salaryAPI.getSalaryRecords({ month: selectedMonth, year: selectedYear })
+      const { data } = await salaryAPI.getSalaryRecords({ month: selectedMonth, year: selectedYear }, selectedShop)
       setRecords(data)
     } catch (err) {
       toast.error('Failed to load salary records')
@@ -44,7 +71,7 @@ const AdminSalaryManagement = () => {
 
   const loadAlerts = async () => {
     try {
-      const { data } = await salaryAPI.getAlerts()
+      const { data } = await salaryAPI.getAlerts(selectedShop)
       setAlerts(data)
     } catch (err) {
       toast.error('Failed to load alerts')
@@ -53,7 +80,7 @@ const AdminSalaryManagement = () => {
 
   const handlePaySalary = async (recordId, paidBy, notes) => {
     try {
-      await salaryAPI.paySalary(recordId, { paid_by_admin: paidBy, notes })
+      await salaryAPI.paySalary(recordId, { paid_by_admin: paidBy, notes }, selectedShop)
       toast.success('Salary paid successfully')
       setShowPayModal(null)
       loadDashboard()
@@ -65,7 +92,7 @@ const AdminSalaryManagement = () => {
 
   const handleDismissAlert = async (alertId) => {
     try {
-      await salaryAPI.dismissAlert(alertId)
+      await salaryAPI.dismissAlert(alertId, selectedShop)
       toast.success('Alert dismissed')
       loadAlerts()
     } catch (err) {
@@ -75,7 +102,7 @@ const AdminSalaryManagement = () => {
 
   const viewQRCode = async (staffId) => {
     try {
-      const { data } = await salaryAPI.getStaffPaymentInfo(staffId)
+      const { data } = await salaryAPI.getStaffPaymentInfo(staffId, selectedShop)
       setShowQRModal(data)
     } catch (err) {
       toast.error('Failed to load payment info')
@@ -84,7 +111,7 @@ const AdminSalaryManagement = () => {
 
   const handleGenerateRecords = async () => {
     try {
-      const { data } = await salaryAPI.generateMonthlyRecords(selectedYear, selectedMonth)
+      const { data } = await salaryAPI.generateMonthlyRecords(selectedYear, selectedMonth, selectedShop)
       setGenerateResult(data)
       toast.success(`Generated ${data.created} salary records`)
       setTimeout(() => setGenerateResult(null), 5000)
@@ -109,19 +136,32 @@ const AdminSalaryManagement = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="bg-gradient-to-r from-green-600 via-emerald-600 to-green-700 rounded-xl shadow-lg p-6 mb-4">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl">
-              <DollarSign className="w-6 h-6 text-white" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl">
+                <DollarSign className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-white">Salary Management</h1>
+                <p className="text-white/90 text-sm">Admin Dashboard</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-white">Salary Management</h1>
-              <p className="text-white/90 text-sm">Admin Dashboard</p>
-            </div>
+            <select 
+              value={selectedShop || ''} 
+              onChange={(e) => setSelectedShop(e.target.value)} 
+              className="bg-white/20 backdrop-blur-sm text-white border border-white/30 px-3 py-2 rounded-lg text-sm"
+            >
+              {shops.map(shop => (
+                <option key={shop.shop_code} value={shop.shop_code} className="text-gray-900">
+                  {shop.shop_name}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
         {/* Dashboard Stats */}
-        {dashboard && (
+        {selectedShop && dashboard && (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
             <div className="bg-white rounded-xl shadow-md p-4 border border-primary-100">
               <div className="flex items-center justify-between">
@@ -189,29 +229,40 @@ const AdminSalaryManagement = () => {
 
         {/* Month/Year Filter */}
         <div className="bg-white rounded-xl shadow-md p-4 mb-4 border border-primary-100">
-          <div className="flex gap-3 items-center flex-wrap">
-            <select value={selectedMonth} onChange={(e) => setSelectedMonth(Number(e.target.value))} className="px-3 py-2 border rounded-lg">
-              {[...Array(12)].map((_, i) => (
-                <option key={i} value={i + 1}>{new Date(2024, i).toLocaleString('default', { month: 'long' })}</option>
-              ))}
-            </select>
-            <select value={selectedYear} onChange={(e) => setSelectedYear(Number(e.target.value))} className="px-3 py-2 border rounded-lg">
-              {[2024, 2025, 2026].map(year => (
-                <option key={year} value={year}>{year}</option>
-              ))}
-            </select>
-            <button onClick={loadRecords} className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
-              Load Records
-            </button>
-            <button onClick={handleGenerateRecords} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
-              Generate Monthly Salaries
-            </button>
+          <div className="flex flex-col gap-3">
+            <div className="flex gap-3 items-center flex-wrap">
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-gray-700">Select Period:</label>
+                <select value={selectedMonth} onChange={(e) => setSelectedMonth(Number(e.target.value))} className="px-3 py-2 border rounded-lg">
+                  {[...Array(12)].map((_, i) => (
+                    <option key={i} value={i + 1}>{new Date(2024, i).toLocaleString('default', { month: 'long' })}</option>
+                  ))}
+                </select>
+                <select value={selectedYear} onChange={(e) => setSelectedYear(Number(e.target.value))} className="px-3 py-2 border rounded-lg">
+                  {[2024, 2025, 2026].map(year => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div className="flex gap-3 flex-wrap">
+              <button 
+                onClick={handleGenerateRecords} 
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
+                title="Create salary records for all staff for the selected month"
+              >
+                <Calendar className="w-4 h-4" />
+                Create Salary Records
+              </button>
+              <div className="text-xs text-gray-500 flex items-center">
+                <span>💡 First, create salary records for the month, then mark them as paid</span>
+              </div>
+            </div>
           </div>
           {generateResult && (
             <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
               <p className="text-sm text-green-800">
-                ✓ Created: {generateResult.created_count} | Skipped: {generateResult.skipped_count} | Total: {generateResult.total_staff}
+                ✓ Created: {generateResult.created_count} records | Skipped: {generateResult.skipped_count} (already exist)
               </p>
             </div>
           )}
@@ -249,14 +300,22 @@ const AdminSalaryManagement = () => {
                     <td className="px-4 py-3">
                       <div className="flex gap-2">
                         {record.payment_status !== 'paid' && (
-                          <button onClick={() => setShowPayModal(record)} className="px-3 py-1 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600 flex items-center gap-1">
+                          <button 
+                            onClick={() => setShowPayModal(record)} 
+                            className="px-3 py-1 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600 flex items-center gap-1"
+                            title="Mark this salary as paid"
+                          >
                             <CheckCircle className="w-4 h-4" />
-                            Pay
+                            Mark Paid
                           </button>
                         )}
-                        <button onClick={() => viewQRCode(record.staff_id)} className="px-3 py-1 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600 flex items-center gap-1">
-                          <QrCode className="w-4 h-4" />
-                          QR
+                        <button 
+                          onClick={() => viewQRCode(record.staff_id)} 
+                          className="px-3 py-1 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600 flex items-center gap-1"
+                          title="View payment details and QR code"
+                        >
+                          <CreditCard className="w-4 h-4" />
+                          Payment Info
                         </button>
                       </div>
                     </td>
@@ -272,14 +331,31 @@ const AdminSalaryManagement = () => {
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
             <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
               <h3 className="text-lg font-bold mb-4">Confirm Payment</h3>
-              <p className="text-gray-600 mb-4">
-                Pay ₹{showPayModal.salary_amount} to Staff #{showPayModal.staff_id} for {showPayModal.month}/{showPayModal.year}?
-              </p>
+              <div className="mb-4">
+                <p className="text-gray-700 mb-3">
+                  Have you paid <span className="font-semibold">₹{showPayModal.salary_amount}</span> to <span className="font-semibold">{showPayModal.staff_name || `Staff #${showPayModal.staff_id}`}</span> for <span className="font-semibold">{showPayModal.month}/{showPayModal.year}</span>?
+                </p>
+                <p className="text-sm text-orange-600 bg-orange-50 p-3 rounded-lg">
+                  If not, please check their payment information first before confirming.
+                </p>
+              </div>
               <div className="flex gap-2">
-                <button onClick={() => handlePaySalary(showPayModal.id, localStorage.getItem('username') || 'admin', 'Paid via admin')} className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
-                  Confirm Payment
+                <button 
+                  onClick={() => viewQRCode(showPayModal.staff_id)} 
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  View Payment Info
                 </button>
-                <button onClick={() => setShowPayModal(null)} className="flex-1 px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">
+                <button 
+                  onClick={() => handlePaySalary(showPayModal.id, localStorage.getItem('username') || 'admin', 'Paid via admin')} 
+                  className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                >
+                  Yes, Confirm
+                </button>
+                <button 
+                  onClick={() => setShowPayModal(null)} 
+                  className="flex-1 px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400"
+                >
                   Cancel
                 </button>
               </div>
@@ -289,34 +365,65 @@ const AdminSalaryManagement = () => {
 
         {/* QR Modal */}
         {showQRModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
-              <h3 className="text-lg font-bold mb-4">Payment Information</h3>
-              <div className="space-y-3">
-                {showQRModal.upi_id && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl w-full max-w-sm flex flex-col" style={{maxHeight: '85vh'}}>
+              <div className="p-6 border-b">
+                <h3 className="text-lg font-bold">Payment Information</h3>
+              </div>
+              <div className="p-6 overflow-y-auto flex-1">
+                <div className="grid grid-cols-1 gap-4">
                   <div>
                     <p className="text-sm text-gray-600">UPI ID</p>
-                    <p className="font-semibold">{showQRModal.upi_id}</p>
+                    <p className="font-semibold text-gray-800">{showQRModal.upi_id || 'Not set'}</p>
                   </div>
-                )}
-                {showQRModal.qr_code_path && (
+                  <div>
+                    <p className="text-sm text-gray-600">Preferred Payment Method</p>
+                    <p className="font-semibold text-gray-800">{showQRModal.preferred_payment_method || 'Not set'}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Bank Account Number</p>
+                    <p className="font-semibold text-gray-800">{showQRModal.bank_account || 'Not set'}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">IFSC Code</p>
+                    <p className="font-semibold text-gray-800">{showQRModal.ifsc_code || 'Not set'}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Account Holder Name</p>
+                    <p className="font-semibold text-gray-800">{showQRModal.account_holder_name || 'Not set'}</p>
+                  </div>
                   <div>
                     <p className="text-sm text-gray-600 mb-2">QR Code</p>
-                    <img src={`http://localhost:8000${showQRModal.qr_code_path}`} alt="QR Code" className="w-48 h-48 mx-auto" />
+                    {showQRModal.qr_code_path ? (
+                      <img 
+                        src={`${API_BASE_URL}${showQRModal.qr_code_path}`} 
+                        alt="QR Code" 
+                        className="w-full max-w-[200px] h-auto border rounded-lg cursor-pointer hover:opacity-80"
+                        onClick={() => setShowQREnlarged(true)}
+                      />
+                    ) : (
+                      <p className="text-sm text-gray-500">No QR code uploaded</p>
+                    )}
                   </div>
-                )}
-                {showQRModal.bank_account && (
-                  <div>
-                    <p className="text-sm text-gray-600">Bank Account</p>
-                    <p className="font-semibold">{showQRModal.bank_account}</p>
-                    <p className="text-sm text-gray-600">IFSC: {showQRModal.ifsc_code}</p>
-                  </div>
-                )}
+                </div>
               </div>
-              <button onClick={() => setShowQRModal(null)} className="w-full mt-4 px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">
-                Close
-              </button>
+              <div className="p-6 border-t">
+                <button onClick={() => setShowQRModal(null)} className="w-full px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">
+                  Close
+                </button>
+              </div>
             </div>
+          </div>
+        )}
+
+        {/* Enlarged QR Modal */}
+        {showQREnlarged && showQRModal?.qr_code_path && (
+          <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-[60] p-4" onClick={() => setShowQREnlarged(false)}>
+            <img 
+              src={`${API_BASE_URL}${showQRModal.qr_code_path}`} 
+              alt="QR Code Enlarged" 
+              className="max-w-full max-h-full object-contain"
+            />
           </div>
         )}
       </div>

@@ -1,28 +1,28 @@
 import axiosInstance from './axios'
 
 const API_BASE = '/api/salary'
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
-// Helper to get shop_code from localStorage for admin
-const getShopCodeParam = () => {
+// Helper to get shop_code parameter for admin
+const getShopCodeParam = (shopCode) => {
   const userType = localStorage.getItem('user_type')
-  const shopCode = localStorage.getItem('selected_shop_code')
   return userType === 'admin' && shopCode ? { shop_code: shopCode } : {}
 }
 
 export const salaryAPI = {
   // Admin APIs
-  getDashboard: () => axiosInstance.get(`${API_BASE}/dashboard`, { params: getShopCodeParam() }),
-  createSalaryRecord: (data) => axiosInstance.post(`${API_BASE}/records`, data, { params: getShopCodeParam() }),
-  getSalaryRecords: (params) => axiosInstance.get(`${API_BASE}/records`, { params: { ...params, ...getShopCodeParam() } }),
-  paySalary: (recordId, data) => axiosInstance.put(`${API_BASE}/records/${recordId}/pay`, data, { params: getShopCodeParam() }),
-  getStaffProfile: (staffId) => axiosInstance.get(`${API_BASE}/staff/${staffId}/profile`, { params: getShopCodeParam() }),
-  getStaffHistory: (staffId) => axiosInstance.get(`${API_BASE}/staff/${staffId}/history`, { params: getShopCodeParam() }),
-  getStaffPaymentInfo: (staffId) => axiosInstance.get(`${API_BASE}/staff/${staffId}/payment-info`, { params: getShopCodeParam() }),
-  getStaffQRCode: (staffId) => axiosInstance.get(`${API_BASE}/staff/${staffId}/qr-code`, { responseType: 'blob', params: getShopCodeParam() }),
-  getAlerts: () => axiosInstance.get(`${API_BASE}/alerts`, { params: getShopCodeParam() }),
-  dismissAlert: (alertId) => axiosInstance.put(`${API_BASE}/alerts/${alertId}/dismiss`, {}, { params: getShopCodeParam() }),
-  getMonthlySummary: (year, month) => axiosInstance.get(`${API_BASE}/monthly-summary/${year}/${month}`, { params: getShopCodeParam() }),
-  generateMonthlyRecords: (year, month) => axiosInstance.post(`${API_BASE}/generate-monthly-records/${year}/${month}`, {}, { params: getShopCodeParam() }),
+  getDashboard: (shopCode) => axiosInstance.get(`${API_BASE}/dashboard`, { params: getShopCodeParam(shopCode) }),
+  createSalaryRecord: (data, shopCode) => axiosInstance.post(`${API_BASE}/records`, data, { params: getShopCodeParam(shopCode) }),
+  getSalaryRecords: (params, shopCode) => axiosInstance.get(`${API_BASE}/records`, { params: { ...params, ...getShopCodeParam(shopCode) } }),
+  paySalary: (recordId, data, shopCode) => axiosInstance.put(`${API_BASE}/records/${recordId}/pay`, data, { params: getShopCodeParam(shopCode) }),
+  getStaffProfile: (staffId, shopCode) => axiosInstance.get(`${API_BASE}/staff/${staffId}/profile`, { params: getShopCodeParam(shopCode) }),
+  getStaffHistory: (staffId, shopCode) => axiosInstance.get(`${API_BASE}/staff/${staffId}/history`, { params: getShopCodeParam(shopCode) }),
+  getStaffPaymentInfo: (staffId, shopCode) => axiosInstance.get(`${API_BASE}/staff/${staffId}/payment-info`, { params: getShopCodeParam(shopCode) }),
+  getStaffQRCode: (staffId, shopCode) => axiosInstance.get(`${API_BASE}/staff/${staffId}/qr-code`, { responseType: 'blob', params: getShopCodeParam(shopCode) }),
+  getAlerts: (shopCode) => axiosInstance.get(`${API_BASE}/alerts`, { params: getShopCodeParam(shopCode) }),
+  dismissAlert: (alertId, shopCode) => axiosInstance.put(`${API_BASE}/alerts/${alertId}/dismiss`, {}, { params: getShopCodeParam(shopCode) }),
+  getMonthlySummary: (year, month, shopCode) => axiosInstance.get(`${API_BASE}/monthly-summary/${year}/${month}`, { params: getShopCodeParam(shopCode) }),
+  generateMonthlyRecords: (year, month, shopCode) => axiosInstance.post(`${API_BASE}/generate-monthly-records/${year}/${month}`, {}, { params: getShopCodeParam(shopCode) }),
 
   // Staff APIs (no shop_code needed - from JWT token)
   getMyProfile: () => axiosInstance.get(`${API_BASE}/my-profile`),

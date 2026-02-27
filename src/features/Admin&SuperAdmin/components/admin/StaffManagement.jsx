@@ -43,10 +43,11 @@ export default function StaffManagement() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const submitData = { ...formData, role: 'staff' };
       if (editingStaff) {
-        await adminApi.updateStaff(editingStaff.id, formData);
+        await adminApi.updateStaff(editingStaff.id, submitData);
       } else {
-        await adminApi.createStaff(selectedShop, formData);
+        await adminApi.createStaff(selectedShop, submitData);
       }
       setShowForm(false);
       setEditingStaff(null);
@@ -110,41 +111,34 @@ export default function StaffManagement() {
         <form onSubmit={handleSubmit} className="bg-white p-6 rounded-xl shadow-lg mb-4 border border-primary-100">
           <h3 className="text-lg font-bold mb-4">{editingStaff ? 'Edit Staff' : 'New Staff'}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input placeholder="Full Name" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" required />
-            <input placeholder="Staff Code" value={formData.staff_code} onChange={(e) => setFormData({...formData, staff_code: e.target.value})} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" required={!editingStaff} disabled={editingStaff} />
-            <input placeholder="Phone" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" required />
-            <input placeholder="Email" type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" />
-            <input placeholder="Monthly Salary" type="number" value={formData.monthly_salary} onChange={(e) => setFormData({...formData, monthly_salary: e.target.value})} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" />
-            <select value={formData.role} onChange={(e) => setFormData({...formData, role: e.target.value})} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent">
-              <option value="staff">Staff</option>
-              <option value="manager">Manager</option>
-            </select>
             <div>
-              <label className="block text-sm text-gray-600 mb-1">Joining Date</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+              <input placeholder="e.g., John Doe" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent w-full" required />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Staff Code</label>
+              <input placeholder="e.g., STAFF001" value={formData.staff_code} onChange={(e) => setFormData({...formData, staff_code: e.target.value})} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent w-full" required={!editingStaff} disabled={editingStaff} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+              <input placeholder="e.g., +91 9876543210" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent w-full" required />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <input placeholder="e.g., staff@example.com" type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent w-full" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Monthly Salary</label>
+              <input placeholder="e.g., 25000" type="number" value={formData.monthly_salary} onChange={(e) => setFormData({...formData, monthly_salary: e.target.value})} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent w-full" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Joining Date</label>
               <input type="date" value={formData.joining_date} onChange={(e) => setFormData({...formData, joining_date: e.target.value})} max={new Date().toISOString().split('T')[0]} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent w-full" />
             </div>
             <div>
-              <label className="block text-sm text-gray-600 mb-1">Payment After Days</label>
-              <input type="number" value={formData.salary_eligibility_days} onChange={(e) => setFormData({...formData, salary_eligibility_days: e.target.value})} min="0" placeholder="Days after joining to pay salary" className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent w-full" />
+              <label className="block text-sm font-medium text-gray-700 mb-1">Payment After Days</label>
+              <input type="number" value={formData.salary_eligibility_days} onChange={(e) => setFormData({...formData, salary_eligibility_days: e.target.value})} min="0" placeholder="e.g., 4" className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent w-full" />
             </div>
-          </div>
-          <div className="mt-4 grid grid-cols-2 gap-3">
-            <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={formData.can_manage_staff} onChange={(e) => setFormData({...formData, can_manage_staff: e.target.checked})} className="rounded" />
-              Can Manage Staff
-            </label>
-            <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={formData.can_view_analytics} onChange={(e) => setFormData({...formData, can_view_analytics: e.target.checked})} className="rounded" />
-              Can View Analytics
-            </label>
-            <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={formData.can_manage_inventory} onChange={(e) => setFormData({...formData, can_manage_inventory: e.target.checked})} className="rounded" />
-              Can Manage Inventory
-            </label>
-            <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={formData.can_manage_customers} onChange={(e) => setFormData({...formData, can_manage_customers: e.target.checked})} className="rounded" />
-              Can Manage Customers
-            </label>
           </div>
           <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700 flex items-start gap-2">
             <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
@@ -167,12 +161,11 @@ export default function StaffManagement() {
                     {expandedStaff[s.id] ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
                   </button>
                 </div>
-                <p className="text-sm text-gray-500 mb-2 font-mono bg-gray-100 inline-block px-2 py-1 rounded">UUID: {s.uuid}</p>
                 <p className="text-sm text-gray-600">Staff Code: <span className="font-semibold">{s.staff_code}</span></p>
+                <p className="text-sm text-gray-600">Phone: {s.phone}</p>
                 
                 {expandedStaff[s.id] && (
                   <>
-                    <p className="text-sm text-gray-600">Phone: {s.phone}</p>
                     {s.email && <p className="text-sm text-gray-600">Email: {s.email}</p>}
                     <p className="text-sm text-gray-600">Role: <span className="font-semibold capitalize">{s.role}</span></p>
                     {s.monthly_salary > 0 && <p className="text-sm text-gray-600">Salary: <span className="font-semibold">₹{s.monthly_salary}</span></p>}
@@ -180,15 +173,6 @@ export default function StaffManagement() {
                     {s.salary_eligibility_days && <p className="text-sm text-gray-600">Payment: <span className="font-semibold">{s.salary_eligibility_days} days after joining</span></p>}
                     {s.joining_date && s.salary_eligibility_days && <p className="text-sm text-gray-600">Next Payment Due: <span className="font-semibold">{calculatePaymentDate(s.joining_date, s.salary_eligibility_days)}</span></p>}
                     {s.is_eligible_for_salary !== undefined && <p className="text-sm text-gray-600">Salary Eligible: <span className={`font-semibold ${s.is_eligible_for_salary ? 'text-green-600' : 'text-red-600'}`}>{s.is_eligible_for_salary ? 'Yes' : 'No'}</span></p>}
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {s.can_manage_staff && <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-semibold">Manage Staff</span>}
-                      {s.can_view_analytics && <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-semibold">View Analytics</span>}
-                      {s.can_manage_inventory && <span className="bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs font-semibold">Manage Inventory</span>}
-                      {s.can_manage_customers && <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs font-semibold">Manage Customers</span>}
-                    </div>
-                    <span className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-semibold ${s.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                      {s.is_active ? 'Active' : 'Inactive'}
-                    </span>
                   </>
                 )}
               </div>

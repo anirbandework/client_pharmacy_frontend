@@ -50,17 +50,6 @@ const SuperAdminAnalytics = () => {
 
   return (
     <div className="space-y-6">
-        {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 rounded-xl shadow-lg p-6">
-          <div className="flex items-center gap-3">
-            <Activity className="w-8 h-8 text-white" />
-            <div>
-              <h1 className="text-2xl font-bold text-white">SuperAdmin Analytics</h1>
-              <p className="text-white/90 text-sm">System-wide statistics and insights</p>
-            </div>
-          </div>
-        </div>
-
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">

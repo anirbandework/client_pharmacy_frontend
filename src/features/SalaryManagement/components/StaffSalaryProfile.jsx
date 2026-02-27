@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import Layout from '../../../components/Layout'
 import PasswordProtectedRoute from '../../../components/PasswordProtectedRoute'
-import { salaryAPI } from '../services/salaryApi'
+import { salaryAPI, API_BASE_URL } from '../services/salaryApi'
 import { User, DollarSign, Calendar, CheckCircle, Clock, AlertTriangle, Upload, CreditCard, QrCode } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -11,6 +11,7 @@ const StaffSalaryProfile = () => {
   const [paymentInfo, setPaymentInfo] = useState(null)
   const [loading, setLoading] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
+  const [qrFile, setQRFile] = useState(null)
   const [formData, setFormData] = useState({
     upi_id: '',
     bank_account: '',
@@ -64,26 +65,15 @@ const StaffSalaryProfile = () => {
     setLoading(true)
     try {
       await salaryAPI.updateMyPaymentInfo(formData)
+      if (qrFile) {
+        await salaryAPI.uploadMyQRCode(qrFile)
+      }
       toast.success('Payment information updated successfully')
       setShowEditModal(false)
+      setQRFile(null)
       loadPaymentInfo()
     } catch (err) {
       toast.error(err.response?.data?.detail || 'Failed to update payment info')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleQRUpload = async (e) => {
-    const file = e.target.files[0]
-    if (!file) return
-    setLoading(true)
-    try {
-      await salaryAPI.uploadMyQRCode(file)
-      toast.success('QR code uploaded successfully')
-      loadPaymentInfo()
-    } catch (err) {
-      toast.error(err.response?.data?.detail || 'Failed to upload QR code')
     } finally {
       setLoading(false)
     }
@@ -189,17 +179,9 @@ const StaffSalaryProfile = () => {
               <div className="md:col-span-2">
                 <p className="text-sm text-gray-600 mb-2">QR Code</p>
                 {paymentInfo.qr_code_path ? (
-                  <img src={`http://localhost:8000${paymentInfo.qr_code_path}`} alt="QR Code" className="w-48 h-48 border rounded-lg" />
+                  <img src={`${API_BASE_URL}${paymentInfo.qr_code_path}`} alt="QR Code" className="w-48 h-48 border rounded-lg" />
                 ) : (
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                    <QrCode className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                    <p className="text-sm text-gray-600 mb-2">No QR code uploaded</p>
-                    <label className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer inline-flex items-center gap-2">
-                      <Upload className="w-4 h-4" />
-                      Upload QR Code
-                      <input type="file" accept="image/*" onChange={handleQRUpload} className="hidden" />
-                    </label>
-                  </div>
+                  <p className="text-sm text-gray-500">No QR code uploaded</p>
                 )}
               </div>
             </div>
@@ -283,6 +265,15 @@ const StaffSalaryProfile = () => {
                     <option value="bank_transfer">Bank Transfer</option>
                     <option value="cash">Cash</option>
                   </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">QR Code</label>
+                  <input type="file" accept="image/*" onChange={(e) => setQRFile(e.target.files[0])} className="w-full px-3 py-2 border rounded-lg" />
+                  {qrFile && (
+                    <div className="mt-2">
+                      <img src={URL.createObjectURL(qrFile)} alt="Preview" className="w-32 h-32 border rounded" />
+                    </div>
+                  )}
                 </div>
                 <div className="flex gap-2">
                   <button type="submit" disabled={loading} className="flex-1 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50">

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { notificationsApi } from '../services/notificationsApi';
 import { Eye, TrendingUp } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function SentNotifications() {
   const [notifications, setNotifications] = useState([]);
@@ -15,7 +16,7 @@ export default function SentNotifications() {
       setNotifications(data);
       data.forEach(n => loadStats(n.id));
     } catch (err) {
-      alert(err.message);
+      toast.error(err.message);
     } finally {
       setLoading(false);
     }

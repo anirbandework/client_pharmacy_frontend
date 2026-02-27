@@ -231,7 +231,7 @@ export default function AdminsHierarchy() {
                                 <div className="flex items-center gap-2 flex-wrap">
                                   <span>🔑 Password: </span>
                                   {showPasswords[`admin-${admin.id}`] ? (
-                                    <span className="font-mono text-xs bg-gray-100 px-2 py-0.5 rounded">{admin.plain_password || 'Not set'}</span>
+                                    <span className="font-mono text-xs bg-gray-100 px-2 py-0.5 rounded break-all">{admin.password_hash || 'Not set'}</span>
                                   ) : (
                                     <span className="text-gray-400">••••••••</span>
                                   )}
@@ -358,7 +358,7 @@ export default function AdminsHierarchy() {
                                             <div className="flex items-center gap-2 flex-wrap">
                                               <span>🔑 Password: </span>
                                               {showPasswords[`staff-${staff.id}`] ? (
-                                                <span className="font-mono text-xs bg-gray-100 px-2 py-0.5 rounded">{staff.plain_password || 'Not set'}</span>
+                                                <span className="font-mono text-xs bg-gray-100 px-2 py-0.5 rounded break-all">{staff.password_hash || 'Not set'}</span>
                                               ) : (
                                                 <span className="text-gray-400">••••••••</span>
                                               )}

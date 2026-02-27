@@ -6,24 +6,53 @@ const getAuthHeaders = () => ({
 });
 
 const handleResponse = async (res) => {
+  console.log('Response status:', res.status);
+  console.log('Response headers:', res.headers);
+  
   if (res.status === 401 || res.status === 403) {
     localStorage.clear();
     window.location.href = '/login';
     throw new Error('Session expired. Please login again.');
   }
-  if (!res.ok) throw new Error(`Request failed: ${res.statusText}`);
-  return res.json();
+  
+  const contentType = res.headers.get('content-type');
+  const isJson = contentType && contentType.includes('application/json');
+  console.log('Is JSON:', isJson);
+  
+  if (!res.ok) {
+    let errorData = null;
+    if (isJson) {
+      try {
+        errorData = await res.json();
+        console.log('Error data:', errorData);
+      } catch (e) {
+        console.error('Failed to parse error response:', e);
+      }
+    }
+    
+    const error = new Error(errorData?.detail || errorData?.message || errorData?.error || `Request failed: ${res.statusText}`);
+    error.response = { data: errorData };
+    console.log('Throwing error:', error);
+    throw error;
+  }
+  
+  return isJson ? res.json() : res.text();
 };
 
 export const notificationsApi = {
   // Admin APIs
   sendNotification: async (data) => {
-    const res = await fetch(`${API_BASE_URL}/api/notifications/admin/send`, {
-      method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify(data)
-    });
-    return handleResponse(res);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/notifications/admin/send`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(data)
+      });
+      return handleResponse(res);
+    } catch (error) {
+      console.error('Fetch error:', error);
+      throw error;
+    }
   },
 
   getSentNotifications: async (limit = 50) => {

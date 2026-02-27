@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { notificationsApi } from '../services/notificationsApi';
 import { Bell, Check } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function StaffNotifications() {
   const [notifications, setNotifications] = useState([]);
@@ -21,7 +22,7 @@ export default function StaffNotifications() {
       setNotifications(data.notifications || []);
       setUnreadCount(data.unread_count || 0);
     } catch (err) {
-      alert(err.message);
+      toast.error(err.message);
     } finally {
       setLoading(false);
     }
@@ -30,9 +31,10 @@ export default function StaffNotifications() {
   const handleMarkAsRead = async (notificationId) => {
     try {
       await notificationsApi.markAsRead(notificationId);
+      toast.success('Marked as read');
       loadNotifications();
     } catch (err) {
-      alert(err.message);
+      toast.error(err.message);
     }
   };
 

@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { adminApi } from '../../services/admin&superAminApi';
-import { Ban, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Ban, CheckCircle, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react';
 import ConfirmDialog from '../../../../components/ConfirmDialog';
 
-export default function ShopsManagement() {
+export default function ShopsManagement({ isDark = false }) {
   const [shops, setShops] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editingShop, setEditingShop] = useState(null);
+  const [expandedShops, setExpandedShops] = useState({});
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, shop: null });
   const [formData, setFormData] = useState({
     shop_name: '', shop_code: '', address: '', phone: '', email: '',
@@ -62,6 +63,10 @@ export default function ShopsManagement() {
     }
   };
 
+  const toggleExpand = (shopId) => {
+    setExpandedShops(prev => ({ ...prev, [shopId]: !prev[shopId] }));
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
@@ -74,13 +79,34 @@ export default function ShopsManagement() {
         <form onSubmit={handleSubmit} className="bg-white p-6 rounded-xl shadow-lg mb-4 border border-primary-100">
           <h3 className="text-lg font-bold mb-4">{editingShop ? 'Edit Shop' : 'New Shop'}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input placeholder="Shop Name" value={formData.shop_name} onChange={(e) => setFormData({...formData, shop_name: e.target.value})} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" required />
-            <input placeholder="Shop Code" value={formData.shop_code} onChange={(e) => setFormData({...formData, shop_code: e.target.value})} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" required={!editingShop} disabled={editingShop} />
-            <input placeholder="Address" value={formData.address} onChange={(e) => setFormData({...formData, address: e.target.value})} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" required />
-            <input placeholder="Phone" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" required />
-            <input placeholder="Email" type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" />
-            <input placeholder="License Number" value={formData.license_number} onChange={(e) => setFormData({...formData, license_number: e.target.value})} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" />
-            <input placeholder="GST Number" value={formData.gst_number} onChange={(e) => setFormData({...formData, gst_number: e.target.value})} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Shop Name</label>
+              <input placeholder="e.g., Main Street Pharmacy" value={formData.shop_name} onChange={(e) => setFormData({...formData, shop_name: e.target.value})} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent w-full" required />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Shop Code</label>
+              <input placeholder="e.g., SHOP001" value={formData.shop_code} onChange={(e) => setFormData({...formData, shop_code: e.target.value})} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent w-full" required={!editingShop} disabled={editingShop} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+              <input placeholder="e.g., 123 Main St, City" value={formData.address} onChange={(e) => setFormData({...formData, address: e.target.value})} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent w-full" required />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+              <input placeholder="e.g., +91 9876543210" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent w-full" required />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <input placeholder="e.g., shop@example.com" type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent w-full" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">License Number</label>
+              <input placeholder="e.g., DL-12345" value={formData.license_number} onChange={(e) => setFormData({...formData, license_number: e.target.value})} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent w-full" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">GST Number</label>
+              <input placeholder="e.g., 22AAAAA0000A1Z5" value={formData.gst_number} onChange={(e) => setFormData({...formData, gst_number: e.target.value})} className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent w-full" />
+            </div>
           </div>
           <button type="submit" className="mt-4 bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-2 rounded-lg shadow-md hover:shadow-lg transition-all">
             {editingShop ? 'Update' : 'Create'} Shop
@@ -92,17 +118,27 @@ export default function ShopsManagement() {
         {shops.map(shop => (
           <div key={shop.id} className="bg-white p-4 rounded-xl shadow-md border border-primary-100 hover:shadow-lg transition-all">
             <div className="flex justify-between items-start">
-              <div>
-                <h3 className="text-xl font-bold text-gray-800">{shop.shop_name}</h3>
-                <p className="text-sm text-gray-500 mb-2">Code: {shop.shop_code}</p>
-                <p className="text-sm text-gray-600">{shop.address}</p>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-xl font-bold text-gray-800">{shop.shop_name}</h3>
+                  <button onClick={() => toggleExpand(shop.id)} className="p-1 hover:bg-gray-100 rounded">
+                    {expandedShops[shop.id] ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                  </button>
+                </div>
+                <p className="text-sm text-gray-600">Code: <span className="font-semibold">{shop.shop_code}</span></p>
                 <p className="text-sm text-gray-600">Phone: {shop.phone}</p>
-                {shop.email && <p className="text-sm text-gray-600">Email: {shop.email}</p>}
-                {shop.license_number && <p className="text-sm text-gray-600">License: {shop.license_number}</p>}
-                {shop.gst_number && <p className="text-sm text-gray-600">GST: {shop.gst_number}</p>}
-                <span className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-semibold ${shop.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                  {shop.is_active ? 'Active' : 'Inactive'}
-                </span>
+                
+                {expandedShops[shop.id] && (
+                  <>
+                    <p className="text-sm text-gray-600">{shop.address}</p>
+                    {shop.email && <p className="text-sm text-gray-600">Email: {shop.email}</p>}
+                    {shop.license_number && <p className="text-sm text-gray-600">License: {shop.license_number}</p>}
+                    {shop.gst_number && <p className="text-sm text-gray-600">GST: {shop.gst_number}</p>}
+                    <span className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-semibold ${shop.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                      {shop.is_active ? 'Active' : 'Inactive'}
+                    </span>
+                  </>
+                )}
               </div>
               <div className="flex gap-2">
                 <button onClick={() => handleToggleActive(shop)} className={`${shop.is_active ? 'bg-gradient-to-r from-orange-500 to-orange-600' : 'bg-gradient-to-r from-green-500 to-green-600'} text-white px-3 py-1 rounded-lg text-sm hover:shadow-md transition-all flex items-center gap-1`}>
