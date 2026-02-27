@@ -92,16 +92,6 @@ const GeofenceGuard = ({ children, moduleName = 'this module' }) => {
           )}
         </div>
         
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <a
-            href="/attendance"
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition"
-          >
-            <Wifi className="w-5 h-5" />
-            Go to Attendance
-          </a>
-        </div>
-        
         <p className="text-xs text-gray-500 mt-6">
           If you believe this is an error, please contact your administrator.
         </p>
