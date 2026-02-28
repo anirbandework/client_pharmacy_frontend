@@ -83,7 +83,7 @@ const OrganizationPermissions = () => {
 
   // Separate modules by role - based on backend default settings
   const staffOnlyModules = ['billing', 'customer_tracking', 'purchase_invoice', 'stock_audit', 'attendance_staff', 'my_notifications', 'my_salary']
-  const adminOnlyModules = ['admin_panel', 'attendance_admin', 'notifications_admin', 'salary_management', 'invoice_analytics']
+  const adminOnlyModules = ['admin_panel', 'attendance_admin', 'notifications_admin', 'salary_management', 'invoice_analytics', 'stock_analytics', 'billing_analytics']
   
   const staffModules = filteredModules.filter(m => staffOnlyModules.includes(m.module_key))
   const adminModules = filteredModules.filter(m => adminOnlyModules.includes(m.module_key))

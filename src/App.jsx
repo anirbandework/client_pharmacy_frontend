@@ -13,6 +13,8 @@ const Welcome = lazy(() => import('./features/Welcome'))
 const SuperAdminLogin = lazy(() => import('./features/Welcome/SuperAdminLogin'))
 const PurchaseInvoice = lazy(() => import('./features/PurchaseInvoice'))
 const AdminInvoiceAnalytics = lazy(() => import('./features/PurchaseInvoice/AdminAnalytics'))
+const AdminStockAnalytics = lazy(() => import('./features/StockAudit/AdminAnalytics'))
+const AdminBillingAnalytics = lazy(() => import('./features/Billing/AdminAnalytics'))
 const StockAudit = lazy(() => import('./features/StockAudit'))
 const Billing = lazy(() => import('./features/Billing'))
 const CustomerTracking = lazy(() => import('./features/CustomerTracking'))
@@ -79,7 +81,9 @@ function App() {
                   <Route path="/my-notifications" element={<ProtectedRoute requiredModule="my_notifications"><StaffNotificationsPage /></ProtectedRoute>} />
                   <Route path="/purchase-invoice" element={<ProtectedRoute requiredModule="purchase_invoice"><PurchaseInvoice /></ProtectedRoute>} />
                   <Route path="/invoice-analytics" element={<ProtectedRoute requiredModule="invoice_analytics"><AdminInvoiceAnalytics /></ProtectedRoute>} />
+                  <Route path="/stock-analytics" element={<ProtectedRoute requiredModule="stock_analytics"><AdminStockAnalytics /></ProtectedRoute>} />
                   <Route path="/stock-audit" element={<ProtectedRoute requiredModule="stock_audit"><StockAudit /></ProtectedRoute>} />
+                  <Route path="/billing-analytics" element={<ProtectedRoute requiredModule="billing_analytics"><AdminBillingAnalytics /></ProtectedRoute>} />
                   <Route path="/billing" element={<ProtectedRoute requiredModule="billing"><Billing /></ProtectedRoute>} />
                   <Route path="/customer-tracking" element={<ProtectedRoute requiredModule="customer_tracking"><CustomerTracking /></ProtectedRoute>} />
                   <Route path="/my-attendance" element={<ProtectedRoute requiredModule="attendance_staff"><MyAttendance /></ProtectedRoute>} />
