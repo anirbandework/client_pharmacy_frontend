@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { FileText, Users, Package, ShoppingCart, Wallet, Settings, Clock, Shield, Bell, MessageCircle, Send, Receipt, UserCheck, TrendingUp } from 'lucide-react'
+import { FileText, Users, Package, ShoppingCart, Wallet, Settings, Clock, Shield, Bell, MessageCircle, Send, Receipt, UserCheck, TrendingUp, Brain } from 'lucide-react'
 import { useSidebar } from '../contexts/SidebarContext'
 import { feedbackAPI } from '../features/Feedback/services/feedbackApi'
 import FeedbackFormModal from '../features/Feedback/components/FeedbackFormModal'
@@ -20,7 +20,7 @@ const Sidebar = () => {
 
   // Icon mapping from backend icon names to Lucide components
   const iconMap = {
-    Receipt, UserCheck, ShoppingCart, Package, Clock, Bell, Wallet, Settings, Shield
+    Receipt, UserCheck, ShoppingCart, Package, Clock, Bell, Wallet, Settings, Shield, Brain
   }
 
   const getIcon = (iconName) => iconMap[iconName] || Settings

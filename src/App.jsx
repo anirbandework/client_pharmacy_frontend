@@ -12,6 +12,7 @@ import './App.css'
 const Welcome = lazy(() => import('./features/Welcome'))
 const SuperAdminLogin = lazy(() => import('./features/Welcome/SuperAdminLogin'))
 const PurchaseInvoice = lazy(() => import('./features/PurchaseInvoice'))
+const AdminInvoiceAnalytics = lazy(() => import('./features/PurchaseInvoice/AdminAnalytics'))
 const StockAudit = lazy(() => import('./features/StockAudit'))
 const Billing = lazy(() => import('./features/Billing'))
 const CustomerTracking = lazy(() => import('./features/CustomerTracking'))
@@ -77,6 +78,7 @@ function App() {
                   <Route path="/notifications" element={<ProtectedRoute requiredModule="notifications_admin"><AdminNotifications /></ProtectedRoute>} />
                   <Route path="/my-notifications" element={<ProtectedRoute requiredModule="my_notifications"><StaffNotificationsPage /></ProtectedRoute>} />
                   <Route path="/purchase-invoice" element={<ProtectedRoute requiredModule="purchase_invoice"><PurchaseInvoice /></ProtectedRoute>} />
+                  <Route path="/invoice-analytics" element={<ProtectedRoute requiredModule="invoice_analytics"><AdminInvoiceAnalytics /></ProtectedRoute>} />
                   <Route path="/stock-audit" element={<ProtectedRoute requiredModule="stock_audit"><StockAudit /></ProtectedRoute>} />
                   <Route path="/billing" element={<ProtectedRoute requiredModule="billing"><Billing /></ProtectedRoute>} />
                   <Route path="/customer-tracking" element={<ProtectedRoute requiredModule="customer_tracking"><CustomerTracking /></ProtectedRoute>} />
