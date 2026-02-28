@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Loader2, Info, Store, BarChart3, Brain, TrendingUp, DollarSign, Receipt, Package, Users, Clock, PieChart as PieIcon } from 'lucide-react'
+import { Loader2, Info, Store, BarChart3, Brain, TrendingUp, DollarSign, Receipt, Package } from 'lucide-react'
 import toast from 'react-hot-toast'
 import ReactMarkdown from 'react-markdown'
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, AreaChart } from 'recharts'
@@ -178,7 +178,7 @@ export default function BillingAdminAnalytics() {
         ) : dashboardData ? (
           <div className="space-y-6">
             {/* Overview Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="bg-white rounded-xl shadow-md p-4">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="p-2 bg-blue-100 rounded-lg">
@@ -236,60 +236,27 @@ export default function BillingAdminAnalytics() {
                   </div>
                 </div>
               </div>
-              
-              <div className="bg-white rounded-xl shadow-md p-4">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2 bg-purple-100 rounded-lg">
-                    <Users className="w-5 h-5 text-purple-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Customers</p>
-                    <p className="text-xl font-bold text-gray-800">
-                      {dashboardData.customers?.unique_customers}
-                    </p>
-                    <p className="text-xs text-gray-500">{dashboardData.customers?.repeat_rate?.toFixed(1)}% repeat</p>
-                  </div>
-                </div>
-              </div>
             </div>
 
-            {/* Payment & Customer Insights */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Payment Breakdown */}
-              <div className="bg-white rounded-xl shadow-md p-6">
-                <h3 className="text-lg font-bold text-gray-800 mb-4">Payment Methods</h3>
-                {dashboardData.payment_breakdown?.length > 0 && (
-                  <div className="space-y-3">
-                    {dashboardData.payment_breakdown.map((payment, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div className="flex items-center gap-3">
-                          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[idx] }}></div>
-                          <span className="font-medium text-gray-700">{payment.method}</span>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-bold text-gray-800">₹{payment.amount?.toLocaleString()}</p>
-                          <p className="text-xs text-gray-500">{payment.percentage}%</p>
-                        </div>
+            {/* Payment Methods */}
+            <div className="bg-white rounded-xl shadow-md p-6">
+              <h3 className="text-lg font-bold text-gray-800 mb-4">Payment Methods</h3>
+              {dashboardData.payment_breakdown?.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {dashboardData.payment_breakdown.map((payment, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[idx] }}></div>
+                        <span className="font-medium text-gray-700">{payment.method}</span>
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-              
-              {/* Customer Insights */}
-              <div className="bg-white rounded-xl shadow-md p-6">
-                <h3 className="text-lg font-bold text-gray-800 mb-4">Customer Insights</h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
-                    <span className="text-sm text-gray-700">Unique Customers</span>
-                    <span className="font-bold text-blue-700">{dashboardData.customers?.unique_customers}</span>
-                  </div>
-                  <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
-                    <span className="text-sm text-gray-700">Repeat Customers</span>
-                    <span className="font-bold text-green-700">{dashboardData.customers?.repeat_customers} ({dashboardData.customers?.repeat_rate?.toFixed(1)}%)</span>
-                  </div>
+                      <div className="text-right">
+                        <p className="font-bold text-gray-800">₹{payment.amount?.toLocaleString()}</p>
+                        <p className="text-xs text-gray-500">{payment.percentage}%</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Revenue & Profit Trends */}
