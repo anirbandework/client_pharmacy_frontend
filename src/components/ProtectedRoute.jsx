@@ -34,7 +34,11 @@ const ProtectedRoute = ({ children, requiredModule }) => {
   }
 
   if (hasAccess === null) {
-    return <div className="flex items-center justify-center h-screen">Loading...</div>
+    return (
+      <div className="flex items-center justify-center min-h-screen p-4">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500/20 border-t-blue-500"></div>
+      </div>
+    )
   }
 
   if (!hasAccess) {
