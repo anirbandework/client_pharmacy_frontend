@@ -42,13 +42,13 @@ const ContactUpload = ({ onUploadSuccess }) => {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-md p-6">
-      <h3 className="text-lg font-semibold mb-4">Upload Contact Sheet</h3>
+    <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 md:p-6">
+      <h3 className="text-base md:text-lg font-semibold mb-4">Upload Contact Sheet</h3>
       
       <div className="space-y-4">
-        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-          <FileSpreadsheet className="w-12 h-12 mx-auto text-gray-400 mb-2" />
-          <p className="text-sm text-gray-600 mb-2">Upload Excel or CSV file with phone numbers</p>
+        <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 md:p-8 text-center hover:border-purple-400 transition-colors">
+          <FileSpreadsheet className="w-10 h-10 md:w-12 md:h-12 mx-auto text-gray-400 mb-2" />
+          <p className="text-xs md:text-sm text-gray-600 mb-2">Upload Excel or CSV file with phone numbers</p>
           <input
             type="file"
             accept=".xlsx,.xls,.csv"
@@ -58,12 +58,12 @@ const ContactUpload = ({ onUploadSuccess }) => {
           />
           <label
             htmlFor="file-upload"
-            className="inline-block px-4 py-2 bg-primary-600 text-white rounded-lg cursor-pointer hover:bg-primary-700"
+            className="inline-block px-4 md:px-6 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg cursor-pointer hover:shadow-lg transition-all text-sm md:text-base"
           >
             Choose File
           </label>
           {file && (
-            <p className="mt-2 text-sm text-gray-700">Selected: {file.name}</p>
+            <p className="mt-2 text-xs md:text-sm text-gray-700 font-medium">Selected: {file.name}</p>
           )}
         </div>
 
@@ -71,7 +71,7 @@ const ContactUpload = ({ onUploadSuccess }) => {
           <button
             onClick={handleUpload}
             disabled={uploading}
-            className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 disabled:opacity-50 flex items-center justify-center gap-2"
+            className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-2 md:py-3 rounded-lg hover:shadow-lg disabled:opacity-50 flex items-center justify-center gap-2 transition-all text-sm md:text-base"
           >
             <Upload className="w-4 h-4" />
             {uploading ? 'Uploading...' : 'Upload Contacts'}
@@ -79,9 +79,9 @@ const ContactUpload = ({ onUploadSuccess }) => {
         )}
 
         {uploadResult && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h4 className="font-semibold text-blue-900 mb-2">Upload Summary</h4>
-            <div className="grid grid-cols-2 gap-2 text-sm">
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-4">
+            <h4 className="font-semibold text-blue-900 mb-3 text-sm md:text-base">Upload Summary</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs md:text-sm">
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-4 h-4 text-green-600" />
                 <span>Total: {uploadResult.total_contacts}</span>

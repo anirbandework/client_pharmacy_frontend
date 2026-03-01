@@ -95,15 +95,15 @@ const UploadInvoice = ({ onUploadSuccess }) => {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-md p-6">
-      <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-        <Upload className="w-5 h-5 text-primary-600" />
+    <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 md:p-6">
+      <h2 className="text-lg md:text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+        <Upload className="w-5 h-5 text-purple-600" />
         Upload Purchase Invoice
       </h2>
 
       <div
-        className={`border-2 border-dashed rounded-xl p-8 text-center transition-all ${
-          dragActive ? 'border-primary-500 bg-primary-50' : 'border-gray-300 hover:border-primary-400'
+        className={`border-2 border-dashed rounded-xl p-6 md:p-8 text-center transition-all ${
+          dragActive ? 'border-purple-500 bg-purple-50' : 'border-gray-300 hover:border-purple-400'
         }`}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
@@ -127,7 +127,7 @@ const UploadInvoice = ({ onUploadSuccess }) => {
               <button
                 onClick={handleUpload}
                 disabled={uploading}
-                className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 flex items-center gap-2"
+                className="px-4 md:px-6 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:shadow-lg transition-all disabled:opacity-50 flex items-center gap-2 text-sm md:text-base"
               >
                 {uploading ? (
                   <>
@@ -144,7 +144,7 @@ const UploadInvoice = ({ onUploadSuccess }) => {
               <button
                 onClick={() => setFile(null)}
                 disabled={uploading}
-                className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 disabled:opacity-50"
+                className="px-4 md:px-6 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 text-sm md:text-base"
               >
                 Cancel
               </button>
@@ -161,7 +161,7 @@ const UploadInvoice = ({ onUploadSuccess }) => {
               <p className="text-lg font-semibold text-gray-700">Drop PDF or Excel here</p>
               <p className="text-sm text-gray-500 mt-1">AI extracts from PDF • Excel for structured data</p>
             </div>
-            <div className="flex gap-3 justify-center">
+            <div className="flex gap-3 justify-center flex-wrap">
               <label className="inline-block">
                 <input
                   type="file"
@@ -169,7 +169,7 @@ const UploadInvoice = ({ onUploadSuccess }) => {
                   onChange={handleFileChange}
                   className="hidden"
                 />
-                <span className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 cursor-pointer inline-flex items-center gap-2">
+                <span className="px-4 md:px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:shadow-lg cursor-pointer inline-flex items-center gap-2 text-sm md:text-base transition-all">
                   <FileText className="w-4 h-4" />
                   Select PDF
                 </span>
@@ -181,7 +181,7 @@ const UploadInvoice = ({ onUploadSuccess }) => {
                   onChange={handleFileChange}
                   className="hidden"
                 />
-                <span className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 cursor-pointer inline-flex items-center gap-2">
+                <span className="px-4 md:px-6 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:shadow-lg cursor-pointer inline-flex items-center gap-2 text-sm md:text-base transition-all">
                   <FileSpreadsheet className="w-4 h-4" />
                   Select Excel
                 </span>
@@ -191,19 +191,19 @@ const UploadInvoice = ({ onUploadSuccess }) => {
         )}
       </div>
 
-      <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-        <div className="flex items-start justify-between gap-4">
+      <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
+        <div className="flex flex-col md:flex-row items-start justify-between gap-4">
           <div className="flex-1">
-            <p className="text-sm text-blue-800">
+            <p className="text-xs md:text-sm text-blue-800">
               <strong>✨ AI-Powered PDF:</strong> Works with any invoice format. Automatically extracts supplier info, items, quantities, prices, GST, and more!
             </p>
-            <p className="text-sm text-green-800 mt-2">
+            <p className="text-xs md:text-sm text-green-800 mt-2">
               <strong>📊 Excel Upload:</strong> Use structured Excel files with columns like Product Name, Quantity, Rate, CGST, SGST, etc.
             </p>
           </div>
           <button
             onClick={handleDownloadTemplate}
-            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2 text-sm whitespace-nowrap"
+            className="px-3 md:px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:shadow-lg flex items-center gap-2 text-xs md:text-sm whitespace-nowrap transition-all w-full md:w-auto justify-center"
           >
             <Download className="w-4 h-4" />
             Download Template

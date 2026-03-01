@@ -78,7 +78,7 @@ const InvoiceList = ({ refresh }) => {
 
   return (
     <div className="space-y-4">
-      <div className="bg-white rounded-xl shadow-md p-4">
+      <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
           <input
@@ -86,19 +86,19 @@ const InvoiceList = ({ refresh }) => {
             placeholder="Search by invoice number or supplier..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2 md:py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all text-sm md:text-base"
           />
         </div>
       </div>
 
       <div className="grid gap-4">
         {filteredInvoices.map((invoice) => (
-          <div key={invoice.id} className="bg-white rounded-xl shadow-md p-4 hover:shadow-lg transition-shadow">
+          <div key={invoice.id} className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 hover:shadow-xl transition-all">
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <FileText className="w-5 h-5 text-primary-600" />
-                  <h3 className="font-bold text-lg text-gray-800">{invoice.invoice_number}</h3>
+                <div className="flex items-center gap-2 md:gap-3 mb-2 flex-wrap">
+                  <FileText className="w-4 h-4 md:w-5 md:h-5 text-purple-600" />
+                  <h3 className="font-bold text-base md:text-lg text-gray-800">{invoice.invoice_number}</h3>
                   {invoice.is_verified ? (
                     <span className="flex items-center gap-1 text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
                       <CheckCircle className="w-3 h-3" />
@@ -111,27 +111,27 @@ const InvoiceList = ({ refresh }) => {
                     </span>
                   )}
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 text-xs md:text-sm">
                   <div className="flex items-center gap-2 text-gray-600">
-                    <Calendar className="w-4 h-4" />
+                    <Calendar className="w-3 h-3 md:w-4 md:h-4" />
                     {new Date(invoice.invoice_date).toLocaleDateString()}
                   </div>
                   <div className="flex items-center gap-2 text-gray-600">
-                    <Package className="w-4 h-4" />
+                    <Package className="w-3 h-3 md:w-4 md:h-4" />
                     {invoice.total_items} items
                   </div>
                   <div className="flex items-center gap-2 text-green-600 font-semibold">
-                    <DollarSign className="w-4 h-4" />
+                    <DollarSign className="w-3 h-3 md:w-4 md:h-4" />
                     ₹{invoice.net_amount.toFixed(2)}
                   </div>
                   <div className="text-gray-700 font-medium">
                     {invoice.supplier_name}
                   </div>
                 </div>
-                <div className="mt-2 text-xs text-gray-500">
+                <div className="mt-2 text-[10px] md:text-xs text-gray-500">
                   Uploaded by: {invoice.staff_name}
                   {invoice.is_verified && invoice.verified_by_name && (
-                    <span className="ml-3 text-green-600">
+                    <span className="ml-2 md:ml-3 text-green-600">
                       • Verified by: {invoice.verified_by_name}
                     </span>
                   )}
@@ -143,21 +143,21 @@ const InvoiceList = ({ refresh }) => {
                   className="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
                   title="Edit & Verify"
                 >
-                  <Edit className="w-5 h-5" />
+                  <Edit className="w-4 h-4 md:w-5 md:h-5" />
                 </button>
                 <button
                   onClick={() => handleView(invoice.id)}
                   className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                   title="View Details"
                 >
-                  <Eye className="w-5 h-5" />
+                  <Eye className="w-4 h-4 md:w-5 md:h-5" />
                 </button>
                 <button
                   onClick={() => handleDelete(invoice.id)}
                   className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                   title="Delete"
                 >
-                  <Trash2 className="w-5 h-5" />
+                  <Trash2 className="w-4 h-4 md:w-5 md:h-5" />
                 </button>
               </div>
             </div>
@@ -166,9 +166,9 @@ const InvoiceList = ({ refresh }) => {
       </div>
 
       {filteredInvoices.length === 0 && (
-        <div className="text-center py-12 text-gray-500">
-          <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-          <p>No invoices found</p>
+        <div className="bg-white rounded-xl shadow-lg border border-slate-200 text-center py-8 md:py-12 text-gray-500">
+          <FileText className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-4 text-gray-300" />
+          <p className="text-sm md:text-base">No invoices found</p>
         </div>
       )}
 
@@ -192,22 +192,22 @@ const InvoiceList = ({ refresh }) => {
 
 const InvoiceModal = ({ invoice, onClose }) => {
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={onClose}>
-      <div className="bg-white rounded-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-        <div className="sticky top-0 bg-white border-b p-4 flex justify-between items-center">
-          <h2 className="text-xl font-bold">Invoice Details</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700 text-2xl">✕</button>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
+        <div className="sticky top-0 bg-gradient-to-r from-purple-600 to-indigo-600 p-4 md:p-6 flex justify-between items-center">
+          <h2 className="text-lg md:text-xl font-bold text-white">Invoice Details</h2>
+          <button onClick={onClose} className="text-white/80 hover:text-white text-2xl transition-colors">✕</button>
         </div>
         
-        <div className="p-6 space-y-6">
+        <div className="p-4 md:p-6 space-y-4 md:space-y-6 overflow-y-auto max-h-[calc(90vh-80px)]">
           {/* Supplier & Invoice Info */}
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+          <div className="grid md:grid-cols-2 gap-4 md:gap-6">
+            <div className="bg-gradient-to-br from-gray-50 to-slate-50 p-4 rounded-xl border border-slate-200">
+              <h3 className="font-semibold text-gray-700 mb-3 flex items-center gap-2 text-sm md:text-base">
                 <FileText className="w-4 h-4" />
                 Supplier Information
               </h3>
-              <div className="space-y-2 text-sm">
+              <div className="space-y-2 text-xs md:text-sm">
                 <p><strong>Name:</strong> {invoice.supplier_name}</p>
                 {invoice.supplier_gstin && <p><strong>GSTIN:</strong> {invoice.supplier_gstin}</p>}
                 {invoice.supplier_phone && <p><strong>Phone:</strong> {invoice.supplier_phone}</p>}
@@ -215,12 +215,12 @@ const InvoiceModal = ({ invoice, onClose }) => {
                 {invoice.supplier_address && <p><strong>Address:</strong> {invoice.supplier_address}</p>}
               </div>
             </div>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+            <div className="bg-gradient-to-br from-gray-50 to-slate-50 p-4 rounded-xl border border-slate-200">
+              <h3 className="font-semibold text-gray-700 mb-3 flex items-center gap-2 text-sm md:text-base">
                 <Calendar className="w-4 h-4" />
                 Invoice Information
               </h3>
-              <div className="space-y-2 text-sm">
+              <div className="space-y-2 text-xs md:text-sm">
                 <p><strong>Invoice Number:</strong> {invoice.invoice_number}</p>
                 <p><strong>Invoice Date:</strong> {new Date(invoice.invoice_date).toLocaleDateString()}</p>
                 {invoice.due_date && <p><strong>Due Date:</strong> {new Date(invoice.due_date).toLocaleDateString()}</p>}
@@ -250,48 +250,48 @@ const InvoiceModal = ({ invoice, onClose }) => {
           </div>
 
           {/* Financial Summary */}
-          <div className="bg-gradient-to-r from-blue-50 to-green-50 p-4 rounded-lg">
-            <h3 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+          <div className="bg-gradient-to-r from-blue-50 via-purple-50 to-green-50 p-4 rounded-xl border border-blue-200">
+            <h3 className="font-semibold text-gray-700 mb-3 flex items-center gap-2 text-sm md:text-base">
               <DollarSign className="w-4 h-4" />
               Financial Summary
             </h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 text-xs md:text-sm">
               <div>
-                <p className="text-gray-600">Gross Amount</p>
-                <p className="text-lg font-bold">₹{invoice.gross_amount.toFixed(2)}</p>
+                <p className="text-gray-600 text-[10px] md:text-xs">Gross Amount</p>
+                <p className="text-base md:text-lg font-bold">₹{invoice.gross_amount.toFixed(2)}</p>
               </div>
               <div>
-                <p className="text-gray-600">Discount</p>
-                <p className="text-lg font-bold text-orange-600">₹{invoice.discount_amount.toFixed(2)}</p>
+                <p className="text-gray-600 text-[10px] md:text-xs">Discount</p>
+                <p className="text-base md:text-lg font-bold text-orange-600">₹{invoice.discount_amount.toFixed(2)}</p>
               </div>
               <div>
-                <p className="text-gray-600">Total GST</p>
-                <p className="text-lg font-bold text-blue-600">₹{invoice.total_gst.toFixed(2)}</p>
+                <p className="text-gray-600 text-[10px] md:text-xs">Total GST</p>
+                <p className="text-base md:text-lg font-bold text-blue-600">₹{invoice.total_gst.toFixed(2)}</p>
               </div>
               <div>
-                <p className="text-gray-600">Net Amount</p>
-                <p className="text-xl font-bold text-green-600">₹{invoice.net_amount.toFixed(2)}</p>
+                <p className="text-gray-600 text-[10px] md:text-xs">Net Amount</p>
+                <p className="text-lg md:text-xl font-bold text-green-600">₹{invoice.net_amount.toFixed(2)}</p>
               </div>
             </div>
-            <div className="mt-3 pt-3 border-t border-gray-300 grid grid-cols-2 gap-4 text-sm">
+            <div className="mt-3 pt-3 border-t border-gray-300 grid grid-cols-2 gap-3 md:gap-4 text-xs md:text-sm">
               <div>
-                <p className="text-gray-600">Taxable Amount</p>
+                <p className="text-gray-600 text-[10px] md:text-xs">Taxable Amount</p>
                 <p className="font-semibold">₹{invoice.taxable_amount.toFixed(2)}</p>
               </div>
               <div>
-                <p className="text-gray-600">Round Off</p>
-                <p className="font-semibold">₹{invoice.round_off.toFixed(2)}</p>
+                <p className="text-gray-600 text-[10px] md:text-xs">Round Off</p>
+                <p className="font-semibold text-sm md:text-base">₹{invoice.round_off.toFixed(2)}</p>
               </div>
             </div>
           </div>
 
           {/* Items Table */}
           <div>
-            <h3 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+            <h3 className="font-semibold text-gray-700 mb-3 flex items-center gap-2 text-sm md:text-base">
               <Package className="w-4 h-4" />
               Items ({invoice.items.length})
             </h3>
-            <div className="overflow-x-auto border rounded-lg">
+            <div className="overflow-x-auto border-2 border-slate-200 rounded-xl">
               <table className="w-full text-sm">
                 <thead className="bg-gray-100">
                   <tr>

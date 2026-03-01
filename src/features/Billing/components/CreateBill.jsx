@@ -162,47 +162,47 @@ const CreateBill = ({ onBillCreated }) => {
   return (
     <div className="space-y-4">
       {/* Customer Info */}
-      <div className="bg-white rounded-xl shadow-md p-6">
-        <h3 className="text-lg font-semibold mb-4">Customer Information</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 md:p-6">
+        <h3 className="text-base md:text-lg font-semibold mb-4">Customer Information</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
           <input
             type="text"
             placeholder="Customer Name (Optional)"
             value={customerInfo.customer_name}
             onChange={(e) => setCustomerInfo({...customerInfo, customer_name: e.target.value})}
-            className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
+            className="px-3 md:px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all text-sm md:text-base"
           />
           <input
             type="text"
             placeholder="Phone Number (Optional)"
             value={customerInfo.customer_phone}
             onChange={(e) => setCustomerInfo({...customerInfo, customer_phone: e.target.value})}
-            className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
+            className="px-3 md:px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all text-sm md:text-base"
           />
           <input
             type="email"
             placeholder="Email (Optional)"
             value={customerInfo.customer_email}
             onChange={(e) => setCustomerInfo({...customerInfo, customer_email: e.target.value})}
-            className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
+            className="px-3 md:px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all text-sm md:text-base"
           />
           <input
             type="text"
             placeholder="Doctor Name (Optional)"
             value={customerInfo.doctor_name}
             onChange={(e) => setCustomerInfo({...customerInfo, doctor_name: e.target.value})}
-            className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
+            className="px-3 md:px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all text-sm md:text-base"
           />
         </div>
         
         {/* Customer Tracking */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 mt-4">
           <div>
-            <label className="block text-sm font-medium mb-2">Customer Category</label>
+            <label className="block text-xs md:text-sm font-medium mb-2">Customer Category</label>
             <select
               value={customerCategory}
               onChange={(e) => setCustomerCategory(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
+              className="w-full px-3 md:px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all text-sm md:text-base"
             >
               <option value="first_time_prescription">First Time with Prescription</option>
               <option value="regular_branded">Regular (Branded Medicines)</option>
@@ -216,17 +216,17 @@ const CreateBill = ({ onBillCreated }) => {
                 type="checkbox"
                 checked={wasContactedBefore}
                 onChange={(e) => setWasContactedBefore(e.target.checked)}
-                className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
               />
-              <span className="ml-2 text-sm font-medium">Was contacted by store before?</span>
+              <span className="ml-2 text-xs md:text-sm font-medium">Was contacted by store before?</span>
             </label>
           </div>
         </div>
       </div>
 
       {/* Medicine Search */}
-      <div className="bg-white rounded-xl shadow-md p-6">
-        <h3 className="text-lg font-semibold mb-4">Search Medicine</h3>
+      <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 md:p-6">
+        <h3 className="text-base md:text-lg font-semibold mb-4">Search Medicine</h3>
         <div className="relative">
           <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
           <input
@@ -237,27 +237,27 @@ const CreateBill = ({ onBillCreated }) => {
               setSearchTerm(e.target.value)
               searchMedicines(e.target.value)
             }}
-            className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
+            className="w-full pl-10 pr-4 py-2 md:py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all text-sm md:text-base"
           />
         </div>
         
         {searchResults.length > 0 && (
-          <div className="mt-2 max-h-60 overflow-y-auto border rounded-lg">
+          <div className="mt-2 max-h-60 overflow-y-auto border-2 border-slate-200 rounded-xl">
             {searchResults.map((medicine) => (
               <div
                 key={medicine.id}
                 onClick={() => addItemToBill(medicine)}
-                className="p-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0"
+                className="p-3 hover:bg-purple-50 cursor-pointer border-b last:border-b-0 transition-colors"
               >
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="font-semibold">{medicine.product_name}</p>
-                    <p className="text-sm text-gray-600">
+                    <p className="font-semibold text-sm md:text-base">{medicine.product_name}</p>
+                    <p className="text-xs md:text-sm text-gray-600">
                       Batch: {medicine.batch_number} | Stock: {medicine.quantity_available} | 
                       Location: {medicine.rack_number} - {medicine.section_name}
                     </p>
                   </div>
-                  <p className="font-semibold text-primary-600">₹{medicine.unit_price}</p>
+                  <p className="font-semibold text-purple-600 text-sm md:text-base">₹{medicine.unit_price}</p>
                 </div>
               </div>
             ))}
@@ -267,49 +267,49 @@ const CreateBill = ({ onBillCreated }) => {
 
       {/* Bill Items */}
       {billItems.length > 0 && (
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <h3 className="text-lg font-semibold mb-4">Bill Items</h3>
+        <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 md:p-6">
+          <h3 className="text-base md:text-lg font-semibold mb-4">Bill Items</h3>
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50">
+              <thead className="bg-gradient-to-r from-gray-50 to-slate-50">
                 <tr>
-                  <th className="px-4 py-2 text-left text-sm font-semibold">Item</th>
-                  <th className="px-4 py-2 text-left text-sm font-semibold">Batch</th>
-                  <th className="px-4 py-2 text-left text-sm font-semibold">Available</th>
-                  <th className="px-4 py-2 text-left text-sm font-semibold">Qty</th>
-                  <th className="px-4 py-2 text-left text-sm font-semibold">Price</th>
-                  <th className="px-4 py-2 text-left text-sm font-semibold">Total</th>
-                  <th className="px-4 py-2"></th>
+                  <th className="px-3 md:px-4 py-2 text-left text-xs md:text-sm font-semibold">Item</th>
+                  <th className="px-3 md:px-4 py-2 text-left text-xs md:text-sm font-semibold">Batch</th>
+                  <th className="px-3 md:px-4 py-2 text-left text-xs md:text-sm font-semibold">Available</th>
+                  <th className="px-3 md:px-4 py-2 text-left text-xs md:text-sm font-semibold">Qty</th>
+                  <th className="px-3 md:px-4 py-2 text-left text-xs md:text-sm font-semibold">Price</th>
+                  <th className="px-3 md:px-4 py-2 text-left text-xs md:text-sm font-semibold">Total</th>
+                  <th className="px-3 md:px-4 py-2"></th>
                 </tr>
               </thead>
               <tbody>
                 {billItems.map((item, index) => (
-                  <tr key={index} className="border-b">
-                    <td className="px-4 py-2">{item.item_name}</td>
-                    <td className="px-4 py-2 text-sm">{item.batch_number}</td>
-                    <td className="px-4 py-2 text-sm">{item.quantity_available}</td>
-                    <td className="px-4 py-2">
+                  <tr key={index} className="border-b hover:bg-gray-50 transition-colors">
+                    <td className="px-3 md:px-4 py-2 text-xs md:text-sm">{item.item_name}</td>
+                    <td className="px-3 md:px-4 py-2 text-xs md:text-sm">{item.batch_number}</td>
+                    <td className="px-3 md:px-4 py-2 text-xs md:text-sm">{item.quantity_available}</td>
+                    <td className="px-3 md:px-4 py-2">
                       <input
                         type="number"
                         min="1"
                         max={item.quantity_available}
                         value={item.quantity}
                         onChange={(e) => updateItem(index, 'quantity', e.target.value)}
-                        className="w-20 px-2 py-1 border rounded"
+                        className="w-16 md:w-20 px-2 py-1 border-2 border-gray-200 rounded focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-xs md:text-sm"
                       />
                     </td>
-                    <td className="px-4 py-2">
+                    <td className="px-3 md:px-4 py-2">
                       <input
                         type="number"
                         step="0.01"
                         value={item.unit_price}
                         onChange={(e) => updateItem(index, 'unit_price', e.target.value)}
-                        className="w-24 px-2 py-1 border rounded"
+                        className="w-20 md:w-24 px-2 py-1 border-2 border-gray-200 rounded focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-xs md:text-sm"
                       />
                     </td>
-                    <td className="px-4 py-2 font-semibold">₹{(item.quantity * item.unit_price).toFixed(2)}</td>
-                    <td className="px-4 py-2">
-                      <button onClick={() => removeItem(index)} className="text-red-600 hover:text-red-800">
+                    <td className="px-3 md:px-4 py-2 font-semibold text-xs md:text-sm">₹{(item.quantity * item.unit_price).toFixed(2)}</td>
+                    <td className="px-3 md:px-4 py-2">
+                      <button onClick={() => removeItem(index)} className="text-red-600 hover:text-red-800 transition-colors">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </td>
@@ -445,7 +445,7 @@ const CreateBill = ({ onBillCreated }) => {
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="mt-4 w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50"
+            className="mt-4 w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50 text-sm md:text-base"
           >
             {loading ? 'Creating...' : 'Create Bill'}
           </button>
@@ -454,8 +454,8 @@ const CreateBill = ({ onBillCreated }) => {
 
       {/* Bill Preview Modal */}
       {createdBill && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto print:max-w-full print:h-auto print:overflow-visible">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto print:max-w-full print:h-auto print:overflow-visible">
             {!storeConfig ? (
               <div className="p-8 text-center">
                 <p className="text-gray-600">Loading configuration...</p>

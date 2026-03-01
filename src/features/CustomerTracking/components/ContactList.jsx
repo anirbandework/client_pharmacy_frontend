@@ -76,16 +76,16 @@ const ContactList = () => {
   return (
     <div className="space-y-4">
       {/* Filters */}
-      <div className="bg-white rounded-xl shadow-md p-6">
+      <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 md:p-6">
         <div className="flex items-center gap-2 mb-4">
-          <Filter className="w-5 h-5" />
-          <h3 className="text-lg font-semibold">Filters</h3>
+          <Filter className="w-4 h-4 md:w-5 md:h-5" />
+          <h3 className="text-base md:text-lg font-semibold">Filters</h3>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
           <select
             value={filters.contact_status}
             onChange={(e) => setFilters({...filters, contact_status: e.target.value})}
-            className="px-4 py-2 border rounded-lg"
+            className="px-3 md:px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all text-sm md:text-base"
           >
             <option value="">All Status</option>
             <option value="pending">Pending</option>
@@ -97,7 +97,7 @@ const ContactList = () => {
           <select
             value={filters.whatsapp_status}
             onChange={(e) => setFilters({...filters, whatsapp_status: e.target.value})}
-            className="px-4 py-2 border rounded-lg"
+            className="px-3 md:px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all text-sm md:text-base"
           >
             <option value="">All WhatsApp Status</option>
             <option value="active">Active</option>
@@ -106,7 +106,7 @@ const ContactList = () => {
           </select>
           <button
             onClick={() => setFilters({ contact_status: '', whatsapp_status: '' })}
-            className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+            className="px-3 md:px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-lg hover:shadow-lg transition-all text-sm md:text-base"
           >
             Reset
           </button>
@@ -114,27 +114,27 @@ const ContactList = () => {
       </div>
 
       {/* Contact List */}
-      <div className="bg-white rounded-xl shadow-md overflow-hidden">
+      <div className="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50">
+            <thead className="bg-gradient-to-r from-gray-50 to-slate-50">
               <tr>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Phone</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Name</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold">WhatsApp</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Status</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Attempts</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Conversion</th>
-                <th className="px-4 py-3 text-right text-sm font-semibold">Actions</th>
+                <th className="px-3 md:px-4 py-3 text-left text-xs md:text-sm font-semibold">Phone</th>
+                <th className="px-3 md:px-4 py-3 text-left text-xs md:text-sm font-semibold">Name</th>
+                <th className="px-3 md:px-4 py-3 text-left text-xs md:text-sm font-semibold">WhatsApp</th>
+                <th className="px-3 md:px-4 py-3 text-left text-xs md:text-sm font-semibold">Status</th>
+                <th className="px-3 md:px-4 py-3 text-left text-xs md:text-sm font-semibold">Attempts</th>
+                <th className="px-3 md:px-4 py-3 text-left text-xs md:text-sm font-semibold">Conversion</th>
+                <th className="px-3 md:px-4 py-3 text-right text-xs md:text-sm font-semibold">Actions</th>
               </tr>
             </thead>
             <tbody>
               {contacts.map((contact) => (
-                <tr key={contact.id} className="border-b hover:bg-gray-50">
-                  <td className="px-4 py-3">{contact.phone}</td>
-                  <td className="px-4 py-3">{contact.name || '-'}</td>
-                  <td className="px-4 py-3">
-                    <span className={`px-2 py-1 rounded-full text-xs ${
+                <tr key={contact.id} className="border-b hover:bg-gray-50 transition-colors">
+                  <td className="px-3 md:px-4 py-3 text-xs md:text-sm">{contact.phone}</td>
+                  <td className="px-3 md:px-4 py-3 text-xs md:text-sm">{contact.name || '-'}</td>
+                  <td className="px-3 md:px-4 py-3">
+                    <span className={`px-2 py-1 rounded-full text-[10px] md:text-xs ${
                       contact.whatsapp_status === 'active' ? 'bg-green-100 text-green-800' : 
                       contact.whatsapp_status === 'inactive' ? 'bg-red-100 text-red-800' : 
                       'bg-gray-100 text-gray-800'
@@ -142,22 +142,22 @@ const ContactList = () => {
                       {contact.whatsapp_status}
                     </span>
                   </td>
-                  <td className="px-4 py-3">
-                    <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(contact.contact_status)}`}>
+                  <td className="px-3 md:px-4 py-3">
+                    <span className={`px-2 py-1 rounded-full text-[10px] md:text-xs ${getStatusColor(contact.contact_status)}`}>
                       {contact.contact_status}
                     </span>
                   </td>
-                  <td className="px-4 py-3">{contact.contact_attempts}</td>
-                  <td className="px-4 py-3">
+                  <td className="px-3 md:px-4 py-3 text-xs md:text-sm">{contact.contact_attempts}</td>
+                  <td className="px-3 md:px-4 py-3 text-xs md:text-sm">
                     {contact.conversion_value ? `₹${contact.conversion_value.toFixed(2)}` : '-'}
                   </td>
-                  <td className="px-4 py-3 text-right">
+                  <td className="px-3 md:px-4 py-3 text-right">
                     <button
                       onClick={() => {
                         setSelectedContact(contact)
                         setShowInteractionModal(true)
                       }}
-                      className="text-blue-600 hover:text-blue-800 mr-2"
+                      className="text-blue-600 hover:text-blue-800 mr-2 transition-colors"
                       title="Add Interaction"
                     >
                       <Phone className="w-4 h-4 inline" />
@@ -165,7 +165,7 @@ const ContactList = () => {
                     {contact.contact_status !== 'yellow' && contact.contact_status !== 'converted' && (
                       <button
                         onClick={() => handleMarkYellow(contact.id)}
-                        className="text-orange-600 hover:text-orange-800"
+                        className="text-orange-600 hover:text-orange-800 transition-colors"
                         title="Mark as Yellow"
                       >
                         <User className="w-4 h-4 inline" />
@@ -181,16 +181,16 @@ const ContactList = () => {
 
       {/* Interaction Modal */}
       {showInteractionModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-6">
-            <h3 className="text-lg font-semibold mb-4">Log Interaction</h3>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-4 md:p-6">
+            <h3 className="text-base md:text-lg font-semibold mb-4">Log Interaction</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-2">Type</label>
+                <label className="block text-xs md:text-sm font-medium mb-2">Type</label>
                 <select
                   value={interactionData.interaction_type}
                   onChange={(e) => setInteractionData({...interactionData, interaction_type: e.target.value})}
-                  className="w-full px-4 py-2 border rounded-lg"
+                  className="w-full px-3 md:px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all text-sm md:text-base"
                 >
                   <option value="call">Call</option>
                   <option value="whatsapp">WhatsApp</option>
@@ -198,22 +198,22 @@ const ContactList = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">Notes</label>
+                <label className="block text-xs md:text-sm font-medium mb-2">Notes</label>
                 <textarea
                   value={interactionData.notes}
                   onChange={(e) => setInteractionData({...interactionData, notes: e.target.value})}
                   rows="3"
-                  className="w-full px-4 py-2 border rounded-lg"
+                  className="w-full px-3 md:px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all text-sm md:text-base"
                   placeholder="What did you discuss?"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">Customer Response</label>
+                <label className="block text-xs md:text-sm font-medium mb-2">Customer Response</label>
                 <textarea
                   value={interactionData.customer_response}
                   onChange={(e) => setInteractionData({...interactionData, customer_response: e.target.value})}
                   rows="2"
-                  className="w-full px-4 py-2 border rounded-lg"
+                  className="w-full px-3 md:px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all text-sm md:text-base"
                   placeholder="What did customer say?"
                 />
               </div>
@@ -222,20 +222,20 @@ const ContactList = () => {
                   type="checkbox"
                   checked={interactionData.call_successful}
                   onChange={(e) => setInteractionData({...interactionData, call_successful: e.target.checked})}
-                  className="w-4 h-4 text-primary-600 border-gray-300 rounded"
+                  className="w-4 h-4 text-purple-600 border-gray-300 rounded"
                 />
-                <span className="ml-2 text-sm">Call Successful</span>
+                <span className="ml-2 text-xs md:text-sm">Call Successful</span>
               </label>
               <div className="flex gap-2">
                 <button
                   onClick={handleAddInteraction}
-                  className="flex-1 bg-primary-600 text-white py-2 rounded-lg hover:bg-primary-700"
+                  className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-2 rounded-lg hover:shadow-lg transition-all text-sm md:text-base"
                 >
                   Save
                 </button>
                 <button
                   onClick={() => setShowInteractionModal(false)}
-                  className="flex-1 bg-gray-600 text-white py-2 rounded-lg hover:bg-gray-700"
+                  className="flex-1 border-2 border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50 transition-colors text-sm md:text-base"
                 >
                   Cancel
                 </button>

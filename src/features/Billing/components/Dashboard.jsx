@@ -37,14 +37,14 @@ const Dashboard = () => {
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {stats.map((stat, index) => (
-          <div key={index} className="bg-white rounded-xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition-shadow">
+          <div key={index} className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 md:p-6 hover:shadow-xl transition-all">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">{stat.label}</p>
-                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                <p className="text-xs md:text-sm text-gray-600 mb-1">{stat.label}</p>
+                <p className="text-xl md:text-2xl font-bold text-gray-900">{stat.value}</p>
               </div>
-              <div className={`p-3 bg-${stat.color}-100 rounded-lg`}>
-                <stat.icon className={`w-6 h-6 text-${stat.color}-600`} />
+              <div className={`p-2 md:p-3 bg-${stat.color}-100 rounded-xl`}>
+                <stat.icon className={`w-5 h-5 md:w-6 md:h-6 text-${stat.color}-600`} />
               </div>
             </div>
           </div>
