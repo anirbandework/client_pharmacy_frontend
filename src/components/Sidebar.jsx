@@ -18,7 +18,6 @@ const Sidebar = () => {
 
   const showFeedback = userType === 'staff' || userType === 'admin'
 
-  // Icon mapping from backend icon names to Lucide components
   const iconMap = {
     Receipt, UserCheck, ShoppingCart, Package, Clock, Bell, Wallet, Settings, Shield, Brain, BarChart3, LineChart
   }
@@ -38,7 +37,6 @@ const Sidebar = () => {
     try {
       const token = localStorage.getItem('auth_token')
       
-      // SuperAdmin gets hardcoded items
       if (userType === 'super_admin') {
         setNavItems([
           { id: 'super-admin-panel', label: 'Super Admin', path: '/super-admin', icon: Shield },
@@ -49,7 +47,6 @@ const Sidebar = () => {
         return
       }
 
-      // Fetch RBAC permissions for admin/staff
       const response = await axios.get(
         `${import.meta.env.VITE_API_URL}/api/rbac/my-permissions`,
         { headers: { Authorization: `Bearer ${token}` } }
@@ -66,7 +63,6 @@ const Sidebar = () => {
       setNavItems(items)
     } catch (error) {
       console.error('Failed to fetch permissions:', error)
-      // Fallback to empty on error
       setNavItems([])
     } finally {
       setLoading(false)
@@ -84,29 +80,26 @@ const Sidebar = () => {
 
   return (
     <>
-      {/* Sidebar */}
       <aside
-        className={`fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-white shadow-glow border-r border-primary-100 z-40 transform transition-all duration-300 ease-in-out ${
+        className={`fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-slate-800/50 backdrop-blur-xl border-r border-slate-700/50 z-40 transform transition-all duration-300 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         <div className="p-4 h-full flex flex-col">
           <nav className="space-y-2 flex-1">
             {loading ? (
-              <div className="text-center py-4 text-gray-500">Loading...</div>
+              <div className="text-center py-4 text-slate-400">Loading...</div>
             ) : navItems.length === 0 ? (
-              <div className="text-center py-4 text-gray-500 text-sm">No modules available</div>
+              <div className="text-center py-4 text-slate-400 text-sm">No modules available</div>
             ) : (
               navItems.map((item) => (
                 <button
                   key={item.id}
-                  onClick={() => {
-                    navigate(item.path)
-                  }}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 transform hover:scale-105 active:scale-95 ${
+                  onClick={() => navigate(item.path)}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
                     location.pathname === item.path
-                      ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-glow'
-                      : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'
+                      ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/20'
+                      : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
                   }`}
                 >
                   <item.icon className="w-5 h-5" />
@@ -117,22 +110,22 @@ const Sidebar = () => {
           </nav>
 
           {showFeedback && (
-            <div className="border-t border-gray-200 pt-4 space-y-2">
+            <div className="border-t border-slate-700/50 pt-4 space-y-2">
               <button
                 onClick={() => navigate('/my-feedback')}
-                className="relative w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700 hover:from-purple-200 hover:to-pink-200 transition-all"
+                className="relative w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-purple-500/10 border border-purple-500/30 text-purple-400 hover:bg-purple-500/20 transition-all"
               >
                 <MessageCircle className="w-5 h-5" />
                 <span className="font-medium">My Feedback</span>
                 {unreadCount > 0 && (
-                  <span className="ml-auto bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center animate-pulse">
+                  <span className="ml-auto bg-red-500 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">
                     {unreadCount}
                   </span>
                 )}
               </button>
               <button
                 onClick={() => setShowFeedbackForm(true)}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700 hover:from-purple-200 hover:to-pink-200 transition-all"
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-purple-500/10 border border-purple-500/30 text-purple-400 hover:bg-purple-500/20 transition-all"
               >
                 <Send className="w-5 h-5" />
                 <span className="font-medium">Send Feedback</span>
@@ -142,15 +135,13 @@ const Sidebar = () => {
         </div>
       </aside>
 
-      {/* Overlay */}
       {isOpen && (
         <div
           onClick={closeSidebar}
-          className="fixed inset-0 bg-primary-900/20 backdrop-blur-sm z-30 top-16 animate-fade-in"
+          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-30 top-16"
         />
       )}
 
-      {/* Feedback Form Modal */}
       <FeedbackFormModal isOpen={showFeedbackForm} onClose={() => setShowFeedbackForm(false)} />
     </>
   )

@@ -56,10 +56,10 @@ const SuperAdminFeedback = () => {
 
   return (
     <Layout>
-      <div className="max-w-7xl mx-auto">
-        <div className="hidden md:block bg-gradient-to-r from-purple-600 via-pink-600 to-purple-700 rounded-xl shadow-lg p-4 md:p-6 mb-4 animate-fade-in relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 rounded-xl shadow-lg p-4 md:p-6 mb-4 md:mb-6 animate-fade-in relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-          <div className="relative z-10 flex items-center gap-3">
+          <div className="relative z-10 flex items-center gap-2 md:gap-3">
             <div className="p-2 md:p-3 bg-white/20 backdrop-blur-sm rounded-xl">
               <MessageSquare className="w-5 h-5 md:w-6 md:h-6 text-white" />
             </div>
@@ -72,56 +72,56 @@ const SuperAdminFeedback = () => {
 
         <div className="space-y-4">
           {stats && (
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl shadow-lg border border-blue-200">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-3 bg-blue-500 rounded-xl">
-                    <MessageSquare className="w-6 h-6 text-white" />
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-3 md:p-4 rounded-xl shadow-lg border border-blue-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="p-2 bg-blue-500 rounded-lg">
+                    <MessageSquare className="w-4 h-4 text-white" />
                   </div>
-                  <p className="text-sm font-semibold text-blue-900">Total Feedback</p>
+                  <p className="text-xs font-semibold text-blue-900">Total Feedback</p>
                 </div>
-                <p className="text-3xl font-bold text-blue-900">{stats.total_feedback}</p>
+                <p className="text-xl md:text-2xl font-bold text-blue-900">{stats.total_feedback}</p>
               </div>
-              <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-6 rounded-xl shadow-lg border border-orange-200">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-3 bg-orange-500 rounded-xl">
-                    <TrendingUp className="w-6 h-6 text-white" />
+              <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-3 md:p-4 rounded-xl shadow-lg border border-orange-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="p-2 bg-orange-500 rounded-lg">
+                    <TrendingUp className="w-4 h-4 text-white" />
                   </div>
-                  <p className="text-sm font-semibold text-orange-900">Pending</p>
+                  <p className="text-xs font-semibold text-orange-900">Pending</p>
                 </div>
-                <p className="text-3xl font-bold text-orange-900">{stats.pending}</p>
+                <p className="text-xl md:text-2xl font-bold text-orange-900">{stats.pending}</p>
               </div>
-              <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl shadow-lg border border-purple-200">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-3 bg-purple-500 rounded-xl">
-                    <Star className="w-6 h-6 text-white" />
+              <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-3 md:p-4 rounded-xl shadow-lg border border-purple-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="p-2 bg-purple-500 rounded-lg">
+                    <Star className="w-4 h-4 text-white" />
                   </div>
-                  <p className="text-sm font-semibold text-purple-900">Avg Rating</p>
+                  <p className="text-xs font-semibold text-purple-900">Avg Rating</p>
                 </div>
-                <p className="text-3xl font-bold text-purple-900">{stats.average_satisfaction?.toFixed(1)}</p>
+                <p className="text-xl md:text-2xl font-bold text-purple-900">{stats.average_satisfaction?.toFixed(1)}</p>
               </div>
-              <div className="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl shadow-lg border border-green-200">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-3 bg-green-500 rounded-xl">
-                    <Users className="w-6 h-6 text-white" />
+              <div className="bg-gradient-to-br from-green-50 to-green-100 p-3 md:p-4 rounded-xl shadow-lg border border-green-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="p-2 bg-green-500 rounded-lg">
+                    <Users className="w-4 h-4 text-white" />
                   </div>
-                  <p className="text-sm font-semibold text-green-900">Recommend Rate</p>
+                  <p className="text-xs font-semibold text-green-900">Recommend Rate</p>
                 </div>
-                <p className="text-3xl font-bold text-green-900">{stats.recommendation_rate?.toFixed(1)}%</p>
+                <p className="text-xl md:text-2xl font-bold text-green-900">{stats.recommendation_rate?.toFixed(1)}%</p>
               </div>
             </div>
           )}
 
-          <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
-            <div className="flex gap-3 mb-6">
-              <select value={filter.status} onChange={(e) => setFilter({ ...filter, status: e.target.value })} className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none">
+          <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 border border-gray-200">
+            <div className="flex flex-col sm:flex-row gap-3 mb-6">
+              <select value={filter.status} onChange={(e) => setFilter({ ...filter, status: e.target.value })} className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-sm">
                 <option value="">All Status</option>
                 <option value="pending">Pending</option>
                 <option value="reviewed">Reviewed</option>
                 <option value="in_progress">In Progress</option>
                 <option value="resolved">Resolved</option>
               </select>
-              <select value={filter.feedback_type} onChange={(e) => setFilter({ ...filter, feedback_type: e.target.value })} className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none">
+              <select value={filter.feedback_type} onChange={(e) => setFilter({ ...filter, feedback_type: e.target.value })} className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-sm">
                 <option value="">All Types</option>
                 <option value="feature_request">Feature Request</option>
                 <option value="bug_report">Bug Report</option>
@@ -129,7 +129,7 @@ const SuperAdminFeedback = () => {
                 <option value="complaint">Complaint</option>
                 <option value="appreciation">Appreciation</option>
               </select>
-              <select value={filter.user_type} onChange={(e) => setFilter({ ...filter, user_type: e.target.value })} className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none">
+              <select value={filter.user_type} onChange={(e) => setFilter({ ...filter, user_type: e.target.value })} className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-sm">
                 <option value="">All Users</option>
                 <option value="staff">Staff</option>
                 <option value="admin">Admin</option>
