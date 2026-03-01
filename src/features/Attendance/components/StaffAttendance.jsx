@@ -44,7 +44,7 @@ const StaffAttendance = () => {
     }
   }
 
-  if (loading) return <div className="flex justify-center py-20"><div className="animate-spin rounded-full h-12 w-12 border-4 border-primary-200 border-t-primary-600"></div></div>
+  if (loading) return <div className="flex justify-center py-20"><div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500/20 border-t-blue-500"></div></div>
 
   const todayRecord = myAttendance[0]
 
@@ -57,19 +57,18 @@ const StaffAttendance = () => {
   return (
     <div className="space-y-4">
       {/* Tab Navigation */}
-      <div className="overflow-x-auto pb-2 -mx-4 px-4">
-        <div className="inline-flex bg-white rounded-xl shadow-md p-1.5 border border-primary-100 gap-1 min-w-full md:min-w-0">
+      <div className="overflow-x-auto pb-2">
+        <div className="bg-slate-800/50 backdrop-blur-xl border border-slate-700/50 rounded-xl shadow-lg p-1.5 inline-flex gap-1 min-w-full md:min-w-0">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`group relative py-2 px-3 text-sm font-semibold rounded-lg transition-all duration-300 flex items-center gap-2 whitespace-nowrap ${
-                activeTab === tab.id ? 'text-white shadow-lg scale-105' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              className={`py-2 md:py-3 px-3 md:px-4 text-xs md:text-sm font-semibold rounded-lg transition-all duration-300 flex items-center gap-2 whitespace-nowrap ${
+                activeTab === tab.id ? 'text-white bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/20' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
               }`}
             >
-              {activeTab === tab.id && <div className={`absolute inset-0 bg-gradient-to-r ${tab.color} rounded-lg`}></div>}
-              <tab.icon className="w-4 h-4 relative z-10" />
-              <span className="relative z-10">{tab.label}</span>
+              <tab.icon className="w-4 h-4" />
+              <span className="hidden sm:inline">{tab.label}</span>
             </button>
           ))}
         </div>

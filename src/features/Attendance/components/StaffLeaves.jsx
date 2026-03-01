@@ -19,16 +19,16 @@ const StaffLeaves = ({ leaveForm, setLeaveForm, myLeaves, fetchData }) => {
   return (
     <div className="space-y-4">
       {/* Request Leave */}
-      <div className="bg-white rounded-xl shadow-soft border border-primary-100 p-4">
+      <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4">
         <div className="flex items-center gap-2 mb-3">
-          <FileText className="w-5 h-5 text-primary-600" />
+          <FileText className="w-5 h-5 text-blue-600" />
           <h3 className="text-sm font-bold text-gray-700">Request Leave</h3>
         </div>
         <form onSubmit={handleLeaveRequest} className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Leave Type</label>
-              <select value={leaveForm.leave_type} onChange={(e) => setLeaveForm({ ...leaveForm, leave_type: e.target.value })} className="w-full px-3 py-2 text-sm border rounded-lg">
+              <select value={leaveForm.leave_type} onChange={(e) => setLeaveForm({ ...leaveForm, leave_type: e.target.value })} className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <option value="sick">Sick Leave</option>
                 <option value="casual">Casual Leave</option>
                 <option value="earned">Earned Leave</option>
@@ -36,29 +36,29 @@ const StaffLeaves = ({ leaveForm, setLeaveForm, myLeaves, fetchData }) => {
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">From Date</label>
-              <input type="date" value={leaveForm.from_date} onChange={(e) => setLeaveForm({ ...leaveForm, from_date: e.target.value })} required className="w-full px-3 py-2 text-sm border rounded-lg" />
+              <input type="date" value={leaveForm.from_date} onChange={(e) => setLeaveForm({ ...leaveForm, from_date: e.target.value })} required className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">To Date</label>
-              <input type="date" value={leaveForm.to_date} onChange={(e) => setLeaveForm({ ...leaveForm, to_date: e.target.value })} required className="w-full px-3 py-2 text-sm border rounded-lg" />
+              <input type="date" value={leaveForm.to_date} onChange={(e) => setLeaveForm({ ...leaveForm, to_date: e.target.value })} required className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
           </div>
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">Reason</label>
-            <textarea value={leaveForm.reason} onChange={(e) => setLeaveForm({ ...leaveForm, reason: e.target.value })} rows="2" required className="w-full px-3 py-2 text-sm border rounded-lg" />
+            <textarea value={leaveForm.reason} onChange={(e) => setLeaveForm({ ...leaveForm, reason: e.target.value })} rows="2" required className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
-          <button type="submit" className="w-full bg-gradient-to-r from-primary-500 to-primary-600 text-white text-sm font-semibold py-2 rounded-lg hover:shadow-lg">
+          <button type="submit" className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-semibold py-2 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition shadow-lg shadow-blue-500/20">
             Submit Request
           </button>
         </form>
       </div>
 
       {/* My Leave Requests */}
-      <div className="bg-white rounded-xl shadow-soft border border-primary-100 p-4">
+      <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4">
         <div className="flex items-center gap-2 mb-3">
-          <Calendar className="w-5 h-5 text-primary-600" />
+          <Calendar className="w-5 h-5 text-blue-600" />
           <h3 className="text-sm font-bold text-gray-700">My Leave Requests</h3>
         </div>
         <div className="space-y-2">
@@ -69,7 +69,7 @@ const StaffLeaves = ({ leaveForm, setLeaveForm, myLeaves, fetchData }) => {
               <div key={leave.id} className="p-3 bg-gray-50 rounded-lg">
                 <div className="flex justify-between items-start">
                   <div>
-                    <div className="font-semibold text-sm capitalize">{leave.leave_type} Leave • {leave.total_days} days</div>
+                    <div className="font-semibold text-sm capitalize text-gray-900">{leave.leave_type} Leave • {leave.total_days} days</div>
                     <div className="text-xs text-gray-500">{leave.from_date} to {leave.to_date}</div>
                     <div className="text-xs text-gray-600 mt-1">{leave.reason}</div>
                     {leave.rejection_reason && (

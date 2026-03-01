@@ -26,7 +26,7 @@ const Dashboard = ({ shopCode }) => {
     }
   }
 
-  if (loading) return <div className="flex justify-center py-20"><div className="animate-spin rounded-full h-12 w-12 border-4 border-primary-200 border-t-primary-600"></div></div>
+  if (loading) return <div className="flex justify-center py-20"><div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500/20 border-t-blue-500"></div></div>
 
   const stats = [
     { icon: Users, label: 'Total Staff', value: summary?.total_staff || 0, color: 'from-blue-500 to-blue-600' },
@@ -39,7 +39,7 @@ const Dashboard = ({ shopCode }) => {
     <div className="space-y-4">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat, i) => (
-          <div key={i} className="bg-white rounded-xl shadow-soft border border-primary-100 p-4 hover:shadow-lg transition-all">
+          <div key={i} className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 hover:shadow-xl transition-all">
             <div className={`p-2 bg-gradient-to-br ${stat.color} rounded-lg w-fit mb-2`}>
               <stat.icon className="w-5 h-5 text-white" />
             </div>
@@ -49,7 +49,7 @@ const Dashboard = ({ shopCode }) => {
         ))}
       </div>
 
-      <div className="bg-white rounded-xl shadow-soft border border-primary-100 p-4">
+      <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4">
         <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
           <Calendar className="w-4 h-4" />
           Today's Attendance
@@ -58,7 +58,7 @@ const Dashboard = ({ shopCode }) => {
           {todayList.map((record) => (
             <div key={record.staff_id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
               <div>
-                <div className="font-semibold text-sm">{record.staff_name}</div>
+                <div className="font-semibold text-sm text-gray-900">{record.staff_name}</div>
                 <div className="text-xs text-gray-500">{record.staff_code}</div>
               </div>
               <div className="text-right">

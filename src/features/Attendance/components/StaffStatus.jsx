@@ -21,21 +21,21 @@ const StaffStatus = ({ wifiStatus, wifiInfo, todayRecord, fetchData }) => {
   return (
     <div className="space-y-4">
       {/* WiFi Status Card */}
-      <div className={`rounded-xl shadow-lg p-6 text-white ${
-        isInsideGeofence ? 'bg-gradient-to-r from-green-600 to-green-700' : 'bg-gradient-to-r from-gray-600 to-gray-700'
+      <div className={`rounded-xl shadow-lg p-4 sm:p-6 text-white ${
+        isInsideGeofence ? 'bg-gradient-to-r from-green-600 to-green-700' : 'bg-gradient-to-r from-slate-700 to-slate-800'
       }`}>
         <div className="flex items-center gap-3 mb-4">
-          {isInsideGeofence ? <Wifi className="w-6 h-6" /> : <WifiOff className="w-6 h-6" />}
-          <h2 className="text-xl font-bold">WiFi Attendance Status</h2>
+          {isInsideGeofence ? <Wifi className="w-5 h-5 sm:w-6 sm:h-6" /> : <WifiOff className="w-5 h-5 sm:w-6 sm:h-6" />}
+          <h2 className="text-lg sm:text-xl font-bold">WiFi Attendance Status</h2>
         </div>
         
-        <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4">
+        <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3 sm:p-4">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <div className="text-sm opacity-90">Connection Status</div>
-              <div className="text-2xl font-bold">{isInsideGeofence ? '✅ Connected' : '❌ Not Connected'}</div>
+              <div className="text-xs sm:text-sm opacity-90">Connection Status</div>
+              <div className="text-xl sm:text-2xl font-bold">{isInsideGeofence ? '✅ Connected' : '❌ Not Connected'}</div>
             </div>
-            <div className={`px-3 py-1 rounded-full text-sm font-semibold ${
+            <div className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold ${
               canAccessModules ? 'bg-green-500' : 'bg-red-500'
             }`}>
               {canAccessModules ? 'Access Granted' : 'Access Denied'}
@@ -43,7 +43,7 @@ const StaffStatus = ({ wifiStatus, wifiInfo, todayRecord, fetchData }) => {
           </div>
           
           {wifiInfo && (
-            <div className="text-sm opacity-90 mb-2">
+            <div className="text-xs sm:text-sm opacity-90 mb-2">
               <strong>Shop WiFi:</strong> {wifiInfo.wifi_ssid}
             </div>
           )}
@@ -70,16 +70,16 @@ const StaffStatus = ({ wifiStatus, wifiInfo, todayRecord, fetchData }) => {
 
       {/* Today's Attendance Record */}
       {todayRecord && (
-        <div className="bg-white rounded-xl shadow-soft border border-primary-100 p-6">
+        <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 sm:p-6">
           <div className="flex items-center gap-3 mb-4">
-            <Clock className="w-5 h-5 text-primary-600" />
-            <h3 className="text-lg font-bold text-gray-700">Today's Record</h3>
+            <Clock className="w-5 h-5 text-blue-600" />
+            <h3 className="text-base sm:text-lg font-bold text-gray-700">Today's Record</h3>
           </div>
           
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-gray-50 rounded-lg p-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
               <div className="text-xs text-gray-500 mb-1">Check-in Time</div>
-              <div className="text-xl font-bold text-gray-900">
+              <div className="text-lg sm:text-xl font-bold text-gray-900">
                 {new Date(todayRecord.check_in_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
               </div>
               <div className={`text-xs mt-1 font-semibold ${
@@ -89,11 +89,11 @@ const StaffStatus = ({ wifiStatus, wifiInfo, todayRecord, fetchData }) => {
               </div>
             </div>
             
-            <div className="bg-gray-50 rounded-lg p-4">
+            <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
               <div className="text-xs text-gray-500 mb-1">Check-out Time</div>
               {todayRecord.check_out_time ? (
                 <>
-                  <div className="text-xl font-bold text-gray-900">
+                  <div className="text-lg sm:text-xl font-bold text-gray-900">
                     {new Date(todayRecord.check_out_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
                   </div>
                   <div className="text-xs mt-1 text-gray-600">
@@ -101,7 +101,7 @@ const StaffStatus = ({ wifiStatus, wifiInfo, todayRecord, fetchData }) => {
                   </div>
                 </>
               ) : (
-                <div className="text-xl font-bold text-green-600">Still Working</div>
+                <div className="text-lg sm:text-xl font-bold text-green-600">Still Working</div>
               )}
             </div>
           </div>
@@ -118,13 +118,6 @@ const StaffStatus = ({ wifiStatus, wifiInfo, todayRecord, fetchData }) => {
               <Wifi className="w-3 h-3" />
               Automatically checked in via WiFi
             </div>
-          )}
-          
-          {!todayRecord.check_out_time && (
-            <button onClick={handleManualCheckout} className="mt-3 w-full flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold py-2 px-4 rounded-lg transition">
-              <LogOut className="w-4 h-4" />
-              Manual Check Out
-            </button>
           )}
         </div>
       )}
