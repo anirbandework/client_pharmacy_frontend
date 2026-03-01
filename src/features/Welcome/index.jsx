@@ -1,9 +1,10 @@
 import React from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import OTPInput from '../../components/OTPInput'
-import { ArrowRight, ArrowLeft, Lock, User, BarChart3, Package, Users, Search, DollarSign, TrendingUp, Shield, Eye, EyeOff, Info } from 'lucide-react'
+import FeatureCarousel from './FeatureCarousel'
+import { ArrowRight, ArrowLeft, Lock, User, BarChart3, Package, Users, Search, DollarSign, TrendingUp, Shield, Eye, EyeOff, Info, Building2, Briefcase, Clock, FileText, Bell, Zap, Database } from 'lucide-react'
 
 const Welcome = () => {
   const navigate = useNavigate()
@@ -42,14 +43,12 @@ const Welcome = () => {
 
     try {
       if (isNewUser) {
-        // Signup flow
         if (loginType === 'admin') {
           await adminSignup(phone, password)
         } else if (loginType === 'staff') {
           await staffSignup(phone, password)
         }
       } else {
-        // Login flow
         if (loginType === 'super_admin') {
           await superAdminSendOTP(phone, password)
         } else if (loginType === 'staff') {
@@ -80,12 +79,10 @@ const Welcome = () => {
         await superAdminVerifyOTP(phone, otp)
         navigate('/super-admin')
       } else {
-        // Admin login - check if SuperAdmin phone
         const normalizedPhone = phone.replace(/\D/g, '')
         const isSuperAdmin = normalizedPhone.endsWith('9383169659') || normalizedPhone.endsWith('9643579321')
         
         if (isSuperAdmin) {
-          // Auto-upgrade to SuperAdmin
           await superAdminVerifyOTP(phone, otp)
           navigate('/super-admin')
         } else {
@@ -114,306 +111,306 @@ const Welcome = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-blue-900 to-purple-900 relative overflow-hidden flex items-center lg:items-start justify-center pt-0 lg:pt-8">
-      {/* Animated Background Blobs */}
+    <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 overflow-y-auto">
+      {/* Subtle Grid Pattern */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+      
+      {/* Animated Gradient Orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 right-20 w-96 h-96 bg-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 left-20 w-96 h-96 bg-purple-500/30 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-0 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
       </div>
 
-      {/* Content Container */}
-      <div className="relative z-10 w-full max-w-[120rem] mx-auto px-4 md:px-6 py-4 md:py-8 flex lg:flex-row flex-col gap-6 md:gap-12 items-start">
-        {/* Left Side - About Section */}
-        <div className="hidden lg:block flex-1 space-y-4 md:space-y-6 animate-fade-in-up">
-          {/* Header Card */}
-          <div className="bg-white/20 backdrop-blur-xl border border-white/30 rounded-2xl p-4 md:p-6 shadow-xl">
-            <h2 className="text-2xl md:text-4xl font-bold text-center">
-              <span className="bg-gradient-to-r from-blue-200 via-white to-purple-200 bg-clip-text text-transparent">XPert-Pharma</span>
-            </h2>
-            <p className="text-center text-white/90 text-base md:text-lg mt-2">Complete Pharmacy Management Solution</p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
-            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300">
-              <div className="flex items-start gap-3">
-                <div className="p-3 bg-blue-500/20 rounded-xl">
-                  <BarChart3 className="w-6 h-6 text-blue-300" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-white mb-1 text-sm">Daily Records</h3>
-                  <p className="text-xs text-blue-100 leading-relaxed">Track sales & cash flow</p>
-                </div>
+      <div className="relative z-10 min-h-screen flex flex-col">
+        {/* Professional Header */}
+        <header className="sticky top-0 z-20 border-b border-white/10 bg-slate-900/50 backdrop-blur-xl">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-base sm:text-xl font-bold text-white">LedgerX</h1>
+                <p className="text-[10px] sm:text-xs text-slate-400">A Business Solution</p>
               </div>
             </div>
-
-            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300">
-              <div className="flex items-start gap-3">
-                <div className="p-3 bg-purple-500/20 rounded-xl">
-                  <Package className="w-6 h-6 text-purple-300" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-white mb-1 text-sm">Invoice Tracking</h3>
-                  <p className="text-xs text-blue-100 leading-relaxed">Monitor stock & expiry alerts</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300">
-              <div className="flex items-start gap-3">
-                <div className="p-3 bg-green-500/20 rounded-xl">
-                  <Users className="w-6 h-6 text-green-300" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-white mb-1 text-sm">Staff Management</h3>
-                  <p className="text-xs text-blue-100 leading-relaxed">Manage employees & attendance</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300">
-              <div className="flex items-start gap-3">
-                <div className="p-3 bg-yellow-500/20 rounded-xl">
-                  <Search className="w-6 h-6 text-yellow-300" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-white mb-1 text-sm">Stock Audit</h3>
-                  <p className="text-xs text-blue-100 leading-relaxed">Audit trails & analytics</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300">
-              <div className="flex items-start gap-3">
-                <div className="p-3 bg-indigo-500/20 rounded-xl">
-                  <DollarSign className="w-6 h-6 text-indigo-300" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-white mb-1 text-sm">Salary Processing</h3>
-                  <p className="text-xs text-blue-100 leading-relaxed">Automated salary calculations</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300">
-              <div className="flex items-start gap-3">
-                <div className="p-3 bg-pink-500/20 rounded-xl">
-                  <TrendingUp className="w-6 h-6 text-pink-300" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-white mb-1 text-sm">Analytics & Reports</h3>
-                  <p className="text-xs text-blue-100 leading-relaxed">Performance metrics & insights</p>
-                </div>
+            <div className="flex items-center gap-2 sm:gap-4">
+              <p className="text-[10px] sm:text-xs text-slate-400 hidden sm:block">powered by <span className="text-sm sm:text-base font-semibold text-white">Indus Infotech</span></p>
+              <div className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs text-slate-400">
+                <Shield className="w-3 h-3" />
+                <span className="hidden sm:inline">Secure Access</span>
               </div>
             </div>
           </div>
-        </div>
+        </header>
 
-        {/* Vertical Divider */}
-        <div className="hidden lg:block self-stretch">
-          <div className="h-full w-px bg-gradient-to-b from-transparent via-white/30 to-transparent"></div>
-        </div>
-
-        {/* Right Side - Login Form */}
-        <div className="w-full lg:w-[500px] animate-fade-in self-center" style={{ animationDelay: '0.2s' }}>
-          <div className="bg-white/10 backdrop-blur-2xl border border-white/20 rounded-3xl p-6 md:p-8 shadow-2xl">
-            {/* Logo and Tagline */}
-            <div className="bg-white rounded-2xl p-4 md:p-6 mb-6 text-center">
-              <img src="/vite.jpg" alt="Xpert-Pharma" className="h-12 md:h-16 mx-auto mb-3" />
-              <p className="text-sm text-gray-700 font-medium">Specialised in Pharmacy management.</p>
-            </div>
+        {/* Main Content */}
+        <div className="flex-1 flex items-center justify-center px-4 py-8">
+          <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-8 items-center">
             
-            {/* Login Type Toggle - Only Staff and Admin */}
-            <div className="flex gap-2 mb-6 p-1.5 bg-white/10 backdrop-blur-sm rounded-xl border border-white/10">
-              <button
-                onClick={() => { setLoginType('staff'); resetForm(); }}
-                className={`flex-1 py-2.5 px-4 rounded-lg text-xs font-semibold transition-all duration-300 ${
-                  loginType === 'staff'
-                    ? 'bg-white text-blue-600 shadow-lg'
-                    : 'text-white hover:bg-white/10'
-                }`}
-              >
-                <User className="w-4 h-4 inline mr-1" />
-                Staff
-              </button>
-              <button
-                onClick={() => { setLoginType('admin'); resetForm(); }}
-                className={`flex-1 py-2.5 px-4 rounded-lg text-xs font-semibold transition-all duration-300 ${
-                  loginType === 'admin'
-                    ? 'bg-white text-blue-600 shadow-lg'
-                    : 'text-white hover:bg-white/10'
-                }`}
-              >
-                <Lock className="w-4 h-4 inline mr-1" />
-                Admin
-              </button>
+            {/* Left: Enterprise Features */}
+            <div className="space-y-4 sm:space-y-6 hidden lg:block">
+              <div className="space-y-2 sm:space-y-3">
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight">
+                  Complete Business<br />Management Solution
+                </h2>
+                <p className="text-base sm:text-lg text-slate-400">
+                  Enterprise-grade system for multi-location business operations with real-time insights and automation.
+                </p>
+              </div>
+
+              {/* Feature Carousel */}
+              <div className="relative">
+                <FeatureCarousel />
+                
+                {/* Trust Indicators - Centered below carousel */}
+                <div className="flex items-center justify-center gap-3 sm:gap-6 pt-4 flex-wrap">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="text-xs text-slate-400">99.9% Uptime</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Shield className="w-4 h-4 text-slate-400" />
+                    <span className="text-xs text-slate-400">AI-Powered</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Database className="w-4 h-4 text-slate-400" />
+                    <span className="text-xs text-slate-400">Cloud Backup</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Bell className="w-4 h-4 text-slate-400" />
+                    <span className="text-xs text-slate-400">24/7 Support</span>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            {step === 'credentials' ? (
-              <form onSubmit={handleSendOTP} className="space-y-4">
-                <div className="space-y-2">
-                  <label className="block text-white text-sm font-semibold">Phone Number</label>
-                  <input
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+919383169659"
-                    className="w-full px-4 py-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/30 transition-all"
-                    required
-                  />
+            {/* Right: Login Form */}
+            <div className="w-full max-w-md mx-auto">
+              <div className="bg-slate-800/50 backdrop-blur-xl border border-slate-700/50 rounded-2xl p-4 sm:p-6 md:p-8 shadow-2xl">
+                
+                {/* Role Selector */}
+                <div className="mb-6">
+                  <label className="block text-slate-400 text-xs font-medium mb-3 text-center">SELECT YOUR ROLE</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      onClick={() => { setLoginType('staff'); resetForm(); }}
+                      className={`p-4 rounded-xl border-2 transition-all ${
+                        loginType === 'staff'
+                          ? 'border-blue-500 bg-blue-500/10'
+                          : 'border-slate-700 bg-slate-900/50 hover:border-slate-600'
+                      }`}
+                    >
+                      <Briefcase className={`w-6 h-6 mx-auto mb-2 ${loginType === 'staff' ? 'text-blue-400' : 'text-slate-400'}`} />
+                      <div className={`text-sm font-semibold ${loginType === 'staff' ? 'text-white' : 'text-slate-400'}`}>Staff</div>
+                      <div className="text-xs text-slate-500 mt-1">Employee Access</div>
+                    </button>
+                    <button
+                      onClick={() => { setLoginType('admin'); resetForm(); }}
+                      className={`p-4 rounded-xl border-2 transition-all ${
+                        loginType === 'admin'
+                          ? 'border-blue-500 bg-blue-500/10'
+                          : 'border-slate-700 bg-slate-900/50 hover:border-slate-600'
+                      }`}
+                    >
+                      <Lock className={`w-6 h-6 mx-auto mb-2 ${loginType === 'admin' ? 'text-blue-400' : 'text-slate-400'}`} />
+                      <div className={`text-sm font-semibold ${loginType === 'admin' ? 'text-white' : 'text-slate-400'}`}>Admin</div>
+                      <div className="text-xs text-slate-500 mt-1">Management Access</div>
+                    </button>
+                  </div>
                 </div>
-                {((loginType === 'admin' || loginType === 'super_admin') || loginType === 'staff') && (
-                  <>
-                    <div className="space-y-2">
-                      <label className="block text-white text-sm font-semibold">
-                        {isNewUser ? 'Set Password' : 'Password'}
-                      </label>
-                      <div className="relative">
-                        <input
-                          type={showPassword ? "text" : "password"}
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          placeholder={isNewUser ? "Create a password (min 6 characters)" : "Enter password"}
-                          className="w-full px-4 py-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/30 transition-all"
-                          required
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-white/70 hover:text-white transition-colors"
-                        >
-                          {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                        </button>
-                      </div>
+
+                {step === 'credentials' ? (
+                  <form onSubmit={handleSendOTP} className="space-y-4">
+                    <div>
+                      <label className="block text-slate-300 text-sm font-medium mb-2">Phone Number</label>
+                      <input
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="+919383169659"
+                        className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                        required
+                      />
                     </div>
 
-                    {isNewUser && (
-                      <div className="space-y-2">
-                        <label className="block text-white text-sm font-semibold">Confirm Password</label>
-                        <div className="relative">
-                          <input
-                            type={showConfirmPassword ? "text" : "password"}
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            placeholder="Re-enter your password"
-                            className="w-full px-4 py-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/30 transition-all"
-                            required
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-white/70 hover:text-white transition-colors"
-                          >
-                            {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                          </button>
+                    {((loginType === 'admin' || loginType === 'super_admin') || loginType === 'staff') && (
+                      <>
+                        <div>
+                          <label className="block text-slate-300 text-sm font-medium mb-2">
+                            {isNewUser ? 'Set Password' : 'Password'}
+                          </label>
+                          <div className="relative">
+                            <input
+                              type={showPassword ? "text" : "password"}
+                              value={password}
+                              onChange={(e) => setPassword(e.target.value)}
+                              placeholder={isNewUser ? "Create password (min 6 characters)" : "Enter password"}
+                              className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                              required
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowPassword(!showPassword)}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
+                            >
+                              {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                            </button>
+                          </div>
                         </div>
+
+                        {isNewUser && (
+                          <div>
+                            <label className="block text-slate-300 text-sm font-medium mb-2">Confirm Password</label>
+                            <div className="relative">
+                              <input
+                                type={showConfirmPassword ? "text" : "password"}
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                placeholder="Re-enter password"
+                                className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                required
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
+                              >
+                                {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    )}
+
+                    {isNewUser && (
+                      <div className="bg-blue-500/10 border border-blue-500/30 text-blue-300 px-4 py-3 rounded-xl text-xs flex items-start gap-2">
+                        <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                        <span>Use the phone number provided by your {loginType === 'admin' ? 'SuperAdmin' : 'Admin'}</span>
                       </div>
                     )}
-                  </>
-                )}
 
-                {isNewUser && (
-                  <div className="bg-blue-500/20 backdrop-blur-sm border border-blue-400/50 text-white px-3 py-2 rounded-lg text-xs flex items-center gap-2">
-                    <Info className="w-4 h-4 flex-shrink-0" />
-                    <span>Enter the phone number provided by your {loginType === 'admin' ? 'SuperAdmin' : 'Admin'}</span>
-                  </div>
-                )}
-
-                {error && (
-                  <div className="bg-red-500/20 backdrop-blur-sm border border-red-400/50 text-white px-4 py-2 rounded-xl text-sm font-medium">
-                    {error}
-                  </div>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-white text-blue-600 py-3 rounded-xl font-semibold hover:bg-blue-50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg"
-                >
-                  {loading ? (isNewUser ? 'Setting up...' : 'Sending OTP...') : (isNewUser ? 'Set Password & Send OTP' : 'Send OTP')}
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-
-                {/* New User Toggle - Only for Admin and Staff */}
-                {(loginType === 'admin' || loginType === 'staff') && (
-                  <div className="text-center text-sm text-white/80">
-                    {isNewUser ? (
-                      <span>
-                        Already have an account?{' '}
-                        <button
-                          type="button"
-                          onClick={() => setIsNewUser(false)}
-                          className="text-white font-semibold hover:text-blue-200 transition-colors underline"
-                        >
-                          Existing User
-                        </button>
-                      </span>
-                    ) : (
-                      <span>
-                        First time here?{' '}
-                        <button
-                          type="button"
-                          onClick={() => setIsNewUser(true)}
-                          className="text-white font-semibold hover:text-blue-200 transition-colors underline"
-                        >
-                          New User
-                        </button>
-                      </span>
+                    {error && (
+                      <div className="bg-red-500/10 border border-red-500/30 text-red-300 px-4 py-3 rounded-xl text-sm">
+                        {error}
+                      </div>
                     )}
-                  </div>
-                )}
-              </form>
-            ) : (
-              <form onSubmit={handleVerifyOTP} className="space-y-4">
-                <div className="text-center mb-4">
-                  <p className="text-white text-sm mb-2">OTP sent to {phone}</p>
-                  <button
-                    type="button"
-                    onClick={resetForm}
-                    className="text-white/80 text-xs hover:text-white flex items-center gap-1 mx-auto"
-                  >
-                    <ArrowLeft className="w-3 h-3" />
-                    Change phone number
-                  </button>
-                </div>
 
-                <div className="space-y-2">
-                  <label className="block text-white text-sm font-semibold text-center">Enter 6-digit OTP</label>
-                  <OTPInput value={otp} onChange={setOtp} length={6} />
-                </div>
-
-                {error && (
-                  <div className="bg-red-500/20 backdrop-blur-sm border border-red-400/50 text-white px-4 py-2 rounded-xl text-sm font-medium">
-                    {error}
-                  </div>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={loading || otp.length !== 6}
-                  className="w-full bg-white text-blue-600 py-3 rounded-xl font-semibold hover:bg-blue-50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg"
-                >
-                  {loading ? 'Verifying...' : 'Verify OTP'}
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-
-                <div className="text-center">
-                  {countdown > 0 ? (
-                    <p className="text-white/80 text-sm">Resend OTP in {countdown}s</p>
-                  ) : (
                     <button
-                      type="button"
-                      onClick={handleResendOTP}
-                      className="text-white text-sm hover:text-blue-200 font-medium transition-colors"
+                      type="submit"
+                      disabled={loading}
+                      className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20"
                     >
-                      Resend OTP
+                      {loading ? (isNewUser ? 'Setting up...' : 'Sending OTP...') : (isNewUser ? 'Set Password & Send OTP' : 'Send OTP')}
+                      <ArrowRight className="w-4 h-4" />
                     </button>
-                  )}
-                </div>
-              </form>
-            )}
+
+                    {(loginType === 'admin' || loginType === 'staff') && (
+                      <div className="text-center text-sm text-slate-400">
+                        {isNewUser ? (
+                          <span>
+                            Already have an account?{' '}
+                            <button
+                              type="button"
+                              onClick={() => setIsNewUser(false)}
+                              className="text-blue-400 font-semibold hover:text-blue-300 transition-colors"
+                            >
+                              Sign In
+                            </button>
+                          </span>
+                        ) : (
+                          <span>
+                            First time here?{' '}
+                            <button
+                              type="button"
+                              onClick={() => setIsNewUser(true)}
+                              className="text-blue-400 font-semibold hover:text-blue-300 transition-colors"
+                            >
+                              Create Account
+                            </button>
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </form>
+                ) : (
+                  <form onSubmit={handleVerifyOTP} className="space-y-4">
+                    <div className="text-center mb-6">
+                      <div className="w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <Lock className="w-8 h-8 text-blue-400" />
+                      </div>
+                      <h3 className="text-white font-semibold mb-1">Verify OTP</h3>
+                      <p className="text-slate-400 text-sm">Code sent to {phone}</p>
+                      <button
+                        type="button"
+                        onClick={resetForm}
+                        className="text-blue-400 text-xs hover:text-blue-300 flex items-center gap-1 mx-auto mt-2"
+                      >
+                        <ArrowLeft className="w-3 h-3" />
+                        Change number
+                      </button>
+                    </div>
+
+                    <div>
+                      <label className="block text-slate-300 text-sm font-medium mb-3 text-center">Enter 6-digit OTP</label>
+                      <OTPInput value={otp} onChange={setOtp} length={6} />
+                    </div>
+
+                    {error && (
+                      <div className="bg-red-500/10 border border-red-500/30 text-red-300 px-4 py-3 rounded-xl text-sm">
+                        {error}
+                      </div>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={loading || otp.length !== 6}
+                      className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20"
+                    >
+                      {loading ? 'Verifying...' : 'Verify & Sign In'}
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+
+                    <div className="text-center">
+                      {countdown > 0 ? (
+                        <p className="text-slate-400 text-sm">Resend OTP in {countdown}s</p>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={handleResendOTP}
+                          className="text-blue-400 text-sm hover:text-blue-300 font-medium transition-colors"
+                        >
+                          Resend OTP
+                        </button>
+                      )}
+                    </div>
+                  </form>
+                )}
+              </div>
+
+              {/* Footer Note */}
+              <p className="text-center text-slate-500 text-xs mt-6">
+                Protected by enterprise-grade security. Your data is encrypted and secure.
+              </p>
+            </div>
           </div>
         </div>
+
+        {/* Footer */}
+        <footer className="sticky bottom-0 z-20 border-t border-white/10 bg-slate-900/50 backdrop-blur-xl">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 text-xs text-slate-400">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-0">
+              <div className="order-2 sm:order-1">LedgerX v1.0</div>
+              <div className="order-1 sm:order-2 sm:absolute sm:left-1/2 sm:-translate-x-1/2 text-center">© 2026 Indus Infotech. All rights reserved.</div>
+              <div className="order-3 flex items-center gap-3 sm:gap-4 sm:ml-auto">
+                <Link to="/privacy-policy" className="hover:text-white transition-colors">Privacy</Link>
+                <Link to="/terms-of-service" className="hover:text-white transition-colors">Terms</Link>
+                <Link to="/support" className="hover:text-white transition-colors">Support</Link>
+              </div>
+            </div>
+          </div>
+        </footer>
       </div>
     </div>
   )

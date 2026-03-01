@@ -10,6 +10,9 @@ import WiFiHeartbeatService from './features/Attendance/components/WiFiHeartbeat
 import './App.css'
 
 const Welcome = lazy(() => import('./features/Welcome'))
+const PrivacyPolicy = lazy(() => import('./features/Welcome/PrivacyPolicy'))
+const TermsOfService = lazy(() => import('./features/Welcome/TermsOfService'))
+const Support = lazy(() => import('./features/Welcome/Support'))
 const SuperAdminLogin = lazy(() => import('./features/Welcome/SuperAdminLogin'))
 const PurchaseInvoice = lazy(() => import('./features/PurchaseInvoice'))
 const AdminInvoiceAnalytics = lazy(() => import('./features/PurchaseInvoice/AdminAnalytics'))
@@ -70,6 +73,9 @@ function App() {
                 <Routes>
                   <Route path="/" element={<Welcome />} />
                   <Route path="/login" element={<Welcome />} />
+                  <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                  <Route path="/terms-of-service" element={<TermsOfService />} />
+                  <Route path="/support" element={<Support />} />
                   <Route path="/super-admin-login" element={<SuperAdminLogin />} />
                   <Route path="/admin" element={<AdminDashboard />} />
                   <Route path="/super-admin" element={<SuperAdminDashboard />} />
