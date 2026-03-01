@@ -124,7 +124,7 @@ const Welcome = () => {
       <div className="relative z-10 min-h-screen flex flex-col">
         {/* Professional Header */}
         <header className="sticky top-0 z-20 border-b border-white/10 bg-slate-900/50 backdrop-blur-xl">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
+          <div className="w-full px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
             <div className="flex items-center gap-2 sm:gap-3">
               <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
                 <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
@@ -402,11 +402,11 @@ const Welcome = () => {
 
         {/* Footer */}
         <footer className="sticky bottom-0 z-20 border-t border-white/10 bg-slate-900/50 backdrop-blur-xl">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 text-xs text-slate-400">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-0">
+          <div className="w-full px-4 sm:px-6 py-3 sm:py-4 text-xs text-slate-400">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-2 sm:gap-0">
               <div className="order-2 sm:order-1">LedgerX v1.0</div>
               <div className="order-1 sm:order-2 sm:absolute sm:left-1/2 sm:-translate-x-1/2 text-center">© 2026 Indus Infotech. All rights reserved.</div>
-              <div className="order-3 flex items-center gap-3 sm:gap-4 sm:ml-auto">
+              <div className="order-3 flex items-center gap-3 sm:gap-4">
                 <Link to="/privacy-policy" className="hover:text-white transition-colors">Privacy</Link>
                 <Link to="/terms-of-service" className="hover:text-white transition-colors">Terms</Link>
                 <Link to="/support" className="hover:text-white transition-colors">Support</Link>
