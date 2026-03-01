@@ -52,41 +52,45 @@ export default function StaffNotifications() {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <Bell className="w-5 h-5 text-primary-600" />
-          <h2 className="text-lg font-bold text-gray-800">Notifications</h2>
-          {unreadCount > 0 && (
-            <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-              {unreadCount}
-            </span>
-          )}
+      <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <Bell className="w-5 h-5 text-blue-600" />
+            <h2 className="text-base md:text-lg font-bold text-gray-800">Notifications</h2>
+            {unreadCount > 0 && (
+              <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                {unreadCount}
+              </span>
+            )}
+          </div>
+          <label className="flex items-center gap-2 text-xs md:text-sm cursor-pointer text-gray-700">
+            <input
+              type="checkbox"
+              checked={includeRead}
+              onChange={(e) => setIncludeRead(e.target.checked)}
+              className="rounded"
+            />
+            Show read
+          </label>
         </div>
-        <label className="flex items-center gap-2 text-sm cursor-pointer">
-          <input
-            type="checkbox"
-            checked={includeRead}
-            onChange={(e) => setIncludeRead(e.target.checked)}
-            className="rounded"
-          />
-          Show read
-        </label>
       </div>
 
       {notifications.length === 0 ? (
-        <div className="bg-white p-8 rounded-xl shadow-md text-center text-gray-500">
+        <div className="bg-white p-6 md:p-8 rounded-xl shadow-lg border border-slate-200 text-center text-gray-500">
           No notifications
         </div>
       ) : (
         notifications.map(notif => (
           <div
             key={notif.id}
-            className={`bg-white p-4 rounded-xl shadow-md border-2 ${notif.is_read ? 'border-gray-200 opacity-75' : 'border-primary-200'}`}
+            className={`bg-white p-4 rounded-xl shadow-lg border-2 ${
+              notif.is_read ? 'border-slate-200 opacity-75' : 'border-blue-200'
+            }`}
           >
-            <div className="flex justify-between items-start">
+            <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
               <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <h3 className="font-bold text-gray-800">{notif.title}</h3>
+                <div className="flex items-center gap-2 mb-2 flex-wrap">
+                  <h3 className="font-bold text-gray-800 text-sm md:text-base">{notif.title}</h3>
                   <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getTypeColor(notif.type)}`}>
                     {notif.type}
                   </span>
@@ -96,8 +100,8 @@ export default function StaffNotifications() {
                     </span>
                   )}
                 </div>
-                <p className="text-sm text-gray-700 mb-2">{notif.message}</p>
-                <div className="flex items-center gap-4 text-xs text-gray-500">
+                <p className="text-xs md:text-sm text-gray-700 mb-2">{notif.message}</p>
+                <div className="flex items-center gap-4 text-xs text-gray-500 flex-wrap">
                   <span>{new Date(notif.created_at).toLocaleString()}</span>
                   {notif.expires_at && (
                     <span className="text-orange-600">
@@ -109,7 +113,7 @@ export default function StaffNotifications() {
               {!notif.is_read && (
                 <button
                   onClick={() => handleMarkAsRead(notif.id)}
-                  className="ml-4 bg-primary-500 text-white px-3 py-1 rounded-lg text-sm hover:bg-primary-600 flex items-center gap-1"
+                  className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 py-2 rounded-lg text-xs md:text-sm hover:from-blue-700 hover:to-indigo-700 flex items-center gap-1 shadow-lg shadow-blue-500/20 w-full sm:w-auto justify-center"
                 >
                   <Check className="w-4 h-4" />
                   Mark Read

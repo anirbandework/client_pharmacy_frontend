@@ -8,11 +8,11 @@ const AdminStockAnalytics = () => {
   return (
     <Layout>
       <Toaster position="top-right" />
-      <div className="max-w-7xl mx-auto">
-        <div className="hidden md:block bg-gradient-to-r from-blue-600 via-cyan-600 to-teal-700 rounded-xl shadow-lg p-4 md:p-6 mb-4 animate-fade-in relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 rounded-xl shadow-lg p-4 md:p-6 mb-4 animate-fade-in relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-          <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
+          <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-2 md:gap-3">
               <div className="p-2 md:p-3 bg-white/20 backdrop-blur-sm rounded-xl">
                 <BarChart3 className="w-5 h-5 md:w-6 md:h-6 text-white" />
               </div>
@@ -23,7 +23,7 @@ const AdminStockAnalytics = () => {
             </div>
             <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 py-1.5 rounded-lg">
               <TrendingUp className="w-4 h-4 text-white" />
-              <span className="text-white text-sm font-medium">Admin Only</span>
+              <span className="text-white text-xs md:text-sm font-medium">Admin Only</span>
             </div>
           </div>
         </div>

@@ -91,70 +91,71 @@ const StaffSalaryProfile = () => {
   return (
     <Layout>
       <PasswordProtectedRoute moduleName="My Salary">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl mx-auto px-4">
         {/* Header */}
-        <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 rounded-xl shadow-lg p-6 mb-4">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl">
-              <User className="w-6 h-6 text-white" />
+        <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 rounded-xl shadow-lg p-4 md:p-6 mb-4 animate-fade-in relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+          <div className="relative z-10 flex items-center gap-2 md:gap-3">
+            <div className="p-2 md:p-3 bg-white/20 backdrop-blur-sm rounded-xl">
+              <User className="w-5 h-5 md:w-6 md:h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-white">My Salary Profile</h1>
-              <p className="text-white/90 text-sm">View your salary details and payment history</p>
+              <h1 className="text-xl md:text-2xl font-bold text-white">My Salary Profile</h1>
+              <p className="text-white/90 text-xs md:text-sm">View your salary details and payment history</p>
             </div>
           </div>
         </div>
 
         {/* Profile Summary */}
         {profile && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-            <div className="bg-white rounded-xl shadow-md p-4 border border-primary-100">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-4">
+            <div className="bg-white rounded-xl shadow-lg p-3 md:p-4 border border-slate-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Monthly Salary</p>
-                  <p className="text-2xl font-bold text-gray-800">₹{profile.monthly_salary}</p>
+                  <p className="text-xs md:text-sm text-gray-600">Monthly Salary</p>
+                  <p className="text-xl md:text-2xl font-bold text-gray-800">₹{profile.monthly_salary}</p>
                 </div>
-                <DollarSign className="w-8 h-8 text-green-600" />
+                <DollarSign className="w-6 h-6 md:w-8 md:h-8 text-green-600" />
               </div>
             </div>
-            <div className="bg-white rounded-xl shadow-md p-4 border border-green-200">
+            <div className="bg-white rounded-xl shadow-lg p-3 md:p-4 border border-slate-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Paid Months</p>
-                  <p className="text-2xl font-bold text-green-700">{profile.paid_months}</p>
+                  <p className="text-xs md:text-sm text-gray-600">Paid Months</p>
+                  <p className="text-xl md:text-2xl font-bold text-green-700">{profile.paid_months}</p>
                 </div>
-                <CheckCircle className="w-8 h-8 text-green-600" />
+                <CheckCircle className="w-6 h-6 md:w-8 md:h-8 text-green-600" />
               </div>
             </div>
-            <div className="bg-white rounded-xl shadow-md p-4 border border-yellow-200">
+            <div className="bg-white rounded-xl shadow-lg p-3 md:p-4 border border-slate-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Pending Months</p>
-                  <p className="text-2xl font-bold text-yellow-700">{profile.pending_months}</p>
+                  <p className="text-xs md:text-sm text-gray-600">Pending Months</p>
+                  <p className="text-xl md:text-2xl font-bold text-yellow-700">{profile.pending_months}</p>
                 </div>
-                <Clock className="w-8 h-8 text-yellow-600" />
+                <Clock className="w-6 h-6 md:w-8 md:h-8 text-yellow-600" />
               </div>
             </div>
-            <div className="bg-white rounded-xl shadow-md p-4 border border-red-200">
+            <div className="bg-white rounded-xl shadow-lg p-3 md:p-4 border border-slate-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Overdue Months</p>
-                  <p className="text-2xl font-bold text-red-700">{profile.overdue_months}</p>
+                  <p className="text-xs md:text-sm text-gray-600">Overdue Months</p>
+                  <p className="text-xl md:text-2xl font-bold text-red-700">{profile.overdue_months}</p>
                 </div>
-                <AlertTriangle className="w-8 h-8 text-red-600" />
+                <AlertTriangle className="w-6 h-6 md:w-8 md:h-8 text-red-600" />
               </div>
             </div>
           </div>
         )}
 
         {/* Payment Information */}
-        <div className="bg-white rounded-xl shadow-md p-6 mb-4 border border-primary-100">
+        <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 mb-4 border border-slate-200">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+            <h3 className="text-base md:text-lg font-bold text-gray-800 flex items-center gap-2">
               <CreditCard className="w-5 h-5" />
               Payment Information
             </h3>
-            <button onClick={() => setShowEditModal(true)} className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-sm">
+            <button onClick={() => setShowEditModal(true)} className="px-3 md:px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 text-xs md:text-sm shadow-lg shadow-blue-500/20">
               Edit Payment Info
             </button>
           </div>
@@ -192,13 +193,13 @@ const StaffSalaryProfile = () => {
 
         {/* Salary History */}
         {history && (
-          <div className="bg-white rounded-xl shadow-md border border-primary-100">
+          <div className="bg-white rounded-xl shadow-lg border border-slate-200">
             <div className="p-4 border-b">
-              <h3 className="font-semibold text-gray-800 flex items-center gap-2">
+              <h3 className="text-sm md:text-base font-semibold text-gray-800 flex items-center gap-2">
                 <Calendar className="w-5 h-5" />
                 Salary History
               </h3>
-              <div className="flex gap-4 mt-2 text-sm">
+              <div className="flex gap-4 mt-2 text-xs md:text-sm">
                 <span className="text-gray-600">Total Paid: <span className="font-semibold text-green-700">₹{history.total_paid}</span></span>
                 <span className="text-gray-600">Total Pending: <span className="font-semibold text-yellow-700">₹{history.total_pending}</span></span>
               </div>

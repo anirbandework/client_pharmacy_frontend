@@ -17,9 +17,10 @@ export default function NotificationsPage() {
   if (userType === 'staff') {
     return (
       <Layout>
-        <div className="max-w-7xl mx-auto">
-          <div className="hidden md:block bg-gradient-to-r from-primary-600 via-accent-600 to-primary-700 rounded-xl shadow-lg p-4 md:p-6 mb-4">
-            <div className="flex items-center gap-3">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 rounded-xl shadow-lg p-4 md:p-6 mb-4 animate-fade-in relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+            <div className="relative z-10 flex items-center gap-2 md:gap-3">
               <div className="p-2 md:p-3 bg-white/20 backdrop-blur-sm rounded-xl">
                 <Bell className="w-5 h-5 md:w-6 md:h-6 text-white" />
               </div>
@@ -42,11 +43,11 @@ export default function NotificationsPage() {
   // Admin view
   return (
     <Layout>
-      <div className="max-w-7xl mx-auto">
-        <div className="hidden md:block bg-gradient-to-r from-primary-600 via-accent-600 to-primary-700 rounded-xl shadow-lg p-4 md:p-6 mb-4 animate-fade-in relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 rounded-xl shadow-lg p-4 md:p-6 mb-4 animate-fade-in relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-          <div className="relative z-10 flex items-center justify-between">
-            <div className="flex items-center gap-3">
+          <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-2 md:gap-3">
               <div className="p-2 md:p-3 bg-white/20 backdrop-blur-sm rounded-xl">
                 <Bell className="w-5 h-5 md:w-6 md:h-6 text-white" />
               </div>
@@ -57,7 +58,7 @@ export default function NotificationsPage() {
             </div>
             <button
               onClick={() => setShowSendModal(true)}
-              className="bg-white text-primary-600 px-4 py-2 rounded-lg font-semibold hover:shadow-lg transition-all flex items-center gap-2"
+              className="bg-white text-purple-600 px-3 md:px-4 py-2 rounded-lg font-semibold hover:shadow-lg transition-all flex items-center gap-2 text-sm w-full sm:w-auto justify-center"
             >
               <Send className="w-4 h-4" />
               Send Notification
@@ -65,25 +66,20 @@ export default function NotificationsPage() {
           </div>
         </div>
 
-        <div className="mb-3 md:mb-4 overflow-x-auto pb-2 -mx-4 px-4">
-          <div className="inline-flex bg-white rounded-xl shadow-md p-1.5 border border-primary-100 gap-1 min-w-full md:min-w-0">
+        <div className="mb-4 overflow-x-auto pb-2">
+          <div className="bg-slate-800/50 backdrop-blur-xl border border-slate-700/50 rounded-xl shadow-lg p-1.5 inline-flex gap-1 min-w-full md:min-w-0">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`group relative py-2 px-3 text-xs md:text-sm font-semibold rounded-lg transition-all duration-300 flex items-center gap-1.5 md:gap-2 whitespace-nowrap ${
+                className={`py-2 md:py-3 px-3 md:px-4 text-xs md:text-sm font-semibold rounded-lg transition-all duration-300 flex items-center gap-2 whitespace-nowrap ${
                   activeTab === tab.id
-                    ? 'text-white shadow-lg scale-105'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                    ? 'text-white bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/20'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
                 }`}
               >
-                {activeTab === tab.id && (
-                  <div className={`absolute inset-0 bg-gradient-to-r ${tab.color} rounded-lg`}></div>
-                )}
-                <tab.icon className={`w-4 h-4 relative z-10 ${
-                  activeTab === tab.id ? '' : 'group-hover:scale-110 transition-transform'
-                }`} />
-                <span className="relative z-10 hidden sm:inline">{tab.label}</span>
+                <tab.icon className="w-4 h-4" />
+                <span className="hidden sm:inline">{tab.label}</span>
               </button>
             ))}
           </div>

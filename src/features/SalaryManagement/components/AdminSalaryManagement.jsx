@@ -133,23 +133,24 @@ const AdminSalaryManagement = () => {
 
   return (
     <Layout>
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto px-4">
         {/* Header */}
-        <div className="bg-gradient-to-r from-green-600 via-emerald-600 to-green-700 rounded-xl shadow-lg p-6 mb-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl">
-                <DollarSign className="w-6 h-6 text-white" />
+        <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 rounded-xl shadow-lg p-4 md:p-6 mb-4 animate-fade-in relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+          <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="p-2 md:p-3 bg-white/20 backdrop-blur-sm rounded-xl">
+                <DollarSign className="w-5 h-5 md:w-6 md:h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-white">Salary Management</h1>
-                <p className="text-white/90 text-sm">Admin Dashboard</p>
+                <h1 className="text-xl md:text-2xl font-bold text-white">Salary Management</h1>
+                <p className="text-white/90 text-xs md:text-sm">Admin Dashboard</p>
               </div>
             </div>
             <select 
               value={selectedShop || ''} 
               onChange={(e) => setSelectedShop(e.target.value)} 
-              className="bg-white/20 backdrop-blur-sm text-white border border-white/30 px-3 py-2 rounded-lg text-sm"
+              className="bg-white/20 backdrop-blur-sm text-white border border-white/30 px-3 py-2 rounded-lg text-xs md:text-sm w-full sm:w-auto"
             >
               {shops.map(shop => (
                 <option key={shop.shop_code} value={shop.shop_code} className="text-gray-900">
@@ -162,43 +163,43 @@ const AdminSalaryManagement = () => {
 
         {/* Dashboard Stats */}
         {selectedShop && dashboard && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-            <div className="bg-white rounded-xl shadow-md p-4 border border-primary-100">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-4">
+            <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-3 md:p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Total Staff</p>
-                  <p className="text-2xl font-bold text-gray-800">{dashboard.total_staff}</p>
+                  <p className="text-xs md:text-sm text-gray-600">Total Staff</p>
+                  <p className="text-xl md:text-2xl font-bold text-gray-800">{dashboard.total_staff}</p>
                 </div>
-                <Users className="w-8 h-8 text-blue-600" />
+                <Users className="w-6 h-6 md:w-8 md:h-8 text-blue-600" />
               </div>
             </div>
-            <div className="bg-white rounded-xl shadow-md p-4 border border-yellow-200">
+            <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-3 md:p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Pending Payments</p>
-                  <p className="text-2xl font-bold text-yellow-700">{dashboard.pending_payments}</p>
-                  <p className="text-xs text-gray-500">₹{dashboard.total_pending_amount?.toFixed(2)}</p>
+                  <p className="text-xs md:text-sm text-gray-600">Pending Payments</p>
+                  <p className="text-xl md:text-2xl font-bold text-yellow-700">{dashboard.pending_payments}</p>
+                  <p className="text-[10px] md:text-xs text-gray-500">₹{dashboard.total_pending_amount?.toFixed(2)}</p>
                 </div>
-                <Clock className="w-8 h-8 text-yellow-600" />
+                <Clock className="w-6 h-6 md:w-8 md:h-8 text-yellow-600" />
               </div>
             </div>
-            <div className="bg-white rounded-xl shadow-md p-4 border border-red-200">
+            <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-3 md:p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Overdue</p>
-                  <p className="text-2xl font-bold text-red-700">{dashboard.overdue_payments}</p>
-                  <p className="text-xs text-gray-500">₹{dashboard.total_overdue_amount?.toFixed(2)}</p>
+                  <p className="text-xs md:text-sm text-gray-600">Overdue</p>
+                  <p className="text-xl md:text-2xl font-bold text-red-700">{dashboard.overdue_payments}</p>
+                  <p className="text-[10px] md:text-xs text-gray-500">₹{dashboard.total_overdue_amount?.toFixed(2)}</p>
                 </div>
-                <AlertTriangle className="w-8 h-8 text-red-600" />
+                <AlertTriangle className="w-6 h-6 md:w-8 md:h-8 text-red-600" />
               </div>
             </div>
-            <div className="bg-white rounded-xl shadow-md p-4 border border-green-200">
+            <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-3 md:p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Upcoming (5 days)</p>
-                  <p className="text-2xl font-bold text-green-700">{dashboard.upcoming_payments}</p>
+                  <p className="text-xs md:text-sm text-gray-600">Upcoming (5 days)</p>
+                  <p className="text-xl md:text-2xl font-bold text-green-700">{dashboard.upcoming_payments}</p>
                 </div>
-                <Calendar className="w-8 h-8 text-green-600" />
+                <Calendar className="w-6 h-6 md:w-8 md:h-8 text-green-600" />
               </div>
             </div>
           </div>
@@ -228,17 +229,17 @@ const AdminSalaryManagement = () => {
         )}
 
         {/* Month/Year Filter */}
-        <div className="bg-white rounded-xl shadow-md p-4 mb-4 border border-primary-100">
+        <div className="bg-white rounded-xl shadow-lg p-4 mb-4 border border-slate-200">
           <div className="flex flex-col gap-3">
             <div className="flex gap-3 items-center flex-wrap">
-              <div className="flex items-center gap-2">
-                <label className="text-sm font-medium text-gray-700">Select Period:</label>
-                <select value={selectedMonth} onChange={(e) => setSelectedMonth(Number(e.target.value))} className="px-3 py-2 border rounded-lg">
+              <div className="flex items-center gap-2 flex-wrap">
+                <label className="text-xs md:text-sm font-medium text-gray-700">Select Period:</label>
+                <select value={selectedMonth} onChange={(e) => setSelectedMonth(Number(e.target.value))} className="px-2 md:px-3 py-2 border rounded-lg text-sm">
                   {[...Array(12)].map((_, i) => (
                     <option key={i} value={i + 1}>{new Date(2024, i).toLocaleString('default', { month: 'long' })}</option>
                   ))}
                 </select>
-                <select value={selectedYear} onChange={(e) => setSelectedYear(Number(e.target.value))} className="px-3 py-2 border rounded-lg">
+                <select value={selectedYear} onChange={(e) => setSelectedYear(Number(e.target.value))} className="px-2 md:px-3 py-2 border rounded-lg text-sm">
                   {[2024, 2025, 2026].map(year => (
                     <option key={year} value={year}>{year}</option>
                   ))}
@@ -248,11 +249,12 @@ const AdminSalaryManagement = () => {
             <div className="flex gap-3 flex-wrap">
               <button 
                 onClick={handleGenerateRecords} 
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
+                className="px-3 md:px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 flex items-center gap-2 text-sm shadow-lg shadow-blue-500/20"
                 title="Create salary records for all staff for the selected month"
               >
                 <Calendar className="w-4 h-4" />
-                Create Salary Records
+                <span className="hidden sm:inline">Create Salary Records</span>
+                <span className="sm:hidden">Create Records</span>
               </button>
               <div className="text-xs text-gray-500 flex items-center">
                 <span>💡 First, create salary records for the month, then mark them as paid</span>
@@ -261,7 +263,7 @@ const AdminSalaryManagement = () => {
           </div>
           {generateResult && (
             <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
-              <p className="text-sm text-green-800">
+              <p className="text-xs md:text-sm text-green-800">
                 ✓ Created: {generateResult.created_count} records | Skipped: {generateResult.skipped_count} (already exist)
               </p>
             </div>
@@ -269,9 +271,9 @@ const AdminSalaryManagement = () => {
         </div>
 
         {/* Salary Records */}
-        <div className="bg-white rounded-xl shadow-md border border-primary-100">
+        <div className="bg-white rounded-xl shadow-lg border border-slate-200">
           <div className="p-4 border-b">
-            <h3 className="font-semibold text-gray-800">Salary Records</h3>
+            <h3 className="text-sm md:text-base font-semibold text-gray-800">Salary Records</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">

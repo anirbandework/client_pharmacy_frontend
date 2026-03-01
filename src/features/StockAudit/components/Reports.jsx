@@ -46,27 +46,27 @@ const Reports = () => {
   return (
     <div className="space-y-4">
       <div className="flex gap-2 flex-wrap items-center">
-        <button onClick={() => setActiveReport('low-stock')} className={`px-4 py-2 rounded ${activeReport === 'low-stock' ? 'bg-primary-600 text-white' : 'bg-gray-100'}`}>Low Stock</button>
-        <button onClick={() => setActiveReport('expiring')} className={`px-4 py-2 rounded ${activeReport === 'expiring' ? 'bg-primary-600 text-white' : 'bg-gray-100'}`}>Expiring Items</button>
-        <button onClick={() => setActiveReport('discrepancies')} className={`px-4 py-2 rounded ${activeReport === 'discrepancies' ? 'bg-primary-600 text-white' : 'bg-gray-100'}`}>Discrepancies</button>
+        <button onClick={() => setActiveReport('low-stock')} className={`px-4 py-2 rounded-lg font-medium ${activeReport === 'low-stock' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/20' : 'bg-white text-gray-700 hover:bg-gray-50 border border-slate-200'}`}>Low Stock</button>
+        <button onClick={() => setActiveReport('expiring')} className={`px-4 py-2 rounded-lg font-medium ${activeReport === 'expiring' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/20' : 'bg-white text-gray-700 hover:bg-gray-50 border border-slate-200'}`}>Expiring Items</button>
+        <button onClick={() => setActiveReport('discrepancies')} className={`px-4 py-2 rounded-lg font-medium ${activeReport === 'discrepancies' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/20' : 'bg-white text-gray-700 hover:bg-gray-50 border border-slate-200'}`}>Discrepancies</button>
         
         {activeReport === 'low-stock' && (
-          <div className="flex items-center gap-2 ml-4">
-            <label className="text-sm font-medium">Threshold:</label>
-            <input type="number" value={threshold} onChange={(e) => setThreshold(e.target.value)} className="w-20 px-2 py-1 border rounded" />
-            <button onClick={fetchReport} className="px-3 py-1 bg-blue-500 text-white rounded text-sm">Apply</button>
+          <div className="flex items-center gap-2 ml-4 bg-white px-3 py-2 rounded-lg border border-slate-200">
+            <label className="text-sm font-medium text-gray-700">Threshold:</label>
+            <input type="number" value={threshold} onChange={(e) => setThreshold(e.target.value)} className="w-20 px-2 py-1 border border-gray-300 rounded text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+            <button onClick={fetchReport} className="px-3 py-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded text-sm hover:from-blue-700 hover:to-indigo-700 shadow-lg shadow-blue-500/20">Apply</button>
           </div>
         )}
         
         {activeReport === 'expiring' && (
-          <div className="flex items-center gap-2 ml-4">
-            <label className="text-sm font-medium">Days Ahead:</label>
-            <input type="number" value={daysAhead} onChange={(e) => setDaysAhead(e.target.value)} className="w-20 px-2 py-1 border rounded" />
-            <button onClick={fetchReport} className="px-3 py-1 bg-blue-500 text-white rounded text-sm">Apply</button>
+          <div className="flex items-center gap-2 ml-4 bg-white px-3 py-2 rounded-lg border border-slate-200">
+            <label className="text-sm font-medium text-gray-700">Days Ahead:</label>
+            <input type="number" value={daysAhead} onChange={(e) => setDaysAhead(e.target.value)} className="w-20 px-2 py-1 border border-gray-300 rounded text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+            <button onClick={fetchReport} className="px-3 py-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded text-sm hover:from-blue-700 hover:to-indigo-700 shadow-lg shadow-blue-500/20">Apply</button>
           </div>
         )}
       </div>
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 border border-slate-200">
         <div className="flex justify-between items-center mb-4">
           <div>
             <h2 className="text-xl font-bold">
