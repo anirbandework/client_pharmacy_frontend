@@ -58,32 +58,32 @@ const FieldsGuideModal = () => {
       
       // Headers
       if (line.startsWith('# ')) {
-        elements.push(<h1 key={i} className="text-3xl font-bold text-gray-800 mb-4 mt-6 flex items-center gap-2"><FileText className="w-8 h-8 text-blue-600" />{line.slice(2)}</h1>)
+        elements.push(<h1 key={i} className="text-2xl md:text-3xl font-bold text-gray-800 mb-3 md:mb-4 mt-4 md:mt-6 flex items-center gap-2"><FileText className="w-6 h-6 md:w-8 md:h-8 text-blue-600" />{line.slice(2)}</h1>)
       } else if (line.startsWith('## ')) {
         const text = line.slice(3).replace(/📋|🏢|📦|🎯|📊|✅|🔧|💡|📞/g, '').trim()
-        elements.push(<h2 key={i} className="text-2xl font-bold text-gray-700 mb-3 mt-5 border-b-2 border-blue-200 pb-2 flex items-center gap-2"><Package className="w-6 h-6 text-blue-600" />{text}</h2>)
+        elements.push(<h2 key={i} className="text-xl md:text-2xl font-bold text-gray-700 mb-2 md:mb-3 mt-4 md:mt-5 border-b-2 border-blue-200 pb-2 flex items-center gap-2"><Package className="w-5 h-5 md:w-6 md:h-6 text-blue-600" />{text}</h2>)
       } else if (line.startsWith('### ')) {
-        elements.push(<h3 key={i} className="text-xl font-semibold text-gray-700 mb-2 mt-4">{line.slice(4)}</h3>)
+        elements.push(<h3 key={i} className="text-lg md:text-xl font-semibold text-gray-700 mb-2 mt-3 md:mt-4">{line.slice(4)}</h3>)
       } else if (line.startsWith('**') && line.endsWith(':**')) {
-        elements.push(<h4 key={i} className="text-lg font-semibold text-gray-800 mb-2 mt-3">{line.replace(/\*\*/g, '')}</h4>)
+        elements.push(<h4 key={i} className="text-base md:text-lg font-semibold text-gray-800 mb-2 mt-2 md:mt-3">{line.replace(/\*\*/g, '')}</h4>)
       } else if (line.startsWith('**') && line.includes(':**')) {
         // Handle bold text with colon in middle of line
         const text = line.replace(/\*\*/g, '')
-        elements.push(<p key={i} className="mb-2 text-gray-700 font-semibold">{text}</p>)
+        elements.push(<p key={i} className="mb-2 text-sm md:text-base text-gray-700 font-semibold">{text}</p>)
       } else if (line.startsWith('- ')) {
         const text = line.slice(2)
         if (text.includes('**')) {
           const parts = text.split('**')
           elements.push(
-            <li key={i} className="ml-6 mb-1 text-gray-700">
+            <li key={i} className="ml-4 md:ml-6 mb-1 text-sm md:text-base text-gray-700">
               {parts.map((part, idx) => idx % 2 === 1 ? <strong key={idx} className="font-semibold text-blue-700">{part}</strong> : part)}
             </li>
           )
         } else {
-          elements.push(<li key={i} className="ml-6 mb-1 text-gray-700">{text}</li>)
+          elements.push(<li key={i} className="ml-4 md:ml-6 mb-1 text-sm md:text-base text-gray-700">{text}</li>)
         }
       } else if (line === '---') {
-        elements.push(<hr key={i} className="my-6 border-gray-300" />)
+        elements.push(<hr key={i} className="my-4 md:my-6 border-gray-300" />)
       } else if (line.trim() === '') {
         elements.push(<br key={i} />)
       } else if (line.startsWith('```')) {
@@ -91,12 +91,12 @@ const FieldsGuideModal = () => {
       } else if (line.includes('**')) {
         const parts = line.split('**')
         elements.push(
-          <p key={i} className="mb-2 text-gray-700">
+          <p key={i} className="mb-2 text-sm md:text-base text-gray-700">
             {parts.map((part, idx) => idx % 2 === 1 ? <strong key={idx} className="font-semibold">{part}</strong> : part)}
           </p>
         )
       } else if (line.trim()) {
-        elements.push(<p key={i} className="mb-2 text-gray-700">{line}</p>)
+        elements.push(<p key={i} className="mb-2 text-sm md:text-base text-gray-700">{line}</p>)
       }
       
       i++
@@ -119,12 +119,12 @@ const FieldsGuideModal = () => {
     const dataRows = rows.slice(2).map(parseRow) // Skip header separator
     
     return (
-      <div key={key} className="overflow-x-auto my-4 border border-gray-300 rounded-lg">
+      <div key={key} className="overflow-x-auto my-3 md:my-4 border border-gray-300 rounded-lg">
         <table className="min-w-full">
           <thead className="bg-blue-50">
             <tr>
               {headers.map((header, idx) => (
-                <th key={idx} className="px-4 py-3 text-left text-sm font-semibold text-gray-800 border-b border-gray-300">
+                <th key={idx} className="px-2 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-semibold text-gray-800 border-b border-gray-300 whitespace-nowrap">
                   {header}
                 </th>
               ))}
@@ -134,9 +134,9 @@ const FieldsGuideModal = () => {
             {dataRows.map((row, rowIdx) => (
               <tr key={rowIdx} className="hover:bg-gray-50">
                 {row.map((cell, cellIdx) => (
-                  <td key={cellIdx} className="px-4 py-2 text-sm text-gray-700 border-b border-gray-200">
-                    {cell.includes('✅') ? <CheckCircle className="w-4 h-4 text-green-600 inline" /> : 
-                     cell.includes('❌') ? <X className="w-4 h-4 text-red-600 inline" /> : 
+                  <td key={cellIdx} className="px-2 md:px-4 py-1.5 md:py-2 text-xs md:text-sm text-gray-700 border-b border-gray-200">
+                    {cell.includes('✅') ? <CheckCircle className="w-3 h-3 md:w-4 md:h-4 text-green-600 inline" /> : 
+                     cell.includes('❌') ? <X className="w-3 h-3 md:w-4 md:h-4 text-red-600 inline" /> : 
                      cell}
                   </td>
                 ))}
@@ -155,7 +155,7 @@ const FieldsGuideModal = () => {
         className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
         title="Invoice Fields Guide - Click to learn about all invoice fields"
       >
-        <Info className="w-5 h-5" />
+        <Info className="w-4 h-4 md:w-5 md:h-5" />
       </button>
 
       {isOpen && (
@@ -163,22 +163,22 @@ const FieldsGuideModal = () => {
           <div className="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
             <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-indigo-600 p-4 md:p-6 flex justify-between items-center">
               <h2 className="text-lg md:text-xl font-bold text-white flex items-center gap-2">
-                <Info className="w-6 h-6" />
+                <Info className="w-5 h-5 md:w-6 md:h-6" />
                 Invoice Fields Guide
               </h2>
-              <button onClick={() => setIsOpen(false)} className="text-white/80 hover:text-white text-2xl transition-colors">
-                <X className="w-6 h-6" />
+              <button onClick={() => setIsOpen(false)} className="text-white/80 hover:text-white transition-colors">
+                <X className="w-5 h-5 md:w-6 md:h-6" />
               </button>
             </div>
             
-            <div className="p-4 md:p-6 overflow-y-auto max-h-[calc(90vh-80px)] bg-gray-50">
+            <div className="p-3 md:p-4 lg:p-6 overflow-y-auto max-h-[calc(90vh-80px)] bg-gray-50">
               {loading ? (
-                <div className="text-center py-12">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                  <p className="mt-4 text-gray-600">Loading guide...</p>
+                <div className="text-center py-8 md:py-12">
+                  <div className="animate-spin rounded-full h-10 w-10 md:h-12 md:w-12 border-b-2 border-blue-600 mx-auto"></div>
+                  <p className="mt-3 md:mt-4 text-sm md:text-base text-gray-600">Loading guide...</p>
                 </div>
               ) : (
-                <div className="bg-white rounded-lg p-6 shadow-sm">
+                <div className="bg-white rounded-lg p-3 md:p-4 lg:p-6 shadow-sm">
                   {renderMarkdown(content)}
                 </div>
               )}

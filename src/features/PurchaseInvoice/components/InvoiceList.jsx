@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { FileText, Eye, Trash2, Search, Calendar, DollarSign, Package, Edit, CheckCircle, AlertCircle } from 'lucide-react'
+import { FileText, Eye, Trash2, Search, Calendar, DollarSign, Package, Edit, CheckCircle, AlertCircle, X } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { purchaseInvoiceAPI } from '../services/api'
 import EditInvoice from './EditInvoice'
@@ -82,7 +82,7 @@ const InvoiceList = ({ refresh }) => {
       <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4">
         <div className="flex items-center gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 md:w-5 md:h-5" />
             <input
               type="text"
               placeholder="Search by invoice number or supplier..."
@@ -200,7 +200,9 @@ const InvoiceModal = ({ invoice, onClose }) => {
       <div className="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
         <div className="sticky top-0 bg-gradient-to-r from-purple-600 to-indigo-600 p-4 md:p-6 flex justify-between items-center">
           <h2 className="text-lg md:text-xl font-bold text-white">Invoice Details</h2>
-          <button onClick={onClose} className="text-white/80 hover:text-white text-2xl transition-colors">✕</button>
+          <button onClick={onClose} className="text-white/80 hover:text-white transition-colors">
+            <X className="w-5 h-5 md:w-6 md:h-6" />
+          </button>
         </div>
         
         <div className="p-4 md:p-6 space-y-4 md:space-y-6 overflow-y-auto max-h-[calc(90vh-80px)]">

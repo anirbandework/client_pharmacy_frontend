@@ -109,7 +109,7 @@ const UploadInvoice = ({ onUploadSuccess }) => {
     <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 md:p-6">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg md:text-xl font-bold text-gray-800 flex items-center gap-2">
-          <Upload className="w-5 h-5 text-purple-600" />
+          <Upload className="w-4 h-4 md:w-5 md:h-5 text-purple-600" />
           Upload Purchase Invoice
         </h2>
         <FieldsGuideModal />
