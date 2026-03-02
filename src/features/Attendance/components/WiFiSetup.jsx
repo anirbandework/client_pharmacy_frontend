@@ -1,13 +1,15 @@
 import toast from 'react-hot-toast'
 import React, { useState, useEffect } from 'react'
 import { attendanceAPI } from '../services/attendanceApi'
-import { Wifi } from 'lucide-react'
+import { Wifi, MapPin } from 'lucide-react'
 
 const WiFiSetup = ({ shopCode }) => {
   const [wifiData, setWifiData] = useState(null)
   const [editMode, setEditMode] = useState(false)
   const [formData, setFormData] = useState({ wifi_ssid: '', wifi_password: '', shop_latitude: '', shop_longitude: '', geofence_radius_meters: 100 })
   const [loading, setLoading] = useState(true)
+  const [currentLocation, setCurrentLocation] = useState(null)
+  const [fetchingLocation, setFetchingLocation] = useState(false)
 
   useEffect(() => {
     if (shopCode) fetchWiFiInfo()
@@ -31,6 +33,27 @@ const WiFiSetup = ({ shopCode }) => {
       setEditMode(true)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const getCurrentLocation = async () => {
+    setFetchingLocation(true)
+    try {
+      const position = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 5000,
+          maximumAge: 0
+        })
+      })
+      const latitude = position.coords.latitude
+      const longitude = position.coords.longitude
+      setCurrentLocation({ latitude, longitude })
+      toast.success('Location obtained!')
+    } catch (error) {
+      toast.error('Could not get location: ' + error.message)
+    } finally {
+      setFetchingLocation(false)
     }
   }
 
@@ -97,6 +120,17 @@ const WiFiSetup = ({ shopCode }) => {
         )}
       </div>
       <form onSubmit={handleSubmit} className="space-y-4">
+        {currentLocation && (
+          <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-center gap-2 mb-1">
+              <MapPin className="w-4 h-4 text-blue-600" />
+              <div className="text-xs font-semibold text-blue-900">Your Current Location</div>
+            </div>
+            <div className="text-sm text-blue-700">
+              Lat: {currentLocation.latitude.toFixed(8)}, Long: {currentLocation.longitude.toFixed(8)}
+            </div>
+          </div>
+        )}
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1.5">WiFi SSID</label>
           <input
@@ -142,6 +176,15 @@ const WiFiSetup = ({ shopCode }) => {
             />
           </div>
         </div>
+        <button
+          type="button"
+          onClick={getCurrentLocation}
+          disabled={fetchingLocation}
+          className="w-full bg-blue-500 text-white text-sm font-semibold py-2 rounded-lg hover:bg-blue-600 transition disabled:opacity-50 flex items-center justify-center gap-2"
+        >
+          <MapPin className="w-4 h-4" />
+          {fetchingLocation ? 'Getting Location...' : 'Get My Current Location'}
+        </button>
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1.5">Geofence Radius (meters) *</label>
           <input
