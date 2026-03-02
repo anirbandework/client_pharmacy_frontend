@@ -89,7 +89,10 @@ export const purchaseInvoiceAPI = {
     }),
   
   getPendingVerification: (params) =>
-    axiosInstance.get('/api/purchase-invoices/admin/pending-verification', { params })
+    axiosInstance.get('/api/purchase-invoices/admin/pending-verification', { params }),
+  
+  getFieldsGuide: () =>
+    axiosInstance.get('/api/purchase-invoices/fields-guide')
 }
 
 export default axiosInstance

@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Upload, FileText, Loader2, CheckCircle, XCircle, FileSpreadsheet, Download } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { purchaseInvoiceAPI } from '../services/api'
+import FieldsGuideModal from './FieldsGuideModal'
 
 const UploadInvoice = ({ onUploadSuccess }) => {
   const [file, setFile] = useState(null)
@@ -69,7 +70,17 @@ const UploadInvoice = ({ onUploadSuccess }) => {
     } catch (error) {
       const errorMsg = error.response?.data?.detail || 'Failed to upload file'
       if (error.response?.status === 409) {
-        toast.error(errorMsg, { duration: 5000, icon: '⚠️' })
+        // Duplicate invoice - show detailed warning
+        toast.error(errorMsg, { 
+          duration: 8000, 
+          icon: '⚠️',
+          style: {
+            background: '#FEF2F2',
+            color: '#991B1B',
+            border: '2px solid #FCA5A5',
+            fontWeight: '500'
+          }
+        })
       } else {
         toast.error(errorMsg)
       }
@@ -96,10 +107,13 @@ const UploadInvoice = ({ onUploadSuccess }) => {
 
   return (
     <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 md:p-6">
-      <h2 className="text-lg md:text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-        <Upload className="w-5 h-5 text-purple-600" />
-        Upload Purchase Invoice
-      </h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg md:text-xl font-bold text-gray-800 flex items-center gap-2">
+          <Upload className="w-5 h-5 text-purple-600" />
+          Upload Purchase Invoice
+        </h2>
+        <FieldsGuideModal />
+      </div>
 
       <div
         className={`border-2 border-dashed rounded-xl p-6 md:p-8 text-center transition-all ${
@@ -199,6 +213,9 @@ const UploadInvoice = ({ onUploadSuccess }) => {
             </p>
             <p className="text-xs md:text-sm text-green-800 mt-2">
               <strong>📊 Excel Upload:</strong> Use structured Excel files with columns like Product Name, Quantity, Rate, CGST, SGST, etc.
+            </p>
+            <p className="text-xs md:text-sm text-orange-800 mt-2">
+              <strong>🔒 Duplicate Detection:</strong> System checks for duplicate invoices by invoice number AND by supplier + date + amount to prevent accidental re-uploads.
             </p>
           </div>
           <button

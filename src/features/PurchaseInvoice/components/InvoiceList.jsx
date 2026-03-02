@@ -3,6 +3,7 @@ import { FileText, Eye, Trash2, Search, Calendar, DollarSign, Package, Edit, Che
 import toast from 'react-hot-toast'
 import { purchaseInvoiceAPI } from '../services/api'
 import EditInvoice from './EditInvoice'
+import FieldsGuideModal from './FieldsGuideModal'
 
 const InvoiceList = ({ refresh }) => {
   const [invoices, setInvoices] = useState([])
@@ -79,15 +80,18 @@ const InvoiceList = ({ refresh }) => {
   return (
     <div className="space-y-4">
       <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-          <input
-            type="text"
-            placeholder="Search by invoice number or supplier..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 md:py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all text-sm md:text-base"
-          />
+        <div className="flex items-center gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Search by invoice number or supplier..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 md:py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all text-sm md:text-base"
+            />
+          </div>
+          <FieldsGuideModal />
         </div>
       </div>
 
@@ -296,18 +300,30 @@ const InvoiceModal = ({ invoice, onClose }) => {
                 <thead className="bg-gray-100">
                   <tr>
                     <th className="px-3 py-2 text-left">#</th>
+                    <th className="px-3 py-2 text-left">Composition</th>
                     <th className="px-3 py-2 text-left">Product Name</th>
                     <th className="px-3 py-2 text-left">Mfg</th>
                     <th className="px-3 py-2 text-left">HSN</th>
                     <th className="px-3 py-2 text-left">Batch</th>
                     <th className="px-3 py-2 text-right">Qty</th>
+                    <th className="px-3 py-2 text-right">Free Qty</th>
                     <th className="px-3 py-2 text-left">Pkg</th>
+                    <th className="px-3 py-2 text-left">Unit</th>
+                    <th className="px-3 py-2 text-left">Mfg Date</th>
                     <th className="px-3 py-2 text-left">Expiry</th>
                     <th className="px-3 py-2 text-right">MRP</th>
                     <th className="px-3 py-2 text-right">Rate</th>
+                    <th className="px-3 py-2 text-right">Selling Price</th>
+                    <th className="px-3 py-2 text-right">Profit %</th>
+                    <th className="px-3 py-2 text-right">Disc on Purch</th>
+                    <th className="px-3 py-2 text-right">Disc on Sales</th>
+                    <th className="px-3 py-2 text-right">Before Disc</th>
+                    <th className="px-3 py-2 text-right">Disc %</th>
+                    <th className="px-3 py-2 text-right">Disc Amt</th>
                     <th className="px-3 py-2 text-right">Amount</th>
                     <th className="px-3 py-2 text-right">CGST</th>
                     <th className="px-3 py-2 text-right">SGST</th>
+                    <th className="px-3 py-2 text-right">IGST</th>
                     <th className="px-3 py-2 text-right">Total</th>
                     {/* Custom columns */}
                     {(() => {
@@ -334,36 +350,56 @@ const InvoiceModal = ({ invoice, onClose }) => {
                     return (
                       <tr key={idx} className="border-t hover:bg-gray-50">
                         <td className="px-3 py-2 text-gray-500">{idx + 1}</td>
-                        <td className="px-3 py-2 font-medium">{item.product_name}</td>
+                        <td className="px-3 py-2 text-gray-600">{item.composition || '-'}</td>
+                        <td className="px-3 py-2 font-medium">{item.product_name || '-'}</td>
                         <td className="px-3 py-2 text-gray-600">{item.manufacturer || '-'}</td>
                         <td className="px-3 py-2 text-gray-600">{item.hsn_code || '-'}</td>
                         <td className="px-3 py-2 text-gray-600">{item.batch_number || '-'}</td>
-                        <td className="px-3 py-2 text-right">{item.quantity}</td>
+                        <td className="px-3 py-2 text-right">{item.quantity || 0}</td>
+                        <td className="px-3 py-2 text-right">{item.free_quantity || 0}</td>
                         <td className="px-3 py-2 text-gray-600">{item.package || '-'}</td>
-                        <td className="px-3 py-2 text-gray-600">{item.expiry_date ? (() => {
-                          // Check if we have a full date or just MM/YYYY
-                          const date = new Date(item.expiry_date)
-                          // If day is 1st, likely stored as MM/YYYY, show as MM/YYYY
+                        <td className="px-3 py-2 text-gray-600">{item.unit || '-'}</td>
+                        <td className="px-3 py-2 text-gray-600">{item.manufacturing_date ? (() => {
+                          const date = new Date(item.manufacturing_date)
                           if (date.getDate() === 1) {
                             const month = String(date.getMonth() + 1).padStart(2, '0')
                             const year = date.getFullYear()
                             return `${month}/${year}`
                           }
-                          // Otherwise show full date
-                          return date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '/')
+                          return date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                        })() : '-'}</td>
+                        <td className="px-3 py-2 text-gray-600">{item.expiry_date ? (() => {
+                          const date = new Date(item.expiry_date)
+                          if (date.getDate() === 1) {
+                            const month = String(date.getMonth() + 1).padStart(2, '0')
+                            const year = date.getFullYear()
+                            return `${month}/${year}`
+                          }
+                          return date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })
                         })() : '-'}</td>
                         <td className="px-3 py-2 text-right font-semibold text-purple-700">{item.mrp || '-'}</td>
-                        <td className="px-3 py-2 text-right">₹{item.unit_price.toFixed(2)}</td>
-                        <td className="px-3 py-2 text-right">₹{item.taxable_amount.toFixed(2)}</td>
+                        <td className="px-3 py-2 text-right">₹{(item.unit_price || 0).toFixed(2)}</td>
+                        <td className="px-3 py-2 text-right">₹{(item.selling_price || 0).toFixed(2)}</td>
+                        <td className="px-3 py-2 text-right">{(item.profit_margin || 0).toFixed(2)}%</td>
+                        <td className="px-3 py-2 text-right">₹{(item.discount_on_purchase || 0).toFixed(2)}</td>
+                        <td className="px-3 py-2 text-right">₹{(item.discount_on_sales || 0).toFixed(2)}</td>
+                        <td className="px-3 py-2 text-right">₹{(item.before_discount || 0).toFixed(2)}</td>
+                        <td className="px-3 py-2 text-right">{(item.discount_percent || 0).toFixed(2)}%</td>
+                        <td className="px-3 py-2 text-right">₹{(item.discount_amount || 0).toFixed(2)}</td>
+                        <td className="px-3 py-2 text-right">₹{(item.taxable_amount || 0).toFixed(2)}</td>
                         <td className="px-3 py-2 text-right text-blue-600">
-                          {item.cgst_percent}%<br/>
-                          ₹{item.cgst_amount.toFixed(2)}
+                          {(item.cgst_percent || 0)}%<br/>
+                          ₹{(item.cgst_amount || 0).toFixed(2)}
                         </td>
                         <td className="px-3 py-2 text-right text-blue-600">
-                          {item.sgst_percent}%<br/>
-                          ₹{item.sgst_amount.toFixed(2)}
+                          {(item.sgst_percent || 0)}%<br/>
+                          ₹{(item.sgst_amount || 0).toFixed(2)}
                         </td>
-                        <td className="px-3 py-2 text-right font-bold text-green-600">₹{item.total_amount.toFixed(2)}</td>
+                        <td className="px-3 py-2 text-right text-orange-600">
+                          {(item.igst_percent || 0)}%<br/>
+                          ₹{(item.igst_amount || 0).toFixed(2)}
+                        </td>
+                        <td className="px-3 py-2 text-right font-bold text-green-600">₹{(item.total_amount || 0).toFixed(2)}</td>
                         {/* Custom field values */}
                         {Array.from(customCols).map(col => (
                           <td key={col} className="px-3 py-2 bg-blue-50 text-blue-900 font-medium">
@@ -376,13 +412,16 @@ const InvoiceModal = ({ invoice, onClose }) => {
                 </tbody>
                 <tfoot className="bg-gray-50 font-bold">
                   <tr className="border-t-2">
-                    <td colSpan="10" className="px-3 py-2 text-right">Totals:</td>
+                    <td colSpan="21" className="px-3 py-2 text-right">Totals:</td>
                     <td className="px-3 py-2 text-right">₹{invoice.taxable_amount.toFixed(2)}</td>
                     <td className="px-3 py-2 text-right text-blue-600">
-                      ₹{invoice.items.reduce((sum, item) => sum + item.cgst_amount, 0).toFixed(2)}
+                      ₹{invoice.items.reduce((sum, item) => sum + (item.cgst_amount || 0), 0).toFixed(2)}
                     </td>
                     <td className="px-3 py-2 text-right text-blue-600">
-                      ₹{invoice.items.reduce((sum, item) => sum + item.sgst_amount, 0).toFixed(2)}
+                      ₹{invoice.items.reduce((sum, item) => sum + (item.sgst_amount || 0), 0).toFixed(2)}
+                    </td>
+                    <td className="px-3 py-2 text-right text-orange-600">
+                      ₹{invoice.items.reduce((sum, item) => sum + (item.igst_amount || 0), 0).toFixed(2)}
                     </td>
                     <td className="px-3 py-2 text-right text-green-600">₹{invoice.net_amount.toFixed(2)}</td>
                     {/* Empty cells for custom columns */}

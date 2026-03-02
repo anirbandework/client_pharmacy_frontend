@@ -37,21 +37,31 @@ const WiFiSetup = ({ shopCode }) => {
   }
 
   const getCurrentLocation = async () => {
+    if (!navigator.geolocation) {
+      toast.error('Geolocation is not supported by your browser')
+      return
+    }
+    
     setFetchingLocation(true)
     try {
       const position = await new Promise((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: true,
-          timeout: 5000,
-          maximumAge: 0
+          enableHighAccuracy: false,
+          timeout: 10000,
+          maximumAge: 60000
         })
       })
       const latitude = position.coords.latitude
       const longitude = position.coords.longitude
       setCurrentLocation({ latitude, longitude })
+      setFormData({ ...formData, shop_latitude: latitude.toString(), shop_longitude: longitude.toString() })
       toast.success('Location obtained!')
     } catch (error) {
-      toast.error('Could not get location: ' + error.message)
+      const errorMsg = error.code === 1 ? 'Location permission denied' : 
+                       error.code === 2 ? 'Location unavailable - check settings' : 
+                       error.code === 3 ? 'Location request timed out' : 
+                       'Could not get location'
+      toast.error(errorMsg)
     } finally {
       setFetchingLocation(false)
     }
