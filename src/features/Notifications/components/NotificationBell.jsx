@@ -14,7 +14,10 @@ export default function NotificationBell() {
         const data = await notificationsApi.getUnreadCount();
         setUnreadCount(data.unread_count);
       } catch (err) {
-        console.error(err);
+        // Silently ignore 429 (rate limit) errors to avoid annoying toasts
+        if (err.response?.status !== 429) {
+          console.error(err);
+        }
       }
     };
     

@@ -22,7 +22,10 @@ export default function StaffNotifications() {
       setNotifications(data.notifications || []);
       setUnreadCount(data.unread_count || 0);
     } catch (err) {
-      toast.error(err.message);
+      // Silently ignore 429 (rate limit) errors to avoid annoying toasts
+      if (err.response?.status !== 429) {
+        toast.error(err.message);
+      }
     } finally {
       setLoading(false);
     }

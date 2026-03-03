@@ -18,7 +18,7 @@ const StaffAttendance = () => {
 
   useEffect(() => {
     fetchData()
-    const statusInterval = setInterval(fetchData, 10000)
+    const statusInterval = setInterval(fetchData, 30000) // Check every 30s (was 10s)
     return () => clearInterval(statusInterval)
   }, [])
 

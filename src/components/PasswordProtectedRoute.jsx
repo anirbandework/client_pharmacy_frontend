@@ -36,7 +36,7 @@ const PasswordProtectedRoute = ({ children, moduleName }) => {
     }
     
     checkShopLocation()
-    const interval = setInterval(checkShopLocation, 10000) // Check every 10 seconds
+    const interval = setInterval(checkShopLocation, 30000) // Check every 30s (was 10s)
     return () => clearInterval(interval)
   }, [])
 

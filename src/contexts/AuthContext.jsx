@@ -40,31 +40,33 @@ export function AuthProvider({ children }) {
 
   // Admin OTP Flow
   const adminSendOTP = async (phone, password) => {
-    const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 30000)
-
     try {
       const response = await fetch(`${API_BASE_URL}/api/auth/admin/send-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, password }),
-        signal: controller.signal
+        body: JSON.stringify({ phone, password })
       })
 
-      clearTimeout(timeoutId)
+      // Handle 429 rate limit
+      if (response.status === 429) {
+        const retryAfter = response.headers.get('Retry-After') || response.headers.get('retry-after')
+        const waitTime = retryAfter ? `${Math.ceil(retryAfter / 60)} minutes` : '5 minutes'
+        throw new Error(`Too many OTP requests. Please wait ${waitTime} before trying again.`)
+      }
 
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || error.message || error.detail || 'Failed to send OTP')
+        const data = await response.json().catch(() => ({}))
+        throw new Error(data.error || data.message || data.detail || 'Failed to send OTP')
       }
 
-      return response.json()
+      return await response.json()
     } catch (err) {
-      clearTimeout(timeoutId)
-      if (err.name === 'AbortError') {
-        throw new Error('Request timeout. Please try again.')
+      // If it's our custom error (has a message), re-throw it
+      if (err instanceof Error && err.message) {
+        throw err
       }
-      throw err
+      // Only for actual network failures
+      throw new Error('Network error. Please check your connection.')
     }
   }
 
@@ -109,31 +111,33 @@ export function AuthProvider({ children }) {
 
   // Staff OTP Flow
   const staffSendOTP = async (phone, password) => {
-    const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 30000)
-
     try {
       const response = await fetch(`${API_BASE_URL}/api/auth/staff/send-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, password }),
-        signal: controller.signal
+        body: JSON.stringify({ phone, password })
       })
 
-      clearTimeout(timeoutId)
+      // Handle 429 rate limit
+      if (response.status === 429) {
+        const retryAfter = response.headers.get('Retry-After') || response.headers.get('retry-after')
+        const waitTime = retryAfter ? `${Math.ceil(retryAfter / 60)} minutes` : '5 minutes'
+        throw new Error(`Too many OTP requests. Please wait ${waitTime} before trying again.`)
+      }
 
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || error.message || error.detail || 'Failed to send OTP')
+        const data = await response.json().catch(() => ({}))
+        throw new Error(data.error || data.message || data.detail || 'Failed to send OTP')
       }
 
-      return response.json()
+      return await response.json()
     } catch (err) {
-      clearTimeout(timeoutId)
-      if (err.name === 'AbortError') {
-        throw new Error('Request timeout. Please try again.')
+      // If it's our custom error (has a message), re-throw it
+      if (err instanceof Error && err.message) {
+        throw err
       }
-      throw err
+      // Only for actual network failures
+      throw new Error('Network error. Please check your connection.')
     }
   }
 
@@ -198,31 +202,33 @@ export function AuthProvider({ children }) {
   }
 
   const superAdminSendOTP = async (phone, password) => {
-    const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 30000)
-
     try {
       const response = await fetch(`${API_BASE_URL}/api/auth/super-admin/send-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, password }),
-        signal: controller.signal
+        body: JSON.stringify({ phone, password })
       })
 
-      clearTimeout(timeoutId)
+      // Handle 429 rate limit
+      if (response.status === 429) {
+        const retryAfter = response.headers.get('Retry-After') || response.headers.get('retry-after')
+        const waitTime = retryAfter ? `${Math.ceil(retryAfter / 60)} minutes` : '5 minutes'
+        throw new Error(`Too many OTP requests. Please wait ${waitTime} before trying again.`)
+      }
 
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || error.message || error.detail || 'Failed to send OTP')
+        const data = await response.json().catch(() => ({}))
+        throw new Error(data.error || data.message || data.detail || 'Failed to send OTP')
       }
 
-      return response.json()
+      return await response.json()
     } catch (err) {
-      clearTimeout(timeoutId)
-      if (err.name === 'AbortError') {
-        throw new Error('Request timeout. Please try again.')
+      // If it's our custom error (has a message), re-throw it
+      if (err instanceof Error && err.message) {
+        throw err
       }
-      throw err
+      // Only for actual network failures
+      throw new Error('Network error. Please check your connection.')
     }
   }
 

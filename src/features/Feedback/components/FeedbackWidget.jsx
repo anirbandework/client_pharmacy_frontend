@@ -27,7 +27,10 @@ const FeedbackWidget = () => {
       const res = await feedbackAPI.getUnreadCount()
       setUnreadCount(res.data.unread_responses)
     } catch (error) {
-      console.error('Failed to fetch unread count:', error)
+      // Silently ignore 429 (rate limit) errors to avoid annoying toasts
+      if (error.response?.status !== 429) {
+        console.error('Failed to fetch unread count:', error)
+      }
     }
   }
 

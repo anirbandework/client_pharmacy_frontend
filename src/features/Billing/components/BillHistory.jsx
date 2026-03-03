@@ -26,7 +26,7 @@ const BillHistory = () => {
 
   const fetchBills = async () => {
     try {
-      const { data } = await billingAPI.getBills({ limit: 100 })
+      const { data } = await billingAPI.getBills({ limit: 50 })
       setBills(data)
     } catch (error) {
       console.error('Error fetching bills:', error)

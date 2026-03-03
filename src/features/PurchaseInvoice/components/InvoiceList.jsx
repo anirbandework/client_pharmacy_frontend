@@ -18,7 +18,7 @@ const InvoiceList = ({ refresh }) => {
 
   const fetchInvoices = async () => {
     try {
-      const response = await purchaseInvoiceAPI.getInvoices({ limit: 100 })
+      const response = await purchaseInvoiceAPI.getInvoices({ limit: 50 })
       setInvoices(response.data)
     } catch (error) {
       toast.error('Failed to fetch invoices')

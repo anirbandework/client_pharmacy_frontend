@@ -5,18 +5,22 @@ import { attendanceAPI } from '../features/Attendance/services/attendanceApi'
 const GeofenceGuard = ({ children, moduleName = 'this module' }) => {
   const [wifiStatus, setWifiStatus] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [showContent, setShowContent] = useState(false)
   const userType = localStorage.getItem('user_type')
 
   useEffect(() => {
     // Skip geofence check for admin users
     if (userType === 'admin') {
       setLoading(false)
+      setShowContent(true)
       setWifiStatus({ can_access_modules: true })
       return
     }
     
+    // Optimistically show content while checking
+    setShowContent(true)
     checkWifiStatus()
-    const interval = setInterval(checkWifiStatus, 10000)
+    const interval = setInterval(checkWifiStatus, 30000) // Check every 30s (was 10s)
     return () => clearInterval(interval)
   }, [])
 
@@ -25,26 +29,23 @@ const GeofenceGuard = ({ children, moduleName = 'this module' }) => {
       const response = await attendanceAPI.getWiFiStatus()
       console.log('WiFi Status:', response.data)
       setWifiStatus(response.data)
+      setShowContent(response.data?.can_access_modules || false)
     } catch (error) {
       console.error('Failed to check WiFi status:', error)
+      setShowContent(false)
     } finally {
       setLoading(false)
     }
   }
 
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500/20 border-t-blue-500"></div>
-        <p className="text-slate-400 text-center max-w-md">
-          Connecting... This may take a few minutes. Please wait patiently or refresh the page.
-        </p>
-      </div>
-    )
+  // Show content immediately, hide if check fails
+  if (showContent && (loading || wifiStatus?.can_access_modules)) {
+    return <>{children}</>
   }
 
-  if (wifiStatus?.can_access_modules) {
-    return <>{children}</>
+  // Only show access denied after check completes
+  if (loading) {
+    return null
   }
 
   return (

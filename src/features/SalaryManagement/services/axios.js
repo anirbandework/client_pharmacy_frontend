@@ -26,6 +26,30 @@ axiosInstance.interceptors.response.use(
   (error) => {
     const status = error.response?.status
     const message = error.response?.data?.message || error.message
+    const retryAfter = error.response?.headers?.['retry-after']
+    const url = error.config?.url || ''
+
+    // For 429 errors, check if it's a critical user action or background polling
+    if (status === 429) {
+      // Critical endpoints that need user notification
+      const criticalEndpoints = ['/otp/', '/login', '/register', '/upload']
+      const isCritical = criticalEndpoints.some(endpoint => url.includes(endpoint))
+      
+      if (isCritical) {
+        const waitTime = retryAfter ? `${Math.ceil(retryAfter / 60)} minutes` : 'a few minutes'
+        toast.error(`Too many attempts. Please wait ${waitTime} and try again.`, { duration: 6000 })
+      } else {
+        // Background polling - silent
+        console.log('Rate limit reached - will retry on next poll')
+      }
+      return Promise.reject(error)
+    }
+
+    // Silently ignore timeout errors - they're often temporary
+    if (error.code === 'ECONNABORTED' || message.includes('timeout')) {
+      console.log('Request timeout - will retry later')
+      return Promise.reject(error)
+    }
 
     if (status === 500) {
       toast.error('Sorry for the inconvenience. Please let us know using feedback.', { duration: 5000 })
@@ -37,7 +61,8 @@ axiosInstance.interceptors.response.use(
       toast.error('Session expired. Please login again.')
     } else if (status >= 400 && status < 500) {
       toast.error(message || 'Something went wrong. Please use feedback to report.')
-    } else if (!error.response) {
+    } else if (!error.response && !error.code) {
+      // Only show network error for actual network failures, not timeouts
       toast.error('Network error. Please check your connection or report via feedback.', { duration: 4000 })
     }
 

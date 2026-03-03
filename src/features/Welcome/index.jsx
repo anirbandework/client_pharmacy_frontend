@@ -60,7 +60,8 @@ const Welcome = () => {
       setStep('otp')
       setCountdown(30)
     } catch (err) {
-      setError(err.message)
+      console.error('OTP Error:', err)
+      setError(err.message || 'An error occurred')
     } finally {
       setLoading(false)
     }
