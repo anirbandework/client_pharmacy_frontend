@@ -5,22 +5,17 @@ import { attendanceAPI } from '../features/Attendance/services/attendanceApi'
 const GeofenceGuard = ({ children, moduleName = 'this module' }) => {
   const [wifiStatus, setWifiStatus] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [showContent, setShowContent] = useState(false)
   const userType = localStorage.getItem('user_type')
 
   useEffect(() => {
-    // Skip geofence check for admin users
     if (userType === 'admin') {
       setLoading(false)
-      setShowContent(true)
       setWifiStatus({ can_access_modules: true })
       return
     }
     
-    // Optimistically show content while checking
-    setShowContent(true)
     checkWifiStatus()
-    const interval = setInterval(checkWifiStatus, 30000) // Check every 30s (was 10s)
+    const interval = setInterval(checkWifiStatus, 30000)
     return () => clearInterval(interval)
   }, [])
 
@@ -29,23 +24,24 @@ const GeofenceGuard = ({ children, moduleName = 'this module' }) => {
       const response = await attendanceAPI.getWiFiStatus()
       console.log('WiFi Status:', response.data)
       setWifiStatus(response.data)
-      setShowContent(response.data?.can_access_modules || false)
     } catch (error) {
       console.error('Failed to check WiFi status:', error)
-      setShowContent(false)
+      setWifiStatus({ can_access_modules: false })
     } finally {
       setLoading(false)
     }
   }
 
-  // Show content immediately, hide if check fails
-  if (showContent && (loading || wifiStatus?.can_access_modules)) {
-    return <>{children}</>
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      </div>
+    )
   }
 
-  // Only show access denied after check completes
-  if (loading) {
-    return null
+  if (wifiStatus?.can_access_modules) {
+    return <>{children}</>
   }
 
   return (

@@ -6,16 +6,25 @@ import UploadInvoice from './components/UploadInvoice'
 import InvoiceList from './components/InvoiceList'
 import Dashboard from './components/Dashboard'
 import { LayoutDashboard, Upload, FileText, Receipt } from 'lucide-react'
+import { useAuth } from '../../contexts/AuthContext'
 
 const PurchaseInvoice = () => {
   const [activeTab, setActiveTab] = useState('dashboard')
   const [refresh, setRefresh] = useState(0)
+  const { user } = useAuth()
+  const isAdmin = user?.user_type === 'admin'
 
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, color: 'from-blue-500 to-blue-600' },
-    { id: 'upload', label: 'Upload Invoice', icon: Upload, color: 'from-green-500 to-green-600' },
+    { id: 'upload', label: 'Upload Invoice', icon: Upload, color: 'from-green-500 to-green-600', staffOnly: true },
     { id: 'list', label: 'Invoice List', icon: FileText, color: 'from-purple-500 to-purple-600' }
   ]
+
+  const visibleTabs = tabs.filter(tab => {
+    if (tab.adminOnly && !isAdmin) return false
+    if (tab.staffOnly && isAdmin) return false
+    return true
+  })
 
   return (
     <Layout>
@@ -37,7 +46,7 @@ const PurchaseInvoice = () => {
 
         <div className="mb-4 md:mb-6 overflow-x-auto pb-2">
           <div className="bg-slate-800/50 backdrop-blur-xl border border-slate-700/50 rounded-xl shadow-lg p-1.5 inline-flex gap-1 min-w-full md:min-w-0">
-            {tabs.map((tab) => (
+            {visibleTabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}

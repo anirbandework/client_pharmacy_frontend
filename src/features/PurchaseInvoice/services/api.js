@@ -60,6 +60,28 @@ export const purchaseInvoiceAPI = {
   searchItems: (params) => 
     axiosInstance.get('/api/purchase-invoices/items/search', { params }),
   
+  // Admin Verification
+  adminVerifyInvoice: (id) =>
+    axiosInstance.post(`/api/purchase-invoices/${id}/admin-verify`),
+  
+  adminRejectInvoice: (id) =>
+    axiosInstance.post(`/api/purchase-invoices/${id}/admin-reject`),
+  
+  adminUpdateInvoice: (id, data) =>
+    axiosInstance.put(`/api/purchase-invoices/${id}/admin-update`, data),
+  
+  adminDeleteInvoice: (id) =>
+    axiosInstance.delete(`/api/purchase-invoices/${id}/admin-delete`),
+  
+  getPendingAdminVerification: (params) =>
+    axiosInstance.get('/api/purchase-invoices/pending-admin-verification', { params }),
+  
+  getPendingStaffVerification: (params) =>
+    axiosInstance.get('/api/purchase-invoices/pending-staff-verification', { params }),
+  
+  getAdminInvoices: (params) =>
+    axiosInstance.get('/api/purchase-invoices/admin-invoices', { params }),
+  
   // Admin Analytics Endpoints
   getAdminAIAnalytics: (params) =>
     axiosInstance.get('/api/purchase-invoices/admin/ai-analytics', { 
@@ -92,7 +114,20 @@ export const purchaseInvoiceAPI = {
     axiosInstance.get('/api/purchase-invoices/admin/pending-verification', { params }),
   
   getFieldsGuide: () =>
-    axiosInstance.get('/api/purchase-invoices/fields-guide')
+    axiosInstance.get('/api/purchase-invoices/fields-guide'),
+  
+  getCompositions: (search) =>
+    axiosInstance.get('/api/purchase-invoices/compositions', { params: { search } }),
+  
+  getProductNames: (search) =>
+    axiosInstance.get('/api/purchase-invoices/product-names', { params: { search } }),
+  
+  // Margin Playground Endpoints
+  getMarginPlayground: (filters) =>
+    axiosInstance.get('/api/purchase-invoices/analytics/margin-playground', { params: filters }),
+  
+  simulateMarginChange: (data, params) =>
+    axiosInstance.post('/api/purchase-invoices/analytics/simulate-margin-change', data, { params })
 }
 
 export default axiosInstance

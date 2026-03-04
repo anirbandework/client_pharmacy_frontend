@@ -3,11 +3,15 @@ import { Upload, FileText, Loader2, CheckCircle, XCircle, FileSpreadsheet, Downl
 import toast from 'react-hot-toast'
 import { purchaseInvoiceAPI } from '../services/api'
 import FieldsGuideModal from './FieldsGuideModal'
+import ValidationErrorModal from './ValidationErrorModal'
+import DuplicateErrorModal from './DuplicateErrorModal'
 
 const UploadInvoice = ({ onUploadSuccess }) => {
   const [file, setFile] = useState(null)
   const [uploading, setUploading] = useState(false)
   const [dragActive, setDragActive] = useState(false)
+  const [validationError, setValidationError] = useState(null)
+  const [duplicateError, setDuplicateError] = useState(null)
 
   const handleDrag = (e) => {
     e.preventDefault()
@@ -68,22 +72,23 @@ const UploadInvoice = ({ onUploadSuccess }) => {
       setFile(null)
       if (onUploadSuccess) onUploadSuccess(response.data)
     } catch (error) {
-      const errorMsg = error.response?.data?.detail || 'Failed to upload file'
-      if (error.response?.status === 409) {
-        // Duplicate invoice - show detailed warning
-        toast.error(errorMsg, { 
-          duration: 8000, 
-          icon: '⚠️',
-          style: {
-            background: '#FEF2F2',
-            color: '#991B1B',
-            border: '2px solid #FCA5A5',
-            fontWeight: '500'
-          }
-        })
-      } else {
-        toast.error(errorMsg)
+      const errorDetail = error.response?.data?.detail
+      
+      // Check if it's a validation error with detailed feedback
+      if (error.response?.status === 400 && typeof errorDetail === 'object' && errorDetail.validation) {
+        setValidationError(errorDetail.validation)
+        return
       }
+      
+      // Check if it's a duplicate error
+      if (error.response?.status === 409) {
+        setDuplicateError(typeof errorDetail === 'string' ? errorDetail : 'Duplicate invoice detected')
+        return
+      }
+      
+      // Handle other errors with toast
+      const errorMsg = typeof errorDetail === 'string' ? errorDetail : 'Failed to upload file'
+      toast.error(errorMsg)
     } finally {
       setUploading(false)
     }
@@ -106,7 +111,24 @@ const UploadInvoice = ({ onUploadSuccess }) => {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 md:p-6">
+    <>
+      <ValidationErrorModal 
+        validation={validationError} 
+        onClose={() => {
+          setValidationError(null)
+          setFile(null)
+        }} 
+      />
+      
+      <DuplicateErrorModal 
+        error={duplicateError} 
+        onClose={() => {
+          setDuplicateError(null)
+          setFile(null)
+        }} 
+      />
+      
+      <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 md:p-6">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg md:text-xl font-bold text-gray-800 flex items-center gap-2">
           <Upload className="w-4 h-4 md:w-5 md:h-5 text-purple-600" />
@@ -207,16 +229,25 @@ const UploadInvoice = ({ onUploadSuccess }) => {
 
       <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
         <div className="flex flex-col md:flex-row items-start justify-between gap-4">
-          <div className="flex-1">
-            <p className="text-xs md:text-sm text-blue-800">
-              <strong>✨ AI-Powered PDF:</strong> Works with any invoice format. Automatically extracts supplier info, items, quantities, prices, GST, and more!
-            </p>
-            <p className="text-xs md:text-sm text-green-800 mt-2">
-              <strong>📊 Excel Upload:</strong> Use structured Excel files with columns like Product Name, Quantity, Rate, CGST, SGST, etc.
-            </p>
-            <p className="text-xs md:text-sm text-orange-800 mt-2">
-              <strong>🔒 Duplicate Detection:</strong> System checks for duplicate invoices by invoice number AND by supplier + date + amount to prevent accidental re-uploads.
-            </p>
+          <div className="flex-1 space-y-3">
+            <div className="flex items-start gap-2">
+              <FileText className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+              <p className="text-xs md:text-sm text-blue-800">
+                <strong>AI-Powered PDF:</strong> Works with any invoice format. Automatically extracts supplier info, items, quantities, prices, GST, and more!
+              </p>
+            </div>
+            <div className="flex items-start gap-2">
+              <FileSpreadsheet className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <p className="text-xs md:text-sm text-green-800">
+                <strong>Excel Upload:</strong> Use structured Excel files with columns like Product Name, Quantity, Rate, CGST, SGST, etc.
+              </p>
+            </div>
+            <div className="flex items-start gap-2">
+              <XCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+              <p className="text-xs md:text-sm text-orange-800">
+                <strong>Duplicate Detection:</strong> System checks for duplicate invoices by invoice number AND by supplier + date + amount to prevent accidental re-uploads.
+              </p>
+            </div>
           </div>
           <button
             onClick={handleDownloadTemplate}
@@ -228,6 +259,7 @@ const UploadInvoice = ({ onUploadSuccess }) => {
         </div>
       </div>
     </div>
+    </>
   )
 }
 
