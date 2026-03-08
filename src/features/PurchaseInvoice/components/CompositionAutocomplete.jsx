@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { purchaseInvoiceAPI } from '../services/api'
 
-const AutocompleteInput = ({ value, onChange, placeholder, className }) => {
+const CompositionAutocomplete = ({ value, onChange, placeholder, className }) => {
   const [suggestions, setSuggestions] = useState([])
   const [showDropdown, setShowDropdown] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -81,4 +81,4 @@ const AutocompleteInput = ({ value, onChange, placeholder, className }) => {
   )
 }
 
-export default AutocompleteInput
+export default CompositionAutocomplete

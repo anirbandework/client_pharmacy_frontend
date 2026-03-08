@@ -8,6 +8,7 @@ import DashboardCharts from './DashboardCharts'
 import MarginPlayground from './MarginPlayground'
 import InvoiceModal from './InvoiceModal'
 import EditInvoice from './EditInvoice'
+import DeleteConfirmationModal from './DeleteConfirmationModal'
 
 const AdminAnalytics = () => {
   const [loading, setLoading] = useState(false)
@@ -817,6 +818,7 @@ const ApprovedInvoiceCard = ({ invoice, onDelete }) => {
   const [viewing, setViewing] = useState(false)
   const [editing, setEditing] = useState(false)
   const [invoiceDetails, setInvoiceDetails] = useState(null)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
   const handleView = async () => {
@@ -840,16 +842,11 @@ const ApprovedInvoiceCard = ({ invoice, onDelete }) => {
   }
 
   const handleDelete = async () => {
-    const confirmMessage = invoice.is_admin_verified
-      ? `⚠️ WARNING: This invoice is VERIFIED and synced to stock!\n\nDeleting will:\n• Remove ${invoice.total_items} items from stock\n• Reverse quantities in inventory\n• Cannot be undone\n\nAre you absolutely sure?`
-      : 'Are you sure you want to delete this invoice?'
-    
-    if (!confirm(confirmMessage)) return
-    
     setDeleting(true)
     try {
       await purchaseInvoiceAPI.adminDeleteInvoice(invoice.id)
       toast.success('Invoice deleted successfully')
+      setShowDeleteModal(false)
       if (onDelete) onDelete()
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Failed to delete invoice')
@@ -918,7 +915,7 @@ const ApprovedInvoiceCard = ({ invoice, onDelete }) => {
               <Eye className="w-4 h-4 md:w-5 md:h-5" />
             </button>
             <button
-              onClick={handleDelete}
+              onClick={() => setShowDeleteModal(true)}
               disabled={deleting}
               className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
               title="Delete"
@@ -942,6 +939,14 @@ const ApprovedInvoiceCard = ({ invoice, onDelete }) => {
             if (onDelete) onDelete()
           }}
           isAdmin={true}
+        />
+      )}
+
+      {showDeleteModal && (
+        <DeleteConfirmationModal
+          invoice={invoice}
+          onConfirm={handleDelete}
+          onCancel={() => setShowDeleteModal(false)}
         />
       )}
     </>

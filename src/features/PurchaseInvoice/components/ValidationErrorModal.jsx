@@ -1,10 +1,10 @@
 import React from 'react'
 import { X, AlertTriangle, CheckCircle2, XCircle, FileQuestion } from 'lucide-react'
 
-const ValidationErrorModal = ({ validation, onClose }) => {
+const ValidationErrorModal = ({ validation, onClose, onProceedAnyway }) => {
   if (!validation) return null
 
-  const { missing_fields = [], format_issues = [], suggestions = [], detected_fields = {} } = validation
+  const { missing_fields = [], format_issues = [], suggestions = [], detected_fields = {}, can_extract_anyway = false } = validation
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
@@ -132,18 +132,58 @@ const ValidationErrorModal = ({ validation, onClose }) => {
                 )}
                 
                 {detected_fields.supplier_name !== undefined && (
-                  <div className={`p-2 md:p-3 rounded-lg border-2 ${detected_fields.supplier_name ? 'bg-green-50 border-green-300' : 'bg-red-50 border-red-300'}`}>
+                  <div className={`p-2 md:p-3 rounded-lg border-2 ${detected_fields.supplier_name ? 'bg-green-50 border-green-300' : 'bg-gray-50 border-gray-300'}`}>
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-xs md:text-sm font-medium text-gray-700">Supplier Name</span>
                       {detected_fields.supplier_name ? (
                         <CheckCircle2 className="w-4 h-4 md:w-5 md:h-5 text-green-600 flex-shrink-0" />
                       ) : (
-                        <XCircle className="w-4 h-4 md:w-5 md:h-5 text-red-600 flex-shrink-0" />
+                        <XCircle className="w-4 h-4 md:w-5 md:h-5 text-gray-400 flex-shrink-0" />
                       )}
                     </div>
                     {detected_fields.supplier_name && (
                       <p className="text-[10px] md:text-xs text-gray-600 mt-1 truncate">{detected_fields.supplier_name}</p>
                     )}
+                  </div>
+                )}
+                
+                {detected_fields.supplier_address !== undefined && detected_fields.supplier_address && (
+                  <div className="p-2 md:p-3 rounded-lg border-2 bg-green-50 border-green-300">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs md:text-sm font-medium text-gray-700">Supplier Address</span>
+                      <CheckCircle2 className="w-4 h-4 md:w-5 md:h-5 text-green-600 flex-shrink-0" />
+                    </div>
+                    <p className="text-[10px] md:text-xs text-gray-600 mt-1 truncate">{detected_fields.supplier_address}</p>
+                  </div>
+                )}
+                
+                {detected_fields.supplier_gstin !== undefined && detected_fields.supplier_gstin && (
+                  <div className="p-2 md:p-3 rounded-lg border-2 bg-green-50 border-green-300">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs md:text-sm font-medium text-gray-700">Supplier GSTIN</span>
+                      <CheckCircle2 className="w-4 h-4 md:w-5 md:h-5 text-green-600 flex-shrink-0" />
+                    </div>
+                    <p className="text-[10px] md:text-xs text-gray-600 mt-1 truncate">{detected_fields.supplier_gstin}</p>
+                  </div>
+                )}
+                
+                {detected_fields.supplier_dl_numbers !== undefined && detected_fields.supplier_dl_numbers && (
+                  <div className="p-2 md:p-3 rounded-lg border-2 bg-green-50 border-green-300">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs md:text-sm font-medium text-gray-700">Supplier DL Numbers</span>
+                      <CheckCircle2 className="w-4 h-4 md:w-5 md:h-5 text-green-600 flex-shrink-0" />
+                    </div>
+                    <p className="text-[10px] md:text-xs text-gray-600 mt-1 truncate">{detected_fields.supplier_dl_numbers}</p>
+                  </div>
+                )}
+                
+                {detected_fields.supplier_phone !== undefined && detected_fields.supplier_phone && (
+                  <div className="p-2 md:p-3 rounded-lg border-2 bg-green-50 border-green-300">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs md:text-sm font-medium text-gray-700">Supplier Phone</span>
+                      <CheckCircle2 className="w-4 h-4 md:w-5 md:h-5 text-green-600 flex-shrink-0" />
+                    </div>
+                    <p className="text-[10px] md:text-xs text-gray-600 mt-1 truncate">{detected_fields.supplier_phone}</p>
                   </div>
                 )}
                 
@@ -206,12 +246,37 @@ const ValidationErrorModal = ({ validation, onClose }) => {
 
         {/* Footer */}
         <div className="sticky bottom-0 border-t border-gray-200 p-4 md:p-6 bg-gray-50">
-          <button
-            onClick={onClose}
-            className="w-full px-4 md:px-6 py-2 md:py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:shadow-lg transition-all font-semibold text-sm md:text-base"
-          >
-            OK, I'll Fix It
-          </button>
+          {can_extract_anyway ? (
+            <div className="space-y-3">
+              <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-3 flex items-start gap-2">
+                <AlertTriangle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                <p className="text-xs md:text-sm text-yellow-800">
+                  <strong>Basic information detected.</strong> You can proceed with extraction, but the data may need manual corrections.
+                </p>
+              </div>
+              <div className="flex gap-2 md:gap-3">
+                <button
+                  onClick={onClose}
+                  className="flex-1 px-4 md:px-6 py-2 md:py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all font-semibold text-sm md:text-base"
+                >
+                  Cancel & Reupload
+                </button>
+                <button
+                  onClick={onProceedAnyway}
+                  className="flex-1 px-4 md:px-6 py-2 md:py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-lg hover:shadow-lg transition-all font-semibold text-sm md:text-base"
+                >
+                  Extract Anyway
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              onClick={onClose}
+              className="w-full px-4 md:px-6 py-2 md:py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:shadow-lg transition-all font-semibold text-sm md:text-base"
+            >
+              OK, I'll Fix It
+            </button>
+          )}
         </div>
       </div>
     </div>

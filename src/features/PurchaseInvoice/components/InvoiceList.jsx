@@ -5,6 +5,7 @@ import { purchaseInvoiceAPI } from '../services/api'
 import EditInvoice from './EditInvoice'
 import FieldsGuideModal from './FieldsGuideModal'
 import InvoiceModal from './InvoiceModal'
+import DeleteConfirmationModal from './DeleteConfirmationModal'
 
 const InvoiceList = ({ refresh }) => {
   const [invoices, setInvoices] = useState([])
@@ -12,6 +13,7 @@ const InvoiceList = ({ refresh }) => {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedInvoice, setSelectedInvoice] = useState(null)
   const [editingInvoice, setEditingInvoice] = useState(null)
+  const [deletingInvoice, setDeletingInvoice] = useState(null)
 
   useEffect(() => {
     fetchInvoices()
@@ -38,6 +40,17 @@ const InvoiceList = ({ refresh }) => {
   }
 
   const handleEdit = async (id) => {
+    const invoice = invoices.find(inv => inv.id === id)
+    
+    // Check if admin verified
+    if (invoice?.is_admin_verified) {
+      toast.error('This invoice is already approved by admin. Contact admin to make changes.', {
+        duration: 4000,
+        icon: '🔒'
+      })
+      return
+    }
+    
     try {
       const response = await purchaseInvoiceAPI.getInvoice(id)
       setEditingInvoice(response.data)
@@ -48,21 +61,20 @@ const InvoiceList = ({ refresh }) => {
 
   const handleDelete = async (id) => {
     const invoice = invoices.find(inv => inv.id === id)
-    
-    // Enhanced warning for verified invoices
-    const confirmMessage = invoice?.is_verified 
-      ? `⚠️ WARNING: This invoice is VERIFIED and synced to stock!\n\nDeleting will:\n• Remove ${invoice.total_items} items from stock\n• Reverse quantities in inventory\n• Cannot be undone\n\nAre you absolutely sure?`
-      : 'Are you sure you want to delete this invoice?'
-    
-    if (!confirm(confirmMessage)) return
+    setDeletingInvoice(invoice)
+  }
+
+  const confirmDelete = async () => {
+    if (!deletingInvoice) return
     
     try {
-      const response = await purchaseInvoiceAPI.deleteInvoice(id)
+      const response = await purchaseInvoiceAPI.deleteInvoice(deletingInvoice.id)
       if (response.data.stock_reversed) {
         toast.success('Invoice deleted and stock quantities reversed')
       } else {
         toast.success('Invoice deleted successfully')
       }
+      setDeletingInvoice(null)
       fetchInvoices()
     } catch (error) {
       toast.error('Failed to delete invoice')
@@ -165,8 +177,12 @@ const InvoiceList = ({ refresh }) => {
               <div className="flex gap-2">
                 <button
                   onClick={() => handleEdit(invoice.id)}
-                  className="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
-                  title="Edit & Verify"
+                  className={`p-2 rounded-lg transition-colors ${
+                    invoice.is_admin_verified 
+                      ? 'text-gray-400 cursor-not-allowed' 
+                      : 'text-orange-600 hover:bg-orange-50'
+                  }`}
+                  title={invoice.is_admin_verified ? 'Already approved - Contact admin' : 'Edit & Verify'}
                 >
                   <Edit className="w-4 h-4 md:w-5 md:h-5" />
                 </button>
@@ -211,6 +227,14 @@ const InvoiceList = ({ refresh }) => {
             setEditingInvoice(null)
             fetchInvoices()
           }}
+        />
+      )}
+
+      {deletingInvoice && (
+        <DeleteConfirmationModal
+          invoice={deletingInvoice}
+          onConfirm={confirmDelete}
+          onCancel={() => setDeletingInvoice(null)}
         />
       )}
     </div>

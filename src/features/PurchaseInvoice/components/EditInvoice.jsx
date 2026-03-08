@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react'
-import { Save, X, Plus, Trash2, AlertCircle } from 'lucide-react'
+import { Save, X, Plus, Trash2, AlertCircle, Package, DollarSign, Settings } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { purchaseInvoiceAPI } from '../services/api'
-import AutocompleteInput from './AutocompleteInput'
+import ProductAutocomplete from './ProductAutocomplete'
+import CompositionAutocomplete from './CompositionAutocomplete'
+import UnitAutocomplete from './UnitAutocomplete'
 
 const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
   const [formData, setFormData] = useState({
@@ -97,63 +99,117 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
-  const handleItemChange = (index, field, value) => {
+  const handleItemChange = async (index, field, value) => {
     const newItems = [...formData.items]
+    const item = newItems[index]
     
     // Handle custom fields separately
     if (field.startsWith('custom_')) {
       const customFieldName = field.replace('custom_', '')
-      newItems[index].custom_fields = {
-        ...newItems[index].custom_fields,
+      item.custom_fields = {
+        ...item.custom_fields,
         [customFieldName]: value
       }
-    } else {
-      newItems[index][field] = value
+      setFormData(prev => ({ ...prev, items: newItems }))
+      return
     }
     
-    // Auto-calculate selling price with 35% profit margin when unit_price changes
+    // Update the changed field
+    item[field] = value
+    
+    // Auto-fetch pricing when composition or product_name changes
+    if ((field === 'composition' || field === 'product_name') && value && value.trim() !== '') {
+      try {
+        const composition = field === 'composition' ? value : item.composition
+        const productName = field === 'product_name' ? value : item.product_name
+        
+        const response = await purchaseInvoiceAPI.getPricingByComposition(composition, productName)
+        if (response.found && response.selling_price && response.profit_margin) {
+          item.selling_price = response.selling_price
+          item.profit_margin = response.profit_margin
+          toast.success(`Auto-populated: Selling Price ₹${response.selling_price}, Margin ${response.profit_margin.toFixed(1)}%`, {
+            duration: 3000,
+            icon: '✨'
+          })
+        }
+      } catch (error) {
+        // Silently fail - don't show error to user
+        console.log('Could not fetch pricing data:', error)
+      }
+    }
+    
+    // === DISCOUNT CALCULATIONS ===
+    // If before_discount or discount_percent changes, calculate discount_amount and unit_price
+    if (field === 'before_discount' || field === 'discount_percent') {
+      const beforeDiscount = parseFloat(item.before_discount) || 0
+      const discountPercent = parseFloat(item.discount_percent) || 0
+      item.discount_amount = (beforeDiscount * discountPercent) / 100
+      item.unit_price = beforeDiscount - item.discount_amount
+    }
+    
+    // If discount_amount changes, calculate unit_price
+    if (field === 'discount_amount') {
+      const beforeDiscount = parseFloat(item.before_discount) || 0
+      const discountAmount = parseFloat(item.discount_amount) || 0
+      item.unit_price = beforeDiscount - discountAmount
+      // Recalculate discount_percent
+      if (beforeDiscount > 0) {
+        item.discount_percent = (discountAmount / beforeDiscount) * 100
+      }
+    }
+    
+    // If unit_price changes and before_discount exists, calculate discount
     if (field === 'unit_price') {
-      const unitPrice = parseFloat(value) || 0
-      const suggestedSellingPrice = unitPrice * 1.35
-      const mrpValue = parseFloat(newItems[index].mrp) || 0
+      const unitPrice = parseFloat(item.unit_price) || 0
+      const beforeDiscount = parseFloat(item.before_discount) || 0
       
-      // Set selling price to suggested value, but cap at MRP if MRP exists
-      if (mrpValue > 0 && suggestedSellingPrice > mrpValue) {
-        newItems[index].selling_price = mrpValue
-      } else {
-        newItems[index].selling_price = suggestedSellingPrice
+      if (beforeDiscount > 0) {
+        item.discount_amount = beforeDiscount - unitPrice
+        item.discount_percent = (item.discount_amount / beforeDiscount) * 100
       }
       
-      // Calculate profit margin
-      if (unitPrice > 0) {
-        newItems[index].profit_margin = ((newItems[index].selling_price - unitPrice) / unitPrice) * 100
+      // Admin only: Auto-calculate selling price with 35% profit margin
+      if (isAdmin) {
+        const suggestedSellingPrice = unitPrice * 1.35
+        const mrpValue = parseFloat(item.mrp) || 0
+        
+        if (mrpValue > 0 && suggestedSellingPrice > mrpValue) {
+          item.selling_price = mrpValue
+        } else {
+          item.selling_price = suggestedSellingPrice
+        }
+        
+        // Calculate profit margin
+        if (unitPrice > 0) {
+          item.profit_margin = ((item.selling_price - unitPrice) / unitPrice) * 100
+        }
       }
     }
     
-    // Validate selling price doesn't exceed MRP
-    if (field === 'selling_price') {
-      const sellingPrice = parseFloat(value) || 0
-      const mrpValue = parseFloat(newItems[index].mrp) || 0
-      const unitPrice = parseFloat(newItems[index].unit_price) || 0
+    // === SELLING PRICE & PROFIT MARGIN (Admin only) ===
+    if (field === 'selling_price' && isAdmin) {
+      const sellingPrice = parseFloat(item.selling_price) || 0
+      const mrpValue = parseFloat(item.mrp) || 0
+      const unitPrice = parseFloat(item.unit_price) || 0
       
+      // Validate against MRP
       if (mrpValue > 0 && sellingPrice > mrpValue) {
         setPriceErrors(prev => ({ ...prev, [index]: true }))
-        newItems[index].selling_price = mrpValue
+        item.selling_price = mrpValue
       } else {
         setPriceErrors(prev => ({ ...prev, [index]: false }))
       }
       
       // Calculate profit margin
       if (unitPrice > 0) {
-        newItems[index].profit_margin = ((newItems[index].selling_price - unitPrice) / unitPrice) * 100
+        item.profit_margin = ((item.selling_price - unitPrice) / unitPrice) * 100
       }
     }
     
-    // Calculate selling price from profit margin
-    if (field === 'profit_margin') {
-      const profitMargin = parseFloat(value) || 0
-      const unitPrice = parseFloat(newItems[index].unit_price) || 0
-      const mrpValue = parseFloat(newItems[index].mrp) || 0
+    if (field === 'profit_margin' && isAdmin) {
+      const profitMargin = parseFloat(item.profit_margin) || 0
+      const unitPrice = parseFloat(item.unit_price) || 0
+      const mrpValue = parseFloat(item.mrp) || 0
       
       if (unitPrice > 0) {
         const calculatedSellingPrice = unitPrice * (1 + profitMargin / 100)
@@ -161,26 +217,101 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
         // Cap at MRP if exists
         if (mrpValue > 0 && calculatedSellingPrice > mrpValue) {
           setPriceErrors(prev => ({ ...prev, [index]: true }))
-          newItems[index].selling_price = mrpValue
-          newItems[index].profit_margin = ((mrpValue - unitPrice) / unitPrice) * 100
+          item.selling_price = mrpValue
+          item.profit_margin = ((mrpValue - unitPrice) / unitPrice) * 100
         } else {
           setPriceErrors(prev => ({ ...prev, [index]: false }))
-          newItems[index].selling_price = calculatedSellingPrice
+          item.selling_price = calculatedSellingPrice
         }
       }
     }
     
-    // Auto-calculate totals
-    if (['quantity', 'unit_price', 'cgst_percent', 'sgst_percent'].includes(field)) {
-      const item = newItems[index]
-      const taxable = item.quantity * item.unit_price
-      const cgst = (taxable * item.cgst_percent) / 100
-      const sgst = (taxable * item.sgst_percent) / 100
+    // If discount_on_sales changes, it's just stored (informational field)
+    // This represents the discount % offered to customers on the selling price
+    // Final Customer Price = Selling Price - (Selling Price × Discount On Sales %)
+    
+    // === TAX CALCULATIONS ===
+    // Recalculate taxable amount when quantity or unit_price changes
+    if (['quantity', 'unit_price', 'before_discount', 'discount_percent', 'discount_amount'].includes(field)) {
+      const quantity = parseFloat(item.quantity) || 0
+      const unitPrice = parseFloat(item.unit_price) || 0
+      item.taxable_amount = quantity * unitPrice
+    }
+    
+    // If taxable_amount is manually edited, recalculate unit_price
+    if (field === 'taxable_amount') {
+      const taxable = parseFloat(item.taxable_amount) || 0
+      const quantity = parseFloat(item.quantity) || 0
+      if (quantity > 0) {
+        item.unit_price = taxable / quantity
+      }
+    }
+    
+    // If CGST amount is manually edited, recalculate CGST percent
+    if (field === 'cgst_amount') {
+      const cgstAmount = parseFloat(item.cgst_amount) || 0
+      const taxable = parseFloat(item.taxable_amount) || 0
+      if (taxable > 0) {
+        item.cgst_percent = (cgstAmount / taxable) * 100
+      }
+    }
+    
+    // If SGST amount is manually edited, recalculate SGST percent
+    if (field === 'sgst_amount') {
+      const sgstAmount = parseFloat(item.sgst_amount) || 0
+      const taxable = parseFloat(item.taxable_amount) || 0
+      if (taxable > 0) {
+        item.sgst_percent = (sgstAmount / taxable) * 100
+      }
+    }
+    
+    // If IGST amount is manually edited, recalculate IGST percent
+    if (field === 'igst_amount') {
+      const igstAmount = parseFloat(item.igst_amount) || 0
+      const taxable = parseFloat(item.taxable_amount) || 0
+      if (taxable > 0) {
+        item.igst_percent = (igstAmount / taxable) * 100
+      }
+    }
+    
+    // Calculate GST amounts when taxable_amount or tax percentages change
+    if (['quantity', 'unit_price', 'before_discount', 'discount_percent', 'discount_amount', 'cgst_percent', 'sgst_percent', 'igst_percent', 'taxable_amount'].includes(field)) {
+      const taxable = parseFloat(item.taxable_amount) || 0
+      const cgstPercent = parseFloat(item.cgst_percent) || 0
+      const sgstPercent = parseFloat(item.sgst_percent) || 0
+      const igstPercent = parseFloat(item.igst_percent) || 0
       
-      newItems[index].taxable_amount = taxable
-      newItems[index].cgst_amount = cgst
-      newItems[index].sgst_amount = sgst
-      newItems[index].total_amount = taxable + cgst + sgst
+      item.cgst_amount = (taxable * cgstPercent) / 100
+      item.sgst_amount = (taxable * sgstPercent) / 100
+      item.igst_amount = (taxable * igstPercent) / 100
+      item.total_amount = taxable + item.cgst_amount + item.sgst_amount + item.igst_amount
+    }
+    
+    // If total_amount is manually edited, distribute back to taxable_amount
+    if (field === 'total_amount') {
+      const total = parseFloat(item.total_amount) || 0
+      const cgstPercent = parseFloat(item.cgst_percent) || 0
+      const sgstPercent = parseFloat(item.sgst_percent) || 0
+      const igstPercent = parseFloat(item.igst_percent) || 0
+      const totalTaxPercent = cgstPercent + sgstPercent + igstPercent
+      
+      // Reverse calculate: total = taxable * (1 + totalTaxPercent/100)
+      if (totalTaxPercent > 0) {
+        item.taxable_amount = total / (1 + totalTaxPercent / 100)
+      } else {
+        item.taxable_amount = total
+      }
+      
+      // Recalculate GST amounts
+      item.cgst_amount = (item.taxable_amount * cgstPercent) / 100
+      item.sgst_amount = (item.taxable_amount * sgstPercent) / 100
+      item.igst_amount = (item.taxable_amount * igstPercent) / 100
+      
+      // Recalculate unit_price from taxable_amount
+      const quantity = parseFloat(item.quantity) || 0
+      if (quantity > 0) {
+        item.unit_price = item.taxable_amount / quantity
+      }
     }
     
     setFormData(prev => ({ ...prev, items: newItems }))
@@ -290,16 +421,21 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
   const handleSave = async () => {
     setSaving(true)
     try {
-      if (isAdmin) {
-        await purchaseInvoiceAPI.adminUpdateInvoice(invoice.id, formData)
+      if (invoice.id) {
+        if (isAdmin) {
+          await purchaseInvoiceAPI.adminUpdateInvoice(invoice.id, formData)
+        } else {
+          await purchaseInvoiceAPI.updateInvoice(invoice.id, formData)
+        }
+        toast.success('Invoice updated successfully!')
       } else {
-        await purchaseInvoiceAPI.updateInvoice(invoice.id, formData)
+        await purchaseInvoiceAPI.createInvoice(formData)
+        toast.success('Invoice created successfully!')
       }
-      toast.success('Invoice updated successfully!')
       if (onSave) onSave()
       onClose()
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to update invoice')
+      toast.error(error.response?.data?.detail || 'Failed to save invoice')
     } finally {
       setSaving(false)
     }
@@ -312,7 +448,7 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
           <div>
             <h2 className="text-xl font-bold flex items-center gap-2">
               <AlertCircle className="w-5 h-5 text-blue-600" />
-              Edit & Verify Invoice
+              {invoice.id ? 'Edit & Verify Invoice' : 'Create New Invoice'}
             </h2>
             {invoice.admin_rejected_by_name && (
               <p className="text-sm text-red-600 mt-1">
@@ -359,26 +495,35 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
             </div>
             <div className="space-y-3">
               <h3 className="font-semibold text-gray-700">Invoice Information</h3>
-              <input
-                type="text"
-                placeholder="Invoice Number"
-                value={formData.invoice_number}
-                onChange={(e) => handleChange('invoice_number', e.target.value)}
-                className="w-full px-3 py-2 border rounded-lg"
-              />
-              <input
-                type="date"
-                value={formData.invoice_date}
-                onChange={(e) => handleChange('invoice_date', e.target.value)}
-                className="w-full px-3 py-2 border rounded-lg"
-              />
-              <input
-                type="date"
-                placeholder="Due Date"
-                value={formData.due_date}
-                onChange={(e) => handleChange('due_date', e.target.value)}
-                className="w-full px-3 py-2 border rounded-lg"
-              />
+              <div>
+                <label className="text-sm text-gray-600">Invoice Number</label>
+                <input
+                  type="text"
+                  placeholder="Invoice Number"
+                  value={formData.invoice_number}
+                  onChange={(e) => handleChange('invoice_number', e.target.value)}
+                  className="w-full px-3 py-2 border rounded-lg"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-gray-600">Invoice Date</label>
+                <input
+                  type="date"
+                  value={formData.invoice_date}
+                  onChange={(e) => handleChange('invoice_date', e.target.value)}
+                  className="w-full px-3 py-2 border rounded-lg"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-gray-600">Due Date</label>
+                <input
+                  type="date"
+                  placeholder="Due Date"
+                  value={formData.due_date}
+                  onChange={(e) => handleChange('due_date', e.target.value)}
+                  className="w-full px-3 py-2 border rounded-lg"
+                />
+              </div>
             </div>
           </div>
 
@@ -460,16 +605,22 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
             <div className="space-y-3 max-h-96 overflow-y-auto">
               {formData.items.map((item, idx) => (
                 <div key={idx} className="border rounded-lg p-3 bg-gray-50">
-                  <div className="flex justify-between items-start mb-2">
+                  <div className="flex justify-between items-start mb-3">
                     <span className="text-sm font-semibold text-gray-600">Item {idx + 1}</span>
                     <button onClick={() => removeItem(idx)} className="text-red-600 hover:text-red-800">
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+                  
+                  {/* VENDOR/PURCHASE SECTION */}
+                  <div className="mb-4">
+                    <h4 className="text-xs font-bold text-purple-700 mb-2 uppercase border-b border-purple-200 pb-1 flex items-center gap-1">
+                      <Package className="w-3 h-3" /> Purchase from Vendor
+                    </h4>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
                     <div>
                       <label className="text-xs text-gray-500">Composition</label>
-                      <AutocompleteInput
+                      <CompositionAutocomplete
                         value={item.composition}
                         onChange={(value) => handleItemChange(idx, 'composition', value)}
                         placeholder="Generic/Salt"
@@ -478,7 +629,12 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
                     </div>
                     <div>
                       <label className="text-xs text-gray-500">Product Name</label>
-                      <input type="text" placeholder="Brand Name" value={item.product_name} onChange={(e) => handleItemChange(idx, 'product_name', e.target.value)} className="px-2 py-1 border rounded w-full" />
+                      <ProductAutocomplete
+                        value={item.product_name}
+                        onChange={(value) => handleItemChange(idx, 'product_name', value)}
+                        placeholder="Brand Name"
+                        className="px-2 py-1 border rounded w-full"
+                      />
                     </div>
                     <div>
                       <label className="text-xs text-gray-500">Manufacturer</label>
@@ -497,7 +653,7 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
                       <input type="number" placeholder="Qty" value={item.quantity} onChange={(e) => handleItemChange(idx, 'quantity', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
                     </div>
                     <div>
-                      <label className="text-xs text-gray-500">Free Quantity</label>
+                      <label className="text-xs text-gray-500">Complementary Quantity (if any)</label>
                       <input type="number" placeholder="Free" value={item.free_quantity} onChange={(e) => handleItemChange(idx, 'free_quantity', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
                     </div>
                     <div>
@@ -506,7 +662,12 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
                     </div>
                     <div>
                       <label className="text-xs text-gray-500">Unit</label>
-                      <input type="text" placeholder="Box/Strip" value={item.unit} onChange={(e) => handleItemChange(idx, 'unit', e.target.value)} className="px-2 py-1 border rounded w-full" />
+                      <UnitAutocomplete
+                        value={item.unit}
+                        onChange={(value) => handleItemChange(idx, 'unit', value)}
+                        placeholder="Select or type unit"
+                        className="px-2 py-1 border rounded w-full"
+                      />
                     </div>
                     <div>
                       <label className="text-xs text-gray-500">Manufacturing Date</label>
@@ -516,99 +677,142 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
                       <label className="text-xs text-gray-500">Expiry Date</label>
                       <input type="text" placeholder="MM/YYYY" value={item.expiry_date} onChange={(e) => handleItemChange(idx, 'expiry_date', e.target.value)} className="px-2 py-1 border rounded w-full" />
                     </div>
+                      <div>
+                        <label className="text-xs text-gray-500">MRP</label>
+                        <div className="relative group">
+                          <input type="text" placeholder="169.00/STRIP" value={item.mrp || ''} onChange={(e) => handleItemChange(idx, 'mrp', e.target.value)} className="px-2 py-1 border rounded w-full" />
+                          {item.mrp && item.unit_price > 0 && (
+                            <div className="absolute hidden group-hover:block z-10 bg-gray-800 text-white text-xs rounded px-2 py-1 -top-8 left-0 whitespace-nowrap">
+                              Profit at MRP: {(((parseFloat(item.mrp) - item.unit_price) / item.unit_price) * 100).toFixed(1)}%
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-500">Before Discount</label>
+                        <input type="number" placeholder="Before Disc" value={item.before_discount} onChange={(e) => handleItemChange(idx, 'before_discount', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-500">Discount Percent</label>
+                        <input type="number" placeholder="Disc %" value={item.discount_percent} onChange={(e) => handleItemChange(idx, 'discount_percent', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-500">Discount Amount</label>
+                        <input type="number" placeholder="Disc Amt" value={item.discount_amount} onChange={(e) => handleItemChange(idx, 'discount_amount', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-500">Unit Price (Final)</label>
+                        <input type="number" placeholder="Rate" value={item.unit_price} onChange={(e) => handleItemChange(idx, 'unit_price', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-500">Discount On Purchase</label>
+                        <input type="number" placeholder="Disc" value={item.discount_on_purchase} onChange={(e) => handleItemChange(idx, 'discount_on_purchase', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-500">Taxable Amount</label>
+                        <input type="number" placeholder="Taxable" value={item.taxable_amount} onChange={(e) => handleItemChange(idx, 'taxable_amount', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-500">CGST Percent</label>
+                        <input type="number" placeholder="CGST%" value={item.cgst_percent} onChange={(e) => handleItemChange(idx, 'cgst_percent', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-500">CGST Amount</label>
+                        <input type="number" placeholder="CGST Amt" value={item.cgst_amount} onChange={(e) => handleItemChange(idx, 'cgst_amount', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-500">SGST Percent</label>
+                        <input type="number" placeholder="SGST%" value={item.sgst_percent} onChange={(e) => handleItemChange(idx, 'sgst_percent', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-500">SGST Amount</label>
+                        <input type="number" placeholder="SGST Amt" value={item.sgst_amount} onChange={(e) => handleItemChange(idx, 'sgst_amount', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-500">IGST Percent</label>
+                        <input type="number" placeholder="IGST%" value={item.igst_percent} onChange={(e) => handleItemChange(idx, 'igst_percent', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-500">IGST Amount</label>
+                        <input type="number" placeholder="IGST Amt" value={item.igst_amount} onChange={(e) => handleItemChange(idx, 'igst_amount', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-500">Total Amount</label>
+                        <input type="number" placeholder="Total" value={item.total_amount} onChange={(e) => handleItemChange(idx, 'total_amount', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* CUSTOMER/SALES SECTION */}
+                  <div className="mb-3">
+                    <h4 className="text-xs font-bold text-green-700 mb-2 uppercase border-b border-green-200 pb-1 flex items-center gap-1">
+                      <DollarSign className="w-3 h-3" /> Sales to Customer (Admin Only)
+                    </h4>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
                     <div>
-                      <label className="text-xs text-gray-500">MRP</label>
+                      <label className="text-xs text-gray-500">Selling Price</label>
                       <div className="relative group">
-                        <input type="text" placeholder="69.00/STRIP" value={item.mrp || ''} onChange={(e) => handleItemChange(idx, 'mrp', e.target.value)} className="px-2 py-1 border rounded w-full" />
-                        {item.mrp && item.unit_price > 0 && (
+                        <input type="number" placeholder="Selling" value={item.selling_price} onChange={(e) => handleItemChange(idx, 'selling_price', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" disabled={!isAdmin} />
+                        {!isAdmin && (
                           <div className="absolute hidden group-hover:block z-10 bg-gray-800 text-white text-xs rounded px-2 py-1 -top-8 left-0 whitespace-nowrap">
-                            Profit at MRP: {(((parseFloat(item.mrp) - item.unit_price) / item.unit_price) * 100).toFixed(1)}%
+                            Admin access required
                           </div>
                         )}
                       </div>
-                    </div>
-                    <div>
-                      <label className="text-xs text-gray-500">Unit Price</label>
-                      <input type="number" placeholder="Rate" value={item.unit_price} onChange={(e) => handleItemChange(idx, 'unit_price', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
-                    </div>
-                    <div>
-                      <label className="text-xs text-gray-500">Selling Price</label>
-                      <input type="number" placeholder="Selling" value={item.selling_price} onChange={(e) => handleItemChange(idx, 'selling_price', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
                       {priceErrors[idx] && <p className="text-xs text-red-600 mt-1">Selling price cannot exceed MRP</p>}
                     </div>
                     <div>
                       <label className="text-xs text-gray-500">Profit Margin (%)</label>
-                      <input type="number" placeholder="Margin" value={item.profit_margin} onChange={(e) => handleItemChange(idx, 'profit_margin', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
-                    </div>
-                    <div>
-                      <label className="text-xs text-gray-500">Discount On Purchase</label>
-                      <input type="number" placeholder="Disc" value={item.discount_on_purchase} onChange={(e) => handleItemChange(idx, 'discount_on_purchase', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
-                    </div>
-                    <div>
-                      <label className="text-xs text-gray-500">Discount On Sales</label>
-                      <input type="number" placeholder="Disc" value={item.discount_on_sales} onChange={(e) => handleItemChange(idx, 'discount_on_sales', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
-                    </div>
-                    <div>
-                      <label className="text-xs text-gray-500">Before Discount</label>
-                      <input type="number" placeholder="Before Disc" value={item.before_discount} onChange={(e) => handleItemChange(idx, 'before_discount', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
-                    </div>
-                    <div>
-                      <label className="text-xs text-gray-500">Discount Percent</label>
-                      <input type="number" placeholder="Disc %" value={item.discount_percent} onChange={(e) => handleItemChange(idx, 'discount_percent', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
-                    </div>
-                    <div>
-                      <label className="text-xs text-gray-500">Discount Amount</label>
-                      <input type="number" placeholder="Disc Amt" value={item.discount_amount} onChange={(e) => handleItemChange(idx, 'discount_amount', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
-                    </div>
-                    <div>
-                      <label className="text-xs text-gray-500">Taxable Amount</label>
-                      <input type="number" placeholder="Taxable" value={item.taxable_amount} onChange={(e) => handleItemChange(idx, 'taxable_amount', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
-                    </div>
-                    <div>
-                      <label className="text-xs text-gray-500">CGST Percent</label>
-                      <input type="number" placeholder="CGST%" value={item.cgst_percent} onChange={(e) => handleItemChange(idx, 'cgst_percent', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
-                    </div>
-                    <div>
-                      <label className="text-xs text-gray-500">CGST Amount</label>
-                      <input type="number" placeholder="CGST Amt" value={item.cgst_amount} onChange={(e) => handleItemChange(idx, 'cgst_amount', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
-                    </div>
-                    <div>
-                      <label className="text-xs text-gray-500">SGST Percent</label>
-                      <input type="number" placeholder="SGST%" value={item.sgst_percent} onChange={(e) => handleItemChange(idx, 'sgst_percent', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
-                    </div>
-                    <div>
-                      <label className="text-xs text-gray-500">SGST Amount</label>
-                      <input type="number" placeholder="SGST Amt" value={item.sgst_amount} onChange={(e) => handleItemChange(idx, 'sgst_amount', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
-                    </div>
-                    <div>
-                      <label className="text-xs text-gray-500">IGST Percent</label>
-                      <input type="number" placeholder="IGST%" value={item.igst_percent} onChange={(e) => handleItemChange(idx, 'igst_percent', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
-                    </div>
-                    <div>
-                      <label className="text-xs text-gray-500">IGST Amount</label>
-                      <input type="number" placeholder="IGST Amt" value={item.igst_amount} onChange={(e) => handleItemChange(idx, 'igst_amount', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
-                    </div>
-                    <div>
-                      <label className="text-xs text-gray-500">Total Amount</label>
-                      <input type="number" placeholder="Total" value={item.total_amount} onChange={(e) => handleItemChange(idx, 'total_amount', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
-                    </div>
-                    
-                    {/* Custom Columns */}
-                    {customItemColumns.map(colName => (
-                      <div key={colName}>
-                        <label className="text-xs text-blue-600 font-semibold">{colName}</label>
-                        <input
-                          type="text"
-                          placeholder={colName}
-                          value={item.custom_fields?.[colName] || ''}
-                          onChange={(e) => handleItemChange(idx, `custom_${colName}`, e.target.value)}
-                          className="px-2 py-1 border border-blue-300 rounded w-full bg-blue-50"
-                        />
+                      <div className="relative group">
+                        <input type="number" placeholder="Margin" value={item.profit_margin} onChange={(e) => handleItemChange(idx, 'profit_margin', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" disabled={!isAdmin} />
+                        {!isAdmin && (
+                          <div className="absolute hidden group-hover:block z-10 bg-gray-800 text-white text-xs rounded px-2 py-1 -top-8 left-0 whitespace-nowrap">
+                            Admin access required
+                          </div>
+                        )}
                       </div>
-                    ))}
+                    </div>
+                      <div>
+                        <label className="text-xs text-gray-500">Discount On Sales (%)</label>
+                        <input type="number" placeholder="Disc %" value={item.discount_on_sales} onChange={(e) => handleItemChange(idx, 'discount_on_sales', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" disabled={!isAdmin} />
+                        {item.discount_on_sales > 0 && (
+                          <p className="text-xs text-green-600 mt-1">
+                            Customer pays: ₹{(item.selling_price * (1 - item.discount_on_sales / 100)).toFixed(2)}
+                          </p>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  <div className="mt-2 text-sm text-gray-600">
-                    Amount: ₹{item.taxable_amount.toFixed(2)} | GST: ₹{(item.cgst_amount + item.sgst_amount).toFixed(2)} | Total: ₹{item.total_amount.toFixed(2)}
+                  
+                  {/* Custom Columns */}
+                  {customItemColumns.length > 0 && (
+                    <div className="mb-3">
+                      <h4 className="text-xs font-bold text-blue-700 mb-2 uppercase border-b border-blue-200 pb-1 flex items-center gap-1">
+                        <Settings className="w-3 h-3" /> Custom Fields
+                      </h4>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+                        {customItemColumns.map(colName => (
+                          <div key={colName}>
+                            <label className="text-xs text-blue-600 font-semibold">{colName}</label>
+                            <input
+                              type="text"
+                              placeholder={colName}
+                              value={item.custom_fields?.[colName] || ''}
+                              onChange={(e) => handleItemChange(idx, `custom_${colName}`, e.target.value)}
+                              className="px-2 py-1 border border-blue-300 rounded w-full bg-blue-50"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="text-sm text-gray-600 bg-gray-100 p-2 rounded">
+                    <span className="font-semibold">Purchase:</span> ₹{item.taxable_amount.toFixed(2)} + GST ₹{(item.cgst_amount + item.sgst_amount).toFixed(2)} = ₹{item.total_amount.toFixed(2)} | 
+                    <span className="font-semibold text-green-700">Selling:</span> ₹{item.selling_price.toFixed(2)} ({item.profit_margin.toFixed(1)}% margin)
+                    {item.discount_on_sales > 0 && (
+                      <span className="text-blue-700"> → Customer: ₹{(item.selling_price * (1 - item.discount_on_sales / 100)).toFixed(2)} (after {item.discount_on_sales}% disc)</span>
+                    )}
                   </div>
                 </div>
               ))}
@@ -642,7 +846,7 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
           <button onClick={onClose} className="px-6 py-2 border rounded-lg hover:bg-gray-50">Cancel</button>
           <button onClick={handleSave} disabled={saving} className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 flex items-center gap-2">
             <Save className="w-4 h-4" />
-            {saving ? 'Saving...' : isAdmin ? 'Save Changes' : 'Save & Verify'}
+            {saving ? 'Saving...' : invoice.id ? (isAdmin ? 'Save Changes' : 'Save & Verify') : 'Create & Verify'}
           </button>
         </div>
       </div>

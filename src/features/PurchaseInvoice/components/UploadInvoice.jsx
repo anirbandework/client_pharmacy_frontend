@@ -1,10 +1,11 @@
 import React, { useState } from 'react'
-import { Upload, FileText, Loader2, CheckCircle, XCircle, FileSpreadsheet, Download } from 'lucide-react'
+import { Upload, FileText, Loader2, CheckCircle, XCircle, FileSpreadsheet, Download, Edit } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { purchaseInvoiceAPI } from '../services/api'
 import FieldsGuideModal from './FieldsGuideModal'
 import ValidationErrorModal from './ValidationErrorModal'
 import DuplicateErrorModal from './DuplicateErrorModal'
+import EditInvoice from './EditInvoice'
 
 const UploadInvoice = ({ onUploadSuccess }) => {
   const [file, setFile] = useState(null)
@@ -12,6 +13,8 @@ const UploadInvoice = ({ onUploadSuccess }) => {
   const [dragActive, setDragActive] = useState(false)
   const [validationError, setValidationError] = useState(null)
   const [duplicateError, setDuplicateError] = useState(null)
+  const [pendingFile, setPendingFile] = useState(null)
+  const [showManualEntry, setShowManualEntry] = useState(false)
 
   const handleDrag = (e) => {
     e.preventDefault()
@@ -55,7 +58,7 @@ const UploadInvoice = ({ onUploadSuccess }) => {
     }
   }
 
-  const handleUpload = async () => {
+  const handleUpload = async (forceExtract = false) => {
     if (!file) {
       toast.error('Please select a file')
       return
@@ -63,13 +66,20 @@ const UploadInvoice = ({ onUploadSuccess }) => {
 
     setUploading(true)
     try {
-      const response = await purchaseInvoiceAPI.uploadInvoice(file)
+      const formData = new FormData()
+      formData.append('file', file)
+      if (forceExtract) {
+        formData.append('force_extract', 'true')
+      }
+      
+      const response = await purchaseInvoiceAPI.uploadInvoice(file, forceExtract)
       const fileType = file.name.match(/\.pdf$/i) ? 'PDF' : 'Excel'
       toast.success(
         `${fileType} uploaded successfully! ${response.data.items.length} items extracted. Go to Invoice List to review and verify.`,
         { duration: 5000 }
       )
       setFile(null)
+      setPendingFile(null)
       if (onUploadSuccess) onUploadSuccess(response.data)
     } catch (error) {
       const errorDetail = error.response?.data?.detail
@@ -77,6 +87,7 @@ const UploadInvoice = ({ onUploadSuccess }) => {
       // Check if it's a validation error with detailed feedback
       if (error.response?.status === 400 && typeof errorDetail === 'object' && errorDetail.validation) {
         setValidationError(errorDetail.validation)
+        setPendingFile(file)
         return
       }
       
@@ -91,6 +102,14 @@ const UploadInvoice = ({ onUploadSuccess }) => {
       toast.error(errorMsg)
     } finally {
       setUploading(false)
+    }
+  }
+
+  const handleProceedAnyway = async () => {
+    setValidationError(null)
+    if (pendingFile) {
+      setFile(pendingFile)
+      await handleUpload(true)
     }
   }
 
@@ -117,7 +136,9 @@ const UploadInvoice = ({ onUploadSuccess }) => {
         onClose={() => {
           setValidationError(null)
           setFile(null)
-        }} 
+          setPendingFile(null)
+        }}
+        onProceedAnyway={handleProceedAnyway}
       />
       
       <DuplicateErrorModal 
@@ -222,6 +243,13 @@ const UploadInvoice = ({ onUploadSuccess }) => {
                   Select Excel
                 </span>
               </label>
+              <button
+                onClick={() => setShowManualEntry(true)}
+                className="px-4 md:px-6 py-2 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-lg hover:shadow-lg inline-flex items-center gap-2 text-sm md:text-base transition-all"
+              >
+                <Edit className="w-4 h-4" />
+                Manual Entry
+              </button>
             </div>
           </div>
         )}
@@ -259,6 +287,39 @@ const UploadInvoice = ({ onUploadSuccess }) => {
         </div>
       </div>
     </div>
+    
+    {showManualEntry && (
+      <EditInvoice
+        invoice={{
+          id: null,
+          invoice_number: '',
+          invoice_date: new Date().toISOString().split('T')[0],
+          due_date: '',
+          supplier_name: '',
+          supplier_address: '',
+          supplier_gstin: '',
+          supplier_dl_numbers: '',
+          supplier_phone: '',
+          gross_amount: 0,
+          discount_amount: 0,
+          taxable_amount: 0,
+          cgst_amount: 0,
+          sgst_amount: 0,
+          igst_amount: 0,
+          total_gst: 0,
+          round_off: 0,
+          net_amount: 0,
+          custom_fields: {},
+          items: []
+        }}
+        onClose={() => setShowManualEntry(false)}
+        onSave={() => {
+          setShowManualEntry(false)
+          if (onUploadSuccess) onUploadSuccess()
+        }}
+        isAdmin={false}
+      />
+    )}
     </>
   )
 }

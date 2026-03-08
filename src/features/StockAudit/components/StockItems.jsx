@@ -14,12 +14,17 @@ const StockItems = () => {
   const [formData, setFormData] = useState({ 
     manufacturer: '',
     hsn_code: '',
-    product_name: '', 
+    product_name: '',
+    composition: '',
     batch_number: '', 
     package: '',
-    expiry_date: '', 
+    unit: '',
+    expiry_date: '',
+    manufacturing_date: '',
     mrp: '',
-    unit_price: '', 
+    unit_price: '',
+    selling_price: '',
+    profit_margin: '',
     section_id: '', 
     quantity_software: '' 
   })
@@ -79,12 +84,17 @@ const StockItems = () => {
     setFormData({ 
       manufacturer: '',
       hsn_code: '',
-      product_name: '', 
+      product_name: '',
+      composition: '',
       batch_number: '', 
       package: '',
-      expiry_date: '', 
+      unit: '',
+      expiry_date: '',
+      manufacturing_date: '',
       mrp: '',
-      unit_price: '', 
+      unit_price: '',
+      selling_price: '',
+      profit_margin: '',
       section_id: '', 
       quantity_software: '' 
     })
@@ -98,11 +108,16 @@ const StockItems = () => {
       manufacturer: item.manufacturer || '',
       hsn_code: item.hsn_code || '',
       product_name: item.product_name,
+      composition: item.composition || '',
       batch_number: item.batch_number,
       package: item.package || '',
+      unit: item.unit || '',
       expiry_date: item.expiry_date || '',
+      manufacturing_date: item.manufacturing_date || '',
       mrp: item.mrp || '',
       unit_price: item.unit_price || '',
+      selling_price: item.selling_price || '',
+      profit_margin: item.profit_margin || '',
       section_id: item.section_id || '',
       quantity_software: item.quantity_software
     })
@@ -193,12 +208,17 @@ const StockItems = () => {
               setFormData({ 
                 manufacturer: '',
                 hsn_code: '',
-                product_name: '', 
+                product_name: '',
+                composition: '',
                 batch_number: '', 
                 package: '',
-                expiry_date: '', 
+                unit: '',
+                expiry_date: '',
+                manufacturing_date: '',
                 mrp: '',
-                unit_price: '', 
+                unit_price: '',
+                selling_price: '',
+                profit_margin: '',
                 section_id: '', 
                 quantity_software: '' 
               });
@@ -218,6 +238,10 @@ const StockItems = () => {
               <input type="text" placeholder="e.g., Paracetamol 500mg" value={formData.product_name} onChange={(e) => setFormData({ ...formData, product_name: e.target.value })} className="w-full px-3 py-2 border rounded" required />
             </div>
             <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Composition</label>
+              <input type="text" placeholder="e.g., Paracetamol 500mg" value={formData.composition} onChange={(e) => setFormData({ ...formData, composition: e.target.value })} className="w-full px-3 py-2 border rounded" />
+            </div>
+            <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">Manufacturer</label>
               <input type="text" placeholder="e.g., ELEG" value={formData.manufacturer} onChange={(e) => setFormData({ ...formData, manufacturer: e.target.value })} className="w-full px-3 py-2 border rounded" />
             </div>
@@ -234,16 +258,32 @@ const StockItems = () => {
               <input type="text" placeholder="e.g., 10 X 6" value={formData.package} onChange={(e) => setFormData({ ...formData, package: e.target.value })} className="w-full px-3 py-2 border rounded" />
             </div>
             <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Unit</label>
+              <input type="text" placeholder="e.g., Strip, Box" value={formData.unit} onChange={(e) => setFormData({ ...formData, unit: e.target.value })} className="w-full px-3 py-2 border rounded" />
+            </div>
+            <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">Expiry Date</label>
               <input type="text" placeholder="e.g., 11/2026" value={formData.expiry_date} onChange={(e) => setFormData({ ...formData, expiry_date: e.target.value })} className="w-full px-3 py-2 border rounded" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Mfg Date</label>
+              <input type="text" placeholder="e.g., 01/2024" value={formData.manufacturing_date} onChange={(e) => setFormData({ ...formData, manufacturing_date: e.target.value })} className="w-full px-3 py-2 border rounded" />
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">MRP</label>
               <input type="text" placeholder="e.g., 69.00/STRIP" value={formData.mrp} onChange={(e) => setFormData({ ...formData, mrp: e.target.value })} className="w-full px-3 py-2 border rounded" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Unit Price *</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Purchase Price *</label>
               <input type="number" step="0.01" placeholder="e.g., 74.45" value={formData.unit_price} onChange={(e) => setFormData({ ...formData, unit_price: e.target.value })} className="w-full px-3 py-2 border rounded" required />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Selling Price</label>
+              <input type="number" step="0.01" placeholder="e.g., 85.00" value={formData.selling_price} onChange={(e) => setFormData({ ...formData, selling_price: e.target.value })} className="w-full px-3 py-2 border rounded" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Profit Margin %</label>
+              <input type="number" step="0.01" placeholder="e.g., 15.5" value={formData.profit_margin} onChange={(e) => setFormData({ ...formData, profit_margin: e.target.value })} className="w-full px-3 py-2 border rounded" />
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">Quantity *</label>
@@ -272,14 +312,15 @@ const StockItems = () => {
           <thead>
             <tr className="bg-gradient-to-r from-primary-50 to-primary-100 border-b-2 border-primary-200">
               <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase">Product</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase">Composition</th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase">Mfg</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase">HSN</th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase">Batch</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase">Pkg</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase">Unit</th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase">Expiry</th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase">Qty (S/P)</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase">MRP</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase">Price</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase">Purchase ₹</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase">Selling ₹</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase">Margin %</th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase">Value</th>
               {activeTab === 'unassigned' && (
                 <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase">Assign Section</th>
@@ -297,10 +338,10 @@ const StockItems = () => {
             {displayItems.map((item, idx) => (
               <tr key={item.id} className={`transition-colors hover:bg-primary-50 ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
                 <td className="px-4 py-3 font-semibold text-gray-900">{item.product_name}</td>
+                <td className="px-4 py-3 text-sm text-gray-600">{item.composition || '-'}</td>
                 <td className="px-4 py-3 text-sm text-gray-600">{item.manufacturer || '-'}</td>
-                <td className="px-4 py-3 text-sm font-mono text-gray-700">{item.hsn_code || '-'}</td>
                 <td className="px-4 py-3 text-sm font-mono text-gray-700">{item.batch_number}</td>
-                <td className="px-4 py-3 text-sm text-gray-600">{item.package || '-'}</td>
+                <td className="px-4 py-3 text-sm text-gray-600">{item.unit || '-'}</td>
                 <td className="px-4 py-3 text-sm">
                   {item.expiry_date ? (
                     <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${
@@ -320,8 +361,20 @@ const StockItems = () => {
                     {item.quantity_physical !== null && <span className="text-gray-500"> / {item.quantity_physical}</span>}
                   </div>
                 </td>
-                <td className="px-4 py-3 font-semibold text-purple-700">{item.mrp || '-'}</td>
-                <td className="px-4 py-3 font-semibold text-green-700">₹{item.unit_price}</td>
+                <td className="px-4 py-3 font-semibold text-red-600">₹{item.unit_price || '-'}</td>
+                <td className="px-4 py-3 font-semibold text-green-600">₹{item.selling_price || '-'}</td>
+                <td className="px-4 py-3">
+                  {item.profit_margin ? (
+                    <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-bold ${
+                      item.profit_margin < 10 ? 'bg-red-100 text-red-800' :
+                      item.profit_margin < 20 ? 'bg-orange-100 text-orange-800' :
+                      item.profit_margin < 30 ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-green-100 text-green-800'
+                    }`}>
+                      {item.profit_margin.toFixed(1)}%
+                    </span>
+                  ) : <span className="text-gray-400">-</span>}
+                </td>
                 <td className="px-4 py-3 font-semibold text-blue-700">
                   {item.total_value ? `₹${item.total_value.toLocaleString('en-IN')}` : '-'}
                 </td>

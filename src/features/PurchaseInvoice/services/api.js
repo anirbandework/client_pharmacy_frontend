@@ -28,10 +28,13 @@ axiosInstance.interceptors.response.use(
 )
 
 export const purchaseInvoiceAPI = {
-  uploadInvoice: (file) => {
+  uploadInvoice: (file, forceExtract = false) => {
     const formData = new FormData()
     formData.append('file', file)
-    return axiosInstance.post('/api/purchase-invoices/upload', formData, {
+    const url = forceExtract 
+      ? '/api/purchase-invoices/upload?force_extract=true'
+      : '/api/purchase-invoices/upload'
+    return axiosInstance.post(url, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
       timeout: 180000  // 3 minutes for file upload and AI processing
     })
@@ -50,6 +53,9 @@ export const purchaseInvoiceAPI = {
   
   updateInvoice: (id, data) =>
     axiosInstance.put(`/api/purchase-invoices/${id}`, data),
+  
+  createInvoice: (data) =>
+    axiosInstance.post('/api/purchase-invoices/create', data),
   
   deleteInvoice: (id) => 
     axiosInstance.delete(`/api/purchase-invoices/${id}`),
@@ -122,12 +128,23 @@ export const purchaseInvoiceAPI = {
   getProductNames: (search) =>
     axiosInstance.get('/api/purchase-invoices/product-names', { params: { search } }),
   
+  getPricingByComposition: (composition, productName) =>
+    axiosInstance.get('/api/purchase-invoices/pricing/by-composition', { 
+      params: { composition, product_name: productName } 
+    }).then(res => res.data),
+  
   // Margin Playground Endpoints
   getMarginPlayground: (filters) =>
     axiosInstance.get('/api/purchase-invoices/analytics/margin-playground', { params: filters }),
   
   simulateMarginChange: (data, params) =>
-    axiosInstance.post('/api/purchase-invoices/analytics/simulate-margin-change', data, { params })
+    axiosInstance.post('/api/purchase-invoices/analytics/simulate-margin-change', data, { params }),
+  
+  getPricingOptimization: (params) =>
+    axiosInstance.get('/api/purchase-invoices/analytics/pricing-optimization', { params }),
+  
+  getMarginTrends: (params) =>
+    axiosInstance.get('/api/purchase-invoices/analytics/margin-trends', { params })
 }
 
 export default axiosInstance

@@ -60,12 +60,17 @@ const WiFiHeartbeatService = () => {
           }
         }
         
-        const response = await attendanceAPI.wifiHeartbeat({
+        const payload = {
           wifi_ssid: wifiInfo.wifi_ssid,
-          mac_address: null,
-          latitude,
-          longitude
-        })
+          mac_address: null
+        }
+        
+        if (latitude !== null && longitude !== null) {
+          payload.latitude = latitude
+          payload.longitude = longitude
+        }
+        
+        const response = await attendanceAPI.wifiHeartbeat(payload)
         console.log('✅ Heartbeat sent - Response:', response.data)
       } catch (error) {
         // If heartbeat fails, log and store the error message
