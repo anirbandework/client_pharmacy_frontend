@@ -7,6 +7,7 @@ import CompositionAutocomplete from './CompositionAutocomplete'
 import UnitAutocomplete from './UnitAutocomplete'
 
 const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
+  const [isDistributorInvoice, setIsDistributorInvoice] = useState(invoice?.is_distributor_invoice || false)
   const [formData, setFormData] = useState({
     invoice_number: '',
     invoice_date: '',
@@ -34,15 +35,32 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
 
   useEffect(() => {
     if (invoice) {
+      // Update isDistributorInvoice flag
+      setIsDistributorInvoice(invoice.is_distributor_invoice || false)
+      
+      console.log('Invoice data:', invoice)
+      console.log('isDistributorInvoice:', invoice.is_distributor_invoice)
+      console.log('Distributor object:', invoice.distributor)
+      // For distributor invoices, use distributor info as supplier
+      const isDistInv = invoice.is_distributor_invoice || false
+      const supplierName = isDistInv ? (invoice.distributor?.company_name || '') : (invoice.supplier_name || '')
+      const supplierAddress = isDistInv ? (invoice.distributor?.address || '') : (invoice.supplier_address || '')
+      const supplierGstin = isDistInv ? (invoice.distributor?.gstin || '') : (invoice.supplier_gstin || '')
+      const supplierPhone = isDistInv ? (invoice.distributor?.phone || '') : (invoice.supplier_phone || '')
+      const supplierDl = isDistInv ? (invoice.distributor?.dl_number || '') : (invoice.supplier_dl_numbers || '')
+      
+      console.log('Setting supplier_name to:', supplierName)
+      console.log('Setting invoice_number:', invoice.invoice_number)
+      
       setFormData({
         invoice_number: invoice.invoice_number || '',
         invoice_date: invoice.invoice_date ? new Date(invoice.invoice_date).toISOString().split('T')[0] : '',
         due_date: invoice.due_date ? new Date(invoice.due_date).toISOString().split('T')[0] : '',
-        supplier_name: invoice.supplier_name || '',
-        supplier_address: invoice.supplier_address || '',
-        supplier_gstin: invoice.supplier_gstin || '',
-        supplier_dl_numbers: invoice.supplier_dl_numbers || '',
-        supplier_phone: invoice.supplier_phone || '',
+        supplier_name: supplierName,
+        supplier_address: supplierAddress,
+        supplier_gstin: supplierGstin,
+        supplier_dl_numbers: supplierDl,
+        supplier_phone: supplierPhone,
         gross_amount: invoice.gross_amount || 0,
         discount_amount: invoice.discount_amount || 0,
         taxable_amount: invoice.taxable_amount || 0,
@@ -421,9 +439,17 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
   const handleSave = async () => {
     setSaving(true)
     try {
-      if (invoice.id) {
+      if (isDistributorInvoice && !isAdmin) {
+        // Staff verifies distributor invoice
+        await purchaseInvoiceAPI.staffVerifyDistributorInvoice(invoice.id)
+        toast.success('Invoice verified successfully!')
+      } else if (invoice.id) {
         if (isAdmin) {
-          await purchaseInvoiceAPI.adminUpdateInvoice(invoice.id, formData)
+          if (isDistributorInvoice) {
+            await purchaseInvoiceAPI.adminUpdateDistributorInvoice(invoice.id, formData)
+          } else {
+            await purchaseInvoiceAPI.adminUpdateInvoice(invoice.id, formData)
+          }
         } else {
           await purchaseInvoiceAPI.updateInvoice(invoice.id, formData)
         }
@@ -448,8 +474,13 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
           <div>
             <h2 className="text-xl font-bold flex items-center gap-2">
               <AlertCircle className="w-5 h-5 text-blue-600" />
-              {invoice.id ? 'Edit & Verify Invoice' : 'Create New Invoice'}
+              {isDistributorInvoice ? 'Review & Verify Distributor Invoice' : invoice.id ? 'Edit & Verify Invoice' : 'Create New Invoice'}
             </h2>
+            {isDistributorInvoice && (
+              <p className="text-sm text-blue-600 mt-1">
+                📦 Imported from {invoice.distributor?.company_name || 'Distributor'} - Review and verify to add to stock
+              </p>
+            )}
             {invoice.admin_rejected_by_name && (
               <p className="text-sm text-red-600 mt-1">
                 ⚠️ Rejected by {invoice.admin_rejected_by_name} - Please review and correct
@@ -463,13 +494,14 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
           {/* Supplier & Invoice Info */}
           <div className="grid md:grid-cols-2 gap-6">
             <div className="space-y-3">
-              <h3 className="font-semibold text-gray-700">Supplier Information</h3>
+              <h3 className="font-semibold text-gray-700">{isDistributorInvoice ? 'Distributor Information' : 'Supplier Information'}</h3>
               <input
                 type="text"
-                placeholder="Supplier Name"
+                placeholder={isDistributorInvoice ? "Distributor Name" : "Supplier Name"}
                 value={formData.supplier_name}
                 onChange={(e) => handleChange('supplier_name', e.target.value)}
                 className="w-full px-3 py-2 border rounded-lg"
+                readOnly={isDistributorInvoice}
               />
               <input
                 type="text"
@@ -477,6 +509,7 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
                 value={formData.supplier_gstin}
                 onChange={(e) => handleChange('supplier_gstin', e.target.value)}
                 className="w-full px-3 py-2 border rounded-lg"
+                readOnly={isDistributorInvoice}
               />
               <input
                 type="text"
@@ -484,6 +517,7 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
                 value={formData.supplier_phone}
                 onChange={(e) => handleChange('supplier_phone', e.target.value)}
                 className="w-full px-3 py-2 border rounded-lg"
+                readOnly={isDistributorInvoice}
               />
               <input
                 type="text"
@@ -491,6 +525,7 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
                 value={formData.supplier_dl_numbers}
                 onChange={(e) => handleChange('supplier_dl_numbers', e.target.value)}
                 className="w-full px-3 py-2 border rounded-lg"
+                readOnly={isDistributorInvoice}
               />
             </div>
             <div className="space-y-3">
@@ -844,9 +879,9 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
 
         <div className="sticky bottom-0 bg-white border-t p-4 flex justify-end gap-3 rounded-b-xl">
           <button onClick={onClose} className="px-6 py-2 border rounded-lg hover:bg-gray-50">Cancel</button>
-          <button onClick={handleSave} disabled={saving} className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 flex items-center gap-2">
+          <button onClick={handleSave} disabled={saving || (isDistributorInvoice && !isAdmin && invoice.is_staff_verified && !invoice.is_rejected)} className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 flex items-center gap-2">
             <Save className="w-4 h-4" />
-            {saving ? 'Saving...' : invoice.id ? (isAdmin ? 'Save Changes' : 'Save & Verify') : 'Create & Verify'}
+            {saving ? 'Processing...' : isDistributorInvoice ? (invoice.is_staff_verified && !invoice.is_rejected && !isAdmin ? 'Already Verified' : isAdmin ? 'Save Changes' : 'Verify Invoice') : invoice.id ? (isAdmin ? 'Save Changes' : 'Save & Verify') : 'Create & Verify'}
           </button>
         </div>
       </div>

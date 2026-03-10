@@ -123,6 +123,48 @@ export const superAdminApi = {
   }
 };
 
+export const distributorApi = {
+  getAllDistributors: async () => {
+    const res = await fetch(`${API_BASE_URL}/api/auth/distributors`, {
+      headers: getAuthHeaders()
+    });
+    return handleResponse(res);
+  },
+
+  getDistributor: async (distributorId) => {
+    const res = await fetch(`${API_BASE_URL}/api/auth/distributors/${distributorId}`, {
+      headers: getAuthHeaders()
+    });
+    return handleResponse(res);
+  },
+
+  createDistributor: async (data) => {
+    const res = await fetch(`${API_BASE_URL}/api/auth/distributors`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data)
+    });
+    return handleResponse(res);
+  },
+
+  updateDistributor: async (distributorId, data) => {
+    const res = await fetch(`${API_BASE_URL}/api/auth/distributors/${distributorId}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data)
+    });
+    return handleResponse(res);
+  },
+
+  deleteDistributor: async (distributorId) => {
+    const res = await fetch(`${API_BASE_URL}/api/auth/distributors/${distributorId}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    });
+    return handleResponse(res);
+  }
+};
+
 export const adminApi = {
   register: async (data) => {
     const res = await fetch(`${API_BASE_URL}/api/auth/admin/register`, {

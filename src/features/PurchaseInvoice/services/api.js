@@ -48,6 +48,33 @@ export const purchaseInvoiceAPI = {
   getInvoices: (params) => 
     axiosInstance.get('/api/purchase-invoices/', { params }),
   
+  getDistributorInvoices: () =>
+    axiosInstance.get('/api/distributor-invoices/staff/imported-invoices'),
+  
+  getDistributorInvoice: (id) =>
+    axiosInstance.get(`/api/distributor-invoices/${id}`),
+  
+  getDistributorInvoiceAdmin: (id) =>
+    axiosInstance.get(`/api/distributor-invoices/admin/${id}`),
+  
+  staffVerifyDistributorInvoice: (id) =>
+    axiosInstance.post(`/api/distributor-invoices/staff/verify/${id}`),
+  
+  adminVerifyDistributorInvoice: (id) =>
+    axiosInstance.post(`/api/distributor-invoices/admin/verify/${id}`),
+  
+  adminRejectDistributorInvoice: (id) =>
+    axiosInstance.post(`/api/distributor-invoices/admin/reject/${id}`),
+  
+  getPendingDistributorInvoices: () =>
+    axiosInstance.get('/api/distributor-invoices/admin/pending'),
+  
+  getApprovedDistributorInvoices: (params) =>
+    axiosInstance.get('/api/distributor-invoices/admin/approved', { params }),
+  
+  adminUpdateDistributorInvoice: (id, data) =>
+    axiosInstance.put(`/api/distributor-invoices/admin/${id}`, data),
+  
   getInvoice: (id) => 
     axiosInstance.get(`/api/purchase-invoices/${id}`),
   

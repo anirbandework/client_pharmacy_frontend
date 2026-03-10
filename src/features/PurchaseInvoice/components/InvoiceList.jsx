@@ -21,8 +21,30 @@ const InvoiceList = ({ refresh }) => {
 
   const fetchInvoices = async () => {
     try {
+      // Fetch regular purchase invoices
       const response = await purchaseInvoiceAPI.getInvoices({ limit: 50 })
-      setInvoices(response.data)
+      
+      // Fetch distributor invoices for this shop
+      let distributorInvoices = []
+      try {
+        const distResponse = await purchaseInvoiceAPI.getDistributorInvoices()
+        distributorInvoices = distResponse.data.map(inv => ({
+          ...inv,
+          supplier_name: inv.distributor?.company_name || 'Distributor',
+          total_items: inv.items?.length || 0,
+          staff_name: `Imported from ${inv.distributor?.company_name || 'Distributor'}`,
+          is_distributor_invoice: true
+        }))
+      } catch (err) {
+        console.log('No distributor invoices or error fetching:', err)
+      }
+      
+      // Combine both types of invoices
+      const allInvoices = [...response.data, ...distributorInvoices]
+      // Sort by date descending
+      allInvoices.sort((a, b) => new Date(b.invoice_date) - new Date(a.invoice_date))
+      
+      setInvoices(allInvoices)
     } catch (error) {
       toast.error('Failed to fetch invoices')
     } finally {
@@ -30,16 +52,18 @@ const InvoiceList = ({ refresh }) => {
     }
   }
 
-  const handleView = async (id) => {
+  const handleView = async (id, isDistributor) => {
     try {
-      const response = await purchaseInvoiceAPI.getInvoice(id)
+      const response = isDistributor 
+        ? await purchaseInvoiceAPI.getDistributorInvoice(id)
+        : await purchaseInvoiceAPI.getInvoice(id)
       setSelectedInvoice(response.data)
     } catch (error) {
       toast.error('Failed to fetch invoice details')
     }
   }
 
-  const handleEdit = async (id) => {
+  const handleEdit = async (id, isDistributor) => {
     const invoice = invoices.find(inv => inv.id === id)
     
     // Check if admin verified
@@ -52,14 +76,23 @@ const InvoiceList = ({ refresh }) => {
     }
     
     try {
-      const response = await purchaseInvoiceAPI.getInvoice(id)
-      setEditingInvoice(response.data)
+      const response = isDistributor
+        ? await purchaseInvoiceAPI.getDistributorInvoice(id)
+        : await purchaseInvoiceAPI.getInvoice(id)
+      setEditingInvoice({ ...response.data, is_distributor_invoice: isDistributor })
     } catch (error) {
       toast.error('Failed to fetch invoice details')
     }
   }
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id, isDistributor) => {
+    if (isDistributor) {
+      toast.error('Distributor invoices cannot be deleted. Contact the distributor.', {
+        duration: 4000,
+        icon: '⚠️'
+      })
+      return
+    }
     const invoice = invoices.find(inv => inv.id === id)
     setDeletingInvoice(invoice)
   }
@@ -121,15 +154,15 @@ const InvoiceList = ({ refresh }) => {
                       <CheckCircle className="w-3 h-3" />
                       Admin Verified
                     </span>
+                  ) : invoice.is_rejected || invoice.admin_rejected_by_name ? (
+                    <span className="flex items-center gap-1 text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full animate-pulse">
+                      <AlertCircle className="w-3 h-3" />
+                      Rejected - Reverify
+                    </span>
                   ) : invoice.is_staff_verified ? (
                     <span className="flex items-center gap-1 text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full animate-pulse">
                       <AlertCircle className="w-3 h-3" />
                       Awaiting Admin Approval
-                    </span>
-                  ) : invoice.admin_rejected_by_name ? (
-                    <span className="flex items-center gap-1 text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full animate-pulse">
-                      <AlertCircle className="w-3 h-3" />
-                      Rejected - Reverify
                     </span>
                   ) : (
                     <span className="flex items-center gap-1 text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full animate-pulse">
@@ -176,26 +209,26 @@ const InvoiceList = ({ refresh }) => {
               </div>
               <div className="flex gap-2">
                 <button
-                  onClick={() => handleEdit(invoice.id)}
+                  onClick={() => handleEdit(invoice.id, invoice.is_distributor_invoice)}
                   className={`p-2 rounded-lg transition-colors ${
                     invoice.is_admin_verified 
                       ? 'text-gray-400 cursor-not-allowed' 
                       : 'text-orange-600 hover:bg-orange-50'
                   }`}
-                  title={invoice.is_admin_verified ? 'Already approved - Contact admin' : 'Edit & Verify'}
+                  title={invoice.is_admin_verified ? 'Already approved - Contact admin' : invoice.is_distributor_invoice ? 'Verify Invoice' : 'Edit & Verify'}
                 >
                   <Edit className="w-4 h-4 md:w-5 md:h-5" />
                 </button>
                 <button
-                  onClick={() => handleView(invoice.id)}
+                  onClick={() => handleView(invoice.id, invoice.is_distributor_invoice)}
                   className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                   title="View Details"
                 >
                   <Eye className="w-4 h-4 md:w-5 md:h-5" />
                 </button>
-                {!invoice.is_staff_verified && (
+                {!invoice.is_staff_verified && !invoice.is_distributor_invoice && (
                   <button
-                    onClick={() => handleDelete(invoice.id)}
+                    onClick={() => handleDelete(invoice.id, invoice.is_distributor_invoice)}
                     className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                     title="Delete"
                   >

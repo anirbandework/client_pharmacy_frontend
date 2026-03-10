@@ -2,8 +2,9 @@ import { useState } from 'react';
 import Layout from '../../components/Layout';
 import AdminsHierarchy from './components/Super-admin/AdminsHierarchy';
 import AdminsManagement from './components/Super-admin/AdminsManagement';
+import DistributorsManagement from './components/Super-admin/DistributorsManagement';
 import SuperAdminAnalytics from './components/Super-admin/SuperAdminAnalytics';
-import { Shield, Network, BarChart3, Building2 } from 'lucide-react';
+import { Shield, Network, BarChart3, Building2, Truck } from 'lucide-react';
 
 export default function SuperAdminDashboard() {
   const [activeTab, setActiveTab] = useState('hierarchy');
@@ -11,6 +12,7 @@ export default function SuperAdminDashboard() {
   const tabs = [
     { id: 'hierarchy', label: 'Hierarchy', icon: Network },
     { id: 'admins', label: 'Admins', icon: Shield },
+    { id: 'distributors', label: 'Distributors', icon: Truck },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 }
   ];
 
@@ -55,6 +57,7 @@ export default function SuperAdminDashboard() {
         <div>
           {activeTab === 'hierarchy' && <AdminsHierarchy />}
           {activeTab === 'admins' && <AdminsManagement />}
+          {activeTab === 'distributors' && <DistributorsManagement />}
           {activeTab === 'analytics' && <SuperAdminAnalytics />}
         </div>
       </div>

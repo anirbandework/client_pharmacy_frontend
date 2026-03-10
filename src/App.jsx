@@ -32,6 +32,8 @@ const StaffSalaryProfile = lazy(() => import('./features/SalaryManagement/compon
 const SuperAdminFeedback = lazy(() => import('./features/Feedback/components/SuperAdminFeedback'))
 const MyFeedback = lazy(() => import('./features/Feedback/components/MyFeedback'))
 const RBAC = lazy(() => import('./features/RBAC'))
+const DistributorDashboard = lazy(() => import('./features/Distributor'))
+const DistributorProfile = lazy(() => import('./features/Distributor/ProfilePage'))
 const Unauthorized = lazy(() => import('./pages/Unauthorized'))
 
 const queryClient = new QueryClient({
@@ -96,6 +98,8 @@ function App() {
                   <Route path="/attendance" element={<ProtectedRoute requiredModule="attendance_admin"><Attendance /></ProtectedRoute>} />
                   <Route path="/salary-management" element={<ProtectedRoute requiredModule="salary_management"><AdminSalaryManagement /></ProtectedRoute>} />
                   <Route path="/my-salary" element={<ProtectedRoute requiredModule="my_salary"><StaffSalaryProfile /></ProtectedRoute>} />
+                  <Route path="/distributor" element={<DistributorDashboard />} />
+                  <Route path="/distributor/profile" element={<DistributorProfile />} />
                 </Routes>
               </Suspense>
             </div>

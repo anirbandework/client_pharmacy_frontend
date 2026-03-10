@@ -96,7 +96,31 @@ const AdminAnalytics = () => {
     try {
       const params = selectedShop ? { shop_id: selectedShop } : {}
       const response = await purchaseInvoiceAPI.getPendingAdminVerification(params)
-      setPendingInvoices(response.data)
+      
+      // Fetch distributor invoices pending admin verification
+      let distributorPending = []
+      try {
+        const distResponse = await purchaseInvoiceAPI.getPendingDistributorInvoices()
+        distributorPending = distResponse.data.map(inv => ({
+          ...inv,
+          supplier_name: inv.distributor?.company_name || 'Distributor',
+          total_items: inv.items?.length || 0,
+          staff_name: `Imported from ${inv.distributor?.company_name || 'Distributor'}`,
+          is_distributor_invoice: true,
+          shop_name: 'Shop',
+          days_pending: Math.floor((new Date() - new Date(inv.staff_verified_at || inv.created_at)) / (1000 * 60 * 60 * 24))
+        }))
+      } catch (err) {
+        console.log('No distributor invoices pending:', err)
+      }
+      
+      // Combine both types
+      const allPending = [...response.data.invoices, ...distributorPending]
+      setPendingInvoices({
+        total_pending: response.data.total_pending + distributorPending.length,
+        total_value: response.data.total_value + distributorPending.reduce((sum, inv) => sum + inv.net_amount, 0),
+        invoices: allPending
+      })
       
       // Also fetch staff pending invoices
       const staffResponse = await purchaseInvoiceAPI.getPendingStaffVerification(params)
@@ -105,7 +129,17 @@ const AdminAnalytics = () => {
       // Fetch approved invoices
       const approvedResponse = await purchaseInvoiceAPI.getAdminInvoices({ ...params, limit: 50 })
       const approved = approvedResponse.data.filter(inv => inv.is_admin_verified)
-      setApprovedInvoices(approved)
+      
+      // Fetch approved distributor invoices
+      let approvedDistributor = []
+      try {
+        const distApprovedResponse = await purchaseInvoiceAPI.getApprovedDistributorInvoices({ limit: 50 })
+        approvedDistributor = distApprovedResponse.data
+      } catch (err) {
+        console.log('No approved distributor invoices:', err)
+      }
+      
+      setApprovedInvoices([...approved, ...approvedDistributor])
     } catch (error) {
       toast.error('Failed to fetch pending invoices')
     }
@@ -619,7 +653,11 @@ const PendingInvoiceCard = ({ invoice, onAction }) => {
   const handleApprove = async () => {
     setProcessing(true)
     try {
-      await purchaseInvoiceAPI.adminVerifyInvoice(invoice.id)
+      if (invoice.is_distributor_invoice) {
+        await purchaseInvoiceAPI.adminVerifyDistributorInvoice(invoice.id)
+      } else {
+        await purchaseInvoiceAPI.adminVerifyInvoice(invoice.id)
+      }
       toast.success('Invoice approved and synced to stock!')
       onAction()
     } catch (error) {
@@ -632,7 +670,11 @@ const PendingInvoiceCard = ({ invoice, onAction }) => {
   const handleReject = async () => {
     setProcessing(true)
     try {
-      await purchaseInvoiceAPI.adminRejectInvoice(invoice.id)
+      if (invoice.is_distributor_invoice) {
+        await purchaseInvoiceAPI.adminRejectDistributorInvoice(invoice.id)
+      } else {
+        await purchaseInvoiceAPI.adminRejectInvoice(invoice.id)
+      }
       toast.success('Invoice rejected and sent back to staff')
       onAction()
     } catch (error) {
@@ -645,7 +687,9 @@ const PendingInvoiceCard = ({ invoice, onAction }) => {
 
   const handleView = async () => {
     try {
-      const response = await purchaseInvoiceAPI.getInvoice(invoice.id)
+      const response = invoice.is_distributor_invoice
+        ? await purchaseInvoiceAPI.getDistributorInvoiceAdmin(invoice.id)
+        : await purchaseInvoiceAPI.getInvoice(invoice.id)
       setInvoiceDetails(response.data)
       setViewing(true)
     } catch (error) {
@@ -655,8 +699,14 @@ const PendingInvoiceCard = ({ invoice, onAction }) => {
 
   const handleEdit = async () => {
     try {
-      const response = await purchaseInvoiceAPI.getInvoice(invoice.id)
-      setInvoiceDetails(response.data)
+      const response = invoice.is_distributor_invoice
+        ? await purchaseInvoiceAPI.getDistributorInvoiceAdmin(invoice.id)
+        : await purchaseInvoiceAPI.getInvoice(invoice.id)
+      const invoiceData = response.data
+      if (invoice.is_distributor_invoice) {
+        invoiceData.is_distributor_invoice = true
+      }
+      setInvoiceDetails(invoiceData)
       setEditing(true)
     } catch (error) {
       toast.error('Failed to fetch invoice details')
@@ -823,7 +873,9 @@ const ApprovedInvoiceCard = ({ invoice, onDelete }) => {
 
   const handleView = async () => {
     try {
-      const response = await purchaseInvoiceAPI.getInvoice(invoice.id)
+      const response = invoice.is_distributor_invoice
+        ? await purchaseInvoiceAPI.getDistributorInvoiceAdmin(invoice.id)
+        : await purchaseInvoiceAPI.getInvoice(invoice.id)
       setInvoiceDetails(response.data)
       setViewing(true)
     } catch (error) {
@@ -833,8 +885,14 @@ const ApprovedInvoiceCard = ({ invoice, onDelete }) => {
 
   const handleEdit = async () => {
     try {
-      const response = await purchaseInvoiceAPI.getInvoice(invoice.id)
-      setInvoiceDetails(response.data)
+      const response = invoice.is_distributor_invoice
+        ? await purchaseInvoiceAPI.getDistributorInvoiceAdmin(invoice.id)
+        : await purchaseInvoiceAPI.getInvoice(invoice.id)
+      const invoiceData = response.data
+      if (invoice.is_distributor_invoice) {
+        invoiceData.is_distributor_invoice = true
+      }
+      setInvoiceDetails(invoiceData)
       setEditing(true)
     } catch (error) {
       toast.error('Failed to fetch invoice details')
@@ -914,14 +972,16 @@ const ApprovedInvoiceCard = ({ invoice, onDelete }) => {
             >
               <Eye className="w-4 h-4 md:w-5 md:h-5" />
             </button>
-            <button
-              onClick={() => setShowDeleteModal(true)}
-              disabled={deleting}
-              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
-              title="Delete"
-            >
-              <Trash2 className="w-4 h-4 md:w-5 md:h-5" />
-            </button>
+            {!invoice.is_distributor_invoice && (
+              <button
+                onClick={() => setShowDeleteModal(true)}
+                disabled={deleting}
+                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                title="Delete"
+              >
+                <Trash2 className="w-4 h-4 md:w-5 md:h-5" />
+              </button>
+            )}
           </div>
         </div>
       </div>

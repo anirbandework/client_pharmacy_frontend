@@ -20,6 +20,7 @@ export function AuthProvider({ children }) {
         let endpoint = '/api/auth/staff/me'
         if (userType === 'admin') endpoint = '/api/auth/admin/me'
         if (userType === 'super_admin') endpoint = '/api/auth/super-admin/me'
+        if (userType === 'distributor') endpoint = '/api/auth/distributors/profile/me'
         
         const response = await fetch(`${API_BASE_URL}${endpoint}`, {
           headers: { 'Authorization': `Bearer ${token}` }
@@ -255,6 +256,75 @@ export function AuthProvider({ children }) {
     return data
   }
 
+  // Distributor OTP Flow
+  const distributorSendOTP = async (phone, password) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/distributors/request-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, password })
+      })
+
+      if (response.status === 429) {
+        const retryAfter = response.headers.get('Retry-After') || response.headers.get('retry-after')
+        const waitTime = retryAfter ? `${Math.ceil(retryAfter / 60)} minutes` : '5 minutes'
+        throw new Error(`Too many OTP requests. Please wait ${waitTime} before trying again.`)
+      }
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}))
+        throw new Error(data.error || data.message || data.detail || 'Failed to send OTP')
+      }
+
+      return await response.json()
+    } catch (err) {
+      if (err instanceof Error && err.message) {
+        throw err
+      }
+      throw new Error('Network error. Please check your connection.')
+    }
+  }
+
+  const distributorVerifyOTP = async (phone, otpCode) => {
+    const response = await fetch(`${API_BASE_URL}/api/auth/distributors/verify-otp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone, otp: otpCode })
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.error || error.message || error.detail || 'Invalid OTP')
+    }
+
+    const data = await response.json()
+    const payload = JSON.parse(atob(data.access_token.split('.')[1]))
+    
+    localStorage.setItem('auth_token', data.access_token)
+    localStorage.setItem('user_type', data.user_type || payload.user_type)
+    localStorage.setItem('user_name', data.user_name || payload.user_name)
+    localStorage.setItem('distributor_id', data.distributor_id)
+    localStorage.setItem('company_name', data.company_name)
+    
+    await checkAuth()
+    return data
+  }
+
+  const distributorSignup = async (phone, password) => {
+    const response = await fetch(`${API_BASE_URL}/api/auth/distributors/signup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone, password })
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.error || error.message || error.detail || 'Signup failed')
+    }
+
+    return response.json()
+  }
+
   const logout = () => {
     localStorage.clear()
     setUser(null)
@@ -274,6 +344,9 @@ export function AuthProvider({ children }) {
       superAdminLogin,
       superAdminSendOTP,
       superAdminVerifyOTP,
+      distributorSendOTP,
+      distributorVerifyOTP,
+      distributorSignup,
       logout 
     }}>
       {children}

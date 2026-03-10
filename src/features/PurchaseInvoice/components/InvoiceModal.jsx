@@ -13,19 +13,30 @@ const InvoiceModal = ({ invoice, onClose }) => {
         </div>
         
         <div className="p-4 md:p-6 space-y-4 md:space-y-6 overflow-y-auto max-h-[calc(90vh-80px)]">
-          {/* Supplier & Invoice Info */}
+          {/* Supplier/Distributor & Invoice Info */}
           <div className="grid md:grid-cols-2 gap-4 md:gap-6">
             <div className="bg-gradient-to-br from-gray-50 to-slate-50 p-4 rounded-xl border border-slate-200">
               <h3 className="font-semibold text-gray-700 mb-3 flex items-center gap-2 text-sm md:text-base">
                 <FileText className="w-4 h-4" />
-                Supplier Information
+                {invoice.distributor ? 'Distributor Information' : 'Supplier Information'}
               </h3>
               <div className="space-y-2 text-xs md:text-sm">
-                <p><strong>Name:</strong> {invoice.supplier_name}</p>
-                {invoice.supplier_gstin && <p><strong>GSTIN:</strong> {invoice.supplier_gstin}</p>}
-                {invoice.supplier_phone && <p><strong>Phone:</strong> {invoice.supplier_phone}</p>}
-                {invoice.supplier_dl_numbers && <p><strong>DL Numbers:</strong> {invoice.supplier_dl_numbers}</p>}
-                {invoice.supplier_address && <p><strong>Address:</strong> {invoice.supplier_address}</p>}
+                <p><strong>Name:</strong> {invoice.distributor ? invoice.distributor.company_name : invoice.supplier_name}</p>
+                {invoice.distributor ? (
+                  <>
+                    {invoice.distributor.gstin && <p><strong>GSTIN:</strong> {invoice.distributor.gstin}</p>}
+                    {invoice.distributor.phone && <p><strong>Phone:</strong> {invoice.distributor.phone}</p>}
+                    {invoice.distributor.dl_number && <p><strong>DL Number:</strong> {invoice.distributor.dl_number}</p>}
+                    {invoice.distributor.address && <p><strong>Address:</strong> {invoice.distributor.address}</p>}
+                  </>
+                ) : (
+                  <>
+                    {invoice.supplier_gstin && <p><strong>GSTIN:</strong> {invoice.supplier_gstin}</p>}
+                    {invoice.supplier_phone && <p><strong>Phone:</strong> {invoice.supplier_phone}</p>}
+                    {invoice.supplier_dl_numbers && <p><strong>DL Numbers:</strong> {invoice.supplier_dl_numbers}</p>}
+                    {invoice.supplier_address && <p><strong>Address:</strong> {invoice.supplier_address}</p>}
+                  </>
+                )}
               </div>
             </div>
             <div className="bg-gradient-to-br from-gray-50 to-slate-50 p-4 rounded-xl border border-slate-200">

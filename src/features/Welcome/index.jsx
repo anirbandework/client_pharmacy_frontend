@@ -4,11 +4,11 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import OTPInput from '../../components/OTPInput'
 import FeatureCarousel from './FeatureCarousel'
-import { ArrowRight, ArrowLeft, Lock, User, BarChart3, Package, Users, Search, DollarSign, TrendingUp, Shield, Eye, EyeOff, Info, Building2, Briefcase, Clock, FileText, Bell, Zap, Database } from 'lucide-react'
+import { ArrowRight, ArrowLeft, Lock, User, BarChart3, Package, Users, Search, DollarSign, TrendingUp, Shield, Eye, EyeOff, Info, Building2, Briefcase, Clock, FileText, Bell, Zap, Database, Truck } from 'lucide-react'
 
 const Welcome = () => {
   const navigate = useNavigate()
-  const { adminSendOTP, adminVerifyOTP, adminSignup, staffSendOTP, staffVerifyOTP, staffSignup, superAdminSendOTP, superAdminVerifyOTP } = useAuth()
+  const { adminSendOTP, adminVerifyOTP, adminSignup, staffSendOTP, staffVerifyOTP, staffSignup, superAdminSendOTP, superAdminVerifyOTP, distributorSendOTP, distributorVerifyOTP, distributorSignup } = useAuth()
   const [loginType, setLoginType] = useState('staff')
   const [isNewUser, setIsNewUser] = useState(false)
   const [step, setStep] = useState('credentials')
@@ -47,12 +47,16 @@ const Welcome = () => {
           await adminSignup(phone, password)
         } else if (loginType === 'staff') {
           await staffSignup(phone, password)
+        } else if (loginType === 'distributor') {
+          await distributorSignup(phone, password)
         }
       } else {
         if (loginType === 'super_admin') {
           await superAdminSendOTP(phone, password)
         } else if (loginType === 'staff') {
           await staffSendOTP(phone, password)
+        } else if (loginType === 'distributor') {
+          await distributorSendOTP(phone, password)
         } else {
           await adminSendOTP(phone, password)
         }
@@ -79,6 +83,9 @@ const Welcome = () => {
       } else if (loginType === 'super_admin') {
         await superAdminVerifyOTP(phone, otp)
         navigate('/super-admin')
+      } else if (loginType === 'distributor') {
+        await distributorVerifyOTP(phone, otp)
+        navigate('/distributor')
       } else {
         const normalizedPhone = phone.replace(/\D/g, '')
         const isSuperAdmin = normalizedPhone.endsWith('9383169659') || normalizedPhone.endsWith('9643579321')
@@ -193,30 +200,42 @@ const Welcome = () => {
                 {/* Role Selector */}
                 <div className="mb-6">
                   <label className="block text-slate-400 text-xs font-medium mb-3 text-center">SELECT YOUR ROLE</label>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-3 gap-2">
                     <button
                       onClick={() => { setLoginType('staff'); resetForm(); }}
-                      className={`p-4 rounded-xl border-2 transition-all ${
+                      className={`p-3 rounded-xl border-2 transition-all ${
                         loginType === 'staff'
                           ? 'border-blue-500 bg-blue-500/10'
                           : 'border-slate-700 bg-slate-900/50 hover:border-slate-600'
                       }`}
                     >
-                      <Briefcase className={`w-6 h-6 mx-auto mb-2 ${loginType === 'staff' ? 'text-blue-400' : 'text-slate-400'}`} />
-                      <div className={`text-sm font-semibold ${loginType === 'staff' ? 'text-white' : 'text-slate-400'}`}>Staff</div>
-                      <div className="text-xs text-slate-500 mt-1">Employee Access</div>
+                      <Briefcase className={`w-5 h-5 mx-auto mb-1 ${loginType === 'staff' ? 'text-blue-400' : 'text-slate-400'}`} />
+                      <div className={`text-xs font-semibold ${loginType === 'staff' ? 'text-white' : 'text-slate-400'}`}>Staff</div>
+                      <div className="text-[10px] text-slate-500 mt-0.5">Employee</div>
                     </button>
                     <button
                       onClick={() => { setLoginType('admin'); resetForm(); }}
-                      className={`p-4 rounded-xl border-2 transition-all ${
+                      className={`p-3 rounded-xl border-2 transition-all ${
                         loginType === 'admin'
                           ? 'border-blue-500 bg-blue-500/10'
                           : 'border-slate-700 bg-slate-900/50 hover:border-slate-600'
                       }`}
                     >
-                      <Lock className={`w-6 h-6 mx-auto mb-2 ${loginType === 'admin' ? 'text-blue-400' : 'text-slate-400'}`} />
-                      <div className={`text-sm font-semibold ${loginType === 'admin' ? 'text-white' : 'text-slate-400'}`}>Admin</div>
-                      <div className="text-xs text-slate-500 mt-1">Management Access</div>
+                      <Lock className={`w-5 h-5 mx-auto mb-1 ${loginType === 'admin' ? 'text-blue-400' : 'text-slate-400'}`} />
+                      <div className={`text-xs font-semibold ${loginType === 'admin' ? 'text-white' : 'text-slate-400'}`}>Admin</div>
+                      <div className="text-[10px] text-slate-500 mt-0.5">Manager</div>
+                    </button>
+                    <button
+                      onClick={() => { setLoginType('distributor'); resetForm(); }}
+                      className={`p-3 rounded-xl border-2 transition-all ${
+                        loginType === 'distributor'
+                          ? 'border-blue-500 bg-blue-500/10'
+                          : 'border-slate-700 bg-slate-900/50 hover:border-slate-600'
+                      }`}
+                    >
+                      <Package className={`w-5 h-5 mx-auto mb-1 ${loginType === 'distributor' ? 'text-blue-400' : 'text-slate-400'}`} />
+                      <div className={`text-xs font-semibold ${loginType === 'distributor' ? 'text-white' : 'text-slate-400'}`}>Distributor</div>
+                      <div className="text-[10px] text-slate-500 mt-0.5">Supplier</div>
                     </button>
                   </div>
                 </div>
@@ -238,7 +257,7 @@ const Welcome = () => {
                       </div>
                     </div>
 
-                    {((loginType === 'admin' || loginType === 'super_admin') || loginType === 'staff') && (
+                    {((loginType === 'admin' || loginType === 'super_admin') || loginType === 'staff' || loginType === 'distributor') && (
                       <>
                         <div>
                           <label className="block text-slate-300 text-sm font-medium mb-2">
@@ -291,7 +310,7 @@ const Welcome = () => {
                     {isNewUser && (
                       <div className="bg-blue-500/10 border border-blue-500/30 text-blue-300 px-4 py-3 rounded-xl text-xs flex items-start gap-2">
                         <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                        <span>Use the phone number provided by your {loginType === 'admin' ? 'SuperAdmin' : 'Admin'}</span>
+                        <span>Use the phone number provided by your {loginType === 'admin' ? 'SuperAdmin' : loginType === 'distributor' ? 'SuperAdmin' : 'Admin'}</span>
                       </div>
                     )}
 
@@ -310,7 +329,7 @@ const Welcome = () => {
                       <ArrowRight className="w-4 h-4" />
                     </button>
 
-                    {(loginType === 'admin' || loginType === 'staff') && (
+                    {(loginType === 'admin' || loginType === 'staff' || loginType === 'distributor') && (
                       <div className="text-center text-sm text-slate-400">
                         {isNewUser ? (
                           <span>

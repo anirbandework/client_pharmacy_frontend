@@ -18,6 +18,10 @@ export const stockAuditAPI = {
   getItem: (itemId) => axiosInstance.get(`${API_BASE}/items/${itemId}`),
   updateItem: (itemId, data) => axiosInstance.put(`${API_BASE}/items/${itemId}`, data),
   deleteItem: (itemId) => axiosInstance.delete(`${API_BASE}/items/${itemId}`),
+  bulkDeleteItems: (itemIds) => axiosInstance.post(`${API_BASE}/items/bulk-delete`, itemIds),
+  uploadExcel: (formData) => axiosInstance.post(`${API_BASE}/items/upload-excel`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
   getItemStockCalc: (itemId) => axiosInstance.get(`${API_BASE}/items/${itemId}/stock-calculation`),
   addPurchase: (data) => axiosInstance.post(`${API_BASE}/purchases`, data),
   getPurchases: (params) => axiosInstance.get(`${API_BASE}/purchases`, { params }),

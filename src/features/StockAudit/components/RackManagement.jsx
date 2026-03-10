@@ -107,9 +107,18 @@ const RackManagement = () => {
         {showRackForm && (
           <form onSubmit={handleRackSubmit} className="mb-4 p-4 bg-gray-50 rounded">
             <div className="grid grid-cols-3 gap-4">
-              <input type="text" placeholder="Rack Number" value={rackData.rack_number} onChange={(e) => setRackData({ ...rackData, rack_number: e.target.value })} className="px-3 py-2 border rounded" required />
-              <input type="text" placeholder="Location" value={rackData.location} onChange={(e) => setRackData({ ...rackData, location: e.target.value })} className="px-3 py-2 border rounded" required />
-              <input type="text" placeholder="Description" value={rackData.description} onChange={(e) => setRackData({ ...rackData, description: e.target.value })} className="px-3 py-2 border rounded" />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Rack Number</label>
+                <input type="text" placeholder="e.g., R-101" value={rackData.rack_number} onChange={(e) => setRackData({ ...rackData, rack_number: e.target.value })} className="w-full px-3 py-2 border rounded" required />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                <input type="text" placeholder="e.g., Ground Floor" value={rackData.location} onChange={(e) => setRackData({ ...rackData, location: e.target.value })} className="w-full px-3 py-2 border rounded" required />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <input type="text" placeholder="e.g., Main storage area" value={rackData.description} onChange={(e) => setRackData({ ...rackData, description: e.target.value })} className="w-full px-3 py-2 border rounded" />
+              </div>
             </div>
             <div className="mt-4 flex gap-2">
               <button type="submit" className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">{editingRack ? 'Update' : 'Save'}</button>
@@ -148,12 +157,21 @@ const RackManagement = () => {
         {showSectionForm && (
           <form onSubmit={handleSectionSubmit} className="mb-4 p-4 bg-gray-50 rounded">
             <div className="grid grid-cols-3 gap-4">
-              <select value={sectionData.rack_id} onChange={(e) => setSectionData({ ...sectionData, rack_id: e.target.value })} className="px-3 py-2 border rounded" required>
-                <option value="">Select Rack</option>
-                {racks.map((rack) => (<option key={rack.id} value={rack.id}>{rack.rack_number}</option>))}
-              </select>
-              <input type="text" placeholder="Section Name" value={sectionData.section_name} onChange={(e) => setSectionData({ ...sectionData, section_name: e.target.value })} className="px-3 py-2 border rounded" required />
-              <input type="text" placeholder="Section Code" value={sectionData.section_code} onChange={(e) => setSectionData({ ...sectionData, section_code: e.target.value })} className="px-3 py-2 border rounded" required />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Select Rack</label>
+                <select value={sectionData.rack_id} onChange={(e) => setSectionData({ ...sectionData, rack_id: e.target.value })} className="w-full px-3 py-2 border rounded" required>
+                  <option value="">Choose a rack</option>
+                  {racks.map((rack) => (<option key={rack.id} value={rack.id}>{rack.rack_number}</option>))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Section Name</label>
+                <input type="text" placeholder="e.g., Shelf A" value={sectionData.section_name} onChange={(e) => setSectionData({ ...sectionData, section_name: e.target.value })} className="w-full px-3 py-2 border rounded" required />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Section Code</label>
+                <input type="text" placeholder="e.g., S-A1" value={sectionData.section_code} onChange={(e) => setSectionData({ ...sectionData, section_code: e.target.value })} className="w-full px-3 py-2 border rounded" required />
+              </div>
             </div>
             <div className="mt-4 flex gap-2">
               <button type="submit" className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">{editingSection ? 'Update' : 'Save'}</button>
