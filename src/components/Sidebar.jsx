@@ -29,7 +29,7 @@ const Sidebar = () => {
     fetchPermissions()
     if (showFeedback) {
       fetchUnreadCount()
-      const interval = setInterval(fetchUnreadCount, 30000)
+      const interval = setInterval(fetchUnreadCount, 300000)
       return () => clearInterval(interval)
     }
     if (userType === 'distributor') {
