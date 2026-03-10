@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { billingAPI } from '../services/billing'
+import { billingAPI } from '../../services/staff_billing_apis'
 import { Search, Plus, Trash2, Save, X, Printer } from 'lucide-react'
 import toast from 'react-hot-toast'
 

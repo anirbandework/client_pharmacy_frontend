@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Settings, Save, Edit2, Upload } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { billingAPI } from '../services/billing'
+import { billingAPI } from '../../services/staff_billing_apis'
 
 const BillConfigManager = () => {
   const [config, setConfig] = useState({

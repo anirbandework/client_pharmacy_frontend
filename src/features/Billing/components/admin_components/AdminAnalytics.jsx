@@ -3,8 +3,8 @@ import { Loader2, Info, Store, BarChart3, Brain, TrendingUp, DollarSign, Receipt
 import toast from 'react-hot-toast'
 import ReactMarkdown from 'react-markdown'
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, AreaChart } from 'recharts'
-import { billingAdminAPI } from '../services/billingAdmin'
-import { adminApi } from '../../Admin&SuperAdmin/services/admin&superAminApi'
+import { billingAdminAPI } from '../../services/admin_billing_apis'
+import { adminApi } from '../../../Admin&SuperAdmin/services/admin&superAminApi'
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82ca9d', '#FF6B9D', '#C084FC']
 

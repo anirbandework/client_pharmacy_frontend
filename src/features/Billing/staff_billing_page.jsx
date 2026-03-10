@@ -2,19 +2,18 @@ import React, { useState } from 'react'
 import { Toaster } from 'react-hot-toast'
 import ReactMarkdown from 'react-markdown'
 import Layout from '../../components/Layout'
-import CreateBill from './components/CreateBill'
-import BillHistory from './components/BillHistory'
-import Dashboard from './components/Dashboard'
-import Reports from './components/Reports'
-import DailyRecords from './components/DailyRecords'
-import Analytics from './components/Analytics'
-import BillConfigManager from './components/BillConfigManager'
 import GeofenceGuard from '../../components/GeofenceGuard'
-import { billingAPI } from './services/billing'
-import { LayoutDashboard, Plus, FileText, BarChart3, Receipt, Calendar, TrendingUp, Settings, HelpCircle, X } from 'lucide-react'
+import CreateBill from './components/staff_components/CreateBill'
+import BillHistory from './components/staff_components/BillHistory'
+import Dashboard from './components/staff_components/Dashboard'
+import Reports from './components/staff_components/Reports'
+import DailyRecords from './components/staff_components/DailyRecords'
+import BillConfigManager from './components/staff_components/BillConfigManager'
+import { billingAPI } from './services/staff_billing_apis'
+import { LayoutDashboard, Plus, FileText, BarChart3, Receipt, Calendar, Settings, HelpCircle, X } from 'lucide-react'
 
-const Billing = () => {
-  const [activeTab, setActiveTab] = useState('dashboard')
+const StaffBillingPage = () => {
+  const [activeTab, setActiveTab] = useState('create')
   const [refresh, setRefresh] = useState(0)
   const [showGuide, setShowGuide] = useState(false)
   const [userGuide, setUserGuide] = useState('')
@@ -41,13 +40,13 @@ const Billing = () => {
   }
 
   const tabs = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, color: 'from-blue-500 to-blue-600' },
+    
     { id: 'create', label: 'New Bill', icon: Plus, color: 'from-green-500 to-green-600' },
     { id: 'history', label: 'Bill History', icon: FileText, color: 'from-purple-500 to-purple-600' },
     { id: 'reports', label: 'Reports', icon: BarChart3, color: 'from-orange-500 to-orange-600' },
     { id: 'daily', label: 'Daily Records', icon: Calendar, color: 'from-pink-500 to-pink-600' },
-    { id: 'analytics', label: 'Analytics', icon: TrendingUp, color: 'from-indigo-500 to-indigo-600' },
-    { id: 'config', label: 'Bill Config', icon: Settings, color: 'from-gray-500 to-gray-600' }
+    { id: 'config', label: 'Bill Config', icon: Settings, color: 'from-gray-500 to-gray-600' },
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, color: 'from-blue-500 to-blue-600' }
   ]
 
   return (
@@ -96,13 +95,12 @@ const Billing = () => {
           </div>
         </div>
 
-        <div className="animate-fade-in space-y-4">
+        <div className="animate-fade-in space-y-4 pb-20">
           {activeTab === 'dashboard' && <Dashboard key={refresh} />}
           {activeTab === 'create' && <CreateBill onBillCreated={() => setRefresh(r => r + 1)} />}
           {activeTab === 'history' && <BillHistory />}
           {activeTab === 'reports' && <Reports />}
           {activeTab === 'daily' && <DailyRecords />}
-          {activeTab === 'analytics' && <Analytics />}
           {activeTab === 'config' && <BillConfigManager />}
         </div>
       </div>
@@ -157,4 +155,4 @@ const Billing = () => {
   )
 }
 
-export default Billing
+export default StaffBillingPage

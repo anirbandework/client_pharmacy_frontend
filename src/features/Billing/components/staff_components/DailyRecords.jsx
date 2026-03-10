@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { dailyRecordsAPI } from '../services/dailyRecords'
+import { dailyRecordsAPI } from '../../services/dailyRecords'
 import { Calendar, Plus, Trash2, Save, DollarSign, TrendingUp, TrendingDown, Download } from 'lucide-react'
 import toast from 'react-hot-toast'
 

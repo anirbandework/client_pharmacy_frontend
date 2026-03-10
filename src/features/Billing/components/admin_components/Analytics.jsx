@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { analyticsAPI } from '../services/analytics'
+import { analyticsAPI } from '../../services/analytics'
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { TrendingUp, TrendingDown, DollarSign, Receipt, Calendar, Target } from 'lucide-react'
 import toast from 'react-hot-toast'
