@@ -11,6 +11,7 @@ const StockItems = () => {
   const [unassignedItems, setUnassignedItems] = useState([])
   const [sections, setSections] = useState([])
   const [racks, setRacks] = useState([])
+  const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [showBulkForm, setShowBulkForm] = useState(false)
   const [editingItem, setEditingItem] = useState(null)
@@ -30,9 +31,6 @@ const StockItems = () => {
   const [showFilters, setShowFilters] = useState(false)
   const [selectedUnassignedItems, setSelectedUnassignedItems] = useState([])
   const [bulkAssignSection, setBulkAssignSection] = useState('')
-  const [uploadingExcel, setUploadingExcel] = useState(false)
-  const [showUploadCard, setShowUploadCard] = useState(false)
-  const [uploadResult, setUploadResult] = useState(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(50)
   const [formData, setFormData] = useState({ 
@@ -63,6 +61,7 @@ const StockItems = () => {
 
   const fetchData = async () => {
     try {
+      setLoading(true)
       const [sectionsRes, racksRes] = await Promise.all([
         stockAuditAPI.getSections(),
         stockAuditAPI.getRacks()
@@ -104,6 +103,8 @@ const StockItems = () => {
     } catch (error) {
       toast.error('Failed to fetch data')
       console.error(error)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -302,61 +303,6 @@ const StockItems = () => {
     }
   }
 
-  const handleExcelUpload = async (e) => {
-    const file = e.target.files[0]
-    if (!file) return
-    
-    setUploadingExcel(true)
-    setUploadResult(null)
-    const formData = new FormData()
-    formData.append('file', file)
-    
-    try {
-      const response = await stockAuditAPI.uploadExcel(formData)
-      setUploadResult({ success: true, data: response.data })
-      fetchData()
-    } catch (error) {
-      setUploadResult({ success: false, error: error.response?.data?.detail || 'Failed to upload Excel file' })
-    } finally {
-      setUploadingExcel(false)
-      e.target.value = ''
-    }
-  }
-
-  // const toggleSelectAllItems = () => {
-  //   if (selectedItems.length === items.length) {
-  //     setSelectedItems([])
-  //   } else {
-  //     setSelectedItems(items.map(item => item.id))
-  //   }
-  // }
-
-  // const toggleSelectItemInAll = (itemId) => {
-  //   setSelectedItems(prev => 
-  //     prev.includes(itemId) ? prev.filter(id => id !== itemId) : [...prev, itemId]
-  //   )
-  // }
-
-  // const handleBulkDelete = async () => {
-  //   const itemsToDelete = activeTab === 'all' ? selectedItems : selectedUnassignedItems
-  //   if (itemsToDelete.length === 0) {
-  //     toast.error('Please select items to delete')
-  //     return
-  //   }
-    
-  //   if (!confirm(`Delete ${itemsToDelete.length} selected items? This action cannot be undone.`)) return
-    
-  //   try {
-  //     await stockAuditAPI.bulkDeleteItems(itemsToDelete)
-  //     toast.success(`${itemsToDelete.length} items deleted successfully`)
-  //     setSelectedItems([])
-  //     setSelectedUnassignedItems([])
-  //     fetchData()
-  //   } catch (error) {
-  //     toast.error('Failed to delete items')
-  //   }
-  // }
-
   const handleExport = async () => {
     try {
       const response = await stockAuditAPI.exportStockItems()
@@ -498,7 +444,7 @@ const StockItems = () => {
   const paginatedItems = displayItems.slice(startIndex, endIndex)
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-white rounded-lg shadow p-6 mb-8">
       <div className="flex justify-between items-center mb-4">
         <div className="flex gap-4">
           <h2 className="text-xl font-bold">Stock Items</h2>
@@ -519,9 +465,6 @@ const StockItems = () => {
           </div>
         </div>
         <div className="flex gap-2">
-          <button onClick={() => setShowUploadCard(!showUploadCard)} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-            <Upload className="w-4 h-4" />Upload Excel
-          </button>
           <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
             <Download className="w-4 h-4" />Export
           </button>
@@ -559,15 +502,31 @@ const StockItems = () => {
       </div>
 
       {/* Search and Filters */}
-      <div className="mb-4 space-y-3">
-        <div className="flex gap-2">
-          <input
-            type="text"
-            placeholder="Search by product name..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="flex-1 px-4 py-2 border rounded-lg"
-          />
+      <div className="mb-6 space-y-3 overflow-visible">
+        <div className="flex gap-2 relative z-10 p-1">
+          <div className="flex-1 relative overflow-visible">
+            <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-lg p-0.5">
+              <input
+                type="text"
+                placeholder="Search by product name..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full px-4 py-2 bg-white rounded-lg focus:outline-none transition-all duration-300"
+                style={{
+                  boxShadow: searchTerm ? 
+                    '0 0 20px rgba(59, 130, 246, 0.3), 0 0 40px rgba(59, 130, 246, 0.1)' : 
+                    'none',
+                  animation: searchTerm ? 'ai-pulse 2s ease-in-out infinite' : 'none'
+                }}
+              />
+            </div>
+          </div>
+          <style>{`
+            @keyframes ai-pulse {
+              0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3), 0 0 40px rgba(59, 130, 246, 0.1); }
+              50% { box-shadow: 0 0 30px rgba(59, 130, 246, 0.5), 0 0 60px rgba(59, 130, 246, 0.2); }
+            }
+          `}</style>
           <button
             onClick={() => setShowFilters(!showFilters)}
             className="px-4 py-2 border rounded-lg hover:bg-gray-50 flex items-center gap-2"
@@ -669,72 +628,6 @@ const StockItems = () => {
           </div>
         )}
       </div>
-
-      {showUploadCard && (
-        <div className="mb-6 p-6 bg-blue-50 rounded-lg border-2 border-blue-200">
-          <div className="flex justify-between items-start mb-4">
-            <h3 className="text-lg font-bold text-blue-900">Upload Stock Items from Excel</h3>
-            <button onClick={() => { setShowUploadCard(false); setUploadResult(null); }} className="text-blue-600 hover:text-blue-800">
-              ✕
-            </button>
-          </div>
-          
-          <div className="space-y-4">
-            <div className="flex gap-3">
-              <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-blue-300 text-blue-700 rounded hover:bg-blue-50">
-                <Download className="w-4 h-4" />Download Format
-              </button>
-              <label className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 cursor-pointer">
-                <Upload className="w-4 h-4" />
-                {uploadingExcel ? 'Uploading...' : 'Select & Upload File'}
-                <input type="file" accept=".xlsx,.xls" onChange={handleExcelUpload} className="hidden" disabled={uploadingExcel} />
-              </label>
-            </div>
-            
-            {uploadResult && (
-              <div className={`p-4 rounded-lg ${uploadResult.success ? 'bg-green-100 border border-green-300' : 'bg-red-100 border border-red-300'}`}>
-                {uploadResult.success ? (
-                  <div>
-                    <div className="flex items-center gap-2 text-green-800 font-semibold mb-2">
-                      <CheckCircle className="w-5 h-5" />
-                      {uploadResult.data.message}
-                    </div>
-                    <div className="text-sm text-green-700">
-                      ✓ {uploadResult.data.success_count} items added successfully
-                      {uploadResult.data.error_count > 0 && (
-                        <div className="mt-1">⚠ {uploadResult.data.error_count} items failed</div>
-                      )}
-                    </div>
-                    {uploadResult.data.errors && uploadResult.data.errors.length > 0 && (
-                      <div className="mt-2 text-xs text-green-700">
-                        <div className="font-semibold">Errors:</div>
-                        {uploadResult.data.errors.map((err, idx) => (
-                          <div key={idx}>• {err}</div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2 text-red-800">
-                    <AlertCircle className="w-5 h-5" />
-                    <span>{uploadResult.error}</span>
-                  </div>
-                )}
-              </div>
-            )}
-            
-            <div className="text-sm text-blue-700 bg-white p-3 rounded border border-blue-200">
-              <div className="font-semibold mb-1">Instructions:</div>
-              <ol className="list-decimal list-inside space-y-1">
-                <li>Click "Download Format" to get the Excel template</li>
-                <li>Fill in your stock data (Product Name and Batch Number are mandatory)</li>
-                <li>Click "Select & Upload File" to import your data</li>
-                <li>Items will be added to "Unassigned" - assign sections later</li>
-              </ol>
-            </div>
-          </div>
-        </div>
-      )}
 
       {showBulkForm && (
         <div className="mb-6 p-4 bg-purple-50 rounded border-2 border-purple-200">
@@ -919,183 +812,194 @@ const StockItems = () => {
         </form>
       )}
 
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="bg-gradient-to-r from-primary-50 to-primary-100 border-b-2 border-primary-200">
-              {activeTab === 'unassigned' && (
-                <th className="px-4 py-3 text-center">
-                  <input 
-                    type="checkbox" 
-                    checked={selectedUnassignedItems.length === unassignedItems.length && unassignedItems.length > 0}
-                    onChange={toggleSelectAll}
-                    className="w-4 h-4 cursor-pointer"
-                  />
-                </th>
-              )}
-              {/* {activeTab === 'all' && (
-                <th className="px-4 py-3 text-center">
-                  <input 
-                    type="checkbox" 
-                    checked={selectedItems.length === items.length && items.length > 0}
-                    onChange={toggleSelectAllItems}
-                    className="w-4 h-4 cursor-pointer"
-                  />
-                </th>
-              )} */}
-              <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase">Product</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase">Composition</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase">Mfg</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase">Batch</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase">Unit</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase">Expiry</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase">Qty (S/P)</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase">Purchase ₹</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase">Selling ₹</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase">Margin %</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase">Value</th>
-              {activeTab === 'unassigned' && (
-                <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase">Assign Section</th>
-              )}
-              {activeTab === 'all' && (
-                <>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase">Rack/Section</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase">Discrepancy</th>
-                </>
-              )}
-              <th className="px-4 py-3 text-left text-xs font-semibold text-primary-900 uppercase">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {paginatedItems.map((item, idx) => (
-              <tr key={item.id} className={`transition-colors hover:bg-primary-50 ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
+      <div className="overflow-x-auto rounded-xl border border-gray-200 shadow-lg mt-6">
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading stock items...</p>
+            </div>
+          </div>
+        ) : (
+          <table className="w-full">
+            <thead>
+              <tr className="bg-gradient-to-r from-blue-100/80 via-sky-100/80 to-cyan-100/80 backdrop-blur-sm border-b border-blue-200/50">
                 {activeTab === 'unassigned' && (
-                  <td className="px-4 py-3 text-center">
+                  <th className="px-6 py-4 text-center">
                     <input 
                       type="checkbox" 
-                      checked={selectedUnassignedItems.includes(item.id)}
-                      onChange={() => toggleSelectItem(item.id)}
-                      className="w-4 h-4 cursor-pointer"
+                      checked={selectedUnassignedItems.length === unassignedItems.length && unassignedItems.length > 0}
+                      onChange={toggleSelectAll}
+                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
                     />
-                  </td>
+                  </th>
                 )}
-                {/* {activeTab === 'all' && (
-                  <td className="px-4 py-3 text-center">
-                    <input 
-                      type="checkbox" 
-                      checked={selectedItems.includes(item.id)}
-                      onChange={() => toggleSelectItemInAll(item.id)}
-                      className="w-4 h-4 cursor-pointer"
-                    />
-                  </td>
-                )} */}
-                <td className="px-4 py-3 font-semibold text-gray-900">{item.product_name}</td>
-                <td className="px-4 py-3 text-sm text-gray-600">{item.composition || '-'}</td>
-                <td className="px-4 py-3 text-sm text-gray-600">{item.manufacturer || '-'}</td>
-                <td className="px-4 py-3 text-sm font-mono text-gray-700">{item.batch_number}</td>
-                <td className="px-4 py-3 text-sm text-gray-600">{item.unit || '-'}</td>
-                <td className="px-4 py-3 text-sm">
-                  {item.expiry_date ? (
-                    <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${
-                      new Date(item.expiry_date) < new Date() 
-                        ? 'bg-red-100 text-red-800' 
-                        : new Date(item.expiry_date) < new Date(Date.now() + 30*24*60*60*1000)
-                        ? 'bg-orange-100 text-orange-800'
-                        : 'bg-green-100 text-green-800'
-                    }`}>
-                      {formatExpiry(item.expiry_date)}
-                    </span>
-                  ) : <span className="text-gray-400">-</span>}
-                </td>
-                <td className="px-4 py-3">
-                  <div className="text-sm">
-                    <span className="font-semibold text-gray-900">{item.quantity_software}</span>
-                    {item.quantity_physical !== null && <span className="text-gray-500"> / {item.quantity_physical}</span>}
-                  </div>
-                </td>
-                <td className="px-4 py-3 font-semibold text-red-600">₹{item.unit_price || '-'}</td>
-                <td className="px-4 py-3 font-semibold text-green-600">₹{item.selling_price || '-'}</td>
-                <td className="px-4 py-3">
-                  {item.profit_margin ? (
-                    <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-bold ${
-                      item.profit_margin < 10 ? 'bg-red-100 text-red-800' :
-                      item.profit_margin < 20 ? 'bg-orange-100 text-orange-800' :
-                      item.profit_margin < 30 ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-green-100 text-green-800'
-                    }`}>
-                      {item.profit_margin.toFixed(1)}%
-                    </span>
-                  ) : <span className="text-gray-400">-</span>}
-                </td>
-                <td className="px-4 py-3 font-semibold text-blue-700">
-                  {item.total_value ? `₹${item.total_value.toLocaleString('en-IN')}` : '-'}
-                </td>
-                {activeTab === 'unassigned' ? (
-                  <td className="px-4 py-3">
-                    <select 
-                      value={selectedUnassignedItems.includes(item.id) ? bulkAssignSection : ''}
-                      onChange={(e) => {
-                        const sectionId = e.target.value
-                        if (sectionId) {
-                          handleAssignSection(item.id, sectionId)
-                        }
-                      }}
-                      className="px-2 py-1 border rounded text-sm"
-                    >
-                      <option value="">Select Section</option>
-                      {sections.map((section) => {
-                        const rack = racks.find(r => r.id === section.rack_id)
-                        return <option key={section.id} value={section.id}>{rack?.rack_number} - {section.section_name}</option>
-                      })}
-                    </select>
-                  </td>
-                ) : (
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Product</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Composition</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Mfg</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Batch</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Unit</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Expiry</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Qty (S/P)</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Purchase ₹</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Selling ₹</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Margin %</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Value</th>
+                {activeTab === 'unassigned' && (
+                  <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Assign Section</th>
+                )}
+                {activeTab === 'all' && (
                   <>
-                    <td className="px-4 py-3">
-                      {item.rack_name && item.section_name ? (
-                        <div className="flex flex-col gap-1">
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
-                            {item.rack_name}
-                          </span>
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                            {item.section_name}
-                          </span>
-                        </div>
-                      ) : <span className="text-orange-500 text-xs">Unassigned</span>}
-                    </td>
-                    <td className="px-4 py-3">
-                      {item.audit_discrepancy !== 0 && item.audit_discrepancy !== null ? (
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800">
-                          {item.audit_discrepancy > 0 ? '+' : ''}{item.audit_discrepancy}
-                        </span>
-                      ) : '-'}
-                    </td>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Rack/Section</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Discrepancy</th>
                   </>
                 )}
-                <td className="px-4 py-3">
-                  <div className="flex gap-2">
-                    <button onClick={() => handleEdit(item)} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded">
-                      <Edit className="w-4 h-4" />
-                    </button>
-                    <button onClick={() => handleDelete(item.id)} className="p-1.5 text-red-600 hover:bg-red-50 rounded">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </td>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-        {displayItems.length === 0 && (
-          <div className="text-center py-12 text-gray-500">
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-100">
+              {paginatedItems.map((item, idx) => (
+                <tr key={item.id} className={`transition-all duration-200 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:shadow-sm ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'}`}>
+                  {activeTab === 'unassigned' && (
+                    <td className="px-6 py-4 text-center">
+                      <input 
+                        type="checkbox" 
+                        checked={selectedUnassignedItems.includes(item.id)}
+                        onChange={() => toggleSelectItem(item.id)}
+                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                      />
+                    </td>
+                  )}
+                  <td className="px-6 py-4">
+                    <div className="font-semibold text-gray-900 text-sm leading-tight">{item.product_name}</div>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-600">{item.composition || '-'}</td>
+                  <td className="px-6 py-4 text-sm text-gray-600">{item.manufacturer || '-'}</td>
+                  <td className="px-6 py-4">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 font-mono">
+                      {item.batch_number}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-600">{item.unit || '-'}</td>
+                  <td className="px-6 py-4">
+                    {item.expiry_date ? (
+                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${
+                        new Date(item.expiry_date) < new Date() 
+                          ? 'bg-red-100 text-red-800 border border-red-200' 
+                          : new Date(item.expiry_date) < new Date(Date.now() + 30*24*60*60*1000)
+                          ? 'bg-orange-100 text-orange-800 border border-orange-200'
+                          : 'bg-green-100 text-green-800 border border-green-200'
+                      }`}>
+                        {formatExpiry(item.expiry_date)}
+                      </span>
+                    ) : <span className="text-gray-400">-</span>}
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="text-sm">
+                      <span className="font-bold text-gray-900 text-lg">{item.quantity_software}</span>
+                      {item.quantity_physical !== null && <span className="text-gray-500 ml-1">/ {item.quantity_physical}</span>}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="font-bold text-red-600 text-sm">₹{item.unit_price || '-'}</span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="font-bold text-green-600 text-sm">₹{item.selling_price || '-'}</span>
+                  </td>
+                  <td className="px-6 py-4">
+                    {item.profit_margin ? (
+                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border ${
+                        item.profit_margin < 10 ? 'bg-red-50 text-red-700 border-red-200' :
+                        item.profit_margin < 20 ? 'bg-orange-50 text-orange-700 border-orange-200' :
+                        item.profit_margin < 30 ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
+                        'bg-green-50 text-green-700 border-green-200'
+                      }`}>
+                        {item.profit_margin.toFixed(1)}%
+                      </span>
+                    ) : <span className="text-gray-400">-</span>}
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="font-bold text-blue-700 text-sm">
+                      {item.total_value ? `₹${item.total_value.toLocaleString('en-IN')}` : '-'}
+                    </span>
+                  </td>
+                  {activeTab === 'unassigned' ? (
+                    <td className="px-6 py-4">
+                      <select 
+                        value={selectedUnassignedItems.includes(item.id) ? bulkAssignSection : ''}
+                        onChange={(e) => {
+                          const sectionId = e.target.value
+                          if (sectionId) {
+                            handleAssignSection(item.id, sectionId)
+                          }
+                        }}
+                        className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      >
+                        <option value="">Select Section</option>
+                        {sections.map((section) => {
+                          const rack = racks.find(r => r.id === section.rack_id)
+                          return <option key={section.id} value={section.id}>{rack?.rack_number} - {section.section_name}</option>
+                        })}
+                      </select>
+                    </td>
+                  ) : (
+                    <>
+                      <td className="px-6 py-4">
+                        {item.rack_name && item.section_name ? (
+                          <div className="flex flex-col gap-1">
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-800 border border-purple-200">
+                              {item.rack_name}
+                            </span>
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 border border-blue-200">
+                              {item.section_name}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800 border border-orange-200">
+                            Unassigned
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
+                        {item.audit_discrepancy !== 0 && item.audit_discrepancy !== null ? (
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800 border border-red-200">
+                            {item.audit_discrepancy > 0 ? '+' : ''}{item.audit_discrepancy}
+                          </span>
+                        ) : '-'}
+                      </td>
+                    </>
+                  )}
+                  <td className="px-6 py-4">
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => handleEdit(item)} 
+                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-blue-200 hover:border-blue-300"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={() => handleDelete(item.id)} 
+                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-red-200 hover:border-red-300"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+        {!loading && displayItems.length === 0 && (
+          <div className="text-center py-16 bg-white">
             <Package className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-            <p>{activeTab === 'unassigned' ? 'No unassigned items' : 'No items found'}</p>
+            <p className="text-gray-500 text-lg">{activeTab === 'unassigned' ? 'No unassigned items' : 'No items found'}</p>
           </div>
         )}
       </div>
       
       {displayItems.length > 0 && totalPages > 1 && (
-        <div className="mt-4 flex items-center justify-between">
+        <div className="mt-6 flex items-center justify-between bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
           <div className="text-sm text-gray-600">
             Showing {startIndex + 1} to {Math.min(endIndex, displayItems.length)} of {displayItems.length} items
           </div>

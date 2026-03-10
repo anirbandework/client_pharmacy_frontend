@@ -8,20 +8,24 @@ import AuditSession from './components/AuditSession'
 import StockAdjustments from './components/StockAdjustments'
 import Reports from './components/Reports'
 import AIAnalytics from './components/AIAnalytics'
-import { LayoutDashboard, Package, Grid, Shuffle, Settings, FileText, Sparkles, Brain } from 'lucide-react'
+import ExcelUpload from './components/ExcelUpload'
+import ExcelUploadVerification from './components/ExcelUploadVerification'
+import { LayoutDashboard, Package, Grid, Shuffle, Settings, FileText, Sparkles, Brain, Upload, CheckSquare } from 'lucide-react'
 
 const StockAudit = () => {
-  const [activeTab, setActiveTab] = useState('dashboard')
+  const [activeTab, setActiveTab] = useState('items')
   const [refresh, setRefresh] = useState(0)
 
   const tabs = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, color: 'from-blue-500 to-blue-600' },
-    { id: 'racks', label: 'Racks', icon: Package, color: 'from-green-500 to-green-600' },
     { id: 'items', label: 'Items', icon: Grid, color: 'from-purple-500 to-purple-600' },
+    { id: 'racks', label: 'Racks', icon: Package, color: 'from-green-500 to-green-600' },
+    { id: 'upload', label: 'Excel Upload', icon: Upload, color: 'from-blue-500 to-cyan-500' },
+    { id: 'verification', label: 'Upload Verification', icon: CheckSquare, color: 'from-amber-500 to-orange-500' },
     { id: 'audit', label: 'Audit', icon: Shuffle, color: 'from-orange-500 to-orange-600' },
     { id: 'adjustments', label: 'Adjustments', icon: Settings, color: 'from-pink-500 to-pink-600' },
     { id: 'reports', label: 'Reports', icon: FileText, color: 'from-red-500 to-red-600' },
-    { id: 'ai-analytics', label: 'AI Analytics', icon: Brain, color: 'from-purple-600 to-indigo-600' }
+    { id: 'ai-analytics', label: 'AI Analytics', icon: Brain, color: 'from-purple-600 to-indigo-600' },
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, color: 'from-blue-500 to-blue-600' }
   ]
 
   return (
@@ -58,10 +62,12 @@ const StockAudit = () => {
           </div>
         </div>
 
-        <div className="animate-fade-in space-y-4">
+        <div className="animate-fade-in space-y-4 pb-20">
           {activeTab === 'dashboard' && <Dashboard key={refresh} />}
           {activeTab === 'racks' && <RackManagement />}
           {activeTab === 'items' && <StockItems />}
+          {activeTab === 'upload' && <ExcelUpload />}
+          {activeTab === 'verification' && <ExcelUploadVerification />}
           {activeTab === 'audit' && <AuditSession />}
           {activeTab === 'adjustments' && <StockAdjustments />}
           {activeTab === 'reports' && <Reports />}

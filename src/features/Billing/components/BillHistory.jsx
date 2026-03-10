@@ -133,7 +133,8 @@ const BillHistory = () => {
                 <tr key={bill.id} className="border-b hover:bg-gray-50">
                   <td className="px-4 py-3 font-mono text-sm">{bill.bill_number}</td>
                   <td className="px-4 py-3 text-sm">
-                    {new Date(bill.created_at).toLocaleDateString()}
+                    {new Date(bill.created_at).toLocaleDateString()}<br/>
+                    <span className="text-xs text-gray-500">{new Date(bill.created_at).toLocaleTimeString('en-GB', { hour12: false })}</span>
                   </td>
                   <td className="px-4 py-3">{bill.customer_name || '-'}</td>
                   <td className="px-4 py-3">{bill.customer_phone || '-'}</td>
@@ -204,10 +205,10 @@ const BillHistory = () => {
                         <img src={storeConfig.logo} alt="" className="w-20 h-20 object-contain" />
                         <div className="text-left">
                           <h2 className="text-lg font-bold uppercase">{storeConfig.storeName}</h2>
-                          <p className="text-xs mt-0.5">D.L No. {storeConfig.dlNumbers.dl20} | {storeConfig.dlNumbers.dl21}</p>
-                          <p className="text-xs">F.L No. {storeConfig.flNumber}</p>
-                          <p className="text-xs mt-0.5">{storeConfig.address.line1}</p>
-                          <p className="text-xs">{storeConfig.address.state}, {storeConfig.address.pincode} | Phone: {storeConfig.phone}</p>
+                          <p className="text-xs mt-0.5">D.L No. {storeConfig.dlNumbers?.dl20 || '123456'} | {storeConfig.dlNumbers?.dl21 || '12345678'}</p>
+                          <p className="text-xs">F.L No. {storeConfig.flNumber || '12345678'}</p>
+                          <p className="text-xs mt-0.5">{storeConfig.address?.line1 || 'Address Line 1'}</p>
+                          <p className="text-xs">{storeConfig.address?.state || 'Tirpura'}, {storeConfig.address?.pincode || '123456'} | Phone: {storeConfig.phone || '9876543212'}</p>
                         </div>
                       </div>
                       
@@ -228,6 +229,7 @@ const BillHistory = () => {
                     <div className="text-right">
                       <p><strong>Bill No.:</strong> {selectedBill.bill_number}</p>
                       <p><strong>Date:</strong> {new Date(selectedBill.created_at).toLocaleDateString('en-GB')}</p>
+                      <p><strong>Time:</strong> {new Date(selectedBill.created_at).toLocaleTimeString('en-GB', { hour12: false })}</p>
                     </div>
                   </div>
 
@@ -273,7 +275,7 @@ const BillHistory = () => {
                           const mrpValue = item.mrp ? parseFloat(item.mrp.toString().match(/[\d.]+/)?.[0] || item.unit_price) : item.unit_price;
                           return sum + mrpValue * item.quantity;
                         }, 0).toFixed(2)}</p>
-                        <p className="mt-1"><strong>GST IN:</strong> {storeConfig.gstIn}</p>
+                        <p className="mt-1"><strong>GST IN:</strong> {storeConfig.gstIn || '35465768798'}</p>
                       </div>
                       <div className="text-right space-y-1">
                         <p><strong>Subtotal:</strong> ₹{selectedBill.subtotal.toFixed(2)}</p>

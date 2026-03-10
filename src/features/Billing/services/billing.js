@@ -31,5 +31,7 @@ export const billingAPI = {
   
   getDailySales: (days = 7) => axiosInstance.get(`${API_BASE}/daily-sales`, { params: { days } }),
   
+  getUserGuide: () => axiosInstance.get(`${API_BASE}/user-guide`),
+  
   exportBills: (params) => axiosInstance.get(`${API_BASE}/export/bills`, { params, responseType: 'blob' })
 }

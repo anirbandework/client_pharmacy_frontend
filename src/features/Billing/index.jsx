@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Toaster } from 'react-hot-toast'
+import ReactMarkdown from 'react-markdown'
 import Layout from '../../components/Layout'
 import CreateBill from './components/CreateBill'
 import BillHistory from './components/BillHistory'
@@ -9,11 +10,35 @@ import DailyRecords from './components/DailyRecords'
 import Analytics from './components/Analytics'
 import BillConfigManager from './components/BillConfigManager'
 import GeofenceGuard from '../../components/GeofenceGuard'
-import { LayoutDashboard, Plus, FileText, BarChart3, Receipt, Calendar, TrendingUp, Settings } from 'lucide-react'
+import { billingAPI } from './services/billing'
+import { LayoutDashboard, Plus, FileText, BarChart3, Receipt, Calendar, TrendingUp, Settings, HelpCircle, X } from 'lucide-react'
 
 const Billing = () => {
   const [activeTab, setActiveTab] = useState('dashboard')
   const [refresh, setRefresh] = useState(0)
+  const [showGuide, setShowGuide] = useState(false)
+  const [userGuide, setUserGuide] = useState('')
+  const [guideLoading, setGuideLoading] = useState(false)
+
+  const fetchUserGuide = async () => {
+    setGuideLoading(true)
+    try {
+      const { data } = await billingAPI.getUserGuide()
+      setUserGuide(data.content)
+    } catch (error) {
+      console.error('Failed to load user guide:', error)
+      setUserGuide('# User Guide\n\nFailed to load user guide. Please try again later.')
+    } finally {
+      setGuideLoading(false)
+    }
+  }
+
+  const handleShowGuide = () => {
+    setShowGuide(true)
+    if (!userGuide) {
+      fetchUserGuide()
+    }
+  }
 
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, color: 'from-blue-500 to-blue-600' },
@@ -32,14 +57,23 @@ const Billing = () => {
       <div className="max-w-7xl mx-auto px-4">
         <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 rounded-xl shadow-lg p-4 md:p-6 mb-4 md:mb-6 animate-fade-in relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-          <div className="relative z-10 flex items-center gap-2 md:gap-3">
-            <div className="p-2 md:p-3 bg-white/20 backdrop-blur-sm rounded-xl">
-              <Receipt className="w-5 h-5 md:w-6 md:h-6 text-white" />
+          <div className="relative z-10 flex items-center justify-between">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="p-2 md:p-3 bg-white/20 backdrop-blur-sm rounded-xl">
+                <Receipt className="w-5 h-5 md:w-6 md:h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl md:text-2xl font-bold text-white">Billing System</h1>
+                <p className="text-white/90 text-xs md:text-sm">Customer billing & invoice management</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-xl md:text-2xl font-bold text-white">Billing System</h1>
-              <p className="text-white/90 text-xs md:text-sm">Customer billing & invoice management</p>
-            </div>
+            <button
+              onClick={handleShowGuide}
+              className="p-2 md:p-3 bg-white/20 backdrop-blur-sm rounded-xl hover:bg-white/30 transition-all"
+              title="How to Use"
+            >
+              <HelpCircle className="w-5 h-5 md:w-6 md:h-6 text-white" />
+            </button>
           </div>
         </div>
 
@@ -72,6 +106,52 @@ const Billing = () => {
           {activeTab === 'config' && <BillConfigManager />}
         </div>
       </div>
+      
+      {/* User Guide Modal */}
+      {showGuide && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-purple-600 to-indigo-600">
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                <HelpCircle className="w-6 h-6" />
+                How to Use - Billing System
+              </h2>
+              <button
+                onClick={() => setShowGuide(false)}
+                className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-white" />
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
+              {guideLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="text-gray-600">Loading user guide...</div>
+                </div>
+              ) : (
+                <div className="prose prose-sm max-w-none">
+                  <ReactMarkdown
+                    components={{
+                      h1: ({children}) => <h1 className="text-2xl font-bold text-gray-900 mb-4 pb-2 border-b">{children}</h1>,
+                      h2: ({children}) => <h2 className="text-xl font-semibold text-gray-800 mt-6 mb-3">{children}</h2>,
+                      h3: ({children}) => <h3 className="text-lg font-medium text-gray-700 mt-4 mb-2">{children}</h3>,
+                      p: ({children}) => <p className="text-gray-600 mb-3 leading-relaxed">{children}</p>,
+                      ul: ({children}) => <ul className="list-disc list-inside text-gray-600 mb-4 space-y-1">{children}</ul>,
+                      ol: ({children}) => <ol className="list-decimal list-inside text-gray-600 mb-4 space-y-1">{children}</ol>,
+                      li: ({children}) => <li className="ml-2">{children}</li>,
+                      strong: ({children}) => <strong className="font-semibold text-gray-800">{children}</strong>,
+                      hr: () => <hr className="my-6 border-gray-200" />,
+                      code: ({children}) => <code className="bg-gray-100 px-2 py-1 rounded text-sm font-mono text-gray-800">{children}</code>
+                    }}
+                  >
+                    {userGuide}
+                  </ReactMarkdown>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
       </GeofenceGuard>
     </Layout>
   )

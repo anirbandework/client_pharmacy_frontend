@@ -4,10 +4,12 @@ const API_BASE = '/api/stock-audit'
 
 export const stockAuditAPI = {
   getRacks: () => axiosInstance.get(`${API_BASE}/racks`),
+  getAdminRacks: () => axiosInstance.get(`${API_BASE}/admin/racks`),
   createRack: (data) => axiosInstance.post(`${API_BASE}/racks`, data),
   updateRack: (rackId, data) => axiosInstance.put(`${API_BASE}/racks/${rackId}`, data),
   deleteRack: (rackId) => axiosInstance.delete(`${API_BASE}/racks/${rackId}`),
   getSections: (params) => axiosInstance.get(`${API_BASE}/sections`, { params }),
+  getAdminSections: (params) => axiosInstance.get(`${API_BASE}/admin/sections`, { params }),
   createSection: (data) => axiosInstance.post(`${API_BASE}/sections`, data),
   updateSection: (sectionId, data) => axiosInstance.put(`${API_BASE}/sections/${sectionId}`, data),
   deleteSection: (sectionId) => axiosInstance.delete(`${API_BASE}/sections/${sectionId}`),
@@ -22,6 +24,19 @@ export const stockAuditAPI = {
   uploadExcel: (formData) => axiosInstance.post(`${API_BASE}/items/upload-excel`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
   }),
+  
+  // Excel Upload Verification
+  getExcelUploads: (params) => axiosInstance.get(`${API_BASE}/uploads`, { params }),
+  getAdminExcelUploads: (params) => axiosInstance.get(`${API_BASE}/admin/uploads`, { params }),
+  getUploadItems: (uploadId) => axiosInstance.get(`${API_BASE}/uploads/${uploadId}/items`),
+  getAdminUploadItems: (uploadId) => axiosInstance.get(`${API_BASE}/admin/uploads/${uploadId}/items`),
+  updateUploadItem: (uploadId, itemId, data) => axiosInstance.put(`${API_BASE}/uploads/${uploadId}/items/${itemId}`, data),
+  deleteUploadItem: (uploadId, itemId) => axiosInstance.delete(`${API_BASE}/uploads/${uploadId}/items/${itemId}`),
+  staffVerifyUpload: (uploadId, notes) => axiosInstance.post(`${API_BASE}/uploads/${uploadId}/staff-verify`, { notes }),
+  adminVerifyUpload: (uploadId, notes) => axiosInstance.post(`${API_BASE}/uploads/${uploadId}/admin-verify`, { notes }),
+  rejectUpload: (uploadId, reason) => axiosInstance.post(`${API_BASE}/uploads/${uploadId}/reject`, { reason }),
+  deleteUpload: (uploadId) => axiosInstance.delete(`${API_BASE}/uploads/${uploadId}`),
+  
   getItemStockCalc: (itemId) => axiosInstance.get(`${API_BASE}/items/${itemId}/stock-calculation`),
   addPurchase: (data) => axiosInstance.post(`${API_BASE}/purchases`, data),
   getPurchases: (params) => axiosInstance.get(`${API_BASE}/purchases`, { params }),
