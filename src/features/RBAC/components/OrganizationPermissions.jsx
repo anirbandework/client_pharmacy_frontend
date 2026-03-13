@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { rbacAPI } from '../services/rbacApi'
 import toast from 'react-hot-toast'
-import { Shield, Users, RefreshCw, Search, CheckCircle, XCircle } from 'lucide-react'
+import { Shield, Users, RefreshCw, Search, CheckCircle, XCircle, ChevronDown, ChevronUp, Layers } from 'lucide-react'
 
 const OrganizationPermissions = () => {
   const [organizations, setOrganizations] = useState([])
@@ -9,6 +9,9 @@ const OrganizationPermissions = () => {
   const [permissions, setPermissions] = useState([])
   const [loading, setLoading] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
+  const [expandedTabs, setExpandedTabs] = useState(new Set()) // module_keys with tabs panel open
+  const [moduleTabs, setModuleTabs] = useState({}) // { module_key: [{tab_key, tab_label, enabled}] }
+  const [tabsLoading, setTabsLoading] = useState(new Set())
 
   useEffect(() => {
     fetchOrganizations()
@@ -76,7 +79,47 @@ const OrganizationPermissions = () => {
     }
   }
 
-  const filteredModules = permissions.filter(p => 
+  const toggleTabsPanel = async (moduleKey) => {
+    const next = new Set(expandedTabs)
+    if (next.has(moduleKey)) {
+      next.delete(moduleKey)
+      setExpandedTabs(next)
+      return
+    }
+    next.add(moduleKey)
+    setExpandedTabs(next)
+
+    // Fetch tabs only if not already loaded
+    if (moduleTabs[moduleKey]) return
+
+    setTabsLoading(prev => new Set(prev).add(moduleKey))
+    try {
+      const res = await rbacAPI.getModuleTabs(selectedOrg.id, moduleKey)
+      setModuleTabs(prev => ({ ...prev, [moduleKey]: res.data.tabs }))
+    } catch {
+      toast.error('Failed to load tab permissions')
+    } finally {
+      setTabsLoading(prev => { const s = new Set(prev); s.delete(moduleKey); return s })
+    }
+  }
+
+  const toggleTab = async (moduleKey, tabKey, currentEnabled) => {
+    try {
+      await rbacAPI.updateTabPermission(selectedOrg.id, moduleKey, tabKey, !currentEnabled)
+      setModuleTabs(prev => ({
+        ...prev,
+        [moduleKey]: prev[moduleKey].map(t => t.tab_key === tabKey ? { ...t, enabled: !currentEnabled } : t)
+      }))
+      toast.success('Tab permission updated')
+    } catch {
+      toast.error('Failed to update tab permission')
+    }
+  }
+
+  // Modules that have configurable tabs
+  const TABBED_MODULES = new Set(['purchase_invoice', 'invoice_analytics', 'stock_analytics', 'stock_audit'])
+
+  const filteredModules = permissions.filter(p =>
     p.module_key.toLowerCase().includes(searchTerm.toLowerCase()) ||
     p.module_name.toLowerCase().includes(searchTerm.toLowerCase())
   )
@@ -164,43 +207,67 @@ const OrganizationPermissions = () => {
                   {staffModules.map(module => {
                     const adminEnabled = module.admin_enabled === true
                     const staffEnabled = module.staff_enabled === true
+                    const hasTabConfig = TABBED_MODULES.has(module.module_key)
+                    const tabsOpen = expandedTabs.has(module.module_key)
+                    const tabs = moduleTabs[module.module_key] || []
+                    const loadingTabs = tabsLoading.has(module.module_key)
 
                     return (
-                      <div key={module.module_key} className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                      <div key={module.module_key} className="bg-blue-50 rounded-lg border border-blue-200 overflow-hidden">
+                        <div className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
                           <div className="flex-1">
                             <h3 className="font-semibold text-gray-900">{module.module_name}</h3>
                             <p className="text-xs text-gray-500 mt-1">Module: {module.module_key}</p>
                           </div>
 
-                          <div className="flex gap-4">
-                            {/* Admin Toggle */}
+                          <div className="flex gap-2 flex-wrap">
                             <button
                               onClick={() => togglePermission(module.module_key, 'admin_enabled')}
-                              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-                                adminEnabled
-                                  ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                                  : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
-                              }`}
+                              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${adminEnabled ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
                             >
                               {adminEnabled ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
                               <span className="text-sm font-medium">Admin</span>
                             </button>
-
-                            {/* Staff Toggle */}
                             <button
                               onClick={() => togglePermission(module.module_key, 'staff_enabled')}
-                              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-                                staffEnabled
-                                  ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-                                  : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
-                              }`}
+                              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${staffEnabled ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
                             >
                               {staffEnabled ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
                               <span className="text-sm font-medium">Staff</span>
                             </button>
+                            {hasTabConfig && (
+                              <button
+                                onClick={() => toggleTabsPanel(module.module_key)}
+                                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-100 text-purple-700 hover:bg-purple-200 transition-all"
+                              >
+                                <Layers className="w-4 h-4" />
+                                <span className="text-sm font-medium">Tabs</span>
+                                {tabsOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                              </button>
+                            )}
                           </div>
                         </div>
+
+                        {tabsOpen && (
+                          <div className="border-t border-blue-200 bg-white px-4 py-3">
+                            {loadingTabs ? (
+                              <p className="text-sm text-gray-500 py-2">Loading tabs...</p>
+                            ) : (
+                              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                                {tabs.map(tab => (
+                                  <button
+                                    key={tab.tab_key}
+                                    onClick={() => toggleTab(module.module_key, tab.tab_key, tab.enabled)}
+                                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all border ${tab.enabled ? 'bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100' : 'bg-gray-50 border-gray-200 text-gray-500 hover:bg-gray-100'}`}
+                                  >
+                                    {tab.enabled ? <CheckCircle className="w-3.5 h-3.5 flex-shrink-0" /> : <XCircle className="w-3.5 h-3.5 flex-shrink-0" />}
+                                    <span className="truncate">{tab.tab_label}</span>
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )
                   })}
@@ -221,43 +288,67 @@ const OrganizationPermissions = () => {
                   {adminModules.map(module => {
                     const adminEnabled = module.admin_enabled === true
                     const staffEnabled = module.staff_enabled === true
+                    const hasTabConfig = TABBED_MODULES.has(module.module_key)
+                    const tabsOpen = expandedTabs.has(module.module_key)
+                    const tabs = moduleTabs[module.module_key] || []
+                    const loadingTabs = tabsLoading.has(module.module_key)
 
                     return (
-                      <div key={module.module_key} className="bg-green-50 rounded-lg p-4 border border-green-200">
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                      <div key={module.module_key} className="bg-green-50 rounded-lg border border-green-200 overflow-hidden">
+                        <div className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
                           <div className="flex-1">
                             <h3 className="font-semibold text-gray-900">{module.module_name}</h3>
                             <p className="text-xs text-gray-500 mt-1">Module: {module.module_key}</p>
                           </div>
 
-                          <div className="flex gap-4">
-                            {/* Admin Toggle */}
+                          <div className="flex gap-2 flex-wrap">
                             <button
                               onClick={() => togglePermission(module.module_key, 'admin_enabled')}
-                              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-                                adminEnabled
-                                  ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                                  : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
-                              }`}
+                              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${adminEnabled ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
                             >
                               {adminEnabled ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
                               <span className="text-sm font-medium">Admin</span>
                             </button>
-
-                            {/* Staff Toggle */}
                             <button
                               onClick={() => togglePermission(module.module_key, 'staff_enabled')}
-                              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-                                staffEnabled
-                                  ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-                                  : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
-                              }`}
+                              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${staffEnabled ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
                             >
                               {staffEnabled ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
                               <span className="text-sm font-medium">Staff</span>
                             </button>
+                            {hasTabConfig && (
+                              <button
+                                onClick={() => toggleTabsPanel(module.module_key)}
+                                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-100 text-purple-700 hover:bg-purple-200 transition-all"
+                              >
+                                <Layers className="w-4 h-4" />
+                                <span className="text-sm font-medium">Tabs</span>
+                                {tabsOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                              </button>
+                            )}
                           </div>
                         </div>
+
+                        {tabsOpen && (
+                          <div className="border-t border-green-200 bg-white px-4 py-3">
+                            {loadingTabs ? (
+                              <p className="text-sm text-gray-500 py-2">Loading tabs...</p>
+                            ) : (
+                              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                                {tabs.map(tab => (
+                                  <button
+                                    key={tab.tab_key}
+                                    onClick={() => toggleTab(module.module_key, tab.tab_key, tab.enabled)}
+                                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all border ${tab.enabled ? 'bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100' : 'bg-gray-50 border-gray-200 text-gray-500 hover:bg-gray-100'}`}
+                                  >
+                                    {tab.enabled ? <CheckCircle className="w-3.5 h-3.5 flex-shrink-0" /> : <XCircle className="w-3.5 h-3.5 flex-shrink-0" />}
+                                    <span className="truncate">{tab.tab_label}</span>
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )
                   })}

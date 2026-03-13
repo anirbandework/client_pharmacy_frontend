@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import useTabPermissions from '../../hooks/useTabPermissions'
 import Layout from '../../components/Layout'
 import Dashboard from './components/admin_components/Dashboard'
 import Discrepancies from './components/admin_components/Discrepancies'
@@ -16,8 +17,9 @@ const AdminStockAnalytics = () => {
   const [activeTab, setActiveTab] = useState('items')
   const [shops, setShops] = useState([])
   const [selectedShop, setSelectedShop] = useState(null)
+  const { isTabEnabled } = useTabPermissions('stock_analytics')
 
-  const tabs = [
+  const allTabs = [
     { id: 'items', label: 'Items', icon: Package, color: 'from-blue-500 to-blue-600' },
     { id: 'racks', label: 'Racks', icon: Grid, color: 'from-purple-500 to-purple-600' },
     { id: 'reports', label: 'Reports', icon: FileBarChart, color: 'from-teal-500 to-teal-600' },
@@ -26,6 +28,7 @@ const AdminStockAnalytics = () => {
     { id: 'discrepancies', label: 'Discrepancies', icon: AlertTriangle, color: 'from-red-500 to-red-600' },
     { id: 'excel-verification', label: 'Excel Verification', icon: CheckSquare, color: 'from-amber-500 to-orange-500' }
   ]
+  const tabs = allTabs.filter(t => isTabEnabled(t.id))
 
   useEffect(() => {
     fetchShops()

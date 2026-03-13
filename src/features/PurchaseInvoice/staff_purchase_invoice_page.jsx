@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import useTabPermissions from '../../hooks/useTabPermissions'
 import Layout from '../../components/Layout'
 import GeofenceGuard from '../../components/GeofenceGuard'
 import UploadInvoice from './components/staff_components/UploadInvoice'
@@ -15,14 +16,16 @@ const StaffPurchaseInvoicePage = () => {
   const [activeTab, setActiveTab] = useState('list')
   const [refresh, setRefresh] = useState(0)
   const [showHelp, setShowHelp] = useState(false)
+  const { isTabEnabled } = useTabPermissions('purchase_invoice')
 
-  const tabs = [
+  const allTabs = [
     { id: 'list', label: 'Invoice List', icon: FileText, color: 'from-purple-500 to-purple-600' },
     { id: 'upload', label: 'Upload Invoice', icon: Upload, color: 'from-green-500 to-green-600' },
     { id: 'expiry-alerts', label: 'Expiry Alerts', icon: AlertTriangle, color: 'from-red-500 to-orange-600' },
     { id: 'suppliers', label: 'Suppliers', icon: Package, color: 'from-green-500 to-teal-600' },
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, color: 'from-blue-500 to-blue-600' }
   ]
+  const tabs = allTabs.filter(t => isTabEnabled(t.id))
 
   return (
     <Layout>

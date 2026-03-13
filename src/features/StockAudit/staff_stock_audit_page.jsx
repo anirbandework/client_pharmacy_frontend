@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import useTabPermissions from '../../hooks/useTabPermissions'
 import Layout from '../../components/Layout'
 import GeofenceGuard from '../../components/GeofenceGuard'
 import Dashboard from './components/staff_components/Dashboard'
@@ -17,8 +18,9 @@ const StockAudit = () => {
   const [activeTab, setActiveTab] = useState('items')
   const [refresh, setRefresh] = useState(0)
   const [showHelp, setShowHelp] = useState(false)
+  const { isTabEnabled } = useTabPermissions('stock_audit')
 
-  const tabs = [
+  const allTabs = [
     { id: 'items', label: 'Items', icon: Grid, color: 'from-purple-500 to-purple-600' },
     { id: 'racks', label: 'Racks', icon: Package, color: 'from-green-500 to-green-600' },
     { id: 'upload', label: 'Excel Upload', icon: Upload, color: 'from-blue-500 to-cyan-500' },
@@ -29,6 +31,7 @@ const StockAudit = () => {
     { id: 'ai-analytics', label: 'AI Analytics', icon: Brain, color: 'from-purple-600 to-indigo-600' },
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, color: 'from-blue-500 to-blue-600' }
   ]
+  const tabs = allTabs.filter(t => isTabEnabled(t.id))
 
   return (
     <Layout>
