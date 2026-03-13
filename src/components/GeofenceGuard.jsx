@@ -15,7 +15,7 @@ const GeofenceGuard = ({ children, moduleName = 'this module' }) => {
     }
     
     checkWifiStatus()
-    const interval = setInterval(checkWifiStatus, 30000)
+    const interval = setInterval(checkWifiStatus, 300000)
     return () => clearInterval(interval)
   }, [])
 

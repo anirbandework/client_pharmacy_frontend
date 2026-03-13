@@ -14,12 +14,12 @@ const PrivacyPolicy = lazy(() => import('./features/Welcome/PrivacyPolicy'))
 const TermsOfService = lazy(() => import('./features/Welcome/TermsOfService'))
 const Support = lazy(() => import('./features/Welcome/Support'))
 const SuperAdminLogin = lazy(() => import('./features/Welcome/SuperAdminLogin'))
-const PurchaseInvoice = lazy(() => import('./features/PurchaseInvoice'))
-const AdminInvoiceAnalytics = lazy(() => import('./features/PurchaseInvoice/components/AdminAnalyticsPage'))
-const AdminStockAnalytics = lazy(() => import('./features/StockAudit/AdminAnalytics'))
-const AdminBillingAnalytics = lazy(() => import('./features/Billing/AdminAnalytics'))
-const StockAudit = lazy(() => import('./features/StockAudit'))
-const Billing = lazy(() => import('./features/Billing'))
+const StaffPurchaseInvoicePage = lazy(() => import('./features/PurchaseInvoice/staff_purchase_invoice_page'))
+const AdminPurchaseInvoicePage = lazy(() => import('./features/PurchaseInvoice/admin_purchase_invoice_page'))
+const AdminStockAnalytics = lazy(() => import('./features/StockAudit/admin_stock_audit_page'))
+const AdminBillingAnalytics = lazy(() => import('./features/Billing/admin_billing_page'))
+const StockAudit = lazy(() => import('./features/StockAudit/staff_stock_audit_page'))
+const Billing = lazy(() => import('./features/Billing/staff_billing_page'))
 const CustomerTracking = lazy(() => import('./features/CustomerTracking'))
 const Attendance = lazy(() => import('./features/Attendance'))
 const MyAttendance = lazy(() => import('./features/Attendance/MyAttendance'))
@@ -87,8 +87,8 @@ function App() {
                   <Route path="/unauthorized" element={<Unauthorized />} />
                   <Route path="/notifications" element={<ProtectedRoute requiredModule="notifications_admin"><AdminNotifications /></ProtectedRoute>} />
                   <Route path="/my-notifications" element={<ProtectedRoute requiredModule="my_notifications"><StaffNotificationsPage /></ProtectedRoute>} />
-                  <Route path="/purchase-invoice" element={<ProtectedRoute requiredModule="purchase_invoice"><PurchaseInvoice /></ProtectedRoute>} />
-                  <Route path="/invoice-analytics" element={<ProtectedRoute requiredModule="invoice_analytics"><AdminInvoiceAnalytics /></ProtectedRoute>} />
+                  <Route path="/purchase-invoice" element={<ProtectedRoute requiredModule="purchase_invoice"><StaffPurchaseInvoicePage /></ProtectedRoute>} />
+                  <Route path="/invoice-analytics" element={<ProtectedRoute requiredModule="invoice_analytics"><AdminPurchaseInvoicePage /></ProtectedRoute>} />
                   <Route path="/stock-analytics" element={<ProtectedRoute requiredModule="stock_analytics"><AdminStockAnalytics /></ProtectedRoute>} />
                   <Route path="/stock-audit" element={<ProtectedRoute requiredModule="stock_audit"><StockAudit /></ProtectedRoute>} />
                   <Route path="/billing-analytics" element={<ProtectedRoute requiredModule="billing_analytics"><AdminBillingAnalytics /></ProtectedRoute>} />

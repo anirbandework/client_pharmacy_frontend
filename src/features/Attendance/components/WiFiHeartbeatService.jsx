@@ -26,8 +26,8 @@ const WiFiHeartbeatService = () => {
         // Send first heartbeat immediately
         await sendHeartbeat()
         
-        // Send heartbeat every 30 seconds
-        heartbeatInterval = setInterval(sendHeartbeat, 30000)
+        // Send heartbeat every 5 minutes
+        heartbeatInterval = setInterval(sendHeartbeat, 300000)
         
         console.log('✅ WiFi Heartbeat Service started')
       } catch (error) {
