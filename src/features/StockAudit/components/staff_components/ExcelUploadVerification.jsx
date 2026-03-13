@@ -2,9 +2,15 @@ import React, { useState, useEffect } from 'react'
 import { Upload, Eye, Check, X, Edit, Trash2, Clock, User, AlertCircle, CheckCircle, FileSpreadsheet, Search, Calendar, Package } from 'lucide-react'
 import { staffStockAuditAPI } from '../../services/staff_stock_audit_apis'
 import toast from 'react-hot-toast'
+import Pagination from '../shared/Pagination'
+
+const PER_PAGE = 20
 
 const ExcelUploadVerification = () => {
   const [uploads, setUploads] = useState([])
+  const [uploadsPage, setUploadsPage] = useState(1)
+  const [uploadsTotalPages, setUploadsTotalPages] = useState(1)
+  const [uploadsTotal, setUploadsTotal] = useState(0)
   const [selectedUpload, setSelectedUpload] = useState(null)
   const [uploadItems, setUploadItems] = useState([])
   const [loading, setLoading] = useState(false)
@@ -12,21 +18,35 @@ const ExcelUploadVerification = () => {
   const [sections, setSections] = useState([])
   const [racks, setRacks] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
+  const [statusFilter, setStatusFilter] = useState('all')
   const [showVerifyModal, setShowVerifyModal] = useState(false)
   const [showRejectModal, setShowRejectModal] = useState(false)
   const [verifyNotes, setVerifyNotes] = useState('')
   const [rejectReason, setRejectReason] = useState('')
 
   useEffect(() => {
-    fetchUploads()
     fetchSections()
     fetchRacks()
   }, [])
 
-  const fetchUploads = async () => {
+  useEffect(() => {
+    setUploadsPage(1)
+    fetchUploads(1)
+  }, [searchTerm, statusFilter])
+
+  useEffect(() => {
+    fetchUploads(uploadsPage)
+  }, [uploadsPage])
+
+  const fetchUploads = async (page = 1) => {
     try {
-      const response = await staffStockAuditAPI.getExcelUploads()
-      setUploads(response.data)
+      const params = { page, per_page: PER_PAGE }
+      if (searchTerm) params.search = searchTerm
+      if (statusFilter !== 'all') params.status = statusFilter
+      const response = await staffStockAuditAPI.getExcelUploads(params)
+      setUploads(response.data.items)
+      setUploadsTotal(response.data.total)
+      setUploadsTotalPages(response.data.pages)
     } catch (error) {
       console.error('Error fetching uploads:', error)
     }
@@ -66,7 +86,9 @@ const ExcelUploadVerification = () => {
   const handleStaffVerify = async (uploadId, notes) => {
     try {
       await staffStockAuditAPI.staffVerifyUpload(uploadId, notes)
-      fetchUploads()
+      setSelectedUpload(null)
+      setUploadsPage(1)
+      fetchUploads(1)
       setShowVerifyModal(false)
       setVerifyNotes('')
       toast.success('Upload verified and sent to admin for approval')
@@ -79,7 +101,9 @@ const ExcelUploadVerification = () => {
   const handleReject = async (uploadId, reason) => {
     try {
       await staffStockAuditAPI.rejectUpload(uploadId, reason)
-      fetchUploads()
+      setSelectedUpload(null)
+      setUploadsPage(1)
+      fetchUploads(1)
       setShowRejectModal(false)
       setRejectReason('')
       toast.success('Upload rejected')
@@ -135,18 +159,13 @@ const ExcelUploadVerification = () => {
     return new Date(dateString).toLocaleString()
   }
 
-  const filteredUploads = uploads.filter(upload =>
-    upload.filename.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    upload.uploaded_by.toLowerCase().includes(searchTerm.toLowerCase())
-  )
-
   if (selectedUpload) {
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={() => setSelectedUpload(null)}
-            className="text-blue-600 hover:text-blue-800 flex items-center gap-2 transition-colors"
+            className="text-white hover:text-gray-200 flex items-center gap-2 transition-colors font-medium"
           >
             ← Back to Uploads
           </button>
@@ -164,18 +183,58 @@ const ExcelUploadVerification = () => {
             <div><strong>Total Items:</strong> {uploadItems.length}</div>
           </div>
           
+          {selectedUpload.upload_notes && (
+            <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="flex items-center gap-2 text-blue-800 font-medium mb-1">
+                <AlertCircle className="w-4 h-4" />
+                Upload Notes
+              </div>
+              <p className="text-sm text-blue-700">{selectedUpload.upload_notes}</p>
+            </div>
+          )}
+          
+          {selectedUpload.staff_notes && (
+            <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
+              <div className="flex items-center gap-2 text-green-800 font-medium mb-1">
+                <CheckCircle className="w-4 h-4" />
+                Staff Verification Notes
+              </div>
+              <p className="text-sm text-green-700">{selectedUpload.staff_notes}</p>
+            </div>
+          )}
+          
+          {selectedUpload.admin_notes && (
+            <div className="mt-4 p-3 bg-purple-50 rounded-lg border border-purple-200">
+              <div className="flex items-center gap-2 text-purple-800 font-medium mb-1">
+                <CheckCircle className="w-4 h-4" />
+                Admin Approval Notes
+              </div>
+              <p className="text-sm text-purple-700">{selectedUpload.admin_notes}</p>
+            </div>
+          )}
+          
+          {selectedUpload.status === 'rejected' && selectedUpload.rejection_reason && (
+            <div className="mt-4 p-3 bg-red-50 rounded-lg border border-red-200">
+              <div className="flex items-center gap-2 text-red-800 font-medium mb-1">
+                <X className="w-4 h-4" />
+                Rejection Reason
+              </div>
+              <p className="text-sm text-red-700">{selectedUpload.rejection_reason}</p>
+            </div>
+          )}
+          
           {selectedUpload.status === 'pending_staff_verification' && (
             <div className="flex gap-2 mt-4">
               <button
                 onClick={() => setShowVerifyModal(true)}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2 transition-colors"
+                className="px-4 py-2 bg-gradient-to-r from-green-400 to-emerald-400 text-white rounded-lg hover:from-green-500 hover:to-emerald-500 flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
               >
                 <Check className="w-4 h-4" />
                 Verify & Send to Admin
               </button>
               <button
                 onClick={() => setShowRejectModal(true)}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center gap-2 transition-colors"
+                className="px-4 py-2 bg-gradient-to-r from-red-400 to-rose-400 text-white rounded-lg hover:from-red-500 hover:to-rose-500 flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
               >
                 <X className="w-4 h-4" />
                 Reject
@@ -346,7 +405,7 @@ const ExcelUploadVerification = () => {
                 </button>
                 <button
                   onClick={() => handleStaffVerify(selectedUpload.id, verifyNotes)}
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                  className="px-4 py-2 bg-gradient-to-r from-green-400 to-emerald-400 text-white rounded-lg hover:from-green-500 hover:to-emerald-500 shadow-md hover:shadow-lg transition-all"
                 >
                   Verify & Send to Admin
                 </button>
@@ -391,7 +450,7 @@ const ExcelUploadVerification = () => {
                       toast.error('Please provide a rejection reason')
                     }
                   }}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                  className="px-4 py-2 bg-gradient-to-r from-red-400 to-rose-400 text-white rounded-lg hover:from-red-500 hover:to-rose-500 shadow-md hover:shadow-lg transition-all"
                 >
                   Reject Upload
                 </button>
@@ -417,8 +476,19 @@ const ExcelUploadVerification = () => {
               className="w-full pl-10 pr-4 py-2 md:py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all text-sm md:text-base"
             />
           </div>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="px-4 py-2 md:py-3 bg-white border-2 border-gray-200 text-gray-900 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all text-sm md:text-base"
+          >
+            <option value="all">All Status</option>
+            <option value="pending_staff_verification">Pending Staff</option>
+            <option value="pending_admin_verification">Pending Admin</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+          </select>
           <button
-            onClick={fetchUploads}
+            onClick={() => fetchUploads(uploadsPage)}
             className="px-4 py-2 md:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm md:text-base"
           >
             Refresh
@@ -427,7 +497,7 @@ const ExcelUploadVerification = () => {
       </div>
 
       <div className="grid gap-4">
-        {filteredUploads.map((upload) => (
+        {uploads.map((upload) => (
           <div key={upload.id} className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 hover:shadow-xl transition-all">
             <div className="flex items-start justify-between">
               <div className="flex-1">
@@ -436,6 +506,11 @@ const ExcelUploadVerification = () => {
                   <h3 className="font-bold text-base md:text-lg text-gray-800">{upload.filename}</h3>
                   {getStatusBadge(upload.status)}
                 </div>
+                {upload.upload_notes && (
+                  <div className="mb-2 text-xs md:text-sm text-blue-700 bg-blue-50 px-2 py-1 rounded border border-blue-200">
+                    <strong>Upload Notes:</strong> {upload.upload_notes}
+                  </div>
+                )}
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 text-xs md:text-sm">
                   <div className="flex items-center gap-2 text-gray-600">
                     <Calendar className="w-3 h-3 md:w-4 md:h-4" />
@@ -486,7 +561,15 @@ const ExcelUploadVerification = () => {
         ))}
       </div>
 
-      {filteredUploads.length === 0 && (
+      <Pagination
+        page={uploadsPage}
+        totalPages={uploadsTotalPages}
+        total={uploadsTotal}
+        perPage={PER_PAGE}
+        onPageChange={setUploadsPage}
+      />
+
+      {uploads.length === 0 && (
         <div className="bg-white rounded-xl shadow-lg border border-slate-200 text-center py-8 md:py-12 text-gray-500">
           <FileSpreadsheet className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-4 text-gray-300" />
           <p className="text-sm md:text-base">No uploads found</p>
@@ -616,7 +699,7 @@ const EditItemModal = ({ item, sections, racks, onSave, onClose }) => {
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              className="px-4 py-2 bg-gradient-to-r from-blue-400 to-indigo-400 text-white rounded-lg hover:from-blue-500 hover:to-indigo-500 shadow-md hover:shadow-lg transition-all"
             >
               Save Changes
             </button>

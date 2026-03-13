@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Users, Clock, FileText, BarChart3, Package, DollarSign } from 'lucide-react'
+import { Users, Clock, FileText, BarChart3, Package, IndianRupee } from 'lucide-react'
 
 const FeatureCarousel = () => {
   const scrollRef = useRef(null)
@@ -37,7 +37,7 @@ const FeatureCarousel = () => {
       description: 'Stock audit & expiry tracking'
     },
     {
-      icon: DollarSign,
+      icon: IndianRupee,
       color: 'pink',
       title: 'Payroll Management',
       description: 'Automated salary processing'

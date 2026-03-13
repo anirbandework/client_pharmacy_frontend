@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { analyticsAPI } from '../../services/analytics'
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
-import { TrendingUp, TrendingDown, DollarSign, Receipt, Calendar, Target } from 'lucide-react'
+import { TrendingUp, TrendingDown, IndianRupee, Receipt, Calendar, Target } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82ca9d']
@@ -66,7 +66,7 @@ const Analytics = () => {
               <p className="text-3xl font-bold mt-1">₹{summary.total_sales.toLocaleString()}</p>
               <p className="text-xs mt-2">Avg: ₹{summary.avg_daily_sales.toFixed(2)}/day</p>
             </div>
-            <DollarSign className="w-8 h-8 opacity-80" />
+            <IndianRupee className="w-8 h-8 opacity-80" />
           </div>
         </div>
 

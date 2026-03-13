@@ -5,6 +5,9 @@ import toast from 'react-hot-toast'
 import { staffPurchaseInvoiceAPI } from '../../../PurchaseInvoice/services/staff_purchase_invoice_apis'
 import ProductAutocomplete from '../../../PurchaseInvoice/components/shared/ProductAutocomplete'
 import CompositionAutocomplete from '../../../PurchaseInvoice/components/shared/CompositionAutocomplete'
+import Pagination from '../shared/Pagination'
+
+const PER_PAGE = 50
 
 const StockItems = () => {
   const [items, setItems] = useState([])
@@ -32,7 +35,9 @@ const StockItems = () => {
   const [selectedUnassignedItems, setSelectedUnassignedItems] = useState([])
   const [bulkAssignSection, setBulkAssignSection] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage] = useState(50)
+  const [totalPages, setTotalPages] = useState(1)
+  const [allTotal, setAllTotal] = useState(0)
+  const [unassignedTotal, setUnassignedTotal] = useState(0)
   const [formData, setFormData] = useState({ 
     manufacturer: '',
     hsn_code: '',
@@ -51,17 +56,24 @@ const StockItems = () => {
     quantity_software: '' 
   })
 
+  // Debounce filter/search/tab changes → reset to page 1 and fetch
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
-      setCurrentPage(1) // Reset to page 1 when filters change
-      fetchData()
+      fetchData(1)
     }, 500)
     return () => clearTimeout(delayDebounce)
   }, [activeTab, searchTerm, filters])
 
-  const fetchData = async () => {
+  // Immediate fetch when page changes (triggered by pagination controls)
+  useEffect(() => {
+    fetchData(currentPage)
+  }, [currentPage])
+
+  const fetchData = async (page = 1) => {
     try {
       setLoading(true)
+      setCurrentPage(page)
+
       const [sectionsRes, racksRes] = await Promise.all([
         staffStockAuditAPI.getSections(),
         staffStockAuditAPI.getRacks()
@@ -78,27 +90,35 @@ const StockItems = () => {
           expiry_before: filters.expiry_before || undefined,
           expiry_after: filters.expiry_after || undefined,
           rack_id: filters.rack_id || undefined,
-          section_id: filters.section_id || undefined
+          section_id: filters.section_id || undefined,
+          page,
+          per_page: PER_PAGE
         }
         const itemsRes = await staffStockAuditAPI.getItems(params)
-        setItems(itemsRes.data)
-        
-        // Fetch unassigned count even when on 'all' tab
-        const unassignedRes = await staffStockAuditAPI.getUnassignedItems()
-        setUnassignedItems(unassignedRes.data)
+        setItems(itemsRes.data.items)
+        setAllTotal(itemsRes.data.total)
+        setTotalPages(itemsRes.data.pages)
+
+        // Lightweight count for the unassigned badge
+        const unassignedCountRes = await staffStockAuditAPI.getUnassignedItems({ page: 1, per_page: 1 })
+        setUnassignedTotal(unassignedCountRes.data.total)
       } else {
         const params = {
           item_name: searchTerm || undefined,
           composition: filters.composition || undefined,
           manufacturer: filters.manufacturer || undefined,
-          batch_number: filters.batch_number || undefined
+          batch_number: filters.batch_number || undefined,
+          page,
+          per_page: PER_PAGE
         }
         const unassignedRes = await staffStockAuditAPI.getUnassignedItems(params)
-        setUnassignedItems(unassignedRes.data)
-        
-        // Fetch all items count even when on 'unassigned' tab
-        const itemsRes = await staffStockAuditAPI.getItems()
-        setItems(itemsRes.data)
+        setUnassignedItems(unassignedRes.data.items)
+        setUnassignedTotal(unassignedRes.data.total)
+        setTotalPages(unassignedRes.data.pages)
+
+        // Lightweight count for the all-items badge
+        const allCountRes = await staffStockAuditAPI.getItems({ page: 1, per_page: 1 })
+        setAllTotal(allCountRes.data.total)
       }
     } catch (error) {
       toast.error('Failed to fetch data')
@@ -182,7 +202,9 @@ const StockItems = () => {
         ...formData,
         section_id: formData.section_id || null,
         quantity_software: parseInt(formData.quantity_software) || 0,
-        unit_price: parseFloat(formData.unit_price) || null
+        unit_price: parseFloat(formData.unit_price) || null,
+        manufacturing_date: formData.manufacturing_date || null,
+        expiry_date: formData.expiry_date || null
       }
 
       if (editingItem) {
@@ -435,68 +457,77 @@ const StockItems = () => {
     return date.toLocaleDateString()
   }
 
+  // Server already returned the correct page — no client-side slicing needed
   const displayItems = activeTab === 'all' ? items : unassignedItems
-  
-  // Pagination
-  const totalPages = Math.ceil(displayItems.length / itemsPerPage)
-  const startIndex = (currentPage - 1) * itemsPerPage
-  const endIndex = startIndex + itemsPerPage
-  const paginatedItems = displayItems.slice(startIndex, endIndex)
 
   return (
     <div className="bg-white rounded-lg shadow p-6 mb-8">
       <div className="flex justify-between items-center mb-4">
         <div className="flex gap-4">
-          <h2 className="text-xl font-bold">Stock Items</h2>
           <div className="flex gap-2 border-b">
             <button 
               onClick={() => setActiveTab('all')}
               className={`px-4 py-2 ${activeTab === 'all' ? 'border-b-2 border-primary-600 text-primary-600 font-semibold' : 'text-gray-600'}`}
             >
-              All Items ({items.length})
+              All Items ({allTotal})
             </button>
             <button 
               onClick={() => setActiveTab('unassigned')}
               className={`px-4 py-2 flex items-center gap-2 ${activeTab === 'unassigned' ? 'border-b-2 border-orange-600 text-orange-600 font-semibold' : 'text-gray-600'}`}
             >
               <AlertCircle className="w-4 h-4" />
-              Unassigned ({unassignedItems.length})
+              Unassigned ({unassignedTotal})
             </button>
           </div>
         </div>
         <div className="flex gap-2">
-          <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
-            <Download className="w-4 h-4" />Export
+          <button 
+            onClick={handleExport} 
+            className="group relative flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-lg text-sm font-medium shadow-md hover:shadow-lg hover:from-emerald-600 hover:to-green-700 transition-all duration-300 transform hover:scale-105"
+          >
+            <div className="absolute inset-0 bg-white/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <Download className="w-3.5 h-3.5 relative z-10" />
+            <span className="relative z-10">Export</span>
           </button>
-          <button onClick={() => setShowBulkForm(!showBulkForm)} className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700">
-            <List className="w-4 h-4" />Bulk Add
+          <button 
+            onClick={() => setShowBulkForm(!showBulkForm)} 
+            className="group relative flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-lg text-sm font-medium shadow-md hover:shadow-lg hover:from-purple-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105"
+          >
+            <div className="absolute inset-0 bg-white/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <List className="w-3.5 h-3.5 relative z-10" />
+            <span className="relative z-10">Bulk Add</span>
           </button>
-          <button onClick={() => { 
-            if (showForm) {
-              setShowForm(false);
-            } else {
-              setEditingItem(null);
-              setFormData({ 
-                manufacturer: '',
-                hsn_code: '',
-                product_name: '',
-                composition: '',
-                batch_number: '', 
-                package: '',
-                unit: '',
-                expiry_date: '',
-                manufacturing_date: '',
-                mrp: '',
-                unit_price: '',
-                selling_price: '',
-                profit_margin: '',
-                section_id: '', 
-                quantity_software: '' 
-              });
-              setShowForm(true);
-            }
-          }} className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700">
-            <Plus className="w-4 h-4" />Add Item
+          <button 
+            onClick={() => { 
+              if (showForm) {
+                setShowForm(false);
+              } else {
+                setEditingItem(null);
+                setFormData({ 
+                  manufacturer: '',
+                  hsn_code: '',
+                  product_name: '',
+                  composition: '',
+                  batch_number: '', 
+                  package: '',
+                  unit: '',
+                  expiry_date: '',
+                  manufacturing_date: '',
+                  mrp: '',
+                  unit_price: '',
+                  selling_price: '',
+                  profit_margin: '',
+                  section_id: '', 
+                  quantity_software: '' 
+                });
+                setShowForm(true);
+              }
+            }} 
+            className="group relative flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-500 to-cyan-600 text-white rounded-lg text-sm font-medium shadow-md hover:shadow-lg hover:from-blue-600 hover:to-cyan-700 transition-all duration-300 transform hover:scale-105"
+          >
+            <div className="absolute inset-0 bg-white/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <Plus className="w-3.5 h-3.5 relative z-10" />
+            <span className="relative z-10">Add Item</span>
           </button>
         </div>
       </div>
@@ -529,7 +560,7 @@ const StockItems = () => {
           `}</style>
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="px-4 py-2 border rounded-lg hover:bg-gray-50 flex items-center gap-2"
+            className="px-4 py-2 border-2 border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 flex items-center gap-2 transition-all duration-200"
           >
             <Settings className="w-4 h-4" />
             {showFilters ? 'Hide Filters' : 'Show Filters'}
@@ -630,12 +661,24 @@ const StockItems = () => {
       </div>
 
       {showBulkForm && (
-        <div className="mb-6 p-4 bg-purple-50 rounded border-2 border-purple-200">
-          <h3 className="text-lg font-bold mb-4 text-purple-900">Bulk Add Items to Section</h3>
-          <form onSubmit={handleBulkSubmit}>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Select Rack & Section *</label>
-              <select value={bulkSection} onChange={(e) => setBulkSection(e.target.value)} className="w-full px-3 py-2 border-2 border-purple-300 rounded" required>
+        <div className="mb-6 bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl border-2 border-purple-300 shadow-lg">
+          <div className="bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-4 rounded-t-xl">
+            <h3 className="text-xl font-bold text-white flex items-center gap-2">
+              <List className="w-6 h-6" />
+              Bulk Add Items to Section
+            </h3>
+          </div>
+          
+          <form onSubmit={handleBulkSubmit} className="p-6">
+            {/* Top Box - Section Selection */}
+            <div className="mb-6 p-4 bg-white rounded-lg border-2 border-purple-300 shadow-sm">
+              <label className="block text-sm font-bold text-gray-800 mb-3">Select Rack & Section *</label>
+              <select 
+                value={bulkSection} 
+                onChange={(e) => setBulkSection(e.target.value)} 
+                className="w-full px-4 py-3 border-2 border-purple-300 rounded-lg text-base focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white"
+                required
+              >
                 <option value="">Choose Section</option>
                 {sections.map((section) => {
                   const rack = racks.find(r => r.id === section.rack_id)
@@ -644,51 +687,214 @@ const StockItems = () => {
               </select>
             </div>
             
-            <div className="space-y-3 max-h-96 overflow-y-auto">
+            {/* Items List */}
+            <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
               {bulkItems.map((item, idx) => (
-                <div key={idx} className="p-3 bg-white rounded border">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="font-semibold text-sm">Item {idx + 1}</span>
+                <div key={idx} className="p-5 bg-white rounded-lg border-2 border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex justify-between items-center mb-4">
+                    <span className="font-bold text-base text-purple-700">Item {idx + 1}</span>
                     {bulkItems.length > 1 && (
-                      <button type="button" onClick={() => removeBulkRow(idx)} className="text-red-600 hover:bg-red-50 px-2 py-1 rounded text-xs">
+                      <button 
+                        type="button" 
+                        onClick={() => removeBulkRow(idx)} 
+                        className="flex items-center gap-1 text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg text-sm font-medium border border-red-300 hover:border-red-400 transition-all"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
                         Remove
                       </button>
                     )}
                   </div>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                    <ProductAutocomplete
-                      value={item.product_name}
-                      onChange={(value) => updateBulkItem(idx, 'product_name', value)}
-                      placeholder="Product Name *"
-                      className="px-2 py-1 border rounded text-sm"
-                    />
-                    <input type="text" placeholder="Batch *" value={item.batch_number} onChange={(e) => updateBulkItem(idx, 'batch_number', e.target.value)} className="px-2 py-1 border rounded text-sm" required />
-                    <input type="number" placeholder="Qty *" value={item.quantity_software} onChange={(e) => updateBulkItem(idx, 'quantity_software', e.target.value)} className="px-2 py-1 border rounded text-sm" required />
-                    <input type="number" step="0.01" placeholder="Price *" value={item.unit_price} onChange={(e) => updateBulkItem(idx, 'unit_price', e.target.value)} className="px-2 py-1 border rounded text-sm" required />
-                    <CompositionAutocomplete
-                      value={item.composition}
-                      onChange={(value) => updateBulkItem(idx, 'composition', value)}
-                      placeholder="Composition"
-                      className="px-2 py-1 border rounded text-sm"
-                    />
-                    <input type="text" placeholder="Manufacturer" value={item.manufacturer} onChange={(e) => updateBulkItem(idx, 'manufacturer', e.target.value)} className="px-2 py-1 border rounded text-sm" />
-                    <input type="text" placeholder="HSN" value={item.hsn_code} onChange={(e) => updateBulkItem(idx, 'hsn_code', e.target.value)} className="px-2 py-1 border rounded text-sm" />
-                    <input type="text" placeholder="Package" value={item.package} onChange={(e) => updateBulkItem(idx, 'package', e.target.value)} className="px-2 py-1 border rounded text-sm" />
-                    <input type="text" placeholder="Unit" value={item.unit} onChange={(e) => updateBulkItem(idx, 'unit', e.target.value)} className="px-2 py-1 border rounded text-sm" />
-                    <input type="date" placeholder="Expiry *" value={item.expiry_date} onChange={(e) => updateBulkItem(idx, 'expiry_date', e.target.value)} className="px-2 py-1 border rounded text-sm" required />
-                    <input type="date" placeholder="Mfg Date" value={item.manufacturing_date} onChange={(e) => updateBulkItem(idx, 'manufacturing_date', e.target.value)} className="px-2 py-1 border rounded text-sm" />
-                    <input type="text" placeholder="MRP" value={item.mrp} onChange={(e) => updateBulkItem(idx, 'mrp', e.target.value)} className="px-2 py-1 border rounded text-sm" />
-                    <input type="number" step="0.01" placeholder="Selling Price" value={item.selling_price} onChange={(e) => updateBulkItem(idx, 'selling_price', e.target.value)} className="px-2 py-1 border rounded text-sm" />
-                    <input type="number" step="0.01" placeholder="Margin %" value={item.profit_margin} onChange={(e) => updateBulkItem(idx, 'profit_margin', e.target.value)} className="px-2 py-1 border rounded text-sm" />
+                  
+                  {/* Row 1: Required Fields */}
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">Product Name *</label>
+                      <ProductAutocomplete
+                        value={item.product_name}
+                        onChange={(value) => updateBulkItem(idx, 'product_name', value)}
+                        placeholder="DAPAGLIFLOZIN"
+                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">Batch *</label>
+                      <input 
+                        type="text" 
+                        placeholder="B12345" 
+                        value={item.batch_number} 
+                        onChange={(e) => updateBulkItem(idx, 'batch_number', e.target.value)} 
+                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500" 
+                        required 
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">Qty *</label>
+                      <input 
+                        type="number" 
+                        placeholder="100" 
+                        value={item.quantity_software} 
+                        onChange={(e) => updateBulkItem(idx, 'quantity_software', e.target.value)} 
+                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500" 
+                        required 
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">Price *</label>
+                      <input 
+                        type="number" 
+                        step="0.01" 
+                        placeholder="₹45.50" 
+                        value={item.unit_price} 
+                        onChange={(e) => updateBulkItem(idx, 'unit_price', e.target.value)} 
+                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500" 
+                        required 
+                      />
+                    </div>
+                  </div>
+                  
+                  {/* Row 2: Optional Fields */}
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">Composition</label>
+                      <CompositionAutocomplete
+                        value={item.composition}
+                        onChange={(value) => updateBulkItem(idx, 'composition', value)}
+                        placeholder="10mg Tablet"
+                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">Manufacturer</label>
+                      <input 
+                        type="text" 
+                        placeholder="Sun Pharma" 
+                        value={item.manufacturer} 
+                        onChange={(e) => updateBulkItem(idx, 'manufacturer', e.target.value)} 
+                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500" 
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">HSN</label>
+                      <input 
+                        type="text" 
+                        placeholder="30049" 
+                        value={item.hsn_code} 
+                        onChange={(e) => updateBulkItem(idx, 'hsn_code', e.target.value)} 
+                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500" 
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">Package</label>
+                      <input 
+                        type="text" 
+                        placeholder="10x10" 
+                        value={item.package} 
+                        onChange={(e) => updateBulkItem(idx, 'package', e.target.value)} 
+                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500" 
+                      />
+                    </div>
+                  </div>
+                  
+                  {/* Row 3: Dates and Unit */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">Unit</label>
+                      <input 
+                        type="text" 
+                        placeholder="TAB" 
+                        value={item.unit} 
+                        onChange={(e) => updateBulkItem(idx, 'unit', e.target.value)} 
+                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500" 
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">Mfg Date</label>
+                      <input 
+                        type="date" 
+                        value={item.manufacturing_date} 
+                        onChange={(e) => updateBulkItem(idx, 'manufacturing_date', e.target.value)} 
+                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500" 
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">Expiry Date *</label>
+                      <input 
+                        type="date" 
+                        value={item.expiry_date} 
+                        onChange={(e) => updateBulkItem(idx, 'expiry_date', e.target.value)} 
+                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500" 
+                        required 
+                      />
+                    </div>
+                  </div>
+                  
+                  {/* Row 4: Pricing */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">MRP</label>
+                      <input 
+                        type="text" 
+                        placeholder="₹50.00" 
+                        value={item.mrp} 
+                        onChange={(e) => updateBulkItem(idx, 'mrp', e.target.value)} 
+                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500" 
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">Selling Price</label>
+                      <input 
+                        type="number" 
+                        step="0.01" 
+                        placeholder="₹48.00" 
+                        value={item.selling_price} 
+                        onChange={(e) => updateBulkItem(idx, 'selling_price', e.target.value)} 
+                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500" 
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">Margin %</label>
+                      <input 
+                        type="number" 
+                        step="0.01" 
+                        placeholder="5.5%" 
+                        value={item.profit_margin} 
+                        onChange={(e) => updateBulkItem(idx, 'profit_margin', e.target.value)} 
+                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500" 
+                      />
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
             
-            <div className="mt-4 flex gap-2">
-              <button type="button" onClick={addBulkRow} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">+ Add Row</button>
-              <button type="submit" className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Save All Items</button>
-              <button type="button" onClick={() => { setShowBulkForm(false); setBulkSection(''); setBulkItems([{ product_name: '', batch_number: '', quantity_software: '', unit_price: '', composition: '', manufacturer: '', hsn_code: '', package: '', unit: '', expiry_date: '', manufacturing_date: '', mrp: '', selling_price: '', profit_margin: '' }]) }} className="px-4 py-2 bg-gray-300 rounded">Cancel</button>
+            {/* Action Buttons */}
+            <div className="mt-6 flex flex-wrap gap-3">
+              <button 
+                type="button" 
+                onClick={addBulkRow} 
+                className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 font-medium shadow-md hover:shadow-lg transition-all"
+              >
+                <Plus className="w-4 h-4" />
+                Add Row
+              </button>
+              <button 
+                type="submit" 
+                className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 font-medium shadow-md hover:shadow-lg transition-all"
+              >
+                <CheckCircle className="w-4 h-4" />
+                Save All Items
+              </button>
+              <button 
+                type="button" 
+                onClick={() => { 
+                  setShowBulkForm(false); 
+                  setBulkSection(''); 
+                  setBulkItems([{ product_name: '', batch_number: '', quantity_software: '', unit_price: '', composition: '', manufacturer: '', hsn_code: '', package: '', unit: '', expiry_date: '', manufacturing_date: '', mrp: '', selling_price: '', profit_margin: '' }]) 
+                }} 
+                className="px-5 py-2.5 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 font-medium shadow-md hover:shadow-lg transition-all"
+              >
+                Cancel
+              </button>
             </div>
           </form>
         </div>
@@ -812,6 +1018,11 @@ const StockItems = () => {
         </form>
       )}
 
+      <div className="mb-3 flex items-center gap-2 text-sm text-gray-600 bg-blue-50 px-4 py-2 rounded-lg border border-blue-200">
+        <AlertCircle className="w-4 h-4 text-blue-600" />
+        <span>Scroll right to see the full table</span>
+      </div>
+
       <div className="overflow-x-auto rounded-xl border border-gray-200 shadow-lg mt-6">
         {loading ? (
           <div className="flex items-center justify-center py-20">
@@ -858,7 +1069,7 @@ const StockItems = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-100">
-              {paginatedItems.map((item, idx) => (
+              {displayItems.map((item, idx) => (
                 <tr key={item.id} className={`transition-all duration-200 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:shadow-sm ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'}`}>
                   {activeTab === 'unassigned' && (
                     <td className="px-6 py-4 text-center">
@@ -998,48 +1209,13 @@ const StockItems = () => {
         )}
       </div>
       
-      {displayItems.length > 0 && totalPages > 1 && (
-        <div className="mt-6 flex items-center justify-between bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-          <div className="text-sm text-gray-600">
-            Showing {startIndex + 1} to {Math.min(endIndex, displayItems.length)} of {displayItems.length} items
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-              disabled={currentPage === 1}
-              className="px-3 py-1 border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Previous
-            </button>
-            {[...Array(totalPages)].map((_, i) => {
-              const page = i + 1
-              if (page === 1 || page === totalPages || (page >= currentPage - 1 && page <= currentPage + 1)) {
-                return (
-                  <button
-                    key={page}
-                    onClick={() => setCurrentPage(page)}
-                    className={`px-3 py-1 border rounded ${
-                      currentPage === page ? 'bg-primary-600 text-white' : 'hover:bg-gray-50'
-                    }`}
-                  >
-                    {page}
-                  </button>
-                )
-              } else if (page === currentPage - 2 || page === currentPage + 2) {
-                return <span key={page} className="px-2">...</span>
-              }
-              return null
-            })}
-            <button
-              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-              disabled={currentPage === totalPages}
-              className="px-3 py-1 border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Next
-            </button>
-          </div>
-        </div>
-      )}
+      <Pagination
+        page={currentPage}
+        totalPages={totalPages}
+        total={activeTab === 'all' ? allTotal : unassignedTotal}
+        perPage={PER_PAGE}
+        onPageChange={(p) => setCurrentPage(p)}
+      />
     </div>
   )
 }

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Loader2, Info, Store, BarChart3, Brain, TrendingUp, DollarSign, Receipt, Package } from 'lucide-react'
+import { Loader2, Info, Store, BarChart3, Brain, TrendingUp, IndianRupee, Receipt, Package } from 'lucide-react'
 import toast from 'react-hot-toast'
 import ReactMarkdown from 'react-markdown'
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, AreaChart } from 'recharts'
@@ -197,7 +197,7 @@ export default function BillingAdminAnalytics() {
               <div className="bg-white rounded-xl shadow-md p-4">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="p-2 bg-green-100 rounded-lg">
-                    <DollarSign className="w-5 h-5 text-green-600" />
+                    <IndianRupee className="w-5 h-5 text-green-600" />
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Total Revenue</p>
@@ -423,7 +423,7 @@ export default function BillingAdminAnalytics() {
                 <div className="bg-white rounded-xl shadow-md p-4">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="p-2 bg-green-100 rounded-lg">
-                      <DollarSign className="w-5 h-5 text-green-600" />
+                      <IndianRupee className="w-5 h-5 text-green-600" />
                     </div>
                     <div>
                       <p className="text-sm text-gray-600">Revenue</p>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Info, X, FileText, Package, DollarSign, Calendar, CheckCircle, AlertCircle, Download, Upload } from 'lucide-react'
+import { Info, X, FileText, Package, IndianRupee, Calendar, CheckCircle, AlertCircle, Download, Upload, XCircle } from 'lucide-react'
 import { staffPurchaseInvoiceAPI } from '../../services/staff_purchase_invoice_apis'
 
 const FieldsGuideModal = () => {
@@ -136,7 +136,7 @@ const FieldsGuideModal = () => {
                 {row.map((cell, cellIdx) => (
                   <td key={cellIdx} className="px-2 md:px-4 py-1.5 md:py-2 text-xs md:text-sm text-gray-700 border-b border-gray-200">
                     {cell.includes('✅') ? <CheckCircle className="w-3 h-3 md:w-4 md:h-4 text-green-600 inline" /> : 
-                     cell.includes('❌') ? <X className="w-3 h-3 md:w-4 md:h-4 text-red-600 inline" /> : 
+                     cell.includes('❌') ? <XCircle className="w-3 h-3 md:w-4 md:h-4 text-red-600 inline" /> : 
                      cell}
                   </td>
                 ))}

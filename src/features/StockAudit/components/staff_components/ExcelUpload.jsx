@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { staffStockAuditAPI } from '../../services/staff_stock_audit_apis'
-import { Upload, Download, CheckCircle, AlertCircle, FileSpreadsheet } from 'lucide-react'
+import { Upload, Download, CheckCircle, AlertCircle, FileSpreadsheet, Info, Lightbulb, Shuffle } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 const ExcelUpload = () => {
@@ -50,14 +50,14 @@ const ExcelUpload = () => {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 md:p-6">
       <div className="flex items-center gap-3 mb-6">
-        <div className="p-3 bg-blue-100 rounded-lg">
-          <FileSpreadsheet className="w-6 h-6 text-blue-600" />
+        <div className="p-3 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-xl">
+          <FileSpreadsheet className="w-5 h-5 md:w-6 md:h-6 text-blue-600" />
         </div>
         <div>
-          <h2 className="text-xl font-bold text-gray-900">Excel Upload</h2>
-          <p className="text-gray-600">Import stock items from Excel files</p>
+          <h2 className="text-lg md:text-xl font-bold text-gray-900">Excel Upload</h2>
+          <p className="text-sm md:text-base text-gray-600">Import stock items from Excel files</p>
         </div>
       </div>
 
@@ -65,7 +65,7 @@ const ExcelUpload = () => {
         {/* Upload Section */}
         <div className="space-y-6">
           <div className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200">
-            <h3 className="text-lg font-semibold text-blue-900 mb-4">Upload Stock Data</h3>
+            <h3 className="text-base md:text-lg font-bold text-blue-900 mb-4">Upload Stock Data</h3>
             
             <div className="space-y-4">
               <div>
@@ -82,13 +82,13 @@ const ExcelUpload = () => {
               <div className="flex gap-3">
                 <button 
                   onClick={handleExport} 
-                  className="flex items-center gap-2 px-4 py-3 bg-white border-2 border-blue-300 text-blue-700 rounded-lg hover:bg-blue-50 transition-colors"
+                  className="flex items-center gap-2 px-4 py-3 bg-white border-2 border-blue-300 text-blue-700 rounded-lg hover:bg-blue-50 transition-colors font-medium"
                 >
                   <Download className="w-5 h-5" />
                   Download Template
                 </button>
                 
-                <label className="flex items-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer transition-colors">
+                <label className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:shadow-lg cursor-pointer transition-all font-medium">
                   <Upload className="w-5 h-5" />
                   {uploadingExcel ? 'Uploading...' : 'Select Excel File'}
                   <input 
@@ -112,16 +112,20 @@ const ExcelUpload = () => {
 
           {/* Instructions */}
           <div className="p-6 bg-blue-50 rounded-xl border border-blue-200">
-            <h4 className="font-semibold text-blue-900 mb-3">🔄 Verification Workflow</h4>
+            <h4 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
+              <Shuffle className="w-4 h-4" />
+              Verification Workflow
+            </h4>
             <ol className="list-decimal list-inside space-y-2 text-sm text-blue-800">
               <li><strong>Upload:</strong> Your Excel file is uploaded and staged for review</li>
               <li><strong>Staff Verification:</strong> Staff reviews and can modify items if needed</li>
               <li><strong>Admin Approval:</strong> Admin gives final approval before adding to inventory</li>
               <li><strong>System Update:</strong> Items are added to inventory only after full approval</li>
             </ol>
-            <div className="mt-3 p-3 bg-blue-100 rounded-lg">
+            <div className="mt-3 p-3 bg-blue-100 rounded-lg flex items-start gap-2">
+              <Info className="w-4 h-4 text-blue-700 flex-shrink-0 mt-0.5" />
               <p className="text-xs text-blue-700">
-                💡 Check the "Upload Verification" tab to track your upload status
+                Check the "Upload Verification" tab to track your upload status
               </p>
             </div>
           </div>
@@ -153,13 +157,20 @@ const ExcelUpload = () => {
                     <div className="space-y-2">
                       <p className="text-green-800">{uploadResult.data.message}</p>
                       <div className="text-sm text-green-700 space-y-1">
-                        <div>✅ {uploadResult.data.success_count} items staged for verification</div>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4" />
+                          <span>{uploadResult.data.success_count} items staged for verification</span>
+                        </div>
                         {uploadResult.data.error_count > 0 && (
-                          <div>⚠️ {uploadResult.data.error_count} items failed</div>
+                          <div className="flex items-center gap-2">
+                            <AlertCircle className="w-4 h-4" />
+                            <span>{uploadResult.data.error_count} items failed</span>
+                          </div>
                         )}
                         <div className="mt-2 p-2 bg-green-100 rounded">
-                          <div className="text-xs text-green-700">
-                            🔄 Status: {uploadResult.data.status === 'pending_staff_verification' ? 'Pending Staff Verification' : uploadResult.data.status}
+                          <div className="text-xs text-green-700 flex items-center gap-2">
+                            <Shuffle className="w-3 h-3" />
+                            <span>Status: {uploadResult.data.status === 'pending_staff_verification' ? 'Pending Staff Verification' : uploadResult.data.status}</span>
                           </div>
                           <div className="text-xs text-green-600 mt-1">
                             Upload ID: #{uploadResult.data.upload_id}
@@ -169,10 +180,16 @@ const ExcelUpload = () => {
                       
                       {uploadResult.data.errors && uploadResult.data.errors.length > 0 && (
                         <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded">
-                          <div className="font-medium text-yellow-800 mb-1">Errors:</div>
+                          <div className="font-medium text-yellow-800 mb-1 flex items-center gap-2">
+                            <AlertCircle className="w-4 h-4" />
+                            <span>Errors:</span>
+                          </div>
                           <div className="text-xs text-yellow-700 space-y-1">
                             {uploadResult.data.errors.map((err, idx) => (
-                              <div key={idx}>• {err}</div>
+                              <div key={idx} className="flex items-start gap-2">
+                                <span className="text-yellow-600">•</span>
+                                <span>{err}</span>
+                              </div>
                             ))}
                           </div>
                         </div>
@@ -188,13 +205,31 @@ const ExcelUpload = () => {
 
           {/* Tips */}
           <div className="p-6 bg-amber-50 rounded-xl border border-amber-200">
-            <h4 className="font-semibold text-amber-900 mb-3">💡 Tips for Best Results</h4>
+            <h4 className="font-semibold text-amber-900 mb-3 flex items-center gap-2">
+              <Lightbulb className="w-4 h-4" />
+              Tips for Best Results
+            </h4>
             <ul className="space-y-2 text-sm text-amber-800">
-              <li>• Ensure Product Name and Batch Number are filled for each row</li>
-              <li>• Use the exact date format: YYYY-MM-DD</li>
-              <li>• Keep numeric fields (prices, quantities) as numbers only</li>
-              <li>• Remove any empty rows at the end of your data</li>
-              <li>• Maximum file size: 10MB</li>
+              <li className="flex items-start gap-2">
+                <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <span>Ensure Product Name and Batch Number are filled for each row</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <span>Use the exact date format: YYYY-MM-DD</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <span>Keep numeric fields (prices, quantities) as numbers only</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <span>Remove any empty rows at the end of your data</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <span>Maximum file size: 10MB</span>
+              </li>
             </ul>
           </div>
         </div>

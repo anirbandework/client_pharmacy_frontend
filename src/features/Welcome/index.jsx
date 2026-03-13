@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import OTPInput from '../../components/OTPInput'
 import FeatureCarousel from './FeatureCarousel'
-import { ArrowRight, ArrowLeft, Lock, User, BarChart3, Package, Users, Search, DollarSign, TrendingUp, Shield, Eye, EyeOff, Info, Building2, Briefcase, Clock, FileText, Bell, Zap, Database, Truck } from 'lucide-react'
+import { ArrowRight, ArrowLeft, Lock, User, BarChart3, Package, Users, Search, IndianRupee, TrendingUp, Shield, Eye, EyeOff, Info, Building2, Briefcase, Clock, FileText, Bell, Zap, Database, Truck } from 'lucide-react'
 
 const Welcome = () => {
   const navigate = useNavigate()

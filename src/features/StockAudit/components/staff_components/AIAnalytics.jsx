@@ -88,60 +88,62 @@ const AIAnalytics = () => {
     }))
   })
 
-  if (loading) return <div className="bg-white rounded-xl shadow-md p-8 text-center">Loading AI Analytics...</div>
-  if (error) return <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center text-red-600">{error}</div>
-  if (!data) return <div className="bg-white rounded-xl shadow-md p-8 text-center text-gray-500">No data available</div>
+  if (loading) return <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-8 text-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div><p className="text-gray-600">Loading AI Analytics...</p></div>
+  if (error) return <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4 text-center text-red-600">{error}</div>
+  if (!data) return <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-8 text-center text-gray-500">No data available</div>
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2">
-          <Brain className="w-6 h-6 text-purple-600" />
-          <h2 className="text-2xl font-bold">AI-Powered Analytics</h2>
+          <div className="p-2 bg-purple-100 rounded-lg">
+            <Brain className="w-5 h-5 md:w-6 md:h-6 text-purple-600" />
+          </div>
+          <h2 className="text-xl md:text-2xl font-bold text-gray-800">AI-Powered Analytics</h2>
         </div>
         <div className="flex items-center gap-2">
           <div className="flex gap-2">
-            <button onClick={() => handleExport('items')} className="px-3 py-2 bg-green-600 text-white rounded flex items-center gap-1 text-sm">
+            <button onClick={() => handleExport('items')} className="px-3 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:shadow-lg transition-all flex items-center gap-1 text-sm">
               <Download className="w-4 h-4" /> Items
             </button>
-            <button onClick={() => handleExport('audits')} className="px-3 py-2 bg-green-600 text-white rounded flex items-center gap-1 text-sm">
+            <button onClick={() => handleExport('audits')} className="px-3 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:shadow-lg transition-all flex items-center gap-1 text-sm">
               <Download className="w-4 h-4" /> Audits
             </button>
-            <button onClick={() => handleExport('adjustments')} className="px-3 py-2 bg-green-600 text-white rounded flex items-center gap-1 text-sm">
+            <button onClick={() => handleExport('adjustments')} className="px-3 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:shadow-lg transition-all flex items-center gap-1 text-sm">
               <Download className="w-4 h-4" /> Adjustments
             </button>
           </div>
           <Calendar className="w-4 h-4" />
-          <select value={days} onChange={(e) => setDays(e.target.value)} className="px-3 py-2 border rounded">
+          <select value={days} onChange={(e) => setDays(e.target.value)} className="px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
             <option value="7">Last 7 Days</option>
             <option value="30">Last 30 Days</option>
             <option value="90">Last 90 Days</option>
           </select>
-          <button onClick={fetchAnalytics} className="px-4 py-2 bg-purple-600 text-white rounded">Refresh</button>
+          <button onClick={fetchAnalytics} className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:shadow-lg transition-all">Refresh</button>
         </div>
       </div>
 
       {data.summary && (
-        <div className="grid grid-cols-5 gap-4">
-          <div className="bg-white p-4 rounded-lg shadow">
-            <p className="text-sm text-gray-600">Total Audits</p>
-            <p className="text-2xl font-bold">{data.summary.total_audits}</p>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 hover:shadow-xl transition-shadow">
+            <p className="text-xs md:text-sm text-gray-600 mb-1">Total Audits</p>
+            <p className="text-xl md:text-2xl font-bold text-gray-800">{data.summary.total_audits}</p>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <p className="text-sm text-gray-600">Total Items</p>
-            <p className="text-2xl font-bold">{data.summary.total_items}</p>
+          <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 hover:shadow-xl transition-shadow">
+            <p className="text-xs md:text-sm text-gray-600 mb-1">Total Items</p>
+            <p className="text-xl md:text-2xl font-bold text-gray-800">{data.summary.total_items}</p>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <p className="text-sm text-gray-600">Discrepancies</p>
-            <p className="text-2xl font-bold text-red-600">{data.summary.items_with_discrepancies}</p>
+          <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 hover:shadow-xl transition-shadow">
+            <p className="text-xs md:text-sm text-gray-600 mb-1">Discrepancies</p>
+            <p className="text-xl md:text-2xl font-bold text-red-600">{data.summary.items_with_discrepancies}</p>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <p className="text-sm text-gray-600">Discrepancy Value</p>
-            <p className="text-2xl font-bold text-red-600">₹{data.summary.total_discrepancy_value}</p>
+          <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 hover:shadow-xl transition-shadow">
+            <p className="text-xs md:text-sm text-gray-600 mb-1">Discrepancy Value</p>
+            <p className="text-xl md:text-2xl font-bold text-red-600">₹{data.summary.total_discrepancy_value}</p>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <p className="text-sm text-gray-600">Completion Rate</p>
-            <p className="text-2xl font-bold text-green-600">{data.summary.audit_completion_rate}%</p>
+          <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 hover:shadow-xl transition-shadow">
+            <p className="text-xs md:text-sm text-gray-600 mb-1">Completion Rate</p>
+            <p className="text-xl md:text-2xl font-bold text-green-600">{data.summary.audit_completion_rate}%</p>
           </div>
         </div>
       )}
@@ -149,20 +151,20 @@ const AIAnalytics = () => {
       {chartData && (
         <div className="grid grid-cols-3 gap-4">
           {chartData.discrepancy_trend && (
-            <div className="bg-white p-4 rounded-lg shadow col-span-2">
-              <h3 className="font-semibold mb-3">Discrepancy Trend</h3>
+            <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 col-span-2">
+              <h3 className="font-bold text-gray-800 mb-3">Discrepancy Trend</h3>
               <Line data={formatLineChart(chartData.discrepancy_trend)} options={{ responsive: true, maintainAspectRatio: true }} />
             </div>
           )}
           {chartData.section_discrepancies && (
-            <div className="bg-white p-4 rounded-lg shadow">
-              <h3 className="font-semibold mb-3">Section Discrepancies</h3>
+            <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4">
+              <h3 className="font-bold text-gray-800 mb-3">Section Discrepancies</h3>
               <Pie data={formatPieChart(chartData.section_discrepancies)} options={{ responsive: true, maintainAspectRatio: true }} />
             </div>
           )}
           {chartData.staff_performance && (
-            <div className="bg-white p-4 rounded-lg shadow col-span-3">
-              <h3 className="font-semibold mb-3">Staff Performance</h3>
+            <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 col-span-3">
+              <h3 className="font-bold text-gray-800 mb-3">Staff Performance</h3>
               <Bar data={formatBarChart(chartData.staff_performance)} options={{ responsive: true, maintainAspectRatio: true }} />
             </div>
           )}
@@ -170,38 +172,46 @@ const AIAnalytics = () => {
       )}
 
       {data.ai_insights ? (
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-white p-4 rounded-lg shadow">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4">
             <div className="flex items-center gap-2 mb-3">
-              <TrendingUp className="w-5 h-5 text-blue-600" />
-              <h3 className="font-semibold">Key Findings</h3>
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <TrendingUp className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
+              </div>
+              <h3 className="font-bold text-gray-800">Key Findings</h3>
             </div>
             <ul className="space-y-2">
               {data.ai_insights.findings?.map((f, i) => <li key={i} className="text-sm text-gray-700">• {f}</li>)}
             </ul>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow">
+          <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4">
             <div className="flex items-center gap-2 mb-3">
-              <AlertCircle className="w-5 h-5 text-red-600" />
-              <h3 className="font-semibold">Risk Areas</h3>
+              <div className="p-2 bg-red-100 rounded-lg">
+                <AlertCircle className="w-4 h-4 md:w-5 md:h-5 text-red-600" />
+              </div>
+              <h3 className="font-bold text-gray-800">Risk Areas</h3>
             </div>
             <ul className="space-y-2">
               {data.ai_insights.risks?.map((r, i) => <li key={i} className="text-sm text-gray-700">• {r}</li>)}
             </ul>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow">
+          <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4">
             <div className="flex items-center gap-2 mb-3">
-              <Lightbulb className="w-5 h-5 text-yellow-600" />
-              <h3 className="font-semibold">Recommendations</h3>
+              <div className="p-2 bg-yellow-100 rounded-lg">
+                <Lightbulb className="w-4 h-4 md:w-5 md:h-5 text-yellow-600" />
+              </div>
+              <h3 className="font-bold text-gray-800">Recommendations</h3>
             </div>
             <ul className="space-y-2">
               {data.ai_insights.recommendations?.map((r, i) => <li key={i} className="text-sm text-gray-700">• {r}</li>)}
             </ul>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow">
+          <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4">
             <div className="flex items-center gap-2 mb-3">
-              <Brain className="w-5 h-5 text-purple-600" />
-              <h3 className="font-semibold">Predictions</h3>
+              <div className="p-2 bg-purple-100 rounded-lg">
+                <Brain className="w-4 h-4 md:w-5 md:h-5 text-purple-600" />
+              </div>
+              <h3 className="font-bold text-gray-800">Predictions</h3>
             </div>
             <ul className="space-y-2">
               {data.ai_insights.predictions?.map((p, i) => <li key={i} className="text-sm text-gray-700">• {p}</li>)}

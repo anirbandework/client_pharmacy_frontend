@@ -475,13 +475,13 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
               {isDistributorInvoice ? 'Review & Verify Distributor Invoice' : invoice.id ? 'Edit & Verify Invoice' : 'Create New Invoice'}
             </h2>
             {isDistributorInvoice && (
-              <p className="text-sm text-blue-600 mt-1">
-                📦 Imported from {invoice.distributor?.company_name || 'Distributor'} - Review and verify to add to stock
+              <p className="text-sm text-blue-600 mt-1 flex items-center gap-1">
+                <Package className="w-4 h-4" /> Imported from {invoice.distributor?.company_name || 'Distributor'} - Review and verify to add to stock
               </p>
             )}
             {invoice.admin_rejected_by_name && (
-              <p className="text-sm text-red-600 mt-1">
-                ⚠️ Rejected by {invoice.admin_rejected_by_name} - Please review and correct
+              <p className="text-sm text-red-600 mt-1 flex items-center gap-1">
+                <AlertCircle className="w-4 h-4" /> Rejected by {invoice.admin_rejected_by_name} - Please review and correct
               </p>
             )}
           </div>

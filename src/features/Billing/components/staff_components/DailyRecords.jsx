@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { dailyRecordsAPI } from '../../services/dailyRecords'
-import { Calendar, Plus, Trash2, Save, DollarSign, TrendingUp, TrendingDown, Download } from 'lucide-react'
+import { Calendar, Plus, Trash2, Save, IndianRupee, TrendingUp, TrendingDown, Download } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 const DailyRecords = () => {
@@ -151,7 +151,7 @@ const DailyRecords = () => {
                   <p className="text-sm opacity-90">Total Sales</p>
                   <p className="text-3xl font-bold mt-1">₹{record.total_sales.toFixed(2)}</p>
                 </div>
-                <DollarSign className="w-8 h-8 opacity-80" />
+                <IndianRupee className="w-8 h-8 opacity-80" />
               </div>
             </div>
 

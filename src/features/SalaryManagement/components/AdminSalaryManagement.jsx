@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Layout from '../../../components/Layout'
 import { salaryAPI, API_BASE_URL } from '../services/salaryApi'
 import { adminApi } from '../../Admin&SuperAdmin/services/admin&superAminApi'
-import { DollarSign, Users, AlertTriangle, Calendar, CheckCircle, XCircle, Clock, QrCode, CreditCard } from 'lucide-react'
+import { IndianRupee, Users, AlertTriangle, Calendar, CheckCircle, XCircle, Clock, QrCode, CreditCard, Lightbulb } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 const AdminSalaryManagement = () => {
@@ -140,7 +140,7 @@ const AdminSalaryManagement = () => {
           <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div className="flex items-center gap-2 md:gap-3">
               <div className="p-2 md:p-3 bg-white/20 backdrop-blur-sm rounded-xl">
-                <DollarSign className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                <IndianRupee className="w-5 h-5 md:w-6 md:h-6 text-white" />
               </div>
               <div>
                 <h1 className="text-xl md:text-2xl font-bold text-white">Salary Management</h1>
@@ -256,8 +256,9 @@ const AdminSalaryManagement = () => {
                 <span className="hidden sm:inline">Create Salary Records</span>
                 <span className="sm:hidden">Create Records</span>
               </button>
-              <div className="text-xs text-gray-500 flex items-center">
-                <span>💡 First, create salary records for the month, then mark them as paid</span>
+              <div className="text-xs text-gray-500 flex items-center gap-1">
+                <Lightbulb className="w-3 h-3" />
+                <span>First, create salary records for the month, then mark them as paid</span>
               </div>
             </div>
           </div>

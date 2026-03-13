@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Layout from '../../../components/Layout'
 import PasswordProtectedRoute from '../../../components/PasswordProtectedRoute'
 import { salaryAPI, API_BASE_URL } from '../services/salaryApi'
-import { User, DollarSign, Calendar, CheckCircle, Clock, AlertTriangle, Upload, CreditCard, QrCode } from 'lucide-react'
+import { User, IndianRupee, Calendar, CheckCircle, Clock, AlertTriangle, Upload, CreditCard, QrCode } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 const StaffSalaryProfile = () => {
@@ -115,7 +115,7 @@ const StaffSalaryProfile = () => {
                   <p className="text-xs md:text-sm text-gray-600">Monthly Salary</p>
                   <p className="text-xl md:text-2xl font-bold text-gray-800">₹{profile.monthly_salary}</p>
                 </div>
-                <DollarSign className="w-6 h-6 md:w-8 md:h-8 text-green-600" />
+                <IndianRupee className="w-6 h-6 md:w-8 md:h-8 text-green-600" />
               </div>
             </div>
             <div className="bg-white rounded-xl shadow-lg p-3 md:p-4 border border-slate-200">

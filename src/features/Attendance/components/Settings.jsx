@@ -1,7 +1,7 @@
 import toast from 'react-hot-toast'
 import React, { useState, useEffect } from 'react'
 import { attendanceAPI } from '../services/attendanceApi'
-import { Settings as SettingsIcon, AlertCircle, Shield } from 'lucide-react'
+import { Settings as SettingsIcon, AlertCircle, Shield, CheckCircle, XCircle } from 'lucide-react'
 
 const Settings = ({ shopCode }) => {
   const [settings, setSettings] = useState(null)
@@ -59,8 +59,12 @@ const Settings = ({ shopCode }) => {
               <AlertCircle className="w-4 h-4" />
               <span className="font-semibold text-sm">Emergency Override</span>
             </div>
-            <div className="text-sm text-gray-600">
-              {settings?.allow_any_network ? '✅ Any network allowed' : '❌ WiFi required'}
+            <div className="text-sm text-gray-600 flex items-center gap-1">
+              {settings?.allow_any_network ? (
+                <><CheckCircle className="w-4 h-4" /> Any network allowed</>
+              ) : (
+                <><XCircle className="w-4 h-4" /> WiFi required</>
+              )}
             </div>
           </div>
 
@@ -72,8 +76,12 @@ const Settings = ({ shopCode }) => {
               <Shield className="w-4 h-4" />
               <span className="font-semibold text-sm">WiFi Enforcement</span>
             </div>
-            <div className="text-sm text-gray-600">
-              {settings?.require_wifi_for_modules ? '✅ WiFi required for modules' : '❌ WiFi not required'}
+            <div className="text-sm text-gray-600 flex items-center gap-1">
+              {settings?.require_wifi_for_modules ? (
+                <><CheckCircle className="w-4 h-4" /> WiFi required for modules</>
+              ) : (
+                <><XCircle className="w-4 h-4" /> WiFi not required</>
+              )}
             </div>
           </div>
 
@@ -139,8 +147,12 @@ const Settings = ({ shopCode }) => {
                 onChange={(e) => setSettings({ ...settings, allow_any_network: e.target.checked })} 
                 className="w-5 h-5 rounded"
               />
-              <span className="text-sm font-medium text-yellow-900">
-                {settings?.allow_any_network ? '✅ Any Network Allowed' : '❌ WiFi Required'}
+              <span className="text-sm font-medium text-yellow-900 flex items-center gap-1">
+                {settings?.allow_any_network ? (
+                  <><CheckCircle className="w-4 h-4" /> Any Network Allowed</>
+                ) : (
+                  <><XCircle className="w-4 h-4" /> WiFi Required</>
+                )}
               </span>
             </label>
           </div>
@@ -161,8 +173,12 @@ const Settings = ({ shopCode }) => {
                 onChange={(e) => setSettings({ ...settings, require_wifi_for_modules: e.target.checked })} 
                 className="w-5 h-5 rounded"
               />
-              <span className="text-sm font-medium text-blue-900">
-                {settings?.require_wifi_for_modules ? '✅ WiFi Required for Modules' : '❌ WiFi Not Required'}
+              <span className="text-sm font-medium text-blue-900 flex items-center gap-1">
+                {settings?.require_wifi_for_modules ? (
+                  <><CheckCircle className="w-4 h-4" /> WiFi Required for Modules</>
+                ) : (
+                  <><XCircle className="w-4 h-4" /> WiFi Not Required</>
+                )}
               </span>
             </label>
           </div>

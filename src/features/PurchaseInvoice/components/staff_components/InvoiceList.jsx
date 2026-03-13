@@ -41,8 +41,8 @@ const InvoiceList = ({ refresh }) => {
       
       // Combine both types of invoices
       const allInvoices = [...response.data, ...distributorInvoices]
-      // Sort by date descending
-      allInvoices.sort((a, b) => new Date(b.invoice_date) - new Date(a.invoice_date))
+      // Sort by created_at descending (most recently uploaded first)
+      allInvoices.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
       
       setInvoices(allInvoices)
     } catch (error) {
@@ -89,7 +89,7 @@ const InvoiceList = ({ refresh }) => {
     if (isDistributor) {
       toast.error('Distributor invoices cannot be deleted. Contact the distributor.', {
         duration: 4000,
-        icon: '⚠️'
+        icon: <AlertCircle className="w-4 h-4" />
       })
       return
     }

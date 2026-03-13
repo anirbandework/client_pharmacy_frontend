@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react'
-import { staffStockAuditAPI } from '../../services/staff_stock_audit_apis'
+import { adminStockAuditAPI } from '../../services/admin_stock_audit_apis'
 import { AlertTriangle, Clock, TrendingDown, Download, Package, Loader2 } from 'lucide-react'
 import Pagination from '../shared/Pagination'
 
 const PER_PAGE = 50
 
-const Reports = () => {
+const AdminReports = ({ selectedShop }) => {
   const [activeReport, setActiveReport] = useState('low-stock')
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(false)
@@ -20,7 +20,7 @@ const Reports = () => {
   useEffect(() => {
     setCurrentPage(1)
     fetchReport(1)
-  }, [activeReport])
+  }, [activeReport, selectedShop])
 
   useEffect(() => {
     fetchReport(currentPage)
@@ -29,30 +29,33 @@ const Reports = () => {
   const fetchReport = async (page = 1) => {
     try {
       setLoading(true)
+      const base = { page, per_page: PER_PAGE }
+      if (selectedShop) base.shop_id = selectedShop
+
       let res
       if (activeReport === 'low-stock') {
-        res = await staffStockAuditAPI.getLowStock({ threshold, page, per_page: PER_PAGE })
+        res = await adminStockAuditAPI.getAdminLowStock({ ...base, threshold })
         setAppliedThreshold(threshold)
       } else if (activeReport === 'expiring') {
-        res = await staffStockAuditAPI.getExpiring({ days_ahead: daysAhead, page, per_page: PER_PAGE })
+        res = await adminStockAuditAPI.getAdminExpiring({ ...base, days_ahead: daysAhead })
         setAppliedDaysAhead(daysAhead)
       } else if (activeReport === 'discrepancies') {
-        res = await staffStockAuditAPI.getDiscrepancies({ threshold: 0, page, per_page: PER_PAGE })
+        res = await adminStockAuditAPI.getAdminDiscrepancyReport({ ...base, threshold: 0 })
       }
-      
-      // Handle different response formats
+
       if (res.data.items) {
         setData(res.data.items)
+        setTotal(res.data.total || 0)
+        setTotalPages(res.data.pages || 1)
       } else if (res.data.discrepancies) {
         setData(res.data.discrepancies)
-      } else if (Array.isArray(res.data)) {
-        setData(res.data)
+        setTotal(res.data.total_discrepancies || 0)
+        setTotalPages(res.data.pages || 1)
       } else {
         setData([])
+        setTotal(0)
+        setTotalPages(1)
       }
-      
-      setTotal(res.data.total || res.data.total_discrepancies || 0)
-      setTotalPages(res.data.pages || 1)
       setCurrentPage(page)
     } catch (error) {
       console.error('Failed to fetch report:', error)
@@ -73,13 +76,12 @@ const Reports = () => {
     try {
       let response
       if (activeReport === 'low-stock') {
-        response = await staffStockAuditAPI.exportStockItems()
+        response = await adminStockAuditAPI.exportStockItems()
       } else if (activeReport === 'expiring') {
-        response = await staffStockAuditAPI.exportAuditRecords({ days: appliedDaysAhead })
+        response = await adminStockAuditAPI.exportAuditRecords({ days: appliedDaysAhead })
       } else if (activeReport === 'discrepancies') {
-        response = await staffStockAuditAPI.exportAdjustments({ days: 30 })
+        response = await adminStockAuditAPI.exportAdjustments({ days: 30 })
       }
-      
       const url = window.URL.createObjectURL(new Blob([response.data]))
       const link = document.createElement('a')
       link.href = url
@@ -89,17 +91,32 @@ const Reports = () => {
       link.remove()
     } catch (error) {
       console.error('Export failed:', error)
-      alert('Failed to export data')
+      alert('Export failed')
     }
   }
 
   return (
     <div className="space-y-4">
       <div className="flex gap-2 flex-wrap items-center">
-        <button onClick={() => setActiveReport('low-stock')} className={`px-4 py-2 rounded-lg font-medium transition-all ${activeReport === 'low-stock' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/20' : 'bg-white text-gray-700 hover:bg-gray-50 border border-slate-200'}`}>Low Stock</button>
-        <button onClick={() => setActiveReport('expiring')} className={`px-4 py-2 rounded-lg font-medium transition-all ${activeReport === 'expiring' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/20' : 'bg-white text-gray-700 hover:bg-gray-50 border border-slate-200'}`}>Expiring Items</button>
-        <button onClick={() => setActiveReport('discrepancies')} className={`px-4 py-2 rounded-lg font-medium transition-all ${activeReport === 'discrepancies' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/20' : 'bg-white text-gray-700 hover:bg-gray-50 border border-slate-200'}`}>Discrepancies</button>
-        
+        <button
+          onClick={() => setActiveReport('low-stock')}
+          className={`px-4 py-2 rounded-lg font-medium transition-all ${activeReport === 'low-stock' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/20' : 'bg-white text-gray-700 hover:bg-gray-50 border border-slate-200'}`}
+        >
+          Low Stock
+        </button>
+        <button
+          onClick={() => setActiveReport('expiring')}
+          className={`px-4 py-2 rounded-lg font-medium transition-all ${activeReport === 'expiring' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/20' : 'bg-white text-gray-700 hover:bg-gray-50 border border-slate-200'}`}
+        >
+          Expiring Items
+        </button>
+        <button
+          onClick={() => setActiveReport('discrepancies')}
+          className={`px-4 py-2 rounded-lg font-medium transition-all ${activeReport === 'discrepancies' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/20' : 'bg-white text-gray-700 hover:bg-gray-50 border border-slate-200'}`}
+        >
+          Discrepancies
+        </button>
+
         {activeReport === 'low-stock' && (
           <div className="flex items-center gap-2 ml-4 bg-white px-3 py-2 rounded-lg border border-slate-200">
             <label className="text-sm font-medium text-gray-700">Threshold:</label>
@@ -107,7 +124,6 @@ const Reports = () => {
             <button onClick={handleApplyFilter} className="px-3 py-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded text-sm hover:from-blue-700 hover:to-indigo-700 shadow-lg shadow-blue-500/20 transition-all">Apply</button>
           </div>
         )}
-        
         {activeReport === 'expiring' && (
           <div className="flex items-center gap-2 ml-4 bg-white px-3 py-2 rounded-lg border border-slate-200">
             <label className="text-sm font-medium text-gray-700">Days Ahead:</label>
@@ -116,6 +132,7 @@ const Reports = () => {
           </div>
         )}
       </div>
+
       <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 border border-slate-200">
         <div className="flex justify-between items-center mb-4">
           <div>
@@ -124,12 +141,8 @@ const Reports = () => {
               {activeReport === 'expiring' && 'Expiring Items'}
               {activeReport === 'discrepancies' && 'Stock Discrepancies'}
             </h2>
-            {activeReport === 'low-stock' && (
-              <p className="text-sm text-gray-500 mt-1">Showing items with quantity below {appliedThreshold}</p>
-            )}
-            {activeReport === 'expiring' && (
-              <p className="text-sm text-gray-500 mt-1">Showing items expiring within {appliedDaysAhead} days</p>
-            )}
+            {activeReport === 'low-stock' && <p className="text-sm text-gray-500 mt-1">Showing items with quantity below {appliedThreshold}</p>}
+            {activeReport === 'expiring' && <p className="text-sm text-gray-500 mt-1">Showing items expiring within {appliedDaysAhead} days</p>}
           </div>
           <div className="flex items-center gap-2">
             <p className="text-sm font-semibold text-gray-600">{total} items</p>
@@ -138,7 +151,7 @@ const Reports = () => {
             </button>
           </div>
         </div>
-        
+
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <div className="text-center">
@@ -156,7 +169,7 @@ const Reports = () => {
                 </div>
               ) : (
                 data.map((item, idx) => {
-                  const itemData = item.item || item;
+                  const itemData = item.item || item
                   return (
                     <div key={idx} className="bg-gradient-to-br from-gray-50 to-slate-50 border-2 border-slate-200 rounded-xl p-4 hover:shadow-lg transition-all">
                       <div className="flex items-start gap-3">
@@ -164,20 +177,26 @@ const Reports = () => {
                         {activeReport === 'expiring' && <Clock className="w-5 h-5 text-orange-600 mt-1 flex-shrink-0" />}
                         {activeReport === 'discrepancies' && <AlertTriangle className="w-5 h-5 text-yellow-600 mt-1 flex-shrink-0" />}
                         <div className="flex-1">
-                          <h4 className="font-bold text-gray-800 mb-2">{itemData.product_name || itemData.item_name}</h4>
+                          <div className="flex items-start justify-between gap-2 mb-2">
+                            <h4 className="font-bold text-gray-800">{itemData.product_name || itemData.item_name}</h4>
+                            {itemData.shop_name && (
+                              <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 text-xs rounded-full font-medium flex-shrink-0">{itemData.shop_name}</span>
+                            )}
+                          </div>
                           <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-2 text-sm">
                             {itemData.composition && <p className="text-gray-600"><span className="font-medium">Composition:</span> {itemData.composition}</p>}
                             {itemData.generic_name && <p className="text-gray-600"><span className="font-medium">Generic:</span> {itemData.generic_name}</p>}
                             {itemData.brand_name && <p className="text-gray-600"><span className="font-medium">Brand:</span> {itemData.brand_name}</p>}
                             <p className="text-gray-600"><span className="font-medium">Batch:</span> <span className="font-mono bg-gray-100 px-2 py-0.5 rounded">{itemData.batch_number}</span></p>
                             {itemData.manufacturer && <p className="text-gray-600"><span className="font-medium">Manufacturer:</span> {itemData.manufacturer}</p>}
+
                             {activeReport === 'discrepancies' ? (
                               <>
                                 <p className="text-blue-700 font-semibold"><span className="font-medium">Software:</span> {item.software_qty}</p>
                                 <p className="text-green-700 font-semibold"><span className="font-medium">Physical:</span> {item.physical_qty}</p>
                                 <p className="text-red-600 font-bold"><span className="font-medium">Difference:</span> {item.difference > 0 ? '+' : ''}{item.difference}</p>
-                                <p className="text-gray-600"><span className="font-medium">Section:</span> {item.section_name}</p>
-                                <p className="text-gray-600"><span className="font-medium">Rack:</span> {item.rack_number}</p>
+                                {item.section_name && <p className="text-gray-600"><span className="font-medium">Section:</span> {item.section_name}</p>}
+                                {item.rack_number && <p className="text-gray-600"><span className="font-medium">Rack:</span> {item.rack_number}</p>}
                                 {item.audited_by_staff_name && <p className="text-gray-500"><span className="font-medium">Audited by:</span> {item.audited_by_staff_name}</p>}
                               </>
                             ) : (
@@ -195,7 +214,7 @@ const Reports = () => {
                         </div>
                       </div>
                     </div>
-                  );
+                  )
                 })
               )}
             </div>
@@ -214,4 +233,4 @@ const Reports = () => {
   )
 }
 
-export default Reports
+export default AdminReports
