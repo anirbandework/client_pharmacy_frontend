@@ -1,20 +1,25 @@
-import React, { useState, useEffect } from 'react'
-import { AlertTriangle, Store } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Store } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { adminPurchaseInvoiceAPI } from '../../services/admin_purchase_invoice_apis'
 import { adminApi } from '../../../Admin&SuperAdmin/services/admin&superAminApi'
 
-const ExpiryAlerts = () => {
+const ExpiryAlerts = ({ apiService = adminPurchaseInvoiceAPI, showShopFilter = true }) => {
   const [expiryAlerts, setExpiryAlerts] = useState(null)
   const [shops, setShops] = useState([])
   const [selectedShop, setSelectedShop] = useState(null)
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    fetchShops()
+    if (showShopFilter) {
+      fetchShops()
+    } else {
+      fetchExpiryAlerts()
+    }
   }, [])
 
   useEffect(() => {
-    if (shops.length > 0) {
+    if (showShopFilter && shops.length > 0) {
       fetchExpiryAlerts()
     }
   }, [selectedShop, shops])
@@ -29,37 +34,48 @@ const ExpiryAlerts = () => {
   }
 
   const fetchExpiryAlerts = async () => {
+    setLoading(true)
     try {
       const params = selectedShop ? { shop_id: selectedShop } : {}
-      const response = await adminPurchaseInvoiceAPI.getExpiryAlerts(params)
+      const response = await apiService.getExpiryAlerts(params)
       setExpiryAlerts(response.data)
     } catch (error) {
       toast.error('Failed to fetch expiry alerts')
+    } finally {
+      setLoading(false)
     }
   }
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-xl shadow-md p-4">
-        <div className="flex items-center gap-3">
-          <Store className="w-5 h-5 text-gray-600" />
-          <label className="text-sm font-medium text-gray-700">Filter by Shop:</label>
-          <select
-            value={selectedShop || ''}
-            onChange={(e) => setSelectedShop(e.target.value ? parseInt(e.target.value) : null)}
-            className="flex-1 max-w-xs px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-          >
-            <option value="">All Shops</option>
-            {shops.map((shop) => (
-              <option key={shop.id} value={shop.id}>
-                {shop.shop_name}
-              </option>
-            ))}
-          </select>
+      {showShopFilter && (
+        <div className="bg-white rounded-xl shadow-md p-4">
+          <div className="flex items-center gap-3">
+            <Store className="w-5 h-5 text-gray-600" />
+            <label className="text-sm font-medium text-gray-700">Filter by Shop:</label>
+            <select
+              value={selectedShop || ''}
+              onChange={(e) => setSelectedShop(e.target.value ? parseInt(e.target.value) : null)}
+              className="flex-1 max-w-xs px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            >
+              <option value="">All Shops</option>
+              {shops.map((shop) => (
+                <option key={shop.id} value={shop.id}>
+                  {shop.shop_name}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
-      </div>
+      )}
 
-      {expiryAlerts && (
+      {loading && (
+        <div className="flex items-center justify-center py-12">
+          <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
+        </div>
+      )}
+
+      {!loading && expiryAlerts && (
         <>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-red-50 border border-red-200 rounded-xl p-4">

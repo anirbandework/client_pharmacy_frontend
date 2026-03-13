@@ -20,6 +20,11 @@ export const staffPurchaseInvoiceAPI = {
       responseType: 'blob'
     }),
   
+  downloadPDFTemplate: () =>
+    axiosInstance.get(`${API_BASE}/download-pdf-template`, {
+      responseType: 'blob'
+    }),
+  
   getInvoices: (params) => 
     axiosInstance.get(`${API_BASE}/`, { params }),
   
@@ -60,7 +65,13 @@ export const staffPurchaseInvoiceAPI = {
     axiosInstance.get(`${API_BASE}/product-names`, { params: { search } }),
   
   getPricingByComposition: (composition, productName) =>
-    axiosInstance.get(`${API_BASE}/pricing/by-composition`, { 
-      params: { composition, product_name: productName } 
-    }).then(res => res.data)
+    axiosInstance.get(`${API_BASE}/pricing/by-composition`, {
+      params: { composition, product_name: productName }
+    }).then(res => res.data),
+
+  getExpiryAlerts: (params) =>
+    axiosInstance.get(`${API_BASE}/staff/expiry-alerts`, { params, timeout: 30000 }),
+
+  getSupplierPerformance: (params) =>
+    axiosInstance.get(`${API_BASE}/staff/supplier-performance`, { params, timeout: 30000 })
 }

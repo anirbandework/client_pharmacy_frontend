@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { TrendingUp, Package, DollarSign, FileText } from 'lucide-react'
+import { TrendingUp, Package, IndianRupee, FileText } from 'lucide-react'
 import { staffPurchaseInvoiceAPI } from '../../services/staff_purchase_invoice_apis'
 
 const Dashboard = () => {
@@ -40,7 +40,7 @@ const Dashboard = () => {
     {
       title: 'Total Amount',
       value: `₹${stats.total_amount.toFixed(2)}`,
-      icon: DollarSign,
+      icon: IndianRupee,
       color: 'from-green-500 to-green-600',
       bgColor: 'bg-green-50'
     },

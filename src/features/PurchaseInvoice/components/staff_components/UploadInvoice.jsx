@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Upload, FileText, Loader2, CheckCircle, XCircle, FileSpreadsheet, Download, Edit } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { staffPurchaseInvoiceAPI } from '../../services/staff_purchase_invoice_apis'
@@ -7,7 +7,7 @@ import ValidationErrorModal from '../shared/ValidationErrorModal'
 import DuplicateErrorModal from '../shared/DuplicateErrorModal'
 import EditInvoice from './EditInvoice'
 
-const UploadInvoice = ({ onUploadSuccess }) => {
+const UploadInvoice = ({ onUploadSuccess, onGoToList }) => {
   const [file, setFile] = useState(null)
   const [uploading, setUploading] = useState(false)
   const [dragActive, setDragActive] = useState(false)
@@ -113,6 +113,22 @@ const UploadInvoice = ({ onUploadSuccess }) => {
     }
   }
 
+  const handleDownloadPDFTemplate = async () => {
+    try {
+      const response = await staffPurchaseInvoiceAPI.downloadPDFTemplate()
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', 'purchase_invoice_sample.pdf')
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      toast.success('PDF sample downloaded successfully!')
+    } catch (error) {
+      toast.error('Failed to download PDF sample')
+    }
+  }
+
   const handleDownloadTemplate = async () => {
     try {
       const response = await staffPurchaseInvoiceAPI.downloadTemplate()
@@ -141,12 +157,13 @@ const UploadInvoice = ({ onUploadSuccess }) => {
         onProceedAnyway={handleProceedAnyway}
       />
       
-      <DuplicateErrorModal 
-        error={duplicateError} 
+      <DuplicateErrorModal
+        error={duplicateError}
         onClose={() => {
           setDuplicateError(null)
           setFile(null)
-        }} 
+        }}
+        onGoToList={onGoToList}
       />
       
       <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 md:p-6">
@@ -182,7 +199,7 @@ const UploadInvoice = ({ onUploadSuccess }) => {
             </div>
             <div className="flex gap-3 justify-center">
               <button
-                onClick={handleUpload}
+                onClick={() => handleUpload()}
                 disabled={uploading}
                 className="px-4 md:px-6 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:shadow-lg transition-all disabled:opacity-50 flex items-center gap-2 text-sm md:text-base"
               >
@@ -277,13 +294,22 @@ const UploadInvoice = ({ onUploadSuccess }) => {
               </p>
             </div>
           </div>
-          <button
-            onClick={handleDownloadTemplate}
-            className="px-3 md:px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:shadow-lg flex items-center gap-2 text-xs md:text-sm whitespace-nowrap transition-all w-full md:w-auto justify-center"
-          >
-            <Download className="w-4 h-4" />
-            Download Template
-          </button>
+          <div className="flex flex-col gap-2 w-full md:w-auto">
+            <button
+              onClick={handleDownloadPDFTemplate}
+              className="px-3 md:px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:shadow-lg flex items-center gap-2 text-xs md:text-sm whitespace-nowrap transition-all justify-center"
+            >
+              <Download className="w-4 h-4" />
+              Download PDF Sample
+            </button>
+            <button
+              onClick={handleDownloadTemplate}
+              className="px-3 md:px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:shadow-lg flex items-center gap-2 text-xs md:text-sm whitespace-nowrap transition-all justify-center"
+            >
+              <Download className="w-4 h-4" />
+              Download Excel Template
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -292,7 +318,7 @@ const UploadInvoice = ({ onUploadSuccess }) => {
       <EditInvoice
         invoice={{
           id: null,
-          invoice_number: '',
+          invoice_number: `PI-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${Math.random().toString(36).slice(2,10).toUpperCase()}`,
           invoice_date: new Date().toISOString().split('T')[0],
           due_date: '',
           supplier_name: '',

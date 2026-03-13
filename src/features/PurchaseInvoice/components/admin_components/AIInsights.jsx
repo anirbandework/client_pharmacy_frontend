@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Brain, TrendingUp, AlertTriangle, Package, DollarSign, Loader2, RefreshCw, Store } from 'lucide-react'
+import { Brain, TrendingUp, AlertTriangle, Package, IndianRupee, Loader2, RefreshCw, Store } from 'lucide-react'
 import toast from 'react-hot-toast'
 import ReactMarkdown from 'react-markdown'
 import { adminPurchaseInvoiceAPI } from '../../services/admin_purchase_invoice_apis'
@@ -117,7 +117,7 @@ const AIInsights = () => {
           <div className="bg-white rounded-xl shadow-md p-4">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 bg-blue-100 rounded-lg">
-                <DollarSign className="w-5 h-5 text-blue-600" />
+                <IndianRupee className="w-5 h-5 text-blue-600" />
               </div>
               <div>
                 <p className="text-sm text-gray-600">Total Spend</p>

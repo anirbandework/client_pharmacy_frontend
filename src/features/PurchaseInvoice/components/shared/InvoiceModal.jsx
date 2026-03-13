@@ -1,5 +1,5 @@
 import React from 'react'
-import { FileText, Calendar, DollarSign, Package, CheckCircle, AlertCircle, X } from 'lucide-react'
+import { FileText, Calendar, IndianRupee, Package, CheckCircle, AlertCircle, X } from 'lucide-react'
 
 const InvoiceModal = ({ invoice, onClose }) => {
   return (
@@ -92,7 +92,7 @@ const InvoiceModal = ({ invoice, onClose }) => {
           {/* Financial Summary */}
           <div className="bg-gradient-to-r from-blue-50 via-purple-50 to-green-50 p-4 rounded-xl border border-blue-200">
             <h3 className="font-semibold text-gray-700 mb-3 flex items-center gap-2 text-sm md:text-base">
-              <DollarSign className="w-4 h-4" />
+              <IndianRupee className="w-4 h-4" />
               Financial Summary
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 text-xs md:text-sm">

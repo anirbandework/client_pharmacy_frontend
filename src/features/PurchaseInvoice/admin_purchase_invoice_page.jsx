@@ -1,15 +1,19 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import Layout from '../../components/Layout'
 import Dashboard from './components/admin_components/Dashboard'
 import AIInsights from './components/admin_components/AIInsights'
 import MarginPlayground from './components/admin_components/MarginPlayground'
+import MarginSimulator from './components/admin_components/MarginSimulator'
 import ExcelVerification from './components/admin_components/ExcelVerification'
-import ExpiryAlerts from './components/admin_components/ExpiryAlerts'
-import SupplierPerformance from './components/admin_components/SupplierPerformance'
-import { LayoutDashboard, Brain, Calculator, CheckSquare, Receipt, AlertTriangle, Package } from 'lucide-react'
+import ExpiryAlerts from './components/shared/ExpiryAlerts'
+import SupplierPerformance from './components/shared/SupplierPerformance'
+import ErrorBoundary from './components/shared/ErrorBoundary'
+import HowToUseModal from './help/HowToUseModal'
+import { LayoutDashboard, Brain, Calculator, CheckSquare, Receipt, AlertTriangle, Package, Zap, HelpCircle } from 'lucide-react'
 
 const AdminPurchaseInvoicePage = () => {
   const [activeTab, setActiveTab] = useState('dashboard')
+  const [showHelp, setShowHelp] = useState(false)
 
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, color: 'from-blue-500 to-blue-600' },
@@ -17,6 +21,7 @@ const AdminPurchaseInvoicePage = () => {
     { id: 'expiry-alerts', label: 'Expiry Alerts', icon: AlertTriangle, color: 'from-red-500 to-orange-600' },
     { id: 'suppliers', label: 'Suppliers', icon: Package, color: 'from-green-500 to-teal-600' },
     { id: 'margins', label: 'Margin Playground', icon: Calculator, color: 'from-pink-500 to-purple-600' },
+    { id: 'simulator', label: 'Margin Simulator', icon: Zap, color: 'from-indigo-500 to-purple-600' },
     { id: 'ai-insights', label: 'AI Insights', icon: Brain, color: 'from-purple-600 to-indigo-600' }
   ]
 
@@ -25,14 +30,23 @@ const AdminPurchaseInvoicePage = () => {
       <div className="max-w-7xl mx-auto px-4">
         <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 rounded-xl shadow-lg p-4 md:p-6 mb-4 animate-fade-in relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-          <div className="relative z-10 flex items-center gap-2 md:gap-3">
-            <div className="p-2 md:p-3 bg-white/20 backdrop-blur-sm rounded-xl">
-              <Receipt className="w-5 h-5 md:w-6 md:h-6 text-white" />
+          <div className="relative z-10 flex items-center justify-between gap-2 md:gap-3">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="p-2 md:p-3 bg-white/20 backdrop-blur-sm rounded-xl">
+                <Receipt className="w-5 h-5 md:w-6 md:h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl md:text-2xl font-bold text-white">Purchase Invoice Analytics</h1>
+                <p className="text-white/90 text-xs md:text-sm">Admin dashboard & insights</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-xl md:text-2xl font-bold text-white">Purchase Invoice Analytics</h1>
-              <p className="text-white/90 text-xs md:text-sm">Admin dashboard & insights</p>
-            </div>
+            <button
+              onClick={() => setShowHelp(true)}
+              className="flex items-center gap-1.5 px-3 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl text-white text-xs md:text-sm font-medium transition-colors flex-shrink-0"
+            >
+              <HelpCircle className="w-4 h-4" />
+              <span className="hidden sm:inline">How to Use</span>
+            </button>
           </div>
         </div>
 
@@ -54,14 +68,21 @@ const AdminPurchaseInvoicePage = () => {
         </div>
 
         <div className="animate-fade-in space-y-4 pb-20">
-          {activeTab === 'dashboard' && <Dashboard />}
-          {activeTab === 'verification' && <ExcelVerification />}
-          {activeTab === 'expiry-alerts' && <ExpiryAlerts />}
-          {activeTab === 'suppliers' && <SupplierPerformance />}
-          {activeTab === 'margins' && <MarginPlayground />}
-          {activeTab === 'ai-insights' && <AIInsights />}
+          <ErrorBoundary key={activeTab}>
+            {activeTab === 'dashboard' && <Dashboard />}
+            {activeTab === 'verification' && <ExcelVerification />}
+            {activeTab === 'expiry-alerts' && <ExpiryAlerts />}
+            {activeTab === 'suppliers' && <SupplierPerformance />}
+            {activeTab === 'margins' && <MarginPlayground />}
+            {activeTab === 'simulator' && <MarginSimulator />}
+            {activeTab === 'ai-insights' && <AIInsights />}
+          </ErrorBoundary>
         </div>
       </div>
+
+      {showHelp && (
+        <HowToUseModal role="admin" activeTab={activeTab} onClose={() => setShowHelp(false)} />
+      )}
     </Layout>
   )
 }

@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react'
-import { Save, X, Plus, Trash2, AlertCircle, Package, DollarSign, Settings } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Save, X, Plus, Trash2, AlertCircle, Package, IndianRupee, Settings } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { staffPurchaseInvoiceAPI } from '../../services/staff_purchase_invoice_apis'
+import { adminPurchaseInvoiceAPI } from '../../services/admin_purchase_invoice_apis'
 import ProductAutocomplete from '../shared/ProductAutocomplete'
 import CompositionAutocomplete from '../shared/CompositionAutocomplete'
 import UnitAutocomplete from '../shared/UnitAutocomplete'
@@ -38,9 +39,6 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
       // Update isDistributorInvoice flag
       setIsDistributorInvoice(invoice.is_distributor_invoice || false)
       
-      console.log('Invoice data:', invoice)
-      console.log('isDistributorInvoice:', invoice.is_distributor_invoice)
-      console.log('Distributor object:', invoice.distributor)
       // For distributor invoices, use distributor info as supplier
       const isDistInv = invoice.is_distributor_invoice || false
       const supplierName = isDistInv ? (invoice.distributor?.company_name || '') : (invoice.supplier_name || '')
@@ -338,7 +336,7 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
 
   const recalculateTotals = (items) => {
     const gross = items.reduce((sum, item) => sum + item.taxable_amount, 0)
-    const gst = items.reduce((sum, item) => sum + item.cgst_amount + item.sgst_amount, 0)
+    const gst = items.reduce((sum, item) => sum + item.cgst_amount + item.sgst_amount + item.igst_amount, 0)
     const net = gross + gst + formData.round_off
     
     setFormData(prev => ({
@@ -446,9 +444,9 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
       } else if (invoice.id) {
         if (isAdmin) {
           if (isDistributorInvoice) {
-            await staffPurchaseInvoiceAPI.adminUpdateDistributorInvoice(invoice.id, formData)
+            await adminPurchaseInvoiceAPI.adminUpdateDistributorInvoice(invoice.id, formData)
           } else {
-            await staffPurchaseInvoiceAPI.adminUpdateInvoice(invoice.id, formData)
+            await adminPurchaseInvoiceAPI.adminUpdateInvoice(invoice.id, formData)
           }
         } else {
           await staffPurchaseInvoiceAPI.updateInvoice(invoice.id, formData)
@@ -531,13 +529,19 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
             <div className="space-y-3">
               <h3 className="font-semibold text-gray-700">Invoice Information</h3>
               <div>
-                <label className="text-sm text-gray-600">Invoice Number</label>
+                <label className="text-sm text-gray-600">
+                  Invoice Number
+                  {formData.invoice_number?.startsWith('PI-') && (
+                    <span className="ml-2 text-xs text-blue-500">(auto-generated)</span>
+                  )}
+                </label>
                 <input
                   type="text"
                   placeholder="Invoice Number"
                   value={formData.invoice_number}
                   onChange={(e) => handleChange('invoice_number', e.target.value)}
                   className="w-full px-3 py-2 border rounded-lg"
+                  readOnly={!invoice.id && formData.invoice_number?.startsWith('PI-')}
                 />
               </div>
               <div>
@@ -781,7 +785,7 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
                   {/* CUSTOMER/SALES SECTION */}
                   <div className="mb-3">
                     <h4 className="text-xs font-bold text-green-700 mb-2 uppercase border-b border-green-200 pb-1 flex items-center gap-1">
-                      <DollarSign className="w-3 h-3" /> Sales to Customer (Admin Only)
+                      <IndianRupee className="w-3 h-3" /> Sales to Customer (Admin Only)
                     </h4>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
                     <div>

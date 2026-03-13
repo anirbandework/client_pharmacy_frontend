@@ -1,6 +1,6 @@
 import React from 'react'
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
-import { TrendingUp, Package, DollarSign, AlertTriangle } from 'lucide-react'
+import { TrendingUp, Package, IndianRupee, AlertTriangle } from 'lucide-react'
 
 const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899']
 
@@ -23,7 +23,7 @@ const DashboardCharts = ({ data }) => {
                 ₹{data.payment_analysis?.summary?.net_amount?.toLocaleString() || 0}
               </p>
             </div>
-            <DollarSign className="w-10 h-10 opacity-80" />
+            <IndianRupee className="w-10 h-10 opacity-80" />
           </div>
         </div>
         

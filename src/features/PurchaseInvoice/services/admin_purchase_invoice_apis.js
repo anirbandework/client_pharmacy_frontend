@@ -78,8 +78,11 @@ export const adminPurchaseInvoiceAPI = {
   getMarginPlayground: (filters) =>
     axiosInstance.get(`${API_BASE}/analytics/margin-playground`, { params: filters }),
   
-  simulateMarginChange: (data, params) =>
-    axiosInstance.post(`${API_BASE}/analytics/simulate-margin-change`, data, { params }),
+  simulateMarginChange: (data, params = {}) =>
+    axiosInstance.post(`${API_BASE}/analytics/simulate-margin-change`, data, { 
+      params,
+      timeout: 30000 
+    }),
   
   getPricingOptimization: (params) =>
     axiosInstance.get(`${API_BASE}/analytics/pricing-optimization`, { params }),

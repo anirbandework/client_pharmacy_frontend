@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { FileText, Eye, Trash2, Search, Calendar, DollarSign, Package, Edit, CheckCircle, AlertCircle } from 'lucide-react'
+import { FileText, Eye, Trash2, Search, Calendar, IndianRupee, Package, Edit, CheckCircle, AlertCircle } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { staffPurchaseInvoiceAPI } from '../../services/staff_purchase_invoice_apis'
 import EditInvoice from './EditInvoice'
@@ -181,7 +181,7 @@ const InvoiceList = ({ refresh }) => {
                     {invoice.total_items} items
                   </div>
                   <div className="flex items-center gap-2 text-green-600 font-semibold">
-                    <DollarSign className="w-3 h-3 md:w-4 md:h-4" />
+                    <IndianRupee className="w-3 h-3 md:w-4 md:h-4" />
                     ₹{invoice.net_amount.toFixed(2)}
                   </div>
                   <div className="text-gray-700 font-medium">
