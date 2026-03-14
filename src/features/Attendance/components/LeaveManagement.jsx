@@ -1,5 +1,5 @@
 import toast from 'react-hot-toast'
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { attendanceAPI } from '../services/attendanceApi'
 import { FileText, Check, X, Filter } from 'lucide-react'
 import { adminApi } from '../../Admin&SuperAdmin/services/admin&superAminApi'
@@ -9,6 +9,8 @@ const LeaveManagement = ({ shopCode }) => {
   const [staff, setStaff] = useState([])
   const [filters, setFilters] = useState({ staff_id: '', status: 'pending' })
   const [loading, setLoading] = useState(true)
+  const [rejectModal, setRejectModal] = useState(null) // { id } | null
+  const [rejectReason, setRejectReason] = useState('')
 
   useEffect(() => {
     if (shopCode) {
@@ -19,7 +21,7 @@ const LeaveManagement = ({ shopCode }) => {
 
   const loadStaff = async () => {
     try {
-      const data = await adminApi.getAllStaff()
+      const data = await adminApi.getShopStaff(shopCode)
       setStaff(data)
     } catch (error) {
       console.error(error)
@@ -38,13 +40,24 @@ const LeaveManagement = ({ shopCode }) => {
     }
   }
 
-  const handleAction = async (id, action) => {
+  const handleApprove = async (id) => {
     try {
-      if (action === 'approve') await attendanceAPI.approveLeave(id, shopCode)
-      else await attendanceAPI.rejectLeave(id, shopCode, {})
+      await attendanceAPI.approveLeave(id, shopCode)
       fetchLeaves()
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Action failed')
+    }
+  }
+
+  const handleRejectConfirm = async () => {
+    if (!rejectModal) return
+    try {
+      await attendanceAPI.rejectLeave(rejectModal.id, shopCode, { rejection_reason: rejectReason || null })
+      setRejectModal(null)
+      setRejectReason('')
+      fetchLeaves()
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Rejection failed')
     }
   }
 
@@ -96,10 +109,10 @@ const LeaveManagement = ({ shopCode }) => {
                   </div>
                   {leave.status === 'pending' && (
                     <>
-                      <button onClick={() => handleAction(leave.id, 'approve')} className="p-1.5 bg-green-500 text-white rounded-lg hover:bg-green-600">
+                      <button onClick={() => handleApprove(leave.id)} className="p-1.5 bg-green-500 text-white rounded-lg hover:bg-green-600">
                         <Check className="w-4 h-4" />
                       </button>
-                      <button onClick={() => handleAction(leave.id, 'reject')} className="p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600">
+                      <button onClick={() => { setRejectModal({ id: leave.id }); setRejectReason('') }} className="p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600">
                         <X className="w-4 h-4" />
                       </button>
                     </>
@@ -118,6 +131,29 @@ const LeaveManagement = ({ shopCode }) => {
           ))
         )}
       </div>
+
+      {/* Reject Modal */}
+      {rejectModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-xl p-5 w-full max-w-sm mx-4">
+            <h4 className="text-sm font-bold text-gray-800 mb-3">Reject Leave</h4>
+            <textarea
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              placeholder="Reason for rejection (optional)"
+              className="w-full text-sm border rounded-lg px-3 py-2 resize-none h-20 focus:outline-none focus:ring-2 focus:ring-red-300"
+            />
+            <div className="flex gap-2 mt-3">
+              <button onClick={handleRejectConfirm} className="flex-1 bg-red-500 text-white text-sm font-semibold py-2 rounded-lg hover:bg-red-600">
+                Confirm Reject
+              </button>
+              <button onClick={() => setRejectModal(null)} className="flex-1 bg-gray-100 text-gray-700 text-sm font-semibold py-2 rounded-lg hover:bg-gray-200">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

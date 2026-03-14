@@ -16,6 +16,7 @@ export const staffStockAuditAPI = {
   // Stock Items Management
   addItem: (data) => axiosInstance.post(`${API_BASE}/items`, data),
   getItems: (params) => axiosInstance.get(`${API_BASE}/items`, { params }),
+  getConsolidatedItems: (params) => axiosInstance.get(`${API_BASE}/items/consolidated`, { params }),
   getUnassignedItems: (params) => axiosInstance.get(`${API_BASE}/items/unassigned/list`, { params }),
   assignSection: (itemId, sectionId) => axiosInstance.patch(`${API_BASE}/items/${itemId}/assign-section`, null, { params: { section_id: sectionId } }),
   getItem: (itemId) => axiosInstance.get(`${API_BASE}/items/${itemId}`),
@@ -33,6 +34,7 @@ export const staffStockAuditAPI = {
   updateUploadItem: (uploadId, itemId, data) => axiosInstance.put(`${API_BASE}/uploads/${uploadId}/items/${itemId}`, data),
   deleteUploadItem: (uploadId, itemId) => axiosInstance.delete(`${API_BASE}/uploads/${uploadId}/items/${itemId}`),
   staffVerifyUpload: (uploadId, notes) => axiosInstance.post(`${API_BASE}/uploads/${uploadId}/staff-verify`, { notes }),
+  rejectUpload: (uploadId, reason) => axiosInstance.post(`${API_BASE}/uploads/${uploadId}/reject`, { reason }),
   
   // Purchases & Sales
   addPurchase: (data) => axiosInstance.post(`${API_BASE}/purchases`, data),

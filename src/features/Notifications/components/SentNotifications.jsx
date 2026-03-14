@@ -3,16 +3,17 @@ import { notificationsApi } from '../services/notificationsApi';
 import { Eye, TrendingUp } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-export default function SentNotifications() {
+export default function SentNotifications({ shopCode }) {
   const [notifications, setNotifications] = useState([]);
   const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => { loadNotifications(); }, []);
+  useEffect(() => { loadNotifications(); }, [shopCode]);
 
   const loadNotifications = async () => {
+    setLoading(true);
     try {
-      const data = await notificationsApi.getSentNotifications();
+      const data = await notificationsApi.getSentNotifications(shopCode);
       setNotifications(data);
       data.forEach(n => loadStats(n.id));
     } catch (err) {

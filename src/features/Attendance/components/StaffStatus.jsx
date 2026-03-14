@@ -1,5 +1,5 @@
 import React from 'react'
-import { Clock, Wifi, WifiOff, AlertCircle, LogOut } from 'lucide-react'
+import { Clock, Wifi, WifiOff, AlertCircle, LogOut, CheckCircle, XCircle } from 'lucide-react'
 import { attendanceAPI } from '../services/attendanceApi'
 import toast from 'react-hot-toast'
 
@@ -33,7 +33,13 @@ const StaffStatus = ({ wifiStatus, wifiInfo, todayRecord, fetchData }) => {
           <div className="flex items-center justify-between mb-3">
             <div>
               <div className="text-xs sm:text-sm opacity-90">Connection Status</div>
-              <div className="text-xl sm:text-2xl font-bold">{isInsideGeofence ? '✅ Connected' : '❌ Not Connected'}</div>
+              <div className="text-xl sm:text-2xl font-bold flex items-center gap-2">
+                {isInsideGeofence ? (
+                  <><CheckCircle className="w-6 h-6" /> Connected</>
+                ) : (
+                  <><XCircle className="w-6 h-6" /> Not Connected</>
+                )}
+              </div>
             </div>
             <div className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold ${
               canAccessModules ? 'bg-green-500' : 'bg-red-500'
@@ -82,10 +88,14 @@ const StaffStatus = ({ wifiStatus, wifiInfo, todayRecord, fetchData }) => {
               <div className="text-lg sm:text-xl font-bold text-gray-900">
                 {new Date(todayRecord.check_in_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
               </div>
-              <div className={`text-xs mt-1 font-semibold ${
+              <div className={`text-xs mt-1 font-semibold flex items-center gap-1 ${
                 todayRecord.is_late ? 'text-yellow-600' : 'text-green-600'
               }`}>
-                {todayRecord.is_late ? '⚠️ Late by ' + todayRecord.late_by_minutes + ' min' : '✅ On time'}
+                {todayRecord.is_late ? (
+                  <><AlertCircle className="w-3 h-3" /> Late by {todayRecord.late_by_minutes} min</>
+                ) : (
+                  <><CheckCircle className="w-3 h-3" /> On time</>
+                )}
               </div>
             </div>
             

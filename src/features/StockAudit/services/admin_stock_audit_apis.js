@@ -16,16 +16,25 @@ export const adminStockAuditAPI = {
   rejectUpload: (uploadId, reason) => axiosInstance.post(`${API_BASE}/uploads/${uploadId}/reject`, { reason }),
   deleteUpload: (uploadId) => axiosInstance.delete(`${API_BASE}/uploads/${uploadId}`),
   
+  // Admin Stock Items (read-only view)
+  getAdminItems: (params) => axiosInstance.get(`${API_BASE}/items`, { params }),
+  getConsolidatedItems: (params) => axiosInstance.get(`${API_BASE}/items/consolidated`, { params }),
+
+  // Admin Reports
+  getAdminLowStock: (params) => axiosInstance.get(`${API_BASE}/reports/low-stock`, { params }),
+  getAdminExpiring: (params) => axiosInstance.get(`${API_BASE}/reports/expiring`, { params }),
+  getAdminDiscrepancyReport: (params) => axiosInstance.get(`${API_BASE}/audit/discrepancies`, { params }),
+
   // Admin Analytics
   getAdminDashboard: (params) => axiosInstance.get(`${API_BASE}/analytics/dashboard`, { params }),
-  getAIInsights: (params) => axiosInstance.get(`${API_BASE}/analytics/ai-insights`, { 
+  getAdminAIAnalytics: (params) => axiosInstance.get(`${API_BASE}/analytics/ai-analytics`, {
     params,
     timeout: 120000
   }),
-  
-  // Admin Reports & Analytics
-  getAIAnalytics: (params) => axiosInstance.get(`${API_BASE}/ai-analytics/comprehensive`, { params }),
-  getAICharts: (params) => axiosInstance.get(`${API_BASE}/ai-analytics/charts`, { params }),
+  getAIInsights: (params) => axiosInstance.get(`${API_BASE}/analytics/ai-insights`, {
+    params,
+    timeout: 120000
+  }),
   
   // Admin Exports
   exportStockItems: () => axiosInstance.get(`${API_BASE}/export/stock-items`, { responseType: 'blob' }),

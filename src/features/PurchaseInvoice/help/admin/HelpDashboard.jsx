@@ -1,6 +1,8 @@
+import { BarChart3 } from 'lucide-react'
+
 const HelpDashboard = () => ({
   title: 'Dashboard',
-  icon: '📊',
+  icon: <BarChart3 className="w-5 h-5" />,
   description: 'Overview of all purchase invoice analytics across your organisation.',
   sections: [
     {

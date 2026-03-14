@@ -1,6 +1,8 @@
+import { FileText } from 'lucide-react'
+
 const HelpInvoiceList = () => ({
   title: 'Invoice List',
-  icon: '📋',
+  icon: <FileText className="w-5 h-5" />,
   description: 'View and manage all purchase invoices for your shop.',
   sections: [
     {

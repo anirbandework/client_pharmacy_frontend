@@ -18,6 +18,14 @@ export const rbacAPI = {
     axiosInstance.put(`${API_BASE}/organization/${orgId}/module/${moduleKey}`, data),
   
   // SuperAdmin: Reset organization to defaults
-  resetToDefaults: (orgId) => 
-    axiosInstance.post(`${API_BASE}/organization/${orgId}/reset-defaults`)
+  resetToDefaults: (orgId) =>
+    axiosInstance.post(`${API_BASE}/organization/${orgId}/reset-defaults`),
+
+  // SuperAdmin: Get tab permissions for a module
+  getModuleTabs: (orgId, moduleKey) =>
+    axiosInstance.get(`${API_BASE}/organization/${orgId}/module/${moduleKey}/tabs`),
+
+  // SuperAdmin: Update a single tab permission
+  updateTabPermission: (orgId, moduleKey, tabKey, enabled) =>
+    axiosInstance.put(`${API_BASE}/organization/${orgId}/module/${moduleKey}/tab/${tabKey}`, { enabled })
 }

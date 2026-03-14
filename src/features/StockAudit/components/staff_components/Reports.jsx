@@ -1,46 +1,72 @@
 import React, { useState, useEffect } from 'react'
 import { staffStockAuditAPI } from '../../services/staff_stock_audit_apis'
-import { AlertTriangle, Clock, TrendingDown, Download } from 'lucide-react'
+import { AlertTriangle, Clock, TrendingDown, Download, Package, Loader2 } from 'lucide-react'
+import Pagination from '../shared/Pagination'
+
+const PER_PAGE = 50
 
 const Reports = () => {
   const [activeReport, setActiveReport] = useState('low-stock')
   const [data, setData] = useState([])
+  const [loading, setLoading] = useState(false)
   const [threshold, setThreshold] = useState(10)
   const [daysAhead, setDaysAhead] = useState(30)
   const [appliedThreshold, setAppliedThreshold] = useState(10)
   const [appliedDaysAhead, setAppliedDaysAhead] = useState(30)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [total, setTotal] = useState(0)
 
   useEffect(() => {
-    fetchReport()
+    setCurrentPage(1)
+    fetchReport(1)
   }, [activeReport])
 
-  const fetchReport = async () => {
+  useEffect(() => {
+    fetchReport(currentPage)
+  }, [currentPage])
+
+  const fetchReport = async (page = 1) => {
     try {
+      setLoading(true)
       let res
       if (activeReport === 'low-stock') {
-        res = await staffStockAuditAPI.getLowStock({ threshold })
+        res = await staffStockAuditAPI.getLowStock({ threshold, page, per_page: PER_PAGE })
         setAppliedThreshold(threshold)
       } else if (activeReport === 'expiring') {
-        res = await staffStockAuditAPI.getExpiring({ days_ahead: daysAhead })
+        res = await staffStockAuditAPI.getExpiring({ days_ahead: daysAhead, page, per_page: PER_PAGE })
         setAppliedDaysAhead(daysAhead)
       } else if (activeReport === 'discrepancies') {
-        res = await staffStockAuditAPI.getDiscrepancies({ threshold: 0 })
+        res = await staffStockAuditAPI.getDiscrepancies({ threshold: 0, page, per_page: PER_PAGE })
       }
       
       // Handle different response formats
       if (res.data.items) {
-        setData(res.data.items) // For expiring items
+        setData(res.data.items)
       } else if (res.data.discrepancies) {
-        setData(res.data.discrepancies) // For discrepancies
+        setData(res.data.discrepancies)
       } else if (Array.isArray(res.data)) {
-        setData(res.data) // For other reports
+        setData(res.data)
       } else {
         setData([])
       }
+      
+      setTotal(res.data.total || res.data.total_discrepancies || 0)
+      setTotalPages(res.data.pages || 1)
+      setCurrentPage(page)
     } catch (error) {
       console.error('Failed to fetch report:', error)
       setData([])
+      setTotal(0)
+      setTotalPages(1)
+    } finally {
+      setLoading(false)
     }
+  }
+
+  const handleApplyFilter = () => {
+    setCurrentPage(1)
+    fetchReport(1)
   }
 
   const handleExport = async () => {
@@ -70,15 +96,15 @@ const Reports = () => {
   return (
     <div className="space-y-4">
       <div className="flex gap-2 flex-wrap items-center">
-        <button onClick={() => setActiveReport('low-stock')} className={`px-4 py-2 rounded-lg font-medium ${activeReport === 'low-stock' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/20' : 'bg-white text-gray-700 hover:bg-gray-50 border border-slate-200'}`}>Low Stock</button>
-        <button onClick={() => setActiveReport('expiring')} className={`px-4 py-2 rounded-lg font-medium ${activeReport === 'expiring' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/20' : 'bg-white text-gray-700 hover:bg-gray-50 border border-slate-200'}`}>Expiring Items</button>
-        <button onClick={() => setActiveReport('discrepancies')} className={`px-4 py-2 rounded-lg font-medium ${activeReport === 'discrepancies' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/20' : 'bg-white text-gray-700 hover:bg-gray-50 border border-slate-200'}`}>Discrepancies</button>
+        <button onClick={() => setActiveReport('low-stock')} className={`px-4 py-2 rounded-lg font-medium transition-all ${activeReport === 'low-stock' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/20' : 'bg-white text-gray-700 hover:bg-gray-50 border border-slate-200'}`}>Low Stock</button>
+        <button onClick={() => setActiveReport('expiring')} className={`px-4 py-2 rounded-lg font-medium transition-all ${activeReport === 'expiring' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/20' : 'bg-white text-gray-700 hover:bg-gray-50 border border-slate-200'}`}>Expiring Items</button>
+        <button onClick={() => setActiveReport('discrepancies')} className={`px-4 py-2 rounded-lg font-medium transition-all ${activeReport === 'discrepancies' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/20' : 'bg-white text-gray-700 hover:bg-gray-50 border border-slate-200'}`}>Discrepancies</button>
         
         {activeReport === 'low-stock' && (
           <div className="flex items-center gap-2 ml-4 bg-white px-3 py-2 rounded-lg border border-slate-200">
             <label className="text-sm font-medium text-gray-700">Threshold:</label>
             <input type="number" value={threshold} onChange={(e) => setThreshold(e.target.value)} className="w-20 px-2 py-1 border border-gray-300 rounded text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-            <button onClick={fetchReport} className="px-3 py-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded text-sm hover:from-blue-700 hover:to-indigo-700 shadow-lg shadow-blue-500/20">Apply</button>
+            <button onClick={handleApplyFilter} className="px-3 py-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded text-sm hover:from-blue-700 hover:to-indigo-700 shadow-lg shadow-blue-500/20 transition-all">Apply</button>
           </div>
         )}
         
@@ -86,7 +112,7 @@ const Reports = () => {
           <div className="flex items-center gap-2 ml-4 bg-white px-3 py-2 rounded-lg border border-slate-200">
             <label className="text-sm font-medium text-gray-700">Days Ahead:</label>
             <input type="number" value={daysAhead} onChange={(e) => setDaysAhead(e.target.value)} className="w-20 px-2 py-1 border border-gray-300 rounded text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-            <button onClick={fetchReport} className="px-3 py-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded text-sm hover:from-blue-700 hover:to-indigo-700 shadow-lg shadow-blue-500/20">Apply</button>
+            <button onClick={handleApplyFilter} className="px-3 py-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded text-sm hover:from-blue-700 hover:to-indigo-700 shadow-lg shadow-blue-500/20 transition-all">Apply</button>
           </div>
         )}
       </div>
@@ -106,60 +132,83 @@ const Reports = () => {
             )}
           </div>
           <div className="flex items-center gap-2">
-            <p className="text-sm font-semibold text-gray-600">{data.length} items</p>
-            <button onClick={handleExport} className="px-3 py-2 bg-green-600 text-white rounded flex items-center gap-1 text-sm">
+            <p className="text-sm font-semibold text-gray-600">{total} items</p>
+            <button onClick={handleExport} className="px-3 py-2 bg-green-600 text-white rounded flex items-center gap-1 text-sm hover:bg-green-700 transition-all">
               <Download className="w-4 h-4" /> Export
             </button>
           </div>
         </div>
-        <div className="space-y-3">
-          {data.length === 0 ? (
-            <p className="text-gray-500 text-center py-4">No items found</p>
-          ) : (
-            data.map((item, idx) => {
-              // Handle discrepancies format (nested item object)
-              const itemData = item.item || item;
-              return (
-                <div key={idx} className="border rounded p-4">
-                  <div className="flex items-start gap-3">
-                    {activeReport === 'low-stock' && <TrendingDown className="w-5 h-5 text-red-600 mt-1" />}
-                    {activeReport === 'expiring' && <Clock className="w-5 h-5 text-orange-600 mt-1" />}
-                    {activeReport === 'discrepancies' && <AlertTriangle className="w-5 h-5 text-yellow-600 mt-1" />}
-                    <div className="flex-1">
-                      <h4 className="font-semibold">{itemData.item_name}</h4>
-                      <div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-2 text-sm">
-                        {itemData.generic_name && <p className="text-gray-600">Generic: {itemData.generic_name}</p>}
-                        {itemData.brand_name && <p className="text-gray-600">Brand: {itemData.brand_name}</p>}
-                        <p className="text-gray-600">Batch: {itemData.batch_number}</p>
-                        {itemData.manufacturer && <p className="text-gray-600">Manufacturer: {itemData.manufacturer}</p>}
-                        {activeReport === 'discrepancies' ? (
-                          <>
-                            <p className="text-gray-700">Software: {item.software_qty}</p>
-                            <p className="text-gray-700">Physical: {item.physical_qty}</p>
-                            <p className="text-red-600 font-semibold">Difference: {item.difference}</p>
-                            <p className="text-gray-600">Section: {item.section_name}</p>
-                            <p className="text-gray-600">Rack: {item.rack_number}</p>
-                            {item.audited_by_staff_name && <p className="text-gray-500">Audited by: {item.audited_by_staff_name}</p>}
-                          </>
-                        ) : (
-                          <>
-                            {itemData.quantity_software !== undefined && <p className="text-gray-700">Software Stock: {itemData.quantity_software}</p>}
-                            {itemData.quantity_physical !== undefined && <p className="text-gray-700">Physical Stock: {itemData.quantity_physical}</p>}
-                            {itemData.mrp && <p className="text-gray-600">MRP: ₹{itemData.mrp}</p>}
-                            {itemData.unit_price && <p className="text-gray-600">Unit Price: ₹{itemData.unit_price}</p>}
-                            {itemData.expiry_date && <p className="text-orange-600 font-semibold">Expires: {new Date(itemData.expiry_date).toLocaleDateString()}</p>}
-                            {itemData.audit_discrepancy !== undefined && itemData.audit_discrepancy !== 0 && <p className="text-red-600 font-semibold">Discrepancy: {itemData.audit_discrepancy}</p>}
-                            {itemData.last_audit_date && <p className="text-gray-500 text-xs">Last Audit: {new Date(itemData.last_audit_date).toLocaleString()}</p>}
-                          </>
-                        )}
+        
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="text-center">
+              <Loader2 className="w-12 h-12 mx-auto mb-4 text-blue-600 animate-spin" />
+              <p className="text-gray-600 font-medium">Loading report data...</p>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="space-y-3">
+              {data.length === 0 ? (
+                <div className="text-center py-12 bg-gray-50 rounded-xl">
+                  <Package className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-4 text-gray-300" />
+                  <p className="text-gray-500 text-sm md:text-base">No items found</p>
+                </div>
+              ) : (
+                data.map((item, idx) => {
+                  const itemData = item.item || item;
+                  return (
+                    <div key={idx} className="bg-gradient-to-br from-gray-50 to-slate-50 border-2 border-slate-200 rounded-xl p-4 hover:shadow-lg transition-all">
+                      <div className="flex items-start gap-3">
+                        {activeReport === 'low-stock' && <TrendingDown className="w-5 h-5 text-red-600 mt-1 flex-shrink-0" />}
+                        {activeReport === 'expiring' && <Clock className="w-5 h-5 text-orange-600 mt-1 flex-shrink-0" />}
+                        {activeReport === 'discrepancies' && <AlertTriangle className="w-5 h-5 text-yellow-600 mt-1 flex-shrink-0" />}
+                        <div className="flex-1">
+                          <h4 className="font-bold text-gray-800 mb-2">{itemData.product_name || itemData.item_name}</h4>
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-2 text-sm">
+                            {itemData.composition && <p className="text-gray-600"><span className="font-medium">Composition:</span> {itemData.composition}</p>}
+                            {itemData.generic_name && <p className="text-gray-600"><span className="font-medium">Generic:</span> {itemData.generic_name}</p>}
+                            {itemData.brand_name && <p className="text-gray-600"><span className="font-medium">Brand:</span> {itemData.brand_name}</p>}
+                            <p className="text-gray-600"><span className="font-medium">Batch:</span> <span className="font-mono bg-gray-100 px-2 py-0.5 rounded">{itemData.batch_number}</span></p>
+                            {itemData.manufacturer && <p className="text-gray-600"><span className="font-medium">Manufacturer:</span> {itemData.manufacturer}</p>}
+                            {activeReport === 'discrepancies' ? (
+                              <>
+                                <p className="text-blue-700 font-semibold"><span className="font-medium">Software:</span> {item.software_qty}</p>
+                                <p className="text-green-700 font-semibold"><span className="font-medium">Physical:</span> {item.physical_qty}</p>
+                                <p className="text-red-600 font-bold"><span className="font-medium">Difference:</span> {item.difference > 0 ? '+' : ''}{item.difference}</p>
+                                <p className="text-gray-600"><span className="font-medium">Section:</span> {item.section_name}</p>
+                                <p className="text-gray-600"><span className="font-medium">Rack:</span> {item.rack_number}</p>
+                                {item.audited_by_staff_name && <p className="text-gray-500"><span className="font-medium">Audited by:</span> {item.audited_by_staff_name}</p>}
+                              </>
+                            ) : (
+                              <>
+                                {itemData.quantity_software !== undefined && <p className="text-blue-700 font-semibold"><span className="font-medium">Software Stock:</span> {itemData.quantity_software}</p>}
+                                {itemData.quantity_physical !== undefined && itemData.quantity_physical !== null && <p className="text-green-700 font-semibold"><span className="font-medium">Physical Stock:</span> {itemData.quantity_physical}</p>}
+                                {itemData.mrp && <p className="text-gray-600"><span className="font-medium">MRP:</span> ₹{itemData.mrp}</p>}
+                                {itemData.unit_price && <p className="text-gray-600"><span className="font-medium">Unit Price:</span> ₹{itemData.unit_price}</p>}
+                                {itemData.expiry_date && <p className="text-orange-600 font-bold"><span className="font-medium">Expires:</span> {new Date(itemData.expiry_date).toLocaleDateString()}</p>}
+                                {itemData.audit_discrepancy !== undefined && itemData.audit_discrepancy !== 0 && <p className="text-red-600 font-bold"><span className="font-medium">Discrepancy:</span> {itemData.audit_discrepancy > 0 ? '+' : ''}{itemData.audit_discrepancy}</p>}
+                                {itemData.last_audit_date && <p className="text-gray-500 text-xs col-span-2 md:col-span-3"><span className="font-medium">Last Audit:</span> {new Date(itemData.last_audit_date).toLocaleString()}</p>}
+                              </>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              );
-            })
-          )}
-        </div>
+                  );
+                })
+              )}
+            </div>
+            
+            <Pagination
+              page={currentPage}
+              totalPages={totalPages}
+              total={total}
+              perPage={PER_PAGE}
+              onPageChange={(p) => setCurrentPage(p)}
+            />
+          </>
+        )}
       </div>
     </div>
   )

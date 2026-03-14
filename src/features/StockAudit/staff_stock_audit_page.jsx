@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import useTabPermissions from '../../hooks/useTabPermissions'
 import Layout from '../../components/Layout'
 import GeofenceGuard from '../../components/GeofenceGuard'
 import Dashboard from './components/staff_components/Dashboard'
@@ -10,13 +11,17 @@ import Reports from './components/staff_components/Reports'
 import AIAnalytics from './components/staff_components/AIAnalytics'
 import ExcelUpload from './components/staff_components/ExcelUpload'
 import ExcelUploadVerification from './components/staff_components/ExcelUploadVerification'
-import { LayoutDashboard, Package, Grid, Shuffle, Settings, FileText, Sparkles, Brain, Upload, CheckSquare } from 'lucide-react'
+import ConsolidatedStockView from './components/shared/ConsolidatedStockView'
+import ErrorBoundary from './components/shared/ErrorBoundary'
+import { LayoutDashboard, Package, Grid, Shuffle, Settings, FileText, Sparkles, Brain, Upload, CheckSquare, HelpCircle, Layers } from 'lucide-react'
 
 const StockAudit = () => {
   const [activeTab, setActiveTab] = useState('items')
   const [refresh, setRefresh] = useState(0)
+  const [showHelp, setShowHelp] = useState(false)
+  const { isTabEnabled, isLoaded } = useTabPermissions('stock_audit')
 
-  const tabs = [
+  const allTabs = [
     { id: 'items', label: 'Items', icon: Grid, color: 'from-purple-500 to-purple-600' },
     { id: 'racks', label: 'Racks', icon: Package, color: 'from-green-500 to-green-600' },
     { id: 'upload', label: 'Excel Upload', icon: Upload, color: 'from-blue-500 to-cyan-500' },
@@ -25,8 +30,16 @@ const StockAudit = () => {
     { id: 'adjustments', label: 'Adjustments', icon: Settings, color: 'from-pink-500 to-pink-600' },
     { id: 'reports', label: 'Reports', icon: FileText, color: 'from-red-500 to-red-600' },
     { id: 'ai-analytics', label: 'AI Analytics', icon: Brain, color: 'from-purple-600 to-indigo-600' },
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, color: 'from-blue-500 to-blue-600' }
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, color: 'from-blue-500 to-blue-600' },
+    { id: 'consolidated', label: 'Stock View', icon: Layers, color: 'from-teal-500 to-teal-600' }
   ]
+  const tabs = allTabs.filter(t => isTabEnabled(t.id))
+
+  useEffect(() => {
+    if (isLoaded && tabs.length > 0 && !tabs.find(t => t.id === activeTab)) {
+      setActiveTab(tabs[0].id)
+    }
+  }, [isLoaded, tabs.length])
 
   return (
     <Layout>
@@ -34,14 +47,23 @@ const StockAudit = () => {
       <div className="max-w-7xl mx-auto px-4">
         <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 rounded-xl shadow-lg p-4 md:p-6 mb-4 animate-fade-in relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-          <div className="relative z-10 flex items-center gap-2 md:gap-3">
-            <div className="p-2 md:p-3 bg-white/20 backdrop-blur-sm rounded-xl">
-              <Sparkles className="w-5 h-5 md:w-6 md:h-6 text-white" />
+          <div className="relative z-10 flex items-center justify-between gap-2 md:gap-3">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="p-2 md:p-3 bg-white/20 backdrop-blur-sm rounded-xl">
+                <Sparkles className="w-5 h-5 md:w-6 md:h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl md:text-2xl font-bold text-white">Stock Audit</h1>
+                <p className="text-white/90 text-xs md:text-sm">Inventory management & reconciliation</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-xl md:text-2xl font-bold text-white">Stock Audit</h1>
-              <p className="text-white/90 text-xs md:text-sm">Inventory management & reconciliation</p>
-            </div>
+            <button
+              onClick={() => setShowHelp(true)}
+              className="flex items-center gap-1.5 px-3 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl text-white text-xs md:text-sm font-medium transition-colors flex-shrink-0"
+            >
+              <HelpCircle className="w-4 h-4" />
+              <span className="hidden sm:inline">How to Use</span>
+            </button>
           </div>
         </div>
 
@@ -63,15 +85,18 @@ const StockAudit = () => {
         </div>
 
         <div className="animate-fade-in space-y-4 pb-20">
-          {activeTab === 'dashboard' && <Dashboard key={refresh} />}
-          {activeTab === 'racks' && <RackManagement />}
-          {activeTab === 'items' && <StockItems />}
-          {activeTab === 'upload' && <ExcelUpload />}
-          {activeTab === 'verification' && <ExcelUploadVerification />}
-          {activeTab === 'audit' && <AuditSession />}
-          {activeTab === 'adjustments' && <StockAdjustments />}
-          {activeTab === 'reports' && <Reports />}
-          {activeTab === 'ai-analytics' && <AIAnalytics />}
+          <ErrorBoundary key={activeTab}>
+            {activeTab === 'dashboard' && <Dashboard key={refresh} />}
+            {activeTab === 'racks' && <RackManagement />}
+            {activeTab === 'items' && <StockItems />}
+            {activeTab === 'upload' && <ExcelUpload />}
+            {activeTab === 'verification' && <ExcelUploadVerification />}
+            {activeTab === 'audit' && <AuditSession />}
+            {activeTab === 'adjustments' && <StockAdjustments />}
+            {activeTab === 'reports' && <Reports />}
+            {activeTab === 'ai-analytics' && <AIAnalytics />}
+            {activeTab === 'consolidated' && <ConsolidatedStockView mode="staff" />}
+          </ErrorBoundary>
         </div>
       </div>
       </GeofenceGuard>

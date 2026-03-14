@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import useTabPermissions from '../../hooks/useTabPermissions'
 import Layout from '../../components/Layout'
 import Dashboard from './components/admin_components/Dashboard'
 import AIInsights from './components/admin_components/AIInsights'
@@ -14,8 +15,9 @@ import { LayoutDashboard, Brain, Calculator, CheckSquare, Receipt, AlertTriangle
 const AdminPurchaseInvoicePage = () => {
   const [activeTab, setActiveTab] = useState('dashboard')
   const [showHelp, setShowHelp] = useState(false)
+  const { isTabEnabled, isLoaded } = useTabPermissions('invoice_analytics')
 
-  const tabs = [
+  const allTabs = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, color: 'from-blue-500 to-blue-600' },
     { id: 'verification', label: 'Verification', icon: CheckSquare, color: 'from-amber-500 to-orange-500' },
     { id: 'expiry-alerts', label: 'Expiry Alerts', icon: AlertTriangle, color: 'from-red-500 to-orange-600' },
@@ -24,6 +26,13 @@ const AdminPurchaseInvoicePage = () => {
     { id: 'simulator', label: 'Margin Simulator', icon: Zap, color: 'from-indigo-500 to-purple-600' },
     { id: 'ai-insights', label: 'AI Insights', icon: Brain, color: 'from-purple-600 to-indigo-600' }
   ]
+  const tabs = allTabs.filter(t => isTabEnabled(t.id))
+
+  useEffect(() => {
+    if (isLoaded && tabs.length > 0 && !tabs.find(t => t.id === activeTab)) {
+      setActiveTab(tabs[0].id)
+    }
+  }, [isLoaded, tabs.length])
 
   return (
     <Layout>

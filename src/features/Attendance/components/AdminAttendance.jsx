@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import Layout from '../../../components/Layout'
+import ErrorBoundary from '../../../components/ErrorBoundary'
+import useTabPermissions from '../../../hooks/useTabPermissions'
 import Dashboard from './Dashboard'
 import WiFiSetup from './WiFiSetup'
 import MonthlyReport from './MonthlyReport'
@@ -7,67 +9,83 @@ import LeaveManagement from './LeaveManagement'
 import Settings from './Settings'
 import AttendanceRecords from './AttendanceRecords'
 import ConnectedStaff from './ConnectedStaff'
-import { LayoutDashboard, Wifi, BarChart3, FileText, Clock, Settings as SettingsIcon, List, Users } from 'lucide-react'
+import { LayoutDashboard, Wifi, BarChart3, FileText, Clock, Settings as SettingsIcon, List, Users, Store } from 'lucide-react'
 import { adminApi } from '../../Admin&SuperAdmin/services/admin&superAminApi'
+import toast from 'react-hot-toast'
 
 const AdminAttendance = () => {
   const [activeTab, setActiveTab] = useState('dashboard')
   const [shops, setShops] = useState([])
   const [selectedShop, setSelectedShop] = useState(null)
+  const { isTabEnabled, isLoaded } = useTabPermissions('attendance_admin')
+
+  const allTabs = [
+    { id: 'dashboard', label: 'Dashboard',          icon: LayoutDashboard },
+    { id: 'connected', label: 'Connected',          icon: Users },
+    { id: 'records',   label: 'Records',            icon: List },
+    { id: 'wifi',      label: 'WiFi Setup',         icon: Wifi },
+    { id: 'report',    label: 'Monthly Report',     icon: BarChart3 },
+    { id: 'leaves',    label: 'Leave Management',   icon: FileText },
+    { id: 'settings',  label: 'Settings',           icon: SettingsIcon },
+  ]
+  const tabs = allTabs.filter(t => isTabEnabled(t.id))
 
   useEffect(() => {
     loadShops()
   }, [])
 
+  useEffect(() => {
+    if (isLoaded && tabs.length > 0 && !tabs.find(t => t.id === activeTab)) {
+      setActiveTab(tabs[0].id)
+    }
+  }, [isLoaded, tabs.length])
+
   const loadShops = async () => {
     try {
       const data = await adminApi.getShops()
       setShops(data)
-      if (data.length > 0) setSelectedShop(data[0].shop_code) // Use shop_code instead of id
+      if (data.length > 0) setSelectedShop(data[0].shop_code)
     } catch (err) {
       console.error(err)
+      toast.error('Failed to fetch shops')
     }
   }
-
-  const tabs = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, color: 'from-blue-500 to-blue-600' },
-    { id: 'connected', label: 'Connected', icon: Users, color: 'from-green-500 to-green-600' },
-    { id: 'records', label: 'Records', icon: List, color: 'from-indigo-500 to-indigo-600' },
-    { id: 'wifi', label: 'WiFi Setup', icon: Wifi, color: 'from-purple-500 to-purple-600' },
-    { id: 'report', label: 'Monthly Report', icon: BarChart3, color: 'from-orange-500 to-orange-600' },
-    { id: 'leaves', label: 'Leave Requests', icon: FileText, color: 'from-pink-500 to-pink-600' },
-    { id: 'settings', label: 'Settings', icon: SettingsIcon, color: 'from-gray-500 to-gray-600' }
-  ]
 
   return (
     <Layout>
       <div className="max-w-7xl mx-auto px-4">
+        {/* Header */}
         <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 rounded-xl shadow-lg p-4 md:p-6 mb-4 animate-fade-in relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-          <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-2 md:gap-3">
-              <div className="p-2 md:p-3 bg-white/20 backdrop-blur-sm rounded-xl">
-                <Clock className="w-5 h-5 md:w-6 md:h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl md:text-2xl font-bold text-white">Attendance System</h1>
-                <p className="text-white/90 text-xs md:text-sm">WiFi-based automatic tracking</p>
-              </div>
+          <div className="relative z-10 flex items-center gap-2 md:gap-3">
+            <div className="p-2 md:p-3 bg-white/20 backdrop-blur-sm rounded-xl">
+              <Clock className="w-5 h-5 md:w-6 md:h-6 text-white" />
             </div>
-            <select 
-              value={selectedShop || ''} 
-              onChange={(e) => setSelectedShop(e.target.value)} 
-              className="bg-white/20 backdrop-blur-sm text-white border border-white/30 px-3 py-2 rounded-lg text-xs md:text-sm w-full sm:w-auto"
-            >
-              {shops.map(shop => (
-                <option key={shop.shop_code} value={shop.shop_code} className="text-gray-900">
-                  {shop.shop_name}
-                </option>
-              ))}
-            </select>
+            <div>
+              <h1 className="text-xl md:text-2xl font-bold text-white">Attendance System</h1>
+              <p className="text-white/90 text-xs md:text-sm">WiFi-based automatic tracking</p>
+            </div>
           </div>
         </div>
 
+        {/* Shared Shop Filter */}
+        <div className="bg-white rounded-xl shadow border border-slate-200 p-3 mb-4 flex items-center gap-3">
+          <div className="p-2 bg-indigo-100 rounded-lg">
+            <Store className="w-4 h-4 text-indigo-600" />
+          </div>
+          <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Filter by Shop:</label>
+          <select
+            value={selectedShop || ''}
+            onChange={(e) => setSelectedShop(e.target.value)}
+            className="flex-1 max-w-xs px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+          >
+            {shops.map((shop) => (
+              <option key={shop.shop_code} value={shop.shop_code}>{shop.shop_name}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Tab Bar */}
         <div className="mb-4 overflow-x-auto pb-2">
           <div className="bg-slate-800/50 backdrop-blur-xl border border-slate-700/50 rounded-xl shadow-lg p-1.5 inline-flex gap-1 min-w-full md:min-w-0">
             {tabs.map((tab) => (
@@ -75,7 +93,9 @@ const AdminAttendance = () => {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`py-2 md:py-3 px-3 md:px-4 text-xs md:text-sm font-semibold rounded-lg transition-all duration-300 flex items-center gap-2 whitespace-nowrap ${
-                  activeTab === tab.id ? 'text-white bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/20' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
+                  activeTab === tab.id
+                    ? 'text-white bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/20'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
                 }`}
               >
                 <tab.icon className="w-4 h-4" />
@@ -85,15 +105,18 @@ const AdminAttendance = () => {
           </div>
         </div>
 
+        {/* Tab Content */}
         {selectedShop && (
-          <div className="animate-fade-in">
-            {activeTab === 'dashboard' && <Dashboard shopCode={selectedShop} />}
-            {activeTab === 'connected' && <ConnectedStaff shopCode={selectedShop} />}
-            {activeTab === 'records' && <AttendanceRecords shopCode={selectedShop} />}
-            {activeTab === 'wifi' && <WiFiSetup shopCode={selectedShop} />}
-            {activeTab === 'report' && <MonthlyReport shopCode={selectedShop} />}
-            {activeTab === 'leaves' && <LeaveManagement shopCode={selectedShop} />}
-            {activeTab === 'settings' && <Settings shopCode={selectedShop} />}
+          <div className="animate-fade-in space-y-4 pb-20">
+            <ErrorBoundary key={activeTab}>
+              {activeTab === 'dashboard' && <Dashboard shopCode={selectedShop} />}
+              {activeTab === 'connected' && <ConnectedStaff shopCode={selectedShop} />}
+              {activeTab === 'records'   && <AttendanceRecords shopCode={selectedShop} />}
+              {activeTab === 'wifi'      && <WiFiSetup shopCode={selectedShop} />}
+              {activeTab === 'report'    && <MonthlyReport shopCode={selectedShop} />}
+              {activeTab === 'leaves'    && <LeaveManagement shopCode={selectedShop} />}
+              {activeTab === 'settings'  && <Settings shopCode={selectedShop} />}
+            </ErrorBoundary>
           </div>
         )}
       </div>

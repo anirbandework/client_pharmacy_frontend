@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import Layout from '../../../components/Layout'
 import { feedbackAPI } from '../services/feedbackApi'
-import { MessageSquare, TrendingUp, Users, Star, Smile, Meh, Frown, Angry, Laugh, Rocket, Bug, Lightbulb, AlertCircle, Heart, Bookmark, Phone, MapPin, Building, User } from 'lucide-react'
-import toast from 'react-hot-toast'
+import { MessageSquare, TrendingUp, Users, Star, Smile, Meh, Frown, Angry, Laugh, Rocket, Bug, Lightbulb, AlertCircle, Heart, Bookmark, Phone, Building, User } from 'lucide-react'
 
 const SuperAdminFeedback = () => {
   const [feedbacks, setFeedbacks] = useState([])
@@ -120,6 +119,7 @@ const SuperAdminFeedback = () => {
                 <option value="reviewed">Reviewed</option>
                 <option value="in_progress">In Progress</option>
                 <option value="resolved">Resolved</option>
+                <option value="closed">Closed</option>
               </select>
               <select value={filter.feedback_type} onChange={(e) => setFilter({ ...filter, feedback_type: e.target.value })} className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-sm">
                 <option value="">All Types</option>
@@ -128,6 +128,7 @@ const SuperAdminFeedback = () => {
                 <option value="improvement">Improvement</option>
                 <option value="complaint">Complaint</option>
                 <option value="appreciation">Appreciation</option>
+                <option value="other">Other</option>
               </select>
               <select value={filter.user_type} onChange={(e) => setFilter({ ...filter, user_type: e.target.value })} className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-sm">
                 <option value="">All Users</option>

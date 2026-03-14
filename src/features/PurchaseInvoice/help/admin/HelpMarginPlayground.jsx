@@ -1,6 +1,8 @@
+import { Target } from 'lucide-react'
+
 const HelpMarginPlayground = () => ({
   title: 'Margin Playground',
-  icon: '🎯',
+  icon: <Target className="w-5 h-5" />,
   description: 'Visualise and analyse profit margins across all products in your inventory.',
   sections: [
     {

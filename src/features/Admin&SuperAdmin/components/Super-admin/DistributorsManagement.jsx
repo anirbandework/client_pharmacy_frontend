@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { distributorApi } from '../../services/admin&superAminApi';
-import { Info, Edit2, Trash2, Ban, CheckCircle, AlertTriangle, Building2, Phone, Mail, MapPin, DollarSign, Calendar, Package, ChevronDown, ChevronUp, CreditCard, FileText } from 'lucide-react';
+import { Info, Edit2, Trash2, Ban, CheckCircle, AlertTriangle, Building2, Phone, Mail, MapPin, IndianRupee, Calendar, Package, ChevronDown, ChevronUp, CreditCard, FileText } from 'lucide-react';
 import ConfirmDialog from '../../../../components/ConfirmDialog';
 
 export default function DistributorsManagement() {
@@ -292,7 +292,7 @@ export default function DistributorsManagement() {
                   {(distributor.credit_limit || distributor.credit_days) && (
                     <div>
                       <h4 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                        <DollarSign className="w-4 h-4 text-green-600" />
+                        <IndianRupee className="w-4 h-4 text-green-600" />
                         Financial Terms
                       </h4>
                       <div className="bg-gray-50 p-3 rounded-lg text-sm text-gray-600 space-y-1">

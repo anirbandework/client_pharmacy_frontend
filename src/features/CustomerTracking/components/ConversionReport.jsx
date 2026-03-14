@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { customerTrackingAPI } from '../services/customerTracking'
-import { TrendingUp, Users, DollarSign, Target } from 'lucide-react'
+import { TrendingUp, Users, IndianRupee, Target } from 'lucide-react'
 
 const ConversionReport = () => {
   const [report, setReport] = useState(null)
@@ -89,7 +89,7 @@ const ConversionReport = () => {
                   <p className="text-sm text-gray-600">Total Revenue</p>
                   <p className="text-2xl font-bold text-purple-600">₹{report.total_conversion_value.toFixed(2)}</p>
                 </div>
-                <DollarSign className="w-10 h-10 text-purple-500" />
+                <IndianRupee className="w-10 h-10 text-purple-500" />
               </div>
             </div>
 

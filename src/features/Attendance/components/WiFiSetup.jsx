@@ -1,7 +1,7 @@
 import toast from 'react-hot-toast'
 import React, { useState, useEffect } from 'react'
 import { attendanceAPI } from '../services/attendanceApi'
-import { Wifi, MapPin } from 'lucide-react'
+import { Wifi, MapPin, CheckCircle } from 'lucide-react'
 
 const WiFiSetup = ({ shopCode }) => {
   const [wifiData, setWifiData] = useState(null)
@@ -109,7 +109,9 @@ const WiFiSetup = ({ shopCode }) => {
           )}
           <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
             <div className="text-xs text-gray-500 mb-1">Status</div>
-            <div className="text-sm font-semibold text-green-600">✅ Active</div>
+            <div className="text-sm font-semibold text-green-600 flex items-center gap-1">
+              <CheckCircle className="w-4 h-4" /> Active
+            </div>
           </div>
         </div>
       </div>

@@ -389,8 +389,8 @@ const MarginSimulator = () => {
               The system will calculate new selling prices (capped at MRP), projected revenue, and profit changes.
             </p>
             {loading && (
-              <p className="text-xs text-blue-600 mt-2 font-semibold animate-pulse">
-                ⚡ Running simulation... Please wait
+              <p className="text-xs text-blue-600 mt-2 font-semibold animate-pulse flex items-center gap-1">
+                <Zap className="w-3 h-3" /> Running simulation... Please wait
               </p>
             )}
           </div>

@@ -86,14 +86,16 @@ const MyFeedback = () => {
 
                 <p className="text-sm md:text-base text-gray-700 mb-4 bg-gray-50 p-3 md:p-4 rounded-lg">{fb.message}</p>
 
-                <div className="flex items-center gap-4 text-xs md:text-sm text-gray-600 mb-4 flex-wrap">
-                  <div className="flex items-center gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className={`w-4 h-4 ${i < fb.satisfaction_rating ? 'fill-purple-500 text-purple-500' : 'text-gray-300'}`} />
-                    ))}
+                {fb.satisfaction_rating != null && (
+                  <div className="flex items-center gap-4 text-xs md:text-sm text-gray-600 mb-4 flex-wrap">
+                    <div className="flex items-center gap-1">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} className={`w-4 h-4 ${i < fb.satisfaction_rating ? 'fill-purple-500 text-purple-500' : 'text-gray-300'}`} />
+                      ))}
+                    </div>
+                    <span className="text-xs text-gray-500">Rating: {fb.satisfaction_rating}/5</span>
                   </div>
-                  <span className="text-xs text-gray-500">Rating: {fb.satisfaction_rating}/5</span>
-                </div>
+                )}
 
                 {fb.admin_response && (
                   <div className="bg-gradient-to-br from-purple-50 to-pink-50 border-l-4 border-purple-500 p-3 md:p-4 rounded-lg relative">

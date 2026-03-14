@@ -1,6 +1,8 @@
+import { CheckCircle } from 'lucide-react'
+
 const HelpVerification = () => ({
   title: 'Invoice Verification',
-  icon: '✅',
+  icon: <CheckCircle className="w-5 h-5" />,
   description: 'Review, approve, or reject purchase invoices submitted by staff.',
   sections: [
     {

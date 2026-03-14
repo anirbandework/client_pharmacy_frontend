@@ -4,6 +4,7 @@ import { Package, AlertTriangle, CheckCircle, TrendingUp } from 'lucide-react'
 
 const Dashboard = () => {
   const [summary, setSummary] = useState(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     fetchSummary()
@@ -15,37 +16,82 @@ const Dashboard = () => {
       setSummary(data)
     } catch (error) {
       console.error('Failed to fetch summary:', error)
+    } finally {
+      setLoading(false)
     }
   }
 
-  const stats = [
-    { label: 'Total Items', value: summary?.total_items || 0, icon: Package, color: 'blue' },
-    { label: 'Total Sections', value: summary?.total_sections || 0, icon: Package, color: 'green' },
-    { label: 'Discrepancies', value: summary?.items_with_discrepancies || 0, icon: AlertTriangle, color: 'red' },
-    { label: 'Pending Audits', value: summary?.pending_audits || 0, icon: TrendingUp, color: 'orange' },
-    { label: 'Completion Rate', value: `${summary?.audit_completion_rate?.toFixed(1) || 0}%`, icon: CheckCircle, color: 'green' }
+  const statCards = [
+    {
+      title: 'Total Items',
+      value: summary?.total_items || 0,
+      icon: Package,
+      color: 'from-blue-500 to-blue-600',
+      bgColor: 'bg-blue-50'
+    },
+    {
+      title: 'Total Sections',
+      value: summary?.total_sections || 0,
+      icon: Package,
+      color: 'from-green-500 to-green-600',
+      bgColor: 'bg-green-50'
+    },
+    {
+      title: 'Discrepancies',
+      value: summary?.items_with_discrepancies || 0,
+      icon: AlertTriangle,
+      color: 'from-red-500 to-red-600',
+      bgColor: 'bg-red-50'
+    },
+    {
+      title: 'Pending Audits',
+      value: summary?.pending_audits || 0,
+      icon: TrendingUp,
+      color: 'from-orange-500 to-orange-600',
+      bgColor: 'bg-orange-50'
+    },
+    {
+      title: 'Completion Rate',
+      value: `${summary?.audit_completion_rate?.toFixed(1) || 0}%`,
+      icon: CheckCircle,
+      color: 'from-green-500 to-green-600',
+      bgColor: 'bg-green-50'
+    }
   ]
 
+  if (loading) {
+    return <div className="text-center py-8">Loading...</div>
+  }
+
+  if (!summary) {
+    return null
+  }
+
   return (
-    <div>
+    <div className="space-y-4 md:space-y-6">
       {summary?.last_audit_date && (
-        <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+        <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl shadow-lg border border-blue-200 p-4">
           <p className="text-sm text-gray-700">
-            Last Audit: <span className="font-semibold">{new Date(summary.last_audit_date).toLocaleString()}</span>
-            {summary.last_audited_by && <span className="ml-3">by <span className="font-semibold">{summary.last_audited_by}</span></span>}
+            <span className="font-semibold text-blue-700">Last Audit:</span>{' '}
+            <span className="font-semibold">{new Date(summary.last_audit_date).toLocaleString()}</span>
+            {summary.last_audited_by && (
+              <span className="ml-3">
+                by <span className="font-semibold text-purple-700">{summary.last_audited_by}</span>
+              </span>
+            )}
           </p>
         </div>
       )}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-        {stats.map((stat, idx) => (
-          <div key={idx} className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">{stat.label}</p>
-                <p className="text-2xl font-bold mt-1">{stat.value}</p>
+        {statCards.map((stat, idx) => (
+          <div key={idx} className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 md:p-6 hover:shadow-xl transition-shadow">
+            <div className="flex items-center justify-between mb-3 md:mb-4">
+              <div className={`p-2 md:p-3 rounded-xl ${stat.bgColor}`}>
+                <stat.icon className="w-5 h-5 md:w-6 md:h-6 text-gray-700" />
               </div>
-              <stat.icon className={`w-10 h-10 text-${stat.color}-500`} />
             </div>
+            <h3 className="text-gray-600 text-xs md:text-sm font-medium mb-1">{stat.title}</h3>
+            <p className="text-xl md:text-2xl font-bold text-gray-800">{stat.value}</p>
           </div>
         ))}
       </div>

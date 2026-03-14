@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { attendanceAPI } from '../services/attendanceApi'
 import { Calendar } from 'lucide-react'
 
@@ -49,8 +49,10 @@ const MonthlyReport = ({ shopCode }) => {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-3 py-2 text-left">Staff</th>
+                <th className="px-3 py-2 text-center">Working Days</th>
                 <th className="px-3 py-2 text-center">Present</th>
                 <th className="px-3 py-2 text-center">Late</th>
+                <th className="px-3 py-2 text-center">Leave</th>
                 <th className="px-3 py-2 text-center">Absent</th>
                 <th className="px-3 py-2 text-center">%</th>
               </tr>
@@ -59,9 +61,11 @@ const MonthlyReport = ({ shopCode }) => {
               {report?.staff_summaries?.map((s) => (
                 <tr key={s.staff_id} className="border-t">
                   <td className="px-3 py-2">{s.staff_name}</td>
+                  <td className="px-3 py-2 text-center text-gray-500">{s.total_days}</td>
                   <td className="px-3 py-2 text-center">{s.present_days}</td>
-                  <td className="px-3 py-2 text-center">{s.late_days}</td>
-                  <td className="px-3 py-2 text-center">{s.absent_days}</td>
+                  <td className="px-3 py-2 text-center text-yellow-600">{s.late_days}</td>
+                  <td className="px-3 py-2 text-center text-blue-600">{s.leave_days}</td>
+                  <td className="px-3 py-2 text-center text-red-500">{s.absent_days}</td>
                   <td className="px-3 py-2 text-center font-semibold">{s.attendance_percentage?.toFixed(1)}%</td>
                 </tr>
               ))}

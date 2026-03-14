@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { billingAPI } from '../../services/staff_billing_apis'
-import { DollarSign, Receipt, TrendingUp, CreditCard, Smartphone } from 'lucide-react'
+import { IndianRupee, Receipt, TrendingUp, CreditCard, Smartphone } from 'lucide-react'
 
 const Dashboard = () => {
   const [summary, setSummary] = useState(null)
@@ -27,7 +27,7 @@ const Dashboard = () => {
 
   const stats = [
     { label: 'Total Bills', value: summary?.total_bills || 0, icon: Receipt, color: 'blue' },
-    { label: 'Total Revenue', value: `₹${summary?.total_revenue?.toFixed(2) || 0}`, icon: DollarSign, color: 'green' },
+    { label: 'Total Revenue', value: `₹${summary?.total_revenue?.toFixed(2) || 0}`, icon: IndianRupee, color: 'green' },
     { label: 'Cash Sales', value: `₹${summary?.cash_sales?.toFixed(2) || 0}`, icon: CreditCard, color: 'purple' },
     { label: 'Online Sales', value: `₹${summary?.online_sales?.toFixed(2) || 0}`, icon: Smartphone, color: 'orange' },
     { label: 'Avg Bill Value', value: `₹${summary?.average_bill_value?.toFixed(2) || 0}`, icon: TrendingUp, color: 'pink' }

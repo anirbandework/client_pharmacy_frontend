@@ -78,30 +78,43 @@ const BillHistory = () => {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="bg-white rounded-lg shadow p-6 mb-8">
       {/* Search */}
-      <div className="bg-white rounded-xl shadow-md p-6">
-        <div className="flex gap-2">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search by phone number..."
-              value={searchPhone}
-              onChange={(e) => setSearchPhone(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && searchByPhone()}
-              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
-            />
+      <div className="mb-6 space-y-3 overflow-visible">
+        <div className="flex gap-2 relative z-10 p-1">
+          <div className="flex-1 relative overflow-visible">
+            <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-lg p-0.5">
+              <input
+                type="text"
+                placeholder="Search by phone number..."
+                value={searchPhone}
+                onChange={(e) => setSearchPhone(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && searchByPhone()}
+                className="w-full px-4 py-2 bg-white rounded-lg focus:outline-none transition-all duration-300"
+                style={{
+                  boxShadow: searchPhone ? 
+                    '0 0 20px rgba(59, 130, 246, 0.3), 0 0 40px rgba(59, 130, 246, 0.1)' : 
+                    'none',
+                  animation: searchPhone ? 'ai-pulse 2s ease-in-out infinite' : 'none'
+                }}
+              />
+            </div>
           </div>
+          <style>{`
+            @keyframes ai-pulse {
+              0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3), 0 0 40px rgba(59, 130, 246, 0.1); }
+              50% { box-shadow: 0 0 30px rgba(59, 130, 246, 0.5), 0 0 60px rgba(59, 130, 246, 0.2); }
+            }
+          `}</style>
           <button
             onClick={searchByPhone}
-            className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
+            className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium shadow-md hover:shadow-lg transition-all"
           >
             Search
           </button>
           <button
             onClick={fetchBills}
-            className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+            className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-medium shadow-md hover:shadow-lg transition-all"
           >
             Reset
           </button>
@@ -109,70 +122,87 @@ const BillHistory = () => {
       </div>
 
       {/* Bills List */}
-      <div className="bg-white rounded-xl shadow-md overflow-hidden">
-        <div className="overflow-x-auto">
+      <div className="overflow-x-auto rounded-xl border border-gray-200 shadow-lg mt-6">
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading bills...</p>
+            </div>
+          </div>
+        ) : (
           <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Bill No</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Date</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Customer</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Phone</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Payment</th>
-                <th className="px-4 py-3 text-right text-sm font-semibold">Subtotal</th>
-                <th className="px-4 py-3 text-right text-sm font-semibold">Tax</th>
-                <th className="px-4 py-3 text-right text-sm font-semibold">Total</th>
-                <th className="px-4 py-3 text-right text-sm font-semibold">Paid</th>
-                <th className="px-4 py-3 text-right text-sm font-semibold">Change</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Staff</th>
-                <th className="px-4 py-3 text-right text-sm font-semibold">Actions</th>
+            <thead>
+              <tr className="bg-gradient-to-r from-blue-100/80 via-sky-100/80 to-cyan-100/80 backdrop-blur-sm border-b border-blue-200/50">
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Bill No</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Date</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Customer</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Phone</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Payment</th>
+                <th className="px-6 py-4 text-right text-xs font-bold text-slate-700 uppercase tracking-wider">Subtotal</th>
+                <th className="px-6 py-4 text-right text-xs font-bold text-slate-700 uppercase tracking-wider">Tax</th>
+                <th className="px-6 py-4 text-right text-xs font-bold text-slate-700 uppercase tracking-wider">Total</th>
+                <th className="px-6 py-4 text-right text-xs font-bold text-slate-700 uppercase tracking-wider">Paid</th>
+                <th className="px-6 py-4 text-right text-xs font-bold text-slate-700 uppercase tracking-wider">Change</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Staff</th>
+                <th className="px-6 py-4 text-right text-xs font-bold text-slate-700 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
-            <tbody>
-              {bills.map((bill) => (
-                <tr key={bill.id} className="border-b hover:bg-gray-50">
-                  <td className="px-4 py-3 font-mono text-sm">{bill.bill_number}</td>
-                  <td className="px-4 py-3 text-sm">
-                    {new Date(bill.created_at).toLocaleDateString()}<br/>
-                    <span className="text-xs text-gray-500">{new Date(bill.created_at).toLocaleTimeString('en-GB', { hour12: false })}</span>
-                  </td>
-                  <td className="px-4 py-3">{bill.customer_name || '-'}</td>
-                  <td className="px-4 py-3">{bill.customer_phone || '-'}</td>
-                  <td className="px-4 py-3">
-                    <span className="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800">
-                      {bill.cash_amount > 0 && 'Cash'}
-                      {bill.card_amount > 0 && 'Card'}
-                      {bill.online_amount > 0 && 'Online'}
-                      {bill.cash_amount > 0 && bill.card_amount > 0 && '+'}
-                      {bill.cash_amount > 0 && bill.online_amount > 0 && '+'}
-                      {bill.card_amount > 0 && bill.online_amount > 0 && '+'}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-right">₹{bill.subtotal.toFixed(2)}</td>
-                  <td className="px-4 py-3 text-right">₹{bill.tax_amount.toFixed(2)}</td>
-                  <td className="px-4 py-3 text-right font-semibold">₹{bill.total_amount.toFixed(2)}</td>
-                  <td className="px-4 py-3 text-right text-blue-600">₹{bill.amount_paid.toFixed(2)}</td>
-                  <td className="px-4 py-3 text-right text-green-600">₹{bill.change_returned.toFixed(2)}</td>
-                  <td className="px-4 py-3 text-sm">{bill.staff_name}</td>
-                  <td className="px-4 py-3 text-right">
-                    <button
-                      onClick={() => viewBill(bill.id)}
-                      className="text-blue-600 hover:text-blue-800 mr-2"
-                    >
-                      <Eye className="w-4 h-4 inline" />
-                    </button>
-                    <button
-                      onClick={() => deleteBill(bill.id)}
-                      className="text-red-600 hover:text-red-800"
-                    >
-                      <Trash2 className="w-4 h-4 inline" />
-                    </button>
+            <tbody className="bg-white divide-y divide-gray-100">
+              {bills.length === 0 ? (
+                <tr>
+                  <td colSpan="12" className="text-center py-16 bg-white">
+                    <p className="text-gray-500 text-lg">No bills found</p>
                   </td>
                 </tr>
-              ))}
+              ) : (
+                bills.map((bill, idx) => (
+                  <tr key={bill.id} className={`transition-all duration-200 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:shadow-sm ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'}`}>
+                    <td className="px-6 py-4 font-mono text-sm">{bill.bill_number}</td>
+                    <td className="px-6 py-4 text-sm">
+                      {new Date(bill.created_at).toLocaleDateString()}<br/>
+                      <span className="text-xs text-gray-500">{new Date(bill.created_at).toLocaleTimeString('en-GB', { hour12: false })}</span>
+                    </td>
+                    <td className="px-6 py-4 text-sm">{bill.customer_name || '-'}</td>
+                    <td className="px-6 py-4 text-sm">{bill.customer_phone || '-'}</td>
+                    <td className="px-6 py-4">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800 border border-gray-200">
+                        {bill.cash_amount > 0 && 'Cash'}
+                        {bill.card_amount > 0 && 'Card'}
+                        {bill.online_amount > 0 && 'Online'}
+                        {bill.cash_amount > 0 && bill.card_amount > 0 && '+'}
+                        {bill.cash_amount > 0 && bill.online_amount > 0 && '+'}
+                        {bill.card_amount > 0 && bill.online_amount > 0 && '+'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-right text-sm">₹{bill.subtotal.toFixed(2)}</td>
+                    <td className="px-6 py-4 text-right text-sm">₹{bill.tax_amount.toFixed(2)}</td>
+                    <td className="px-6 py-4 text-right font-bold text-sm">₹{bill.total_amount.toFixed(2)}</td>
+                    <td className="px-6 py-4 text-right text-blue-600 font-semibold text-sm">₹{bill.amount_paid.toFixed(2)}</td>
+                    <td className="px-6 py-4 text-right text-green-600 font-semibold text-sm">₹{bill.change_returned.toFixed(2)}</td>
+                    <td className="px-6 py-4 text-sm">{bill.staff_name}</td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex gap-2 justify-end">
+                        <button
+                          onClick={() => viewBill(bill.id)}
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-blue-200 hover:border-blue-300"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => deleteBill(bill.id)}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-red-200 hover:border-red-300"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
-        </div>
+        )}
       </div>
 
       {/* Bill Details Modal */}

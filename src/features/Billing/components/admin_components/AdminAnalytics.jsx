@@ -1,26 +1,19 @@
 import { useState, useEffect } from 'react'
-import { Loader2, Info, Store, BarChart3, Brain, TrendingUp, DollarSign, Receipt, Package } from 'lucide-react'
+import { Loader2, Info, BarChart3, Brain, TrendingUp, IndianRupee, Receipt, Package } from 'lucide-react'
 import toast from 'react-hot-toast'
 import ReactMarkdown from 'react-markdown'
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, AreaChart } from 'recharts'
 import { billingAdminAPI } from '../../services/admin_billing_apis'
-import { adminApi } from '../../../Admin&SuperAdmin/services/admin&superAminApi'
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82ca9d', '#FF6B9D', '#C084FC']
 
-export default function BillingAdminAnalytics() {
+export default function BillingAdminAnalytics({ selectedShop = null }) {
   const [activeTab, setActiveTab] = useState('dashboard')
   const [dashboardData, setDashboardData] = useState(null)
   const [aiInsights, setAIInsights] = useState(null)
   const [loading, setLoading] = useState({})
   const [error, setError] = useState({})
-  const [shops, setShops] = useState([])
-  const [selectedShop, setSelectedShop] = useState(null)
   const [days, setDays] = useState(30)
-
-  useEffect(() => {
-    fetchShops()
-  }, [])
 
   useEffect(() => {
     if (selectedShop !== null || days) {
@@ -30,15 +23,6 @@ export default function BillingAdminAnalytics() {
       setError({})
     }
   }, [selectedShop, days])
-
-  const fetchShops = async () => {
-    try {
-      const response = await adminApi.getShops()
-      setShops(response)
-    } catch (error) {
-      toast.error('Failed to fetch shops')
-    }
-  }
 
   const fetchDashboard = async () => {
     if (dashboardData) return
@@ -86,48 +70,25 @@ export default function BillingAdminAnalytics() {
     <div className="space-y-4">
       {/* Filters */}
       <div className="bg-white rounded-xl shadow-md p-4">
-        <div className="flex flex-col md:flex-row items-start md:items-center gap-3">
-          <div className="flex items-center gap-3 flex-1">
-            <Store className="w-5 h-5 text-gray-600" />
-            <label className="text-sm font-medium text-gray-700">Filter by Shop:</label>
-            <select
-              value={selectedShop || ''}
-              onChange={(e) => {
-                setSelectedShop(e.target.value ? parseInt(e.target.value) : null)
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium text-gray-700">Period:</label>
+          {[7, 15, 30, 60, 90].map(d => (
+            <button
+              key={d}
+              onClick={() => {
+                setDays(d)
                 setDashboardData(null)
                 setAIInsights(null)
               }}
-              className="flex-1 max-w-xs px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
+                days === d
+                  ? 'bg-primary-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
             >
-              <option value="">All Shops</option>
-              {shops.map((shop) => (
-                <option key={shop.id} value={shop.id}>
-                  {shop.shop_name}
-                </option>
-              ))}
-            </select>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700">Period:</label>
-            {[7, 15, 30, 60, 90].map(d => (
-              <button
-                key={d}
-                onClick={() => {
-                  setDays(d)
-                  setDashboardData(null)
-                  setAIInsights(null)
-                }}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
-                  days === d
-                    ? 'bg-primary-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                {d}d
-              </button>
-            ))}
-          </div>
+              {d}d
+            </button>
+          ))}
         </div>
       </div>
 
@@ -197,7 +158,7 @@ export default function BillingAdminAnalytics() {
               <div className="bg-white rounded-xl shadow-md p-4">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="p-2 bg-green-100 rounded-lg">
-                    <DollarSign className="w-5 h-5 text-green-600" />
+                    <IndianRupee className="w-5 h-5 text-green-600" />
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Total Revenue</p>
@@ -423,7 +384,7 @@ export default function BillingAdminAnalytics() {
                 <div className="bg-white rounded-xl shadow-md p-4">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="p-2 bg-green-100 rounded-lg">
-                      <DollarSign className="w-5 h-5 text-green-600" />
+                      <IndianRupee className="w-5 h-5 text-green-600" />
                     </div>
                     <div>
                       <p className="text-sm text-gray-600">Revenue</p>

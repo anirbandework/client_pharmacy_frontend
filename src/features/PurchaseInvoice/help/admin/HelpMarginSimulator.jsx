@@ -1,6 +1,8 @@
+import { Zap } from 'lucide-react'
+
 const HelpMarginSimulator = () => ({
   title: 'Margin Simulator',
-  icon: '⚡',
+  icon: <Zap className="w-5 h-5" />,
   description: 'Simulate the impact of changing purchase rates or selling prices on your profit margins — before committing to any change.',
   sections: [
     {

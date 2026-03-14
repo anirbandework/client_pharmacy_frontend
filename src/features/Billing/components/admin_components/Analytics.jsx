@@ -1,59 +1,86 @@
-import React, { useState, useEffect } from 'react'
-import { analyticsAPI } from '../../services/analytics'
+import { useState, useEffect } from 'react'
+import { billingAdminAPI } from '../../services/admin_billing_apis'
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
-import { TrendingUp, TrendingDown, DollarSign, Receipt, Calendar, Target } from 'lucide-react'
+import { TrendingUp, IndianRupee, Receipt, Target } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82ca9d']
 
-const Analytics = () => {
+const Analytics = ({ selectedShop = null }) => {
   const [days, setDays] = useState(30)
-  const [overview, setOverview] = useState(null)
-  const [comparison, setComparison] = useState(null)
+  const [data, setData] = useState(null)
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     fetchAnalytics()
-  }, [days])
+  }, [days, selectedShop])
 
   const fetchAnalytics = async () => {
     setLoading(true)
     try {
-      const [overviewRes, comparisonRes] = await Promise.all([
-        analyticsAPI.getOverview(days),
-        analyticsAPI.getComparison(days)
-      ])
-      setOverview(overviewRes.data)
-      setComparison(comparisonRes.data)
-    } catch (error) {
+      const params = { days }
+      if (selectedShop) params.shop_id = selectedShop
+      const { data: res } = await billingAdminAPI.getDashboard(params)
+      setData(res)
+    } catch {
       toast.error('Failed to fetch analytics')
     } finally {
       setLoading(false)
     }
   }
 
-  if (loading) return <div className="text-center py-8">Loading analytics...</div>
-  if (!overview) return <div className="text-center py-8">No data available</div>
+  // Compute day-wise averages from daily_trends
+  const getDayWiseAnalysis = (trends = []) => {
+    const dayMap = {}
+    for (const row of trends) {
+      const day = new Date(row.date).toLocaleDateString('en-US', { weekday: 'long' })
+      if (!dayMap[day]) dayMap[day] = { sales: 0, bills: 0, count: 0 }
+      dayMap[day].sales += row.revenue || 0
+      dayMap[day].bills += row.bills || 0
+      dayMap[day].count += 1
+    }
+    return Object.entries(dayMap).map(([day, d]) => ({
+      day,
+      avg_sales: d.count ? Math.round(d.sales / d.count) : 0,
+      avg_bills: d.count ? Math.round(d.bills / d.count) : 0
+    }))
+  }
 
-  const { summary, daily_trends, day_wise_analysis, expense_breakdown, predictions } = overview
+  // Compute simple 7-day prediction from last 7 days of daily_trends
+  const getPredictions = (trends = []) => {
+    const last7 = trends.slice(-7)
+    const avgDaily = last7.length
+      ? last7.reduce((s, r) => s + (r.revenue || 0), 0) / last7.length
+      : 0
+    return {
+      next_7_days_sales: Math.round(avgDaily * 7),
+      avg_daily_prediction: Math.round(avgDaily)
+    }
+  }
+
+  if (loading) return <div className="text-center py-8">Loading analytics...</div>
+  if (!data) return <div className="text-center py-8">No data available</div>
+
+  const { overview, daily_trends = [], expenses } = data
+  const expense_breakdown = expenses?.breakdown || []
+  const day_wise_analysis = getDayWiseAnalysis(daily_trends)
+  const predictions = getPredictions(daily_trends)
 
   return (
     <div className="space-y-6">
-      {/* Period Selector */}
-      <div className="bg-white rounded-xl shadow-md p-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold">Business Analytics</h2>
-          <div className="flex gap-2">
-            {[7, 15, 30, 60, 90].map(d => (
-              <button
-                key={d}
-                onClick={() => setDays(d)}
-                className={`px-4 py-2 rounded-lg ${days === d ? 'bg-primary-600 text-white' : 'bg-gray-200'}`}
-              >
-                {d} Days
-              </button>
-            ))}
-          </div>
+      {/* Filters */}
+      <div className="bg-white rounded-xl shadow-md p-4">
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium text-gray-700">Period:</label>
+          {[7, 15, 30, 60, 90].map(d => (
+            <button
+              key={d}
+              onClick={() => setDays(d)}
+              className={`px-4 py-2 rounded-lg ${days === d ? 'bg-primary-600 text-white' : 'bg-gray-200'}`}
+            >
+              {d} Days
+            </button>
+          ))}
         </div>
       </div>
 
@@ -63,10 +90,10 @@ const Analytics = () => {
           <div className="flex justify-between items-start">
             <div>
               <p className="text-sm opacity-90">Total Sales</p>
-              <p className="text-3xl font-bold mt-1">₹{summary.total_sales.toLocaleString()}</p>
-              <p className="text-xs mt-2">Avg: ₹{summary.avg_daily_sales.toFixed(2)}/day</p>
+              <p className="text-3xl font-bold mt-1">₹{overview.total_revenue?.toLocaleString()}</p>
+              <p className="text-xs mt-2">Avg: ₹{(overview.total_revenue / days).toFixed(2)}/day</p>
             </div>
-            <DollarSign className="w-8 h-8 opacity-80" />
+            <IndianRupee className="w-8 h-8 opacity-80" />
           </div>
         </div>
 
@@ -74,8 +101,8 @@ const Analytics = () => {
           <div className="flex justify-between items-start">
             <div>
               <p className="text-sm opacity-90">Total Bills</p>
-              <p className="text-3xl font-bold mt-1">{summary.total_bills}</p>
-              <p className="text-xs mt-2">Avg: {summary.avg_bills_per_day.toFixed(1)}/day</p>
+              <p className="text-3xl font-bold mt-1">{overview.total_bills}</p>
+              <p className="text-xs mt-2">Avg: {overview.avg_bills_per_day?.toFixed(1)}/day</p>
             </div>
             <Receipt className="w-8 h-8 opacity-80" />
           </div>
@@ -85,7 +112,7 @@ const Analytics = () => {
           <div className="flex justify-between items-start">
             <div>
               <p className="text-sm opacity-90">Avg Bill Value</p>
-              <p className="text-3xl font-bold mt-1">₹{summary.avg_bill_value.toFixed(2)}</p>
+              <p className="text-3xl font-bold mt-1">₹{overview.avg_bill_value?.toFixed(2)}</p>
             </div>
             <Target className="w-8 h-8 opacity-80" />
           </div>
@@ -95,49 +122,13 @@ const Analytics = () => {
           <div className="flex justify-between items-start">
             <div>
               <p className="text-sm opacity-90">Net Revenue</p>
-              <p className="text-3xl font-bold mt-1">₹{summary.net_revenue.toLocaleString()}</p>
+              <p className="text-3xl font-bold mt-1">₹{overview.net_profit?.toLocaleString()}</p>
               <p className="text-xs mt-2">After expenses</p>
             </div>
             <TrendingUp className="w-8 h-8 opacity-80" />
           </div>
         </div>
       </div>
-
-      {/* Period Comparison */}
-      {comparison && (
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <h3 className="text-lg font-semibold mb-4">Period Comparison</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="border rounded-lg p-4">
-              <p className="text-sm text-gray-600">Sales Change</p>
-              <div className="flex items-center gap-2 mt-2">
-                <p className={`text-2xl font-bold ${comparison.changes.sales_change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {comparison.changes.sales_change >= 0 ? '+' : ''}{comparison.changes.sales_change.toFixed(1)}%
-                </p>
-                {comparison.changes.sales_change >= 0 ? <TrendingUp className="w-5 h-5 text-green-600" /> : <TrendingDown className="w-5 h-5 text-red-600" />}
-              </div>
-            </div>
-            <div className="border rounded-lg p-4">
-              <p className="text-sm text-gray-600">Bills Change</p>
-              <div className="flex items-center gap-2 mt-2">
-                <p className={`text-2xl font-bold ${comparison.changes.bills_change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {comparison.changes.bills_change >= 0 ? '+' : ''}{comparison.changes.bills_change.toFixed(1)}%
-                </p>
-                {comparison.changes.bills_change >= 0 ? <TrendingUp className="w-5 h-5 text-green-600" /> : <TrendingDown className="w-5 h-5 text-red-600" />}
-              </div>
-            </div>
-            <div className="border rounded-lg p-4">
-              <p className="text-sm text-gray-600">Expenses Change</p>
-              <div className="flex items-center gap-2 mt-2">
-                <p className={`text-2xl font-bold ${comparison.changes.expenses_change <= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {comparison.changes.expenses_change >= 0 ? '+' : ''}{comparison.changes.expenses_change.toFixed(1)}%
-                </p>
-                {comparison.changes.expenses_change <= 0 ? <TrendingDown className="w-5 h-5 text-green-600" /> : <TrendingUp className="w-5 h-5 text-red-600" />}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Sales Trend Chart */}
       <div className="bg-white rounded-xl shadow-md p-6">
@@ -149,7 +140,7 @@ const Analytics = () => {
             <YAxis />
             <Tooltip />
             <Legend />
-            <Line type="monotone" dataKey="sales" stroke="#8884d8" name="Sales" />
+            <Line type="monotone" dataKey="revenue" stroke="#8884d8" name="Sales" />
             <Line type="monotone" dataKey="expenses" stroke="#ff7300" name="Expenses" />
           </LineChart>
         </ResponsiveContainer>
@@ -171,20 +162,22 @@ const Analytics = () => {
       </div>
 
       {/* Day-wise Analysis */}
-      <div className="bg-white rounded-xl shadow-md p-6">
-        <h3 className="text-lg font-semibold mb-4">Day-wise Average Performance</h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={Object.entries(day_wise_analysis).map(([day, data]) => ({ day, ...data }))}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="day" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="avg_sales" fill="#8884d8" name="Avg Sales" />
-            <Bar dataKey="avg_bills" fill="#82ca9d" name="Avg Bills" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
+      {day_wise_analysis.length > 0 && (
+        <div className="bg-white rounded-xl shadow-md p-6">
+          <h3 className="text-lg font-semibold mb-4">Day-wise Average Performance</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={day_wise_analysis}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="day" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="avg_sales" fill="#8884d8" name="Avg Sales" />
+              <Bar dataKey="avg_bills" fill="#82ca9d" name="Avg Bills" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      )}
 
       {/* Expense Breakdown */}
       {expense_breakdown.length > 0 && (
@@ -202,7 +195,7 @@ const Analytics = () => {
                   outerRadius={100}
                   label
                 >
-                  {expense_breakdown.map((entry, index) => (
+                  {expense_breakdown.map((_, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
@@ -235,7 +228,7 @@ const Analytics = () => {
           </div>
           <div className="border rounded-lg p-4 bg-green-50">
             <p className="text-sm text-gray-600">Predicted Daily Average</p>
-            <p className="text-3xl font-bold text-green-600 mt-2">₹{predictions.avg_daily_prediction.toFixed(2)}</p>
+            <p className="text-3xl font-bold text-green-600 mt-2">₹{predictions.avg_daily_prediction.toLocaleString()}</p>
           </div>
         </div>
         <p className="text-xs text-gray-500 mt-4">* Predictions based on recent 7-day average trend</p>

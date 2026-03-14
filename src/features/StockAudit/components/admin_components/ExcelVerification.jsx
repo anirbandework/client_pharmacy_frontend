@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from 'react'
-import { Upload, Eye, Check, X, Edit, Trash2, Clock, User, AlertCircle, CheckCircle, Shield } from 'lucide-react'
+import { Upload, Eye, Check, X, Edit, Trash2, Clock, User, AlertCircle, CheckCircle, Shield, Search } from 'lucide-react'
 import { adminStockAuditAPI } from '../../services/admin_stock_audit_apis'
 import toast from 'react-hot-toast'
+import Pagination from '../shared/Pagination'
 
-const ExcelVerification = () => {
+const PER_PAGE = 20
+
+const ExcelVerification = ({ selectedShop }) => {
   const [uploads, setUploads] = useState([])
+  const [uploadsPage, setUploadsPage] = useState(1)
+  const [uploadsTotalPages, setUploadsTotalPages] = useState(1)
+  const [uploadsTotal, setUploadsTotal] = useState(0)
   const [selectedUpload, setSelectedUpload] = useState(null)
   const [uploadItems, setUploadItems] = useState([])
   const [loading, setLoading] = useState(false)
@@ -19,18 +25,32 @@ const ExcelVerification = () => {
   const [approveNotes, setApproveNotes] = useState('')
   const [rejectReason, setRejectReason] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [searchTerm, setSearchTerm] = useState('')
 
   useEffect(() => {
-    fetchUploads()
     fetchSections()
     fetchRacks()
-  }, [statusFilter])
+  }, [])
 
-  const fetchUploads = async () => {
+  useEffect(() => {
+    setUploadsPage(1)
+    fetchUploads(1)
+  }, [statusFilter, selectedShop, searchTerm])
+
+  useEffect(() => {
+    fetchUploads(uploadsPage)
+  }, [uploadsPage])
+
+  const fetchUploads = async (page = 1) => {
     try {
-      const params = statusFilter !== 'all' ? { status: statusFilter } : {}
+      const params = { page, per_page: PER_PAGE }
+      if (statusFilter !== 'all') params.status = statusFilter
+      if (selectedShop) params.shop_id = selectedShop
+      if (searchTerm) params.search = searchTerm
       const response = await adminStockAuditAPI.getAdminExcelUploads(params)
-      setUploads(response.data)
+      setUploads(response.data.items)
+      setUploadsTotal(response.data.total)
+      setUploadsTotalPages(response.data.pages)
     } catch (error) {
       console.error('Error fetching uploads:', error)
     }
@@ -70,8 +90,9 @@ const ExcelVerification = () => {
   const handleAdminVerify = async (uploadId, notes) => {
     try {
       await adminStockAuditAPI.adminVerifyUpload(uploadId, notes)
-      fetchUploads()
       setSelectedUpload(null)
+      setUploadsPage(1)
+      fetchUploads(1)
       setShowApproveModal(false)
       setApproveNotes('')
       toast.success('Upload approved and items added to inventory')
@@ -84,8 +105,9 @@ const ExcelVerification = () => {
   const handleReject = async (uploadId, reason) => {
     try {
       await adminStockAuditAPI.rejectUpload(uploadId, reason)
-      fetchUploads()
       setSelectedUpload(null)
+      setUploadsPage(1)
+      fetchUploads(1)
       setShowRejectModal(false)
       setRejectReason('')
       toast.success('Upload rejected')
@@ -98,7 +120,8 @@ const ExcelVerification = () => {
   const handleDeleteUpload = async (uploadId) => {
     try {
       await adminStockAuditAPI.deleteUpload(uploadId)
-      fetchUploads()
+      setUploadsPage(1)
+      fetchUploads(1)
       if (selectedUpload?.id === uploadId) {
         setSelectedUpload(null)
       }
@@ -165,7 +188,7 @@ const ExcelVerification = () => {
         <div className="flex items-center justify-between">
           <button
             onClick={() => setSelectedUpload(null)}
-            className="text-blue-600 hover:text-blue-800"
+            className="text-white hover:text-gray-200 font-medium"
           >
             ← Back to Uploads
           </button>
@@ -175,14 +198,14 @@ const ExcelVerification = () => {
               <div className="flex gap-2">
                 <button
                   onClick={() => setShowApproveModal(true)}
-                  className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 flex items-center gap-2"
+                  className="px-4 py-2 bg-gradient-to-r from-green-400 to-emerald-400 text-white rounded-lg hover:from-green-500 hover:to-emerald-500 flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
                 >
                   <Check className="w-4 h-4" />
                   Approve & Add to Inventory
                 </button>
                 <button
                   onClick={() => setShowRejectModal(true)}
-                  className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 flex items-center gap-2"
+                  className="px-4 py-2 bg-gradient-to-r from-red-400 to-rose-400 text-white rounded-lg hover:from-red-500 hover:to-rose-500 flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
                 >
                   <X className="w-4 h-4" />
                   Reject
@@ -194,7 +217,7 @@ const ExcelVerification = () => {
                 setDeleteTarget(selectedUpload.id)
                 setShowDeleteModal(true)
               }}
-              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 flex items-center gap-2"
+              className="px-4 py-2 bg-gradient-to-r from-red-400 to-rose-400 text-white rounded-lg hover:from-red-500 hover:to-rose-500 flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
             >
               <Trash2 className="w-4 h-4" />
               Delete Upload
@@ -214,8 +237,18 @@ const ExcelVerification = () => {
             <div><strong>Total Items:</strong> {uploadItems.length}</div>
           </div>
           
+          {selectedUpload.upload_notes && (
+            <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="flex items-center gap-2 text-blue-800 font-medium mb-1">
+                <AlertCircle className="w-4 h-4" />
+                Upload Notes
+              </div>
+              <p className="text-sm text-blue-700">{selectedUpload.upload_notes}</p>
+            </div>
+          )}
+          
           {selectedUpload.staff_verified && (
-            <div className="mt-4 p-3 bg-green-50 rounded-lg">
+            <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
               <div className="flex items-center gap-2 text-green-800 font-medium">
                 <CheckCircle className="w-4 h-4" />
                 Staff Verified by {selectedUpload.staff_verified_by}
@@ -228,6 +261,26 @@ const ExcelVerification = () => {
                   <strong>Staff Notes:</strong> {selectedUpload.staff_notes}
                 </div>
               )}
+            </div>
+          )}
+          
+          {selectedUpload.admin_notes && (
+            <div className="mt-4 p-3 bg-purple-50 rounded-lg border border-purple-200">
+              <div className="flex items-center gap-2 text-purple-800 font-medium mb-1">
+                <Shield className="w-4 h-4" />
+                Admin Approval Notes
+              </div>
+              <p className="text-sm text-purple-700">{selectedUpload.admin_notes}</p>
+            </div>
+          )}
+          
+          {selectedUpload.status === 'rejected' && selectedUpload.rejection_reason && (
+            <div className="mt-4 p-3 bg-red-50 rounded-lg border border-red-200">
+              <div className="flex items-center gap-2 text-red-800 font-medium mb-1">
+                <X className="w-4 h-4" />
+                Rejection Reason
+              </div>
+              <p className="text-sm text-red-700">{selectedUpload.rejection_reason}</p>
             </div>
           )}
         </div>
@@ -387,7 +440,7 @@ const ExcelVerification = () => {
                 </button>
                 <button
                   onClick={() => handleAdminVerify(selectedUpload.id, approveNotes)}
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                  className="px-4 py-2 bg-gradient-to-r from-green-400 to-emerald-400 text-white rounded-lg hover:from-green-500 hover:to-emerald-500 shadow-md hover:shadow-lg transition-all"
                 >
                   Approve & Add to Inventory
                 </button>
@@ -432,7 +485,7 @@ const ExcelVerification = () => {
                       toast.error('Please provide a rejection reason')
                     }
                   }}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                  className="px-4 py-2 bg-gradient-to-r from-red-400 to-rose-400 text-white rounded-lg hover:from-red-500 hover:to-rose-500 shadow-md hover:shadow-lg transition-all"
                 >
                   Reject Upload
                 </button>
@@ -463,7 +516,7 @@ const ExcelVerification = () => {
                 </button>
                 <button
                   onClick={() => handleDeleteUpload(deleteTarget)}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                  className="px-4 py-2 bg-gradient-to-r from-red-400 to-rose-400 text-white rounded-lg hover:from-red-500 hover:to-rose-500 shadow-md hover:shadow-lg transition-all"
                 >
                   Delete Permanently
                 </button>
@@ -494,7 +547,7 @@ const ExcelVerification = () => {
                 </button>
                 <button
                   onClick={() => handleDeleteItem(deleteTarget)}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                  className="px-4 py-2 bg-gradient-to-r from-red-400 to-rose-400 text-white rounded-lg hover:from-red-500 hover:to-rose-500 shadow-md hover:shadow-lg transition-all"
                 >
                   Delete Item
                 </button>
@@ -507,17 +560,23 @@ const ExcelVerification = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-3">
-          <Shield className="w-6 h-6 text-blue-600" />
-          <h1 className="text-2xl font-bold">Admin Excel Upload Verification</h1>
+    <div className="space-y-4">
+      <div className="flex justify-between items-center gap-4 mb-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <input
+            type="text"
+            placeholder="Search by filename or user..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 text-gray-900 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+          />
         </div>
         <div className="flex gap-2">
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-3 py-2 border rounded"
+            className="px-4 py-2 bg-white border border-gray-300 text-gray-900 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
           >
             <option value="all">All Status</option>
             <option value="pending_staff_verification">Pending Staff</option>
@@ -526,90 +585,100 @@ const ExcelVerification = () => {
             <option value="rejected">Rejected</option>
           </select>
           <button
-            onClick={fetchUploads}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            onClick={() => fetchUploads(uploadsPage)}
+            className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-sm hover:shadow-md"
           >
             Refresh
           </button>
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-slate-200 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">File</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Uploaded By</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Items</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Verification History</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+          <table className="min-w-full">
+            <thead>
+              <tr className="bg-gradient-to-r from-blue-100/80 via-sky-100/80 to-cyan-100/80 backdrop-blur-sm border-b border-blue-200/50">
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">File</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Uploaded By</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Date</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Items</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Verification History</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {uploads.map((upload) => (
-                <tr key={upload.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <Upload className="w-5 h-5 text-gray-400 mr-3" />
+            <tbody className="divide-y divide-gray-100">
+              {uploads.map((upload, idx) => (
+                <tr key={upload.id} className={`transition-all duration-200 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:shadow-sm ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'}`}>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-lg">
+                        <Upload className="w-5 h-5 text-blue-600" />
+                      </div>
                       <div>
-                        <div className="text-sm font-medium text-gray-900">{upload.filename}</div>
+                        <div className="text-sm font-semibold text-gray-900">{upload.filename}</div>
                         {upload.upload_notes && (
-                          <div className="text-sm text-gray-500">{upload.upload_notes}</div>
+                          <div className="text-xs text-gray-500 mt-0.5">{upload.upload_notes}</div>
                         )}
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <User className="w-4 h-4 text-gray-400 mr-2" />
-                      <span className="text-sm text-gray-900">{upload.uploaded_by}</span>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 bg-purple-100 rounded-full">
+                        <User className="w-4 h-4 text-purple-600" />
+                      </div>
+                      <span className="text-sm font-medium text-gray-900">{upload.uploaded_by}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {formatDate(upload.uploaded_at)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-4">
                     <div className="text-sm text-gray-900">
-                      {upload.success_count} success
+                      {formatDate(upload.uploaded_at)}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex flex-col gap-1">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 border border-green-200 w-fit">
+                        {upload.success_count} success
+                      </span>
                       {upload.error_count > 0 && (
-                        <span className="text-red-600 ml-2">{upload.error_count} errors</span>
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800 border border-red-200 w-fit">
+                          {upload.error_count} errors
+                        </span>
                       )}
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-4">
                     {getStatusBadge(upload.status)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <div className="space-y-1">
+                  <td className="px-6 py-4">
+                    <div className="space-y-1.5">
                       {upload.staff_verified && (
-                        <div className="flex items-center text-green-600">
-                          <CheckCircle className="w-3 h-3 mr-1" />
-                          Staff: {upload.staff_verified_by}
+                        <div className="flex items-center gap-1.5 text-green-700 bg-green-50 px-2 py-1 rounded-md border border-green-200 w-fit">
+                          <CheckCircle className="w-3 h-3" />
+                          <span className="text-xs font-medium">Staff: {upload.staff_verified_by}</span>
                         </div>
                       )}
                       {upload.admin_verified && (
-                        <div className="flex items-center text-green-600">
-                          <CheckCircle className="w-3 h-3 mr-1" />
-                          Admin: {upload.admin_verified_by}
+                        <div className="flex items-center gap-1.5 text-blue-700 bg-blue-50 px-2 py-1 rounded-md border border-blue-200 w-fit">
+                          <CheckCircle className="w-3 h-3" />
+                          <span className="text-xs font-medium">Admin: {upload.admin_verified_by}</span>
                         </div>
                       )}
                       {upload.status === 'rejected' && upload.rejection_reason && (
-                        <div className="text-red-600 text-xs">
-                          Rejected: {upload.rejection_reason}
+                        <div className="text-red-700 bg-red-50 px-2 py-1 rounded-md border border-red-200 text-xs">
+                          <span className="font-medium">Rejected:</span> {upload.rejection_reason}
                         </div>
                       )}
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <td className="px-6 py-4">
                     <div className="flex gap-2">
                       <button
                         onClick={() => fetchUploadItems(upload.id)}
-                        className="text-blue-600 hover:text-blue-900 flex items-center gap-1"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-sm hover:shadow-md text-xs font-medium"
                       >
-                        <Eye className="w-4 h-4" />
+                        <Eye className="w-3.5 h-3.5" />
                         Review
                       </button>
                       <button
@@ -617,9 +686,9 @@ const ExcelVerification = () => {
                           setDeleteTarget(upload.id)
                           setShowDeleteModal(true)
                         }}
-                        className="text-red-600 hover:text-red-900 flex items-center gap-1"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-lg hover:from-red-700 hover:to-rose-700 transition-all shadow-sm hover:shadow-md text-xs font-medium"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-3.5 h-3.5" />
                         Delete
                       </button>
                     </div>
@@ -630,6 +699,14 @@ const ExcelVerification = () => {
           </table>
         </div>
       </div>
+
+      <Pagination
+        page={uploadsPage}
+        totalPages={uploadsTotalPages}
+        total={uploadsTotal}
+        perPage={PER_PAGE}
+        onPageChange={setUploadsPage}
+      />
     </div>
   )
 }
@@ -757,7 +834,7 @@ const EditItemModal = ({ item, sections, racks, onSave, onClose }) => {
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              className="px-4 py-2 bg-gradient-to-r from-blue-400 to-indigo-400 text-white rounded-lg hover:from-blue-500 hover:to-indigo-500 shadow-md hover:shadow-lg transition-all"
             >
               Save Changes
             </button>

@@ -62,7 +62,9 @@ const DeleteConfirmationModal = ({ invoice, onConfirm, onCancel }) => {
               <div className="flex items-start gap-2 md:gap-3">
                 <Package className="w-4 h-4 md:w-5 md:h-5 text-red-600 flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
-                  <h3 className="text-xs md:text-sm font-bold text-red-900 mb-2">⚠️ WARNING: Invoice is VERIFIED and synced to stock!</h3>
+                  <h3 className="text-xs md:text-sm font-bold text-red-900 mb-2 flex items-center gap-1">
+                    <AlertTriangle className="w-3 h-3 md:w-4 md:h-4" /> WARNING: Invoice is VERIFIED and synced to stock!
+                  </h3>
                   <ul className="space-y-1 text-[10px] md:text-xs text-red-800">
                     <li className="flex items-start gap-2">
                       <span className="text-red-500 font-bold">•</span>
