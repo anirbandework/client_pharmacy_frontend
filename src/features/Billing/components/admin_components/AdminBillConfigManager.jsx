@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react'
-import { Settings, Save, Edit2, Upload, Store } from 'lucide-react'
+import { Settings, Save, Edit2, Upload } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { billingAdminAPI } from '../../services/admin_billing_apis'
-import { adminApi } from '../../../Admin&SuperAdmin/services/admin&superAminApi'
 
 const emptyConfig = {
   storeName: '',
@@ -14,19 +13,13 @@ const emptyConfig = {
   gstIn: ''
 }
 
-const AdminBillConfigManager = () => {
-  const [shops, setShops] = useState([])
-  const [selectedShop, setSelectedShop] = useState(null)
+const AdminBillConfigManager = ({ selectedShop = null }) => {
   const [config, setConfig] = useState(emptyConfig)
   const [loading, setLoading] = useState(false)
   const [fetching, setFetching] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [hasConfig, setHasConfig] = useState(false)
   const [logoPreview, setLogoPreview] = useState(null)
-
-  useEffect(() => {
-    fetchShops()
-  }, [])
 
   useEffect(() => {
     if (selectedShop) fetchConfig(selectedShop)
@@ -37,15 +30,6 @@ const AdminBillConfigManager = () => {
       setLogoPreview(null)
     }
   }, [selectedShop])
-
-  const fetchShops = async () => {
-    try {
-      const response = await adminApi.getShops()
-      setShops(response)
-    } catch {
-      toast.error('Failed to fetch shops')
-    }
-  }
 
   const fetchConfig = async (shopId) => {
     setFetching(true)
@@ -98,27 +82,9 @@ const AdminBillConfigManager = () => {
 
   return (
     <div className="space-y-4">
-      {/* Shop Selector */}
-      <div className="bg-white rounded-xl shadow-md p-4">
-        <div className="flex items-center gap-3">
-          <Store className="w-5 h-5 text-gray-500" />
-          <label className="text-sm font-medium text-gray-700">Select Shop:</label>
-          <select
-            value={selectedShop || ''}
-            onChange={(e) => setSelectedShop(e.target.value ? parseInt(e.target.value) : null)}
-            className="flex-1 max-w-xs px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
-          >
-            <option value="">-- Choose a shop --</option>
-            {shops.map(shop => (
-              <option key={shop.id} value={shop.id}>{shop.shop_name}</option>
-            ))}
-          </select>
-        </div>
-      </div>
-
       {!selectedShop && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800">
-          Select a shop above to view or edit its bill configuration.
+          Select a shop from the dropdown above to view or edit its bill configuration.
         </div>
       )}
 

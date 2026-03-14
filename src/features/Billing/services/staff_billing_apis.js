@@ -33,5 +33,7 @@ export const billingAPI = {
   
   getUserGuide: () => axiosInstance.get(`${API_BASE}/user-guide`),
   
-  exportBills: (params) => axiosInstance.get(`${API_BASE}/export/bills`, { params, responseType: 'blob' })
+  exportBills: (params) => axiosInstance.get(`${API_BASE}/export/bills`, { params, responseType: 'blob' }),
+
+  getProfitAnalysis: (params) => axiosInstance.get(`${API_BASE}/profit-analysis`, { params })
 }

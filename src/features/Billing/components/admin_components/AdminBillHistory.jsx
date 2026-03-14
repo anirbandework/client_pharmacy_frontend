@@ -1,37 +1,21 @@
 import React, { useState, useEffect } from 'react'
 import { billingAdminAPI } from '../../services/admin_billing_apis'
-import { adminApi } from '../../../Admin&SuperAdmin/services/admin&superAminApi'
-import { Eye, Search, Printer, Store, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Eye, Search, Printer, ChevronLeft, ChevronRight } from 'lucide-react'
 import toast from 'react-hot-toast'
 
-const AdminBillHistory = () => {
+const AdminBillHistory = ({ selectedShop = null }) => {
   const [bills, setBills] = useState([])
   const [loading, setLoading] = useState(true)
   const [searchPhone, setSearchPhone] = useState('')
   const [selectedBill, setSelectedBill] = useState(null)
   const [storeConfig, setStoreConfig] = useState(null)
-  const [shops, setShops] = useState([])
-  const [selectedShop, setSelectedShop] = useState(null)
   const [page, setPage] = useState(1)
   const [pagination, setPagination] = useState({ total: 0, pages: 1 })
   const PER_PAGE = 20
 
   useEffect(() => {
-    fetchShops()
-  }, [])
-
-  useEffect(() => {
     fetchBills()
   }, [selectedShop, page])
-
-  const fetchShops = async () => {
-    try {
-      const response = await adminApi.getShops()
-      setShops(response)
-    } catch {
-      toast.error('Failed to fetch shops')
-    }
-  }
 
   const fetchBills = async () => {
     setLoading(true)
@@ -75,117 +59,131 @@ const AdminBillHistory = () => {
 
   const printBill = () => window.print()
 
-  const shopName = (shopId) => shops.find(s => s.id === shopId)?.shop_name || `Shop ${shopId}`
+  const shopName = (shopId) => `Shop ${shopId}`
 
   return (
-    <div className="space-y-4">
+    <div className="bg-white rounded-lg shadow p-6 mb-8">
       {/* Filters */}
-      <div className="bg-white rounded-xl shadow-md p-4">
-        <div className="flex flex-col md:flex-row gap-3">
-          <div className="flex items-center gap-2">
-            <Store className="w-5 h-5 text-gray-500" />
-            <select
-              value={selectedShop || ''}
-              onChange={(e) => { setSelectedShop(e.target.value ? parseInt(e.target.value) : null); setPage(1) }}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
-            >
-              <option value="">All Shops</option>
-              {shops.map(shop => (
-                <option key={shop.id} value={shop.id}>{shop.shop_name}</option>
-              ))}
-            </select>
-          </div>
-          <div className="flex gap-2 flex-1">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
+      <div className="mb-6 space-y-3 overflow-visible">
+        <div className="flex gap-2 relative z-10 p-1">
+          <div className="flex-1 relative overflow-visible">
+            <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-lg p-0.5">
               <input
                 type="text"
                 placeholder="Search by phone number..."
                 value={searchPhone}
                 onChange={(e) => setSearchPhone(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                className="w-full pl-9 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
+                className="w-full px-4 py-2 bg-white rounded-lg focus:outline-none transition-all duration-300"
+                style={{
+                  boxShadow: searchPhone ? 
+                    '0 0 20px rgba(59, 130, 246, 0.3), 0 0 40px rgba(59, 130, 246, 0.1)' : 
+                    'none',
+                  animation: searchPhone ? 'ai-pulse 2s ease-in-out infinite' : 'none'
+                }}
               />
             </div>
-            <button onClick={handleSearch} className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-sm">
-              Search
-            </button>
-            <button onClick={handleReset} className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm">
-              Reset
-            </button>
           </div>
+          <style>{`
+            @keyframes ai-pulse {
+              0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3), 0 0 40px rgba(59, 130, 246, 0.1); }
+              50% { box-shadow: 0 0 30px rgba(59, 130, 246, 0.5), 0 0 60px rgba(59, 130, 246, 0.2); }
+            }
+          `}</style>
+          <button onClick={handleSearch} className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium shadow-md hover:shadow-lg transition-all">
+            Search
+          </button>
+          <button onClick={handleReset} className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-medium shadow-md hover:shadow-lg transition-all">
+            Reset
+          </button>
         </div>
       </div>
 
       {/* Bills Table */}
-      <div className="bg-white rounded-xl shadow-md overflow-hidden">
+      <div className="overflow-x-auto rounded-xl border border-gray-200 shadow-lg mt-6">
         {loading ? (
-          <div className="text-center py-10 text-gray-500">Loading...</div>
-        ) : bills.length === 0 ? (
-          <div className="text-center py-10 text-gray-500">No bills found</div>
+          <div className="flex items-center justify-center py-20">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading bills...</p>
+            </div>
+          </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-gradient-to-r from-blue-100/80 via-sky-100/80 to-cyan-100/80 backdrop-blur-sm border-b border-blue-200/50">
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Bill No</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Date</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Shop</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Customer</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Phone</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Payment</th>
+                <th className="px-6 py-4 text-right text-xs font-bold text-slate-700 uppercase tracking-wider">Subtotal</th>
+                <th className="px-6 py-4 text-right text-xs font-bold text-slate-700 uppercase tracking-wider">Tax</th>
+                <th className="px-6 py-4 text-right text-xs font-bold text-slate-700 uppercase tracking-wider">Total</th>
+                <th className="px-6 py-4 text-right text-xs font-bold text-slate-700 uppercase tracking-wider">Paid</th>
+                <th className="px-6 py-4 text-right text-xs font-bold text-slate-700 uppercase tracking-wider">Change</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Staff</th>
+                <th className="px-6 py-4 text-right text-xs font-bold text-slate-700 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-100">
+              {bills.length === 0 ? (
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-semibold">Bill No</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold">Date</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold">Shop</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold">Customer</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold">Phone</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold">Payment</th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold">Total</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold">Staff</th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold">Actions</th>
+                  <td colSpan="13" className="text-center py-16 bg-white">
+                    <p className="text-gray-500 text-lg">No bills found</p>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {bills.map((bill) => (
-                  <tr key={bill.id} className="border-b hover:bg-gray-50">
-                    <td className="px-4 py-3 font-mono text-sm">{bill.bill_number}</td>
-                    <td className="px-4 py-3 text-sm">
-                      {new Date(bill.created_at).toLocaleDateString()}<br />
+              ) : (
+                bills.map((bill, idx) => (
+                  <tr key={bill.id} className={`transition-all duration-200 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:shadow-sm ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'}`}>
+                    <td className="px-6 py-4 font-mono text-sm">{bill.bill_number}</td>
+                    <td className="px-6 py-4 text-sm">
+                      {new Date(bill.created_at).toLocaleDateString()}<br/>
                       <span className="text-xs text-gray-500">{new Date(bill.created_at).toLocaleTimeString('en-GB', { hour12: false })}</span>
                     </td>
-                    <td className="px-4 py-3 text-sm">
-                      <span className="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs">{shopName(bill.shop_id)}</span>
+                    <td className="px-6 py-4 text-sm">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 border border-blue-200">{shopName(bill.shop_id)}</span>
                     </td>
-                    <td className="px-4 py-3 text-sm">{bill.customer_name || '-'}</td>
-                    <td className="px-4 py-3 text-sm">{bill.customer_phone || '-'}</td>
-                    <td className="px-4 py-3">
-                      <span className="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800">{bill.payment_method}</span>
+                    <td className="px-6 py-4 text-sm">{bill.customer_name || '-'}</td>
+                    <td className="px-6 py-4 text-sm">{bill.customer_phone || '-'}</td>
+                    <td className="px-6 py-4">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800 border border-gray-200">{bill.payment_method}</span>
                     </td>
-                    <td className="px-4 py-3 text-right font-semibold text-sm">₹{bill.total_amount?.toFixed(2)}</td>
-                    <td className="px-4 py-3 text-sm">{bill.staff_name}</td>
-                    <td className="px-4 py-3 text-right">
-                      <button onClick={() => viewBill(bill)} className="text-blue-600 hover:text-blue-800">
-                        <Eye className="w-4 h-4 inline" />
+                    <td className="px-6 py-4 text-right text-sm">₹{bill.subtotal?.toFixed(2) || '0.00'}</td>
+                    <td className="px-6 py-4 text-right text-sm">₹{bill.tax_amount?.toFixed(2) || '0.00'}</td>
+                    <td className="px-6 py-4 text-right font-bold text-sm">₹{bill.total_amount?.toFixed(2)}</td>
+                    <td className="px-6 py-4 text-right text-blue-600 font-semibold text-sm">₹{bill.amount_paid?.toFixed(2) || '0.00'}</td>
+                    <td className="px-6 py-4 text-right text-green-600 font-semibold text-sm">₹{bill.change_returned?.toFixed(2) || '0.00'}</td>
+                    <td className="px-6 py-4 text-sm">{bill.staff_name}</td>
+                    <td className="px-6 py-4 text-right">
+                      <button onClick={() => viewBill(bill)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-blue-200 hover:border-blue-300">
+                        <Eye className="w-4 h-4" />
                       </button>
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                ))
+              )}
+            </tbody>
+          </table>
         )}
 
-        {/* Pagination */}
-        {pagination.pages > 1 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t">
-            <p className="text-sm text-gray-600">Total: {pagination.total} bills</p>
-            <div className="flex items-center gap-2">
+        {!loading && pagination.pages > 1 && (
+          <div className="flex items-center justify-between px-6 py-4 border-t bg-gradient-to-r from-gray-50 to-slate-50">
+            <p className="text-sm text-gray-600 font-medium">Total: {pagination.total} bills</p>
+            <div className="flex items-center gap-1">
               <button
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="p-1 rounded hover:bg-gray-100 disabled:opacity-40"
+                className="p-2 rounded-lg text-gray-600 hover:bg-white hover:shadow-sm disabled:opacity-30 disabled:cursor-not-allowed transition-all"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
-              <span className="text-sm text-gray-700">Page {page} of {pagination.pages}</span>
+              <span className="text-sm text-gray-700 font-medium px-3">Page {page} of {pagination.pages}</span>
               <button
                 onClick={() => setPage(p => Math.min(pagination.pages, p + 1))}
                 disabled={page === pagination.pages}
-                className="p-1 rounded hover:bg-gray-100 disabled:opacity-40"
+                className="p-2 rounded-lg text-gray-600 hover:bg-white hover:shadow-sm disabled:opacity-30 disabled:cursor-not-allowed transition-all"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -282,7 +280,11 @@ const AdminBillHistory = () => {
                 <div className="border-t-2 border-black pt-2 text-xs">
                   <div className="flex justify-between items-start">
                     <div>
-                      <p><strong>GST IN:</strong> {storeConfig.gstIn || '-'}</p>
+                      <p><strong>Total MRP Amount:</strong> ₹{selectedBill.items?.reduce((sum, item) => {
+                        const mrpValue = item.mrp ? parseFloat(item.mrp.toString().match(/[\d.]+/)?.[0] || item.unit_price) : item.unit_price;
+                        return sum + mrpValue * item.quantity;
+                      }, 0).toFixed(2)}</p>
+                      <p className="mt-1"><strong>GST IN:</strong> {storeConfig.gstIn || '35465768798'}</p>
                     </div>
                     <div className="text-right space-y-1">
                       <p><strong>Subtotal:</strong> ₹{selectedBill.subtotal?.toFixed(2)}</p>

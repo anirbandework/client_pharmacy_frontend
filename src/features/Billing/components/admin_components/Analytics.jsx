@@ -1,35 +1,19 @@
 import { useState, useEffect } from 'react'
 import { billingAdminAPI } from '../../services/admin_billing_apis'
-import { adminApi } from '../../../Admin&SuperAdmin/services/admin&superAminApi'
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
-import { TrendingUp, IndianRupee, Receipt, Target, Store } from 'lucide-react'
+import { TrendingUp, IndianRupee, Receipt, Target } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82ca9d']
 
-const Analytics = () => {
+const Analytics = ({ selectedShop = null }) => {
   const [days, setDays] = useState(30)
-  const [shops, setShops] = useState([])
-  const [selectedShop, setSelectedShop] = useState(null)
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    fetchShops()
-  }, [])
-
-  useEffect(() => {
     fetchAnalytics()
   }, [days, selectedShop])
-
-  const fetchShops = async () => {
-    try {
-      const response = await adminApi.getShops()
-      setShops(response)
-    } catch {
-      toast.error('Failed to fetch shops')
-    }
-  }
 
   const fetchAnalytics = async () => {
     setLoading(true)
@@ -86,33 +70,17 @@ const Analytics = () => {
     <div className="space-y-6">
       {/* Filters */}
       <div className="bg-white rounded-xl shadow-md p-4">
-        <div className="flex flex-col md:flex-row items-start md:items-center gap-3">
-          <div className="flex items-center gap-3 flex-1">
-            <Store className="w-5 h-5 text-gray-600" />
-            <label className="text-sm font-medium text-gray-700">Filter by Shop:</label>
-            <select
-              value={selectedShop || ''}
-              onChange={(e) => setSelectedShop(e.target.value ? parseInt(e.target.value) : null)}
-              className="flex-1 max-w-xs px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium text-gray-700">Period:</label>
+          {[7, 15, 30, 60, 90].map(d => (
+            <button
+              key={d}
+              onClick={() => setDays(d)}
+              className={`px-4 py-2 rounded-lg ${days === d ? 'bg-primary-600 text-white' : 'bg-gray-200'}`}
             >
-              <option value="">All Shops</option>
-              {shops.map((shop) => (
-                <option key={shop.id} value={shop.id}>{shop.shop_name}</option>
-              ))}
-            </select>
-          </div>
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700">Period:</label>
-            {[7, 15, 30, 60, 90].map(d => (
-              <button
-                key={d}
-                onClick={() => setDays(d)}
-                className={`px-4 py-2 rounded-lg ${days === d ? 'bg-primary-600 text-white' : 'bg-gray-200'}`}
-              >
-                {d} Days
-              </button>
-            ))}
-          </div>
+              {d} Days
+            </button>
+          ))}
         </div>
       </div>
 

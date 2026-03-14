@@ -128,6 +128,8 @@ const OrganizationPermissions = () => {
     'attendance_admin',
     'my_notifications',
     'notifications_admin',
+    'billing',
+    'billing_analytics',
   ])
 
   const filteredModules = permissions.filter(p =>

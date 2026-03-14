@@ -1,32 +1,16 @@
 import { useState, useEffect } from 'react'
 import { billingAdminAPI } from '../../services/admin_billing_apis'
-import { adminApi } from '../../../Admin&SuperAdmin/services/admin&superAminApi'
 import { IndianRupee, Receipt, TrendingUp, TrendingDown, Store, PercentCircle } from 'lucide-react'
 import toast from 'react-hot-toast'
 
-const AdminDashboard = () => {
+const AdminDashboard = ({ selectedShop = null }) => {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [shops, setShops] = useState([])
-  const [selectedShop, setSelectedShop] = useState(null)
   const [days, setDays] = useState(30)
-
-  useEffect(() => {
-    fetchShops()
-  }, [])
 
   useEffect(() => {
     fetchDashboard()
   }, [selectedShop, days])
-
-  const fetchShops = async () => {
-    try {
-      const response = await adminApi.getShops()
-      setShops(response)
-    } catch {
-      toast.error('Failed to fetch shops')
-    }
-  }
 
   const fetchDashboard = async () => {
     setLoading(true)
@@ -64,34 +48,19 @@ const AdminDashboard = () => {
     <div className="space-y-4">
       {/* Filters */}
       <div className="bg-white rounded-xl shadow-md p-4">
-        <div className="flex flex-col md:flex-row items-start md:items-center gap-3">
-          <div className="flex items-center gap-2">
-            <Store className="w-5 h-5 text-gray-500" />
-            <select
-              value={selectedShop || ''}
-              onChange={(e) => setSelectedShop(e.target.value ? parseInt(e.target.value) : null)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium text-gray-700">Period:</span>
+          {[7, 15, 30, 60, 90].map(d => (
+            <button
+              key={d}
+              onClick={() => setDays(d)}
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
+                days === d ? 'bg-primary-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
             >
-              <option value="">All Shops</option>
-              {shops.map(shop => (
-                <option key={shop.id} value={shop.id}>{shop.shop_name}</option>
-              ))}
-            </select>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-gray-700">Period:</span>
-            {[7, 15, 30, 60, 90].map(d => (
-              <button
-                key={d}
-                onClick={() => setDays(d)}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
-                  days === d ? 'bg-primary-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                {d}d
-              </button>
-            ))}
-          </div>
+              {d}d
+            </button>
+          ))}
         </div>
       </div>
 

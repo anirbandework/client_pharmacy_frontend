@@ -16,4 +16,6 @@ export const billingAdminAPI = {
   getDailySales: (params) => axiosInstance.get(`${ADMIN_BASE}/daily-sales`, { params }),
   exportBills: (params) => axiosInstance.get(`${ADMIN_BASE}/export/bills`, { params, responseType: 'blob' }),
   updateShopBillConfig: (shopId, config) => axiosInstance.put(`${ADMIN_BASE}/shop/${shopId}/bill-config`, config),
+
+  getProfitAnalysis: (params) => axiosInstance.get(`${ADMIN_BASE}/profit-analysis`, { params })
 }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Toaster } from 'react-hot-toast'
 import ReactMarkdown from 'react-markdown'
 import Layout from '../../components/Layout'
@@ -9,8 +9,10 @@ import Dashboard from './components/staff_components/Dashboard'
 import Reports from './components/staff_components/Reports'
 import DailyRecords from './components/staff_components/DailyRecords'
 import BillConfigManager from './components/staff_components/BillConfigManager'
+import StaffProfitAnalysis from './components/staff_components/StaffProfitAnalysis'
 import { billingAPI } from './services/staff_billing_apis'
-import { LayoutDashboard, Plus, FileText, BarChart3, Receipt, Calendar, Settings, HelpCircle, X } from 'lucide-react'
+import useTabPermissions from '../../hooks/useTabPermissions'
+import { LayoutDashboard, Plus, FileText, BarChart3, Receipt, Calendar, Settings, HelpCircle, X, TrendingUp } from 'lucide-react'
 
 const StaffBillingPage = () => {
   const [activeTab, setActiveTab] = useState('create')
@@ -18,6 +20,7 @@ const StaffBillingPage = () => {
   const [showGuide, setShowGuide] = useState(false)
   const [userGuide, setUserGuide] = useState('')
   const [guideLoading, setGuideLoading] = useState(false)
+  const { isTabEnabled, isLoaded } = useTabPermissions('billing')
 
   const fetchUserGuide = async () => {
     setGuideLoading(true)
@@ -39,15 +42,22 @@ const StaffBillingPage = () => {
     }
   }
 
-  const tabs = [
-    
+  const allTabs = [
     { id: 'create', label: 'New Bill', icon: Plus, color: 'from-green-500 to-green-600' },
     { id: 'history', label: 'Bill History', icon: FileText, color: 'from-purple-500 to-purple-600' },
     { id: 'reports', label: 'Reports', icon: BarChart3, color: 'from-orange-500 to-orange-600' },
     { id: 'daily', label: 'Daily Records', icon: Calendar, color: 'from-pink-500 to-pink-600' },
     { id: 'config', label: 'Bill Config', icon: Settings, color: 'from-gray-500 to-gray-600' },
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, color: 'from-blue-500 to-blue-600' }
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, color: 'from-blue-500 to-blue-600' },
+    { id: 'profit', label: 'Profit Analysis', icon: TrendingUp, color: 'from-indigo-500 to-purple-600' }
   ]
+  const tabs = allTabs.filter(t => isTabEnabled(t.id))
+
+  useEffect(() => {
+    if (isLoaded && tabs.length > 0 && !tabs.find(t => t.id === activeTab)) {
+      setActiveTab(tabs[0].id)
+    }
+  }, [isLoaded, tabs.length])
 
   return (
     <Layout>
@@ -102,6 +112,7 @@ const StaffBillingPage = () => {
           {activeTab === 'reports' && <Reports />}
           {activeTab === 'daily' && <DailyRecords />}
           {activeTab === 'config' && <BillConfigManager />}
+          {activeTab === 'profit' && <StaffProfitAnalysis />}
         </div>
       </div>
       
