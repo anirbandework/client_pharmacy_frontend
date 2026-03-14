@@ -117,7 +117,18 @@ const OrganizationPermissions = () => {
   }
 
   // Modules that have configurable tabs
-  const TABBED_MODULES = new Set(['purchase_invoice', 'invoice_analytics', 'stock_analytics', 'stock_audit'])
+  const TABBED_MODULES = new Set([
+    'purchase_invoice',
+    'invoice_analytics',
+    'stock_analytics',
+    'stock_audit',
+    'my_salary',
+    'salary_management',
+    'attendance_staff',
+    'attendance_admin',
+    'my_notifications',
+    'notifications_admin',
+  ])
 
   const filteredModules = permissions.filter(p =>
     p.module_key.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -205,7 +216,6 @@ const OrganizationPermissions = () => {
                 </div>
                 <div className="space-y-3">
                   {staffModules.map(module => {
-                    const adminEnabled = module.admin_enabled === true
                     const staffEnabled = module.staff_enabled === true
                     const hasTabConfig = TABBED_MODULES.has(module.module_key)
                     const tabsOpen = expandedTabs.has(module.module_key)
@@ -221,13 +231,6 @@ const OrganizationPermissions = () => {
                           </div>
 
                           <div className="flex gap-2 flex-wrap">
-                            <button
-                              onClick={() => togglePermission(module.module_key, 'admin_enabled')}
-                              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${adminEnabled ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
-                            >
-                              {adminEnabled ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
-                              <span className="text-sm font-medium">Admin</span>
-                            </button>
                             <button
                               onClick={() => togglePermission(module.module_key, 'staff_enabled')}
                               className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${staffEnabled ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
@@ -287,7 +290,6 @@ const OrganizationPermissions = () => {
                 <div className="space-y-3">
                   {adminModules.map(module => {
                     const adminEnabled = module.admin_enabled === true
-                    const staffEnabled = module.staff_enabled === true
                     const hasTabConfig = TABBED_MODULES.has(module.module_key)
                     const tabsOpen = expandedTabs.has(module.module_key)
                     const tabs = moduleTabs[module.module_key] || []
@@ -308,13 +310,6 @@ const OrganizationPermissions = () => {
                             >
                               {adminEnabled ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
                               <span className="text-sm font-medium">Admin</span>
-                            </button>
-                            <button
-                              onClick={() => togglePermission(module.module_key, 'staff_enabled')}
-                              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${staffEnabled ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
-                            >
-                              {staffEnabled ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
-                              <span className="text-sm font-medium">Staff</span>
                             </button>
                             {hasTabConfig && (
                               <button

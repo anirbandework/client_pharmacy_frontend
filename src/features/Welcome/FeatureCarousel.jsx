@@ -1,108 +1,95 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Users, Clock, FileText, BarChart3, Package, IndianRupee } from 'lucide-react'
 
+const features = [
+  { icon: Users,        color: 'blue',   title: 'Multi-Level Access',      description: 'Organization, Admin & Staff hierarchy' },
+  { icon: Clock,        color: 'violet', title: 'Smart Attendance',         description: 'WiFi-based auto check-in/out'            },
+  { icon: FileText,     color: 'emerald',title: 'AI Invoice Processing',    description: 'Automatic data extraction from PDFs'    },
+  { icon: BarChart3,    color: 'amber',  title: 'Real-Time Analytics',      description: 'Live dashboards & insights'              },
+  { icon: Package,      color: 'indigo', title: 'Inventory Control',        description: 'Stock audit & expiry tracking'          },
+  { icon: IndianRupee,  color: 'rose',   title: 'Payroll Management',       description: 'Automated salary processing'            },
+]
+
+const palette = {
+  blue:    { border: 'rgba(59,130,246,0.35)',  bg: 'rgba(59,130,246,0.1)',  glow: 'rgba(59,130,246,0.12)',  text: '#60a5fa' },
+  violet:  { border: 'rgba(139,92,246,0.35)', bg: 'rgba(139,92,246,0.1)', glow: 'rgba(139,92,246,0.12)', text: '#a78bfa' },
+  emerald: { border: 'rgba(16,185,129,0.35)', bg: 'rgba(16,185,129,0.1)', glow: 'rgba(16,185,129,0.12)', text: '#34d399' },
+  amber:   { border: 'rgba(245,158,11,0.35)',  bg: 'rgba(245,158,11,0.1)',  glow: 'rgba(245,158,11,0.12)',  text: '#fbbf24' },
+  indigo:  { border: 'rgba(99,102,241,0.35)',  bg: 'rgba(99,102,241,0.1)',  glow: 'rgba(99,102,241,0.12)',  text: '#818cf8' },
+  rose:    { border: 'rgba(244,63,94,0.35)',   bg: 'rgba(244,63,94,0.1)',   glow: 'rgba(244,63,94,0.12)',   text: '#fb7185' },
+}
+
 const FeatureCarousel = () => {
   const scrollRef = useRef(null)
   const [isPaused, setIsPaused] = useState(false)
-
-  const features = [
-    {
-      icon: Users,
-      color: 'blue',
-      title: 'Multi-Level Access',
-      description: 'Organization, Admin & Staff hierarchy'
-    },
-    {
-      icon: Clock,
-      color: 'purple',
-      title: 'Smart Attendance',
-      description: 'WiFi-based auto check-in/out'
-    },
-    {
-      icon: FileText,
-      color: 'green',
-      title: 'AI Invoice Processing',
-      description: 'Automatic data extraction from PDFs'
-    },
-    {
-      icon: BarChart3,
-      color: 'yellow',
-      title: 'Real-Time Analytics',
-      description: 'Live dashboards & insights'
-    },
-    {
-      icon: Package,
-      color: 'indigo',
-      title: 'Inventory Control',
-      description: 'Stock audit & expiry tracking'
-    },
-    {
-      icon: IndianRupee,
-      color: 'pink',
-      title: 'Payroll Management',
-      description: 'Automated salary processing'
-    }
-  ]
+  const [hovered, setHovered] = useState(null)
 
   useEffect(() => {
-    const scrollContainer = scrollRef.current
-    if (!scrollContainer || isPaused) return
-
-    const scroll = () => {
-      const cardWidth = 272 // 256px + 16px gap
-      const totalWidth = cardWidth * features.length
-      
-      if (scrollContainer.scrollLeft >= totalWidth) {
-        scrollContainer.scrollLeft = 0
-      } else {
-        scrollContainer.scrollLeft += 1
-      }
-    }
-
-    const interval = setInterval(scroll, 30)
-    return () => clearInterval(interval)
-  }, [isPaused, features.length])
-
-  const colorClasses = {
-    blue: { border: 'hover:border-blue-500/50', bg: 'bg-blue-500/10 group-hover:bg-blue-500/20', text: 'text-blue-400' },
-    purple: { border: 'hover:border-purple-500/50', bg: 'bg-purple-500/10 group-hover:bg-purple-500/20', text: 'text-purple-400' },
-    green: { border: 'hover:border-green-500/50', bg: 'bg-green-500/10 group-hover:bg-green-500/20', text: 'text-green-400' },
-    yellow: { border: 'hover:border-yellow-500/50', bg: 'bg-yellow-500/10 group-hover:bg-yellow-500/20', text: 'text-yellow-400' },
-    indigo: { border: 'hover:border-indigo-500/50', bg: 'bg-indigo-500/10 group-hover:bg-indigo-500/20', text: 'text-indigo-400' },
-    pink: { border: 'hover:border-pink-500/50', bg: 'bg-pink-500/10 group-hover:bg-pink-500/20', text: 'text-pink-400' }
-  }
+    const el = scrollRef.current
+    if (!el || isPaused) return
+    const CARD_W = 272
+    const total = CARD_W * features.length
+    const id = setInterval(() => {
+      if (el.scrollLeft >= total) el.scrollLeft = 0
+      else el.scrollLeft += 1
+    }, 28)
+    return () => clearInterval(id)
+  }, [isPaused])
 
   return (
     <div className="relative">
       <style>{`
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
+        .fc-scrollbar::-webkit-scrollbar { display: none; }
+        .fc-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        @keyframes fc-card-in {
+          from { opacity:0; transform: translateY(10px) scale(0.97); }
+          to   { opacity:1; transform: translateY(0) scale(1); }
         }
-        .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
+        .fc-card { transition: transform 0.25s ease, box-shadow 0.25s ease; }
+        .fc-card:hover { transform: translateY(-4px) scale(1.02); }
       `}</style>
-      <div 
+
+      {/* Left/right fade edges */}
+      <div className="absolute left-0 top-0 bottom-4 w-10 z-10 pointer-events-none" style={{ background: 'linear-gradient(to right, #010c1a, transparent)' }} />
+      <div className="absolute right-0 top-0 bottom-4 w-10 z-10 pointer-events-none" style={{ background: 'linear-gradient(to left, #010c1a, transparent)' }} />
+
+      <div
         ref={scrollRef}
         onMouseEnter={() => setIsPaused(true)}
-        onMouseLeave={() => setIsPaused(false)}
-        className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide"
+        onMouseLeave={() => { setIsPaused(false); setHovered(null) }}
+        className="fc-scrollbar flex gap-4 overflow-x-auto pb-4"
       >
-        {/* Render cards twice for seamless loop */}
-        {[...features, ...features].map((feature, index) => {
-          const Icon = feature.icon
-          const colors = colorClasses[feature.color]
+        {[...features, ...features].map((f, i) => {
+          const Icon = f.icon
+          const p = palette[f.color]
+          const isHov = hovered === i
           return (
-            <div 
-              key={index}
-              className={`flex-shrink-0 w-64 bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-xl p-4 ${colors.border} transition-all group`}
+            <div
+              key={i}
+              className="fc-card flex-shrink-0 w-64 rounded-2xl p-4 cursor-default"
+              onMouseEnter={() => setHovered(i)}
+              onMouseLeave={() => setHovered(null)}
+              style={{
+                background: isHov
+                  ? `linear-gradient(135deg, rgba(10,20,46,0.9), rgba(8,15,38,0.95))`
+                  : 'rgba(8,16,38,0.7)',
+                border: `1px solid ${isHov ? p.border : 'rgba(255,255,255,0.06)'}`,
+                boxShadow: isHov ? `0 8px 32px ${p.glow}, 0 0 0 1px ${p.border}` : 'none',
+                backdropFilter: 'blur(12px)',
+              }}
             >
-              <div className={`w-10 h-10 ${colors.bg} rounded-lg flex items-center justify-center mb-3 transition-all`}>
-                <Icon className={`w-5 h-5 ${colors.text}`} />
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center mb-3 transition-all duration-200"
+                style={{ background: isHov ? p.bg : 'rgba(255,255,255,0.04)', border: `1px solid ${isHov ? p.border : 'rgba(255,255,255,0.06)'}` }}
+              >
+                <Icon style={{ width: 18, height: 18, color: isHov ? p.text : '#475569' }} />
               </div>
-              <h3 className="text-white font-semibold text-sm mb-1">{feature.title}</h3>
-              <p className="text-slate-400 text-xs">{feature.description}</p>
+              <h3 className="font-semibold text-sm mb-0.5 transition-colors duration-200" style={{ color: isHov ? '#f1f5f9' : '#94a3b8' }}>
+                {f.title}
+              </h3>
+              <p className="text-xs leading-relaxed transition-colors duration-200" style={{ color: isHov ? '#64748b' : '#334155' }}>
+                {f.description}
+              </p>
             </div>
           )
         })}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { attendanceAPI } from '../services/attendanceApi'
 import { List } from 'lucide-react'
 import { adminApi } from '../../Admin&SuperAdmin/services/admin&superAminApi'
@@ -15,7 +15,7 @@ const AttendanceRecords = ({ shopCode }) => {
 
   const loadStaff = async () => {
     try {
-      const data = await adminApi.getAllStaff()
+      const data = await adminApi.getShopStaff(shopCode)
       setStaff(data)
     } catch (error) {
       console.error(error)

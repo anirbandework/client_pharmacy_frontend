@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import useTabPermissions from '../../hooks/useTabPermissions'
 import Layout from '../../components/Layout'
 import Dashboard from './components/admin_components/Dashboard'
@@ -15,7 +15,7 @@ import { LayoutDashboard, Brain, Calculator, CheckSquare, Receipt, AlertTriangle
 const AdminPurchaseInvoicePage = () => {
   const [activeTab, setActiveTab] = useState('dashboard')
   const [showHelp, setShowHelp] = useState(false)
-  const { isTabEnabled } = useTabPermissions('invoice_analytics')
+  const { isTabEnabled, isLoaded } = useTabPermissions('invoice_analytics')
 
   const allTabs = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, color: 'from-blue-500 to-blue-600' },
@@ -27,6 +27,12 @@ const AdminPurchaseInvoicePage = () => {
     { id: 'ai-insights', label: 'AI Insights', icon: Brain, color: 'from-purple-600 to-indigo-600' }
   ]
   const tabs = allTabs.filter(t => isTabEnabled(t.id))
+
+  useEffect(() => {
+    if (isLoaded && tabs.length > 0 && !tabs.find(t => t.id === activeTab)) {
+      setActiveTab(tabs[0].id)
+    }
+  }, [isLoaded, tabs.length])
 
   return (
     <Layout>

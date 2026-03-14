@@ -242,25 +242,61 @@ const CreateBill = ({ onBillCreated }) => {
         </div>
         
         {searchResults.length > 0 && (
-          <div className="mt-2 max-h-60 overflow-y-auto border-2 border-slate-200 rounded-xl">
-            {searchResults.map((medicine) => (
-              <div
-                key={medicine.id}
-                onClick={() => addItemToBill(medicine)}
-                className="p-3 hover:bg-purple-50 cursor-pointer border-b last:border-b-0 transition-colors"
-              >
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="font-semibold text-sm md:text-base">{medicine.product_name}</p>
-                    <p className="text-xs md:text-sm text-gray-600">
-                      Batch: {medicine.batch_number} | Stock: {medicine.quantity_available} | 
-                      Location: {medicine.rack_number} - {medicine.section_name}
-                    </p>
+          <div className="mt-2 max-h-72 overflow-y-auto border-2 border-slate-200 rounded-xl shadow-md">
+            {searchResults.map((medicine) => {
+              const expiry = medicine.expiry_date ? new Date(medicine.expiry_date) : null
+              const now = new Date()
+              const monthsLeft = expiry ? Math.round((expiry - now) / (1000 * 60 * 60 * 24 * 30)) : null
+              const expiryWarning = monthsLeft !== null && monthsLeft <= 3
+
+              return (
+                <div
+                  key={medicine.id}
+                  onClick={() => addItemToBill(medicine)}
+                  className="p-3 hover:bg-purple-50 cursor-pointer border-b last:border-b-0 transition-colors"
+                >
+                  <div className="flex justify-between items-start gap-2">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-sm md:text-base truncate">{medicine.product_name}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        Batch: <span className="font-mono">{medicine.batch_number || '-'}</span>
+                        {' · '}Stock: <span className="font-medium text-gray-700">{medicine.quantity_available}</span>
+                        {' · '}Rack: <span className="font-medium text-gray-700">{medicine.rack_number}</span>{' '}Section: <span className="font-medium text-gray-700">{medicine.section_name}</span>
+                      </p>
+                      <div className="flex items-center gap-3 mt-1 flex-wrap">
+                        {medicine.mrp && (
+                          <span className="text-xs text-gray-500">MRP: <span className="font-medium text-gray-700">₹{medicine.mrp}</span></span>
+                        )}
+                        {medicine.selling_price && (
+                          <span className="text-xs text-gray-500">Sell: <span className="font-medium text-green-700">₹{medicine.selling_price}</span></span>
+                        )}
+                        {expiry ? (
+                          <span className={`text-xs font-medium ${expiryWarning ? 'text-red-600' : 'text-gray-500'}`}>
+                            Exp: {expiry.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })}
+                            {expiryWarning && ' ⚠'}
+                          </span>
+                        ) : (
+                          <span className="text-xs text-gray-400">Exp: -</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      {medicine.selling_price ? (
+                        <>
+                          <p className="font-bold text-purple-600 text-sm">₹{medicine.selling_price}</p>
+                          <p className="text-xs text-gray-400">selling</p>
+                        </>
+                      ) : (
+                        <>
+                          <p className="text-xs text-orange-400">Selling price unavailable</p>
+                          <p className="font-bold text-orange-500 text-sm">Unit price ₹{medicine.unit_price ?? '-'}</p>
+                        </>
+                      )}
+                    </div>
                   </div>
-                  <p className="font-semibold text-purple-600 text-sm md:text-base">₹{medicine.unit_price}</p>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         )}
       </div>

@@ -1,16 +1,24 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Toaster } from 'react-hot-toast'
 import Layout from '../../components/Layout'
 import AdminAnalytics from './components/admin_components/AdminAnalytics'
 import Analytics from './components/admin_components/Analytics'
-import { BarChart3, TrendingUp, Brain } from 'lucide-react'
+import AdminBillHistory from './components/admin_components/AdminBillHistory'
+import AdminReports from './components/admin_components/AdminReports'
+import AdminDashboard from './components/admin_components/AdminDashboard'
+import AdminBillConfigManager from './components/admin_components/AdminBillConfigManager'
+import { BarChart3, TrendingUp, Brain, FileText, BarChart, LayoutDashboard, Settings } from 'lucide-react'
 
 const AdminBillingPage = () => {
   const [activeTab, setActiveTab] = useState('analytics')
 
   const tabs = [
     { id: 'analytics', label: 'Analytics', icon: BarChart3, color: 'from-blue-500 to-blue-600' },
-    { id: 'insights', label: 'AI Insights', icon: Brain, color: 'from-purple-500 to-purple-600' }
+    { id: 'insights', label: 'AI Insights', icon: Brain, color: 'from-purple-500 to-purple-600' },
+    { id: 'history', label: 'Bill History', icon: FileText, color: 'from-green-500 to-green-600' },
+    { id: 'reports', label: 'Reports', icon: BarChart, color: 'from-orange-500 to-orange-600' },
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, color: 'from-teal-500 to-teal-600' },
+    { id: 'config', label: 'Bill Config', icon: Settings, color: 'from-gray-500 to-gray-600' },
   ]
 
   return (
@@ -56,6 +64,10 @@ const AdminBillingPage = () => {
         <div className="animate-fade-in space-y-4 pb-20">
           {activeTab === 'analytics' && <Analytics />}
           {activeTab === 'insights' && <AdminAnalytics />}
+          {activeTab === 'history' && <AdminBillHistory />}
+          {activeTab === 'reports' && <AdminReports />}
+          {activeTab === 'dashboard' && <AdminDashboard />}
+          {activeTab === 'config' && <AdminBillConfigManager />}
         </div>
       </div>
     </Layout>

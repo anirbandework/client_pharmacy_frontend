@@ -8,8 +8,9 @@ import ExcelVerification from './components/admin_components/ExcelVerification'
 import AdminStockItems from './components/admin_components/AdminStockItems'
 import AdminRacks from './components/admin_components/AdminRacks'
 import AdminReports from './components/admin_components/AdminReports'
+import ConsolidatedStockView from './components/shared/ConsolidatedStockView'
 import ErrorBoundary from './components/shared/ErrorBoundary'
-import { LayoutDashboard, AlertTriangle, Brain, CheckSquare, Sparkles, Store, Package, Grid, FileBarChart } from 'lucide-react'
+import { LayoutDashboard, AlertTriangle, Brain, CheckSquare, Sparkles, Store, Package, Grid, FileBarChart, Layers } from 'lucide-react'
 import { adminApi } from '../Admin&SuperAdmin/services/admin&superAminApi'
 import toast from 'react-hot-toast'
 
@@ -17,7 +18,7 @@ const AdminStockAnalytics = () => {
   const [activeTab, setActiveTab] = useState('items')
   const [shops, setShops] = useState([])
   const [selectedShop, setSelectedShop] = useState(null)
-  const { isTabEnabled } = useTabPermissions('stock_analytics')
+  const { isTabEnabled, isLoaded } = useTabPermissions('stock_analytics')
 
   const allTabs = [
     { id: 'items', label: 'Items', icon: Package, color: 'from-blue-500 to-blue-600' },
@@ -26,9 +27,16 @@ const AdminStockAnalytics = () => {
     { id: 'ai-analytics', label: 'AI Analytics', icon: Brain, color: 'from-purple-600 to-indigo-600' },
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, color: 'from-blue-500 to-blue-600' },
     { id: 'discrepancies', label: 'Discrepancies', icon: AlertTriangle, color: 'from-red-500 to-red-600' },
-    { id: 'excel-verification', label: 'Excel Verification', icon: CheckSquare, color: 'from-amber-500 to-orange-500' }
+    { id: 'excel-verification', label: 'Excel Verification', icon: CheckSquare, color: 'from-amber-500 to-orange-500' },
+    { id: 'consolidated', label: 'Stock View', icon: Layers, color: 'from-teal-500 to-teal-600' }
   ]
   const tabs = allTabs.filter(t => isTabEnabled(t.id))
+
+  useEffect(() => {
+    if (isLoaded && tabs.length > 0 && !tabs.find(t => t.id === activeTab)) {
+      setActiveTab(tabs[0].id)
+    }
+  }, [isLoaded, tabs.length])
 
   useEffect(() => {
     fetchShops()
@@ -105,6 +113,7 @@ const AdminStockAnalytics = () => {
             {activeTab === 'dashboard' && <Dashboard selectedShop={selectedShop} />}
             {activeTab === 'discrepancies' && <Discrepancies selectedShop={selectedShop} />}
             {activeTab === 'excel-verification' && <ExcelVerification selectedShop={selectedShop} />}
+            {activeTab === 'consolidated' && <ConsolidatedStockView mode="admin" selectedShop={selectedShop} />}
           </ErrorBoundary>
         </div>
       </div>

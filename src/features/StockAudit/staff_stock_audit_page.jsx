@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import useTabPermissions from '../../hooks/useTabPermissions'
 import Layout from '../../components/Layout'
 import GeofenceGuard from '../../components/GeofenceGuard'
@@ -11,14 +11,15 @@ import Reports from './components/staff_components/Reports'
 import AIAnalytics from './components/staff_components/AIAnalytics'
 import ExcelUpload from './components/staff_components/ExcelUpload'
 import ExcelUploadVerification from './components/staff_components/ExcelUploadVerification'
+import ConsolidatedStockView from './components/shared/ConsolidatedStockView'
 import ErrorBoundary from './components/shared/ErrorBoundary'
-import { LayoutDashboard, Package, Grid, Shuffle, Settings, FileText, Sparkles, Brain, Upload, CheckSquare, HelpCircle } from 'lucide-react'
+import { LayoutDashboard, Package, Grid, Shuffle, Settings, FileText, Sparkles, Brain, Upload, CheckSquare, HelpCircle, Layers } from 'lucide-react'
 
 const StockAudit = () => {
   const [activeTab, setActiveTab] = useState('items')
   const [refresh, setRefresh] = useState(0)
   const [showHelp, setShowHelp] = useState(false)
-  const { isTabEnabled } = useTabPermissions('stock_audit')
+  const { isTabEnabled, isLoaded } = useTabPermissions('stock_audit')
 
   const allTabs = [
     { id: 'items', label: 'Items', icon: Grid, color: 'from-purple-500 to-purple-600' },
@@ -29,9 +30,16 @@ const StockAudit = () => {
     { id: 'adjustments', label: 'Adjustments', icon: Settings, color: 'from-pink-500 to-pink-600' },
     { id: 'reports', label: 'Reports', icon: FileText, color: 'from-red-500 to-red-600' },
     { id: 'ai-analytics', label: 'AI Analytics', icon: Brain, color: 'from-purple-600 to-indigo-600' },
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, color: 'from-blue-500 to-blue-600' }
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, color: 'from-blue-500 to-blue-600' },
+    { id: 'consolidated', label: 'Stock View', icon: Layers, color: 'from-teal-500 to-teal-600' }
   ]
   const tabs = allTabs.filter(t => isTabEnabled(t.id))
+
+  useEffect(() => {
+    if (isLoaded && tabs.length > 0 && !tabs.find(t => t.id === activeTab)) {
+      setActiveTab(tabs[0].id)
+    }
+  }, [isLoaded, tabs.length])
 
   return (
     <Layout>
@@ -87,6 +95,7 @@ const StockAudit = () => {
             {activeTab === 'adjustments' && <StockAdjustments />}
             {activeTab === 'reports' && <Reports />}
             {activeTab === 'ai-analytics' && <AIAnalytics />}
+            {activeTab === 'consolidated' && <ConsolidatedStockView mode="staff" />}
           </ErrorBoundary>
         </div>
       </div>

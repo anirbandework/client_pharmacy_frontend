@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import useTabPermissions from '../../hooks/useTabPermissions'
 import Layout from '../../components/Layout'
 import GeofenceGuard from '../../components/GeofenceGuard'
@@ -16,7 +16,7 @@ const StaffPurchaseInvoicePage = () => {
   const [activeTab, setActiveTab] = useState('list')
   const [refresh, setRefresh] = useState(0)
   const [showHelp, setShowHelp] = useState(false)
-  const { isTabEnabled } = useTabPermissions('purchase_invoice')
+  const { isTabEnabled, isLoaded } = useTabPermissions('purchase_invoice')
 
   const allTabs = [
     { id: 'list', label: 'Invoice List', icon: FileText, color: 'from-purple-500 to-purple-600' },
@@ -26,6 +26,12 @@ const StaffPurchaseInvoicePage = () => {
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, color: 'from-blue-500 to-blue-600' }
   ]
   const tabs = allTabs.filter(t => isTabEnabled(t.id))
+
+  useEffect(() => {
+    if (isLoaded && tabs.length > 0 && !tabs.find(t => t.id === activeTab)) {
+      setActiveTab(tabs[0].id)
+    }
+  }, [isLoaded, tabs.length])
 
   return (
     <Layout>

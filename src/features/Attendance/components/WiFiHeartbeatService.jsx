@@ -17,6 +17,13 @@ const WiFiHeartbeatService = () => {
     let heartbeatInterval = null
     let wifiInfo = null
 
+    // Only run for staff users
+    const userType = localStorage.getItem('user_type')
+    if (userType !== 'staff') {
+      console.log('⏭️ WiFi Heartbeat skipped (not a staff user)')
+      return
+    }
+
     const initHeartbeat = async () => {
       try {
         // Fetch WiFi info once
@@ -88,15 +95,6 @@ const WiFiHeartbeatService = () => {
             heartbeatInterval = null
           }
         }
-      }
-    }
-
-    const sendDisconnect = async () => {
-      try {
-        await attendanceAPI.wifiDisconnect()
-        console.log('✅ Disconnect sent - Auto checked out')
-      } catch (error) {
-        console.error('❌ Disconnect failed:', error.response?.data?.detail || error.message)
       }
     }
 

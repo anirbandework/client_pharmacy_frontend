@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import Layout from '../../../components/Layout'
+import ErrorBoundary from '../../../components/ErrorBoundary'
+import useTabPermissions from '../../../hooks/useTabPermissions'
 import Dashboard from './Dashboard'
 import WiFiSetup from './WiFiSetup'
 import MonthlyReport from './MonthlyReport'
@@ -14,34 +16,43 @@ const AdminAttendance = () => {
   const [activeTab, setActiveTab] = useState('dashboard')
   const [shops, setShops] = useState([])
   const [selectedShop, setSelectedShop] = useState(null)
+  const { isTabEnabled, isLoaded } = useTabPermissions('attendance_admin')
+
+  const allTabs = [
+    { id: 'dashboard', label: 'Dashboard',          icon: LayoutDashboard },
+    { id: 'connected', label: 'Connected',          icon: Users },
+    { id: 'records',   label: 'Records',            icon: List },
+    { id: 'wifi',      label: 'WiFi Setup',         icon: Wifi },
+    { id: 'report',    label: 'Monthly Report',     icon: BarChart3 },
+    { id: 'leaves',    label: 'Leave Management',   icon: FileText },
+    { id: 'settings',  label: 'Settings',           icon: SettingsIcon },
+  ]
+  const tabs = allTabs.filter(t => isTabEnabled(t.id))
 
   useEffect(() => {
     loadShops()
   }, [])
 
+  useEffect(() => {
+    if (isLoaded && tabs.length > 0 && !tabs.find(t => t.id === activeTab)) {
+      setActiveTab(tabs[0].id)
+    }
+  }, [isLoaded, tabs.length])
+
   const loadShops = async () => {
     try {
       const data = await adminApi.getShops()
       setShops(data)
-      if (data.length > 0) setSelectedShop(data[0].shop_code) // Use shop_code instead of id
+      if (data.length > 0) setSelectedShop(data[0].shop_code)
     } catch (err) {
       console.error(err)
     }
   }
 
-  const tabs = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, color: 'from-blue-500 to-blue-600' },
-    { id: 'connected', label: 'Connected', icon: Users, color: 'from-green-500 to-green-600' },
-    { id: 'records', label: 'Records', icon: List, color: 'from-indigo-500 to-indigo-600' },
-    { id: 'wifi', label: 'WiFi Setup', icon: Wifi, color: 'from-purple-500 to-purple-600' },
-    { id: 'report', label: 'Monthly Report', icon: BarChart3, color: 'from-orange-500 to-orange-600' },
-    { id: 'leaves', label: 'Leave Requests', icon: FileText, color: 'from-pink-500 to-pink-600' },
-    { id: 'settings', label: 'Settings', icon: SettingsIcon, color: 'from-gray-500 to-gray-600' }
-  ]
-
   return (
     <Layout>
       <div className="max-w-7xl mx-auto px-4">
+        {/* Header */}
         <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 rounded-xl shadow-lg p-4 md:p-6 mb-4 animate-fade-in relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
           <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
@@ -54,9 +65,9 @@ const AdminAttendance = () => {
                 <p className="text-white/90 text-xs md:text-sm">WiFi-based automatic tracking</p>
               </div>
             </div>
-            <select 
-              value={selectedShop || ''} 
-              onChange={(e) => setSelectedShop(e.target.value)} 
+            <select
+              value={selectedShop || ''}
+              onChange={(e) => setSelectedShop(e.target.value)}
               className="bg-white/20 backdrop-blur-sm text-white border border-white/30 px-3 py-2 rounded-lg text-xs md:text-sm w-full sm:w-auto"
             >
               {shops.map(shop => (
@@ -68,6 +79,7 @@ const AdminAttendance = () => {
           </div>
         </div>
 
+        {/* Tab Bar */}
         <div className="mb-4 overflow-x-auto pb-2">
           <div className="bg-slate-800/50 backdrop-blur-xl border border-slate-700/50 rounded-xl shadow-lg p-1.5 inline-flex gap-1 min-w-full md:min-w-0">
             {tabs.map((tab) => (
@@ -75,7 +87,9 @@ const AdminAttendance = () => {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`py-2 md:py-3 px-3 md:px-4 text-xs md:text-sm font-semibold rounded-lg transition-all duration-300 flex items-center gap-2 whitespace-nowrap ${
-                  activeTab === tab.id ? 'text-white bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/20' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
+                  activeTab === tab.id
+                    ? 'text-white bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/20'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
                 }`}
               >
                 <tab.icon className="w-4 h-4" />
@@ -85,15 +99,18 @@ const AdminAttendance = () => {
           </div>
         </div>
 
+        {/* Tab Content */}
         {selectedShop && (
-          <div className="animate-fade-in">
-            {activeTab === 'dashboard' && <Dashboard shopCode={selectedShop} />}
-            {activeTab === 'connected' && <ConnectedStaff shopCode={selectedShop} />}
-            {activeTab === 'records' && <AttendanceRecords shopCode={selectedShop} />}
-            {activeTab === 'wifi' && <WiFiSetup shopCode={selectedShop} />}
-            {activeTab === 'report' && <MonthlyReport shopCode={selectedShop} />}
-            {activeTab === 'leaves' && <LeaveManagement shopCode={selectedShop} />}
-            {activeTab === 'settings' && <Settings shopCode={selectedShop} />}
+          <div className="animate-fade-in space-y-4 pb-20">
+            <ErrorBoundary key={activeTab}>
+              {activeTab === 'dashboard' && <Dashboard shopCode={selectedShop} />}
+              {activeTab === 'connected' && <ConnectedStaff shopCode={selectedShop} />}
+              {activeTab === 'records'   && <AttendanceRecords shopCode={selectedShop} />}
+              {activeTab === 'wifi'      && <WiFiSetup shopCode={selectedShop} />}
+              {activeTab === 'report'    && <MonthlyReport shopCode={selectedShop} />}
+              {activeTab === 'leaves'    && <LeaveManagement shopCode={selectedShop} />}
+              {activeTab === 'settings'  && <Settings shopCode={selectedShop} />}
+            </ErrorBoundary>
           </div>
         )}
       </div>
