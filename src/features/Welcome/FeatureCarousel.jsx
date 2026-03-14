@@ -19,10 +19,11 @@ const palette = {
   rose:    { border: 'rgba(244,63,94,0.35)',   bg: 'rgba(244,63,94,0.1)',   glow: 'rgba(244,63,94,0.12)',   text: '#fb7185' },
 }
 
-const FeatureCarousel = () => {
+const FeatureCarousel = ({ darkMode = true }) => {
   const scrollRef = useRef(null)
   const [isPaused, setIsPaused] = useState(false)
   const [hovered, setHovered] = useState(null)
+  const lm = !darkMode
 
   useEffect(() => {
     const el = scrollRef.current
@@ -36,6 +37,9 @@ const FeatureCarousel = () => {
     return () => clearInterval(id)
   }, [isPaused])
 
+  // Fade edge color matches the parent background
+  const edgeBg = lm ? '#f0f6ff' : '#010c1a'
+
   return (
     <div className="relative">
       <style>{`
@@ -45,13 +49,13 @@ const FeatureCarousel = () => {
           from { opacity:0; transform: translateY(10px) scale(0.97); }
           to   { opacity:1; transform: translateY(0) scale(1); }
         }
-        .fc-card { transition: transform 0.25s ease, box-shadow 0.25s ease; }
+        .fc-card { transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.4s ease, border-color 0.4s ease; }
         .fc-card:hover { transform: translateY(-4px) scale(1.02); }
       `}</style>
 
-      {/* Left/right fade edges */}
-      <div className="absolute left-0 top-0 bottom-4 w-10 z-10 pointer-events-none" style={{ background: 'linear-gradient(to right, #010c1a, transparent)' }} />
-      <div className="absolute right-0 top-0 bottom-4 w-10 z-10 pointer-events-none" style={{ background: 'linear-gradient(to left, #010c1a, transparent)' }} />
+      {/* Left/right fade edges — matches background color */}
+      <div className="absolute left-0 top-0 bottom-4 w-10 z-10 pointer-events-none" style={{ background: `linear-gradient(to right, ${edgeBg}, transparent)` }} />
+      <div className="absolute right-0 top-0 bottom-4 w-10 z-10 pointer-events-none" style={{ background: `linear-gradient(to left, ${edgeBg}, transparent)` }} />
 
       <div
         ref={scrollRef}
@@ -71,23 +75,32 @@ const FeatureCarousel = () => {
               onMouseLeave={() => setHovered(null)}
               style={{
                 background: isHov
-                  ? `linear-gradient(135deg, rgba(10,20,46,0.9), rgba(8,15,38,0.95))`
-                  : 'rgba(8,16,38,0.7)',
-                border: `1px solid ${isHov ? p.border : 'rgba(255,255,255,0.06)'}`,
-                boxShadow: isHov ? `0 8px 32px ${p.glow}, 0 0 0 1px ${p.border}` : 'none',
+                  ? lm
+                    ? `linear-gradient(135deg, rgba(255,255,255,0.98), rgba(248,250,255,1))`
+                    : `linear-gradient(135deg, rgba(10,20,46,0.9), rgba(8,15,38,0.95))`
+                  : lm
+                    ? 'rgba(255,255,255,0.75)'
+                    : 'rgba(8,16,38,0.7)',
+                border: `1px solid ${isHov ? p.border : lm ? 'rgba(59,130,246,0.1)' : 'rgba(255,255,255,0.06)'}`,
+                boxShadow: isHov
+                  ? `0 8px 32px ${p.glow}, 0 0 0 1px ${p.border}${lm ? ', 0 2px 8px rgba(0,0,0,0.04)' : ''}`
+                  : lm ? '0 2px 8px rgba(59,130,246,0.05)' : 'none',
                 backdropFilter: 'blur(12px)',
               }}
             >
               <div
                 className="w-10 h-10 rounded-xl flex items-center justify-center mb-3 transition-all duration-200"
-                style={{ background: isHov ? p.bg : 'rgba(255,255,255,0.04)', border: `1px solid ${isHov ? p.border : 'rgba(255,255,255,0.06)'}` }}
+                style={{
+                  background: isHov ? p.bg : lm ? 'rgba(241,245,255,0.9)' : 'rgba(255,255,255,0.04)',
+                  border: `1px solid ${isHov ? p.border : lm ? 'rgba(59,130,246,0.12)' : 'rgba(255,255,255,0.06)'}`,
+                }}
               >
-                <Icon style={{ width: 18, height: 18, color: isHov ? p.text : '#475569' }} />
+                <Icon style={{ width: 18, height: 18, color: isHov ? p.text : lm ? '#94a3b8' : '#475569' }} />
               </div>
-              <h3 className="font-semibold text-sm mb-0.5 transition-colors duration-200" style={{ color: isHov ? '#f1f5f9' : '#94a3b8' }}>
+              <h3 className="font-semibold text-sm mb-0.5 transition-colors duration-200" style={{ color: isHov ? (lm ? '#1e293b' : '#f1f5f9') : lm ? '#475569' : '#94a3b8' }}>
                 {f.title}
               </h3>
-              <p className="text-xs leading-relaxed transition-colors duration-200" style={{ color: isHov ? '#64748b' : '#334155' }}>
+              <p className="text-xs leading-relaxed transition-colors duration-200" style={{ color: isHov ? (lm ? '#64748b' : '#64748b') : lm ? '#94a3b8' : '#334155' }}>
                 {f.description}
               </p>
             </div>

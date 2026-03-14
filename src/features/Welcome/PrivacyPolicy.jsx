@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Building2, Shield, ArrowLeft, Lock, MapPin, Brain, Database, Clock, UserCheck, Mail } from 'lucide-react'
+import { Building2, Shield, ArrowLeft, Lock, MapPin, Brain, Database, Clock, UserCheck, Mail, Sun, Moon } from 'lucide-react'
 
 const PARTICLES = Array.from({ length: 18 }, (_, i) => ({
   id: i,
@@ -68,10 +68,17 @@ const palette = {
 
 const PrivacyPolicy = () => {
   const [mounted, setMounted] = useState(false)
+  const [darkMode, setDarkMode] = useState(true)
   useEffect(() => { setTimeout(() => setMounted(true), 60) }, [])
 
+  const lm = !darkMode
+
   return (
-    <div className="min-h-screen" style={{ background: '#010c1a' }}>
+    <div
+      className="min-h-screen"
+      data-light={lm}
+      style={{ background: lm ? '#f0f6ff' : '#010c1a', transition: 'background 0.4s ease' }}
+    >
       <style>{`
         @keyframes pp-orb {
           0%,100% { transform: translateY(0) scale(1); }
@@ -95,33 +102,60 @@ const PrivacyPolicy = () => {
         .pp-orb-2 { animation: pp-orb 13s ease-in-out infinite reverse; animation-delay:-5s; }
         .pp-appear { opacity:0; animation: pp-fadeInUp 0.6s ease forwards; }
         .pp-spin-ring { animation: pp-spin 9s linear infinite; }
+
         .pp-section-card {
-          background: rgba(8,16,38,0.6);
           border: 1px solid rgba(255,255,255,0.05);
-          transition: border-color 0.25s ease, box-shadow 0.25s ease;
+          transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.4s ease;
         }
         .pp-section-card:hover {
           border-color: rgba(255,255,255,0.1);
           box-shadow: 0 4px 24px rgba(0,0,0,0.3);
         }
+        [data-light="true"] .pp-section-card {
+          background: rgba(255,255,255,0.88) !important;
+          border: 1px solid rgba(59,130,246,0.1);
+          box-shadow: 0 2px 12px rgba(59,130,246,0.05);
+        }
+        [data-light="true"] .pp-section-card:hover {
+          border-color: rgba(59,130,246,0.2);
+          box-shadow: 0 6px 28px rgba(59,130,246,0.1);
+        }
       `}</style>
 
       {/* Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 80% 55% at 50% -10%,rgba(17,43,99,0.5) 0%,transparent 68%)' }} />
         <div className="absolute inset-0" style={{
-          backgroundImage: 'linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px)',
+          background: lm
+            ? 'radial-gradient(ellipse 80% 55% at 50% -10%,rgba(147,197,253,0.4) 0%,transparent 68%)'
+            : 'radial-gradient(ellipse 80% 55% at 50% -10%,rgba(17,43,99,0.5) 0%,transparent 68%)'
+        }} />
+        <div className="absolute inset-0" style={{
+          backgroundImage: lm
+            ? 'linear-gradient(rgba(59,130,246,0.07) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,0.07) 1px,transparent 1px)'
+            : 'linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px)',
           backgroundSize: '36px 36px',
         }} />
         <div className="pp-orb-1 absolute top-[5%] right-[10%] w-[500px] h-[500px] rounded-full"
-          style={{ background: 'radial-gradient(circle,rgba(59,130,246,0.11) 0%,transparent 68%)', filter: 'blur(50px)' }} />
+          style={{
+            background: lm
+              ? 'radial-gradient(circle,rgba(59,130,246,0.18) 0%,transparent 68%)'
+              : 'radial-gradient(circle,rgba(59,130,246,0.11) 0%,transparent 68%)',
+            filter: 'blur(50px)'
+          }} />
         <div className="pp-orb-2 absolute bottom-[10%] left-[8%] w-[420px] h-[420px] rounded-full"
-          style={{ background: 'radial-gradient(circle,rgba(99,102,241,0.09) 0%,transparent 68%)', filter: 'blur(55px)' }} />
+          style={{
+            background: lm
+              ? 'radial-gradient(circle,rgba(99,102,241,0.14) 0%,transparent 68%)'
+              : 'radial-gradient(circle,rgba(99,102,241,0.09) 0%,transparent 68%)',
+            filter: 'blur(55px)'
+          }} />
         {PARTICLES.map(p => (
           <div key={p.id} className="absolute rounded-full" style={{
             left: p.left, top: p.top,
             width: `${p.size}px`, height: `${p.size}px`,
-            background: `rgba(148,163,184,${p.opacity})`,
+            background: lm
+              ? `rgba(100,140,220,${p.opacity * 0.6})`
+              : `rgba(148,163,184,${p.opacity})`,
             animation: `pp-particle ${p.duration} ${p.delay} ease-in-out infinite`,
           }} />
         ))}
@@ -130,7 +164,15 @@ const PrivacyPolicy = () => {
       <div className="relative z-10 flex flex-col min-h-screen">
 
         {/* Header */}
-        <header className="sticky top-0 z-20" style={{ background: 'rgba(1,12,26,0.65)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <header
+          className="sticky top-0 z-20"
+          style={{
+            background: lm ? 'rgba(255,255,255,0.82)' : 'rgba(1,12,26,0.65)',
+            backdropFilter: 'blur(20px)',
+            borderBottom: lm ? '1px solid rgba(59,130,246,0.12)' : '1px solid rgba(255,255,255,0.06)',
+            transition: 'background 0.4s ease, border-color 0.4s ease',
+          }}
+        >
           <div className="w-full px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
             <div className={`flex items-center gap-3 ${mounted ? 'pp-appear' : 'opacity-0'}`}>
               <div className="relative w-10 h-10 sm:w-11 sm:h-11 flex-shrink-0">
@@ -140,12 +182,36 @@ const PrivacyPolicy = () => {
                 </div>
               </div>
               <div>
-                <h1 className="text-lg sm:text-xl font-bold text-white tracking-tight">LedgerX</h1>
-                <p className="text-[10px] sm:text-xs text-slate-500 leading-none">A Business Solution</p>
+                <h1 className="text-lg sm:text-xl font-bold tracking-tight" style={{ color: lm ? '#1e293b' : '#ffffff', transition: 'color 0.4s ease' }}>LedgerX</h1>
+                <p className="text-[10px] sm:text-xs leading-none" style={{ color: lm ? '#94a3b8' : '#64748b' }}>A Business Solution</p>
               </div>
             </div>
-            <div className={`flex items-center gap-3 ${mounted ? 'pp-appear' : 'opacity-0'}`} style={{ animationDelay: '0.15s' }}>
-              <p className="hidden sm:block text-xs text-slate-500">powered by <span className="font-semibold text-slate-300">Indus Infotech</span></p>
+            <div className={`flex items-center gap-3 sm:gap-4 ${mounted ? 'pp-appear' : 'opacity-0'}`} style={{ animationDelay: '0.15s' }}>
+              <p className="hidden sm:block text-xs" style={{ color: lm ? '#94a3b8' : '#64748b' }}>
+                powered by <span className="font-semibold" style={{ color: lm ? '#475569' : '#cbd5e1' }}>Indus Infotech</span>
+              </p>
+
+              {/* Theme Toggle */}
+              <button
+                onClick={() => setDarkMode(!darkMode)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '6px',
+                  padding: '6px 12px', borderRadius: '999px', cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  background: darkMode ? 'rgba(255,255,255,0.07)' : 'rgba(99,102,241,0.08)',
+                  border: darkMode ? '1px solid rgba(255,255,255,0.13)' : '1px solid rgba(99,102,241,0.22)',
+                }}
+                title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              >
+                {darkMode
+                  ? <Sun style={{ width: 14, height: 14, color: '#fbbf24' }} />
+                  : <Moon style={{ width: 14, height: 14, color: '#6366f1' }} />
+                }
+                <span className="text-[10px] sm:text-xs font-medium hidden sm:block" style={{ color: darkMode ? '#fbbf24' : '#6366f1' }}>
+                  {darkMode ? 'Light' : 'Dark'}
+                </span>
+              </button>
+
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full" style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)' }}>
                 <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
                 <span className="text-[10px] text-green-400 font-medium">Secure</span>
@@ -159,8 +225,20 @@ const PrivacyPolicy = () => {
           <div className="max-w-3xl mx-auto">
 
             {/* Back */}
-            <Link to="/" className={`inline-flex items-center gap-2 text-slate-500 hover:text-slate-200 transition-colors mb-8 group ${mounted ? 'pp-appear' : 'opacity-0'}`}>
-              <div className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
+            <Link
+              to="/"
+              className={`inline-flex items-center gap-2 transition-colors mb-8 group ${mounted ? 'pp-appear' : 'opacity-0'}`}
+              style={{ color: lm ? '#64748b' : '#64748b' }}
+              onMouseEnter={e => e.currentTarget.style.color = lm ? '#1e293b' : '#e2e8f0'}
+              onMouseLeave={e => e.currentTarget.style.color = lm ? '#64748b' : '#64748b'}
+            >
+              <div
+                className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
+                style={{
+                  background: lm ? 'rgba(59,130,246,0.07)' : 'rgba(255,255,255,0.04)',
+                  border: lm ? '1px solid rgba(59,130,246,0.15)' : '1px solid rgba(255,255,255,0.07)',
+                }}
+              >
                 <ArrowLeft className="w-3.5 h-3.5" />
               </div>
               <span className="text-sm">Back to Home</span>
@@ -168,13 +246,15 @@ const PrivacyPolicy = () => {
 
             {/* Page title */}
             <div className={`flex items-center gap-4 mb-10 ${mounted ? 'pp-appear' : 'opacity-0'}`} style={{ animationDelay: '0.1s' }}>
-              <div className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
-                style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.25)' }}>
+              <div
+                className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
+                style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.25)' }}
+              >
                 <Shield className="w-7 h-7 text-blue-400" />
               </div>
               <div>
-                <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">Privacy Policy</h1>
-                <p className="text-slate-500 text-sm mt-1">Last updated: January 2024</p>
+                <h1 className="text-3xl sm:text-4xl font-bold tracking-tight" style={{ color: lm ? '#1e293b' : '#ffffff', transition: 'color 0.4s ease' }}>Privacy Policy</h1>
+                <p className="text-sm mt-1" style={{ color: lm ? '#94a3b8' : '#64748b' }}>Last updated: January 2024</p>
               </div>
             </div>
 
@@ -187,7 +267,10 @@ const PrivacyPolicy = () => {
                   <div
                     key={i}
                     className={`pp-section-card rounded-2xl p-5 sm:p-6 ${mounted ? 'pp-appear' : 'opacity-0'}`}
-                    style={{ animationDelay: `${0.15 + i * 0.07}s` }}
+                    style={{
+                      background: lm ? 'rgba(255,255,255,0.88)' : 'rgba(8,16,38,0.6)',
+                      animationDelay: `${0.15 + i * 0.07}s`,
+                    }}
                   >
                     <div className="flex items-start gap-4">
                       {/* Number + icon */}
@@ -198,8 +281,8 @@ const PrivacyPolicy = () => {
                         <span className="text-[10px] font-bold tabular-nums" style={{ color: p.accent }}>{s.num}</span>
                       </div>
                       <div className="flex-1 min-w-0 pt-0.5">
-                        <h2 className="text-base font-semibold text-white mb-2">{s.title}</h2>
-                        <p className="text-sm text-slate-400 leading-relaxed">{s.body}</p>
+                        <h2 className="text-base font-semibold mb-2" style={{ color: lm ? '#1e293b' : '#ffffff', transition: 'color 0.4s ease' }}>{s.title}</h2>
+                        <p className="text-sm leading-relaxed" style={{ color: lm ? '#64748b' : '#94a3b8', transition: 'color 0.4s ease' }}>{s.body}</p>
                       </div>
                     </div>
                   </div>
@@ -211,15 +294,23 @@ const PrivacyPolicy = () => {
         </main>
 
         {/* Footer */}
-        <footer className="sticky bottom-0 z-20" style={{ background: 'rgba(1,12,26,0.65)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-          <div className="w-full px-4 sm:px-6 py-3 text-xs text-slate-600">
+        <footer
+          className="sticky bottom-0 z-20"
+          style={{
+            background: lm ? 'rgba(255,255,255,0.82)' : 'rgba(1,12,26,0.65)',
+            backdropFilter: 'blur(20px)',
+            borderTop: lm ? '1px solid rgba(59,130,246,0.1)' : '1px solid rgba(255,255,255,0.05)',
+            transition: 'background 0.4s ease, border-color 0.4s ease',
+          }}
+        >
+          <div className="w-full px-4 sm:px-6 py-3 text-xs" style={{ color: lm ? '#94a3b8' : '#475569' }}>
             <div className="flex flex-col sm:flex-row items-center justify-between gap-1.5">
               <span className="order-2 sm:order-1">LedgerX v1.0</span>
               <span className="order-1 sm:order-2 sm:absolute sm:left-1/2 sm:-translate-x-1/2">© 2026 Indus Infotech. All rights reserved.</span>
               <div className="order-3 flex items-center gap-4">
-                <Link to="/privacy-policy" className="hover:text-slate-300 transition-colors">Privacy</Link>
-                <Link to="/terms-of-service" className="hover:text-slate-300 transition-colors">Terms</Link>
-                <Link to="/support" className="hover:text-slate-300 transition-colors">Support</Link>
+                <Link to="/privacy-policy" className="hover:text-slate-400 transition-colors">Privacy</Link>
+                <Link to="/terms-of-service" className="hover:text-slate-400 transition-colors">Terms</Link>
+                <Link to="/support" className="hover:text-slate-400 transition-colors">Support</Link>
               </div>
             </div>
           </div>
