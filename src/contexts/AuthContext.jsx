@@ -30,10 +30,14 @@ export function AuthProvider({ children }) {
           const userData = await response.json()
           setUser(userData)
         } else {
+          const theme = localStorage.getItem('theme')
           localStorage.clear()
+          if (theme) localStorage.setItem('theme', theme)
         }
       } catch (error) {
+        const theme = localStorage.getItem('theme')
         localStorage.clear()
+        if (theme) localStorage.setItem('theme', theme)
       }
     }
     setLoading(false)
@@ -326,7 +330,9 @@ export function AuthProvider({ children }) {
   }
 
   const logout = () => {
+    const theme = localStorage.getItem('theme')
     localStorage.clear()
+    if (theme) localStorage.setItem('theme', theme)
     setUser(null)
     window.location.href = '/login'
   }

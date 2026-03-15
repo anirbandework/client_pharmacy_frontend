@@ -1,10 +1,11 @@
-import React from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
+import { useTheme } from '../../contexts/ThemeContext'
 import OTPInput from '../../components/OTPInput'
 import FeatureCarousel from './FeatureCarousel'
-import { ArrowRight, ArrowLeft, Lock, Package, Shield, Eye, EyeOff, Info, Building2, Briefcase, Bell, Database, Zap, Sun, Moon } from 'lucide-react'
+import Logo from '../../components/Logo'
+import { ArrowRight, ArrowLeft, Lock, Package, Shield, Eye, EyeOff, Info, Briefcase, Bell, Database, Zap, Sun, Moon } from 'lucide-react'
 
 const PARTICLES = Array.from({ length: 28 }, (_, i) => ({
   id: i,
@@ -44,7 +45,7 @@ const Welcome = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [mounted, setMounted] = useState(false)
-  const [darkMode, setDarkMode] = useState(true)
+  const { isDark: darkMode, toggleTheme } = useTheme()
 
   useEffect(() => { setTimeout(() => setMounted(true), 60) }, [])
 
@@ -340,9 +341,7 @@ const Welcome = () => {
                   className="spin-ring absolute inset-0 rounded-xl"
                   style={{ background: 'conic-gradient(from 0deg, transparent 60%, rgba(99,102,241,0.6) 80%, rgba(59,130,246,0.8) 95%, transparent 100%)' }}
                 />
-                <div className="absolute inset-[2px] rounded-[10px] flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #1d4ed8, #4338ca)' }}>
-                  <Building2 className="w-5 h-5 text-white" />
-                </div>
+                <div className="absolute inset-[2px] flex items-center justify-center"><Logo size={30} id="wh" /></div>
               </div>
               <div>
                 <h1 className="text-lg sm:text-xl font-bold tracking-tight" style={{ color: lm ? '#1e293b' : '#ffffff', transition: 'color 0.4s ease' }}>LedgerX</h1>
@@ -357,7 +356,7 @@ const Welcome = () => {
 
               {/* ── Theme Toggle ── */}
               <button
-                onClick={() => setDarkMode(!darkMode)}
+                onClick={toggleTheme}
                 className="theme-toggle"
                 style={{
                   background: lm ? 'rgba(99,102,241,0.08)' : 'rgba(255,255,255,0.07)',
@@ -394,10 +393,6 @@ const Welcome = () => {
                 className={mounted ? 'appear' : 'opacity-0'}
                 style={{ animationDelay: '0.1s' }}
               >
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-4" style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.25)' }}>
-                  <Zap className="w-3.5 h-3.5 text-blue-400" />
-                  <span className="text-xs text-blue-300 font-medium">Enterprise Ready</span>
-                </div>
                 <h2 className="text-4xl xl:text-5xl font-bold leading-[1.12] tracking-tight" style={{ color: lm ? '#0f172a' : '#ffffff', transition: 'color 0.4s ease' }}>
                   Complete Business<br />
                   <span className="animated-gradient-text">Management Solution</span>

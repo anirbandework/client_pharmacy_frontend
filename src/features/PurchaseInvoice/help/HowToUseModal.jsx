@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X, HelpCircle, ChevronDown, ChevronUp } from 'lucide-react'
+import { X, ChevronDown, ChevronUp } from 'lucide-react'
 
 // Admin help content
 import AdminHelpDashboard from './admin/HelpDashboard'
@@ -39,18 +39,18 @@ const HELP_MAP = {
 const Section = ({ heading, points }) => {
   const [open, setOpen] = useState(true)
   return (
-    <div className="border border-slate-100 rounded-lg overflow-hidden">
+    <div className="border border-slate-100 dark:border-slate-700/50 rounded-lg overflow-hidden">
       <button
         onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center justify-between px-4 py-3 bg-slate-50 hover:bg-slate-100 transition-colors text-left"
+        className="w-full flex items-center justify-between px-4 py-3 bg-slate-50 dark:bg-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors text-left"
       >
-        <span className="font-semibold text-slate-700 text-sm">{heading}</span>
+        <span className="font-semibold text-slate-700 dark:text-slate-300 text-sm">{heading}</span>
         {open ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
       </button>
       {open && (
-        <ul className="px-4 py-3 space-y-2">
+        <ul className="px-4 py-3 space-y-2 dark:bg-slate-800/40">
           {points.map((point, i) => (
-            <li key={i} className="flex items-start gap-2 text-sm text-slate-600">
+            <li key={i} className="flex items-start gap-2 text-sm text-slate-600 dark:text-slate-400">
               <span className="mt-1 w-1.5 h-1.5 rounded-full bg-purple-400 flex-shrink-0" />
               {point}
             </li>
@@ -69,7 +69,7 @@ const HowToUseModal = ({ role, activeTab, onClose }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={onClose}>
       <div
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[85vh] flex flex-col overflow-hidden"
+        className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-lg max-h-[85vh] flex flex-col overflow-hidden"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
@@ -87,8 +87,8 @@ const HowToUseModal = ({ role, activeTab, onClose }) => {
         </div>
 
         {/* Description */}
-        <div className="px-5 py-3 border-b border-slate-100 flex-shrink-0">
-          <p className="text-slate-500 text-sm">{help.description}</p>
+        <div className="px-5 py-3 border-b border-slate-100 dark:border-slate-700/50 flex-shrink-0">
+          <p className="text-slate-500 dark:text-slate-400 text-sm">{help.description}</p>
         </div>
 
         {/* Sections */}
@@ -99,7 +99,7 @@ const HowToUseModal = ({ role, activeTab, onClose }) => {
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-3 border-t border-slate-100 flex-shrink-0">
+        <div className="px-5 py-3 border-t border-slate-100 dark:border-slate-700/50 flex-shrink-0 dark:bg-slate-900">
           <button
             onClick={onClose}
             className="w-full py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-xl text-sm hover:opacity-90 transition-opacity"

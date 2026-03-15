@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Upload, Eye, Check, X, Edit, Trash2, Clock, User, AlertCircle, CheckCircle, FileSpreadsheet, Search, Calendar, Package } from 'lucide-react'
 import { staffStockAuditAPI } from '../../services/staff_stock_audit_apis'
 import toast from 'react-hot-toast'
@@ -171,12 +171,12 @@ const ExcelUploadVerification = () => {
           </button>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+        <div className="bg-white dark:bg-slate-800/80 rounded-lg shadow dark:border dark:border-slate-700/50 p-6">
+          <h2 className="text-xl font-bold dark:text-white mb-4 flex items-center gap-2">
             <FileSpreadsheet className="w-5 h-5 text-green-600" />
             Upload Details: {selectedUpload.filename}
           </h2>
-          <div className="grid grid-cols-2 gap-4 text-sm mb-4">
+          <div className="grid grid-cols-2 gap-4 text-sm mb-4 dark:text-slate-300">
             <div><strong>Uploaded by:</strong> {selectedUpload.uploaded_by}</div>
             <div><strong>Upload Date:</strong> {formatDate(selectedUpload.uploaded_at)}</div>
             <div><strong>Status:</strong> {getStatusBadge(selectedUpload.status)}</div>
@@ -184,42 +184,42 @@ const ExcelUploadVerification = () => {
           </div>
           
           {selectedUpload.upload_notes && (
-            <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-              <div className="flex items-center gap-2 text-blue-800 font-medium mb-1">
+            <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800/40">
+              <div className="flex items-center gap-2 text-blue-800 dark:text-blue-300 font-medium mb-1">
                 <AlertCircle className="w-4 h-4" />
                 Upload Notes
               </div>
-              <p className="text-sm text-blue-700">{selectedUpload.upload_notes}</p>
+              <p className="text-sm text-blue-700 dark:text-blue-300">{selectedUpload.upload_notes}</p>
             </div>
           )}
           
           {selectedUpload.staff_notes && (
-            <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
-              <div className="flex items-center gap-2 text-green-800 font-medium mb-1">
+            <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800/40">
+              <div className="flex items-center gap-2 text-green-800 dark:text-green-300 font-medium mb-1">
                 <CheckCircle className="w-4 h-4" />
                 Staff Verification Notes
               </div>
-              <p className="text-sm text-green-700">{selectedUpload.staff_notes}</p>
+              <p className="text-sm text-green-700 dark:text-green-300">{selectedUpload.staff_notes}</p>
             </div>
           )}
           
           {selectedUpload.admin_notes && (
-            <div className="mt-4 p-3 bg-purple-50 rounded-lg border border-purple-200">
-              <div className="flex items-center gap-2 text-purple-800 font-medium mb-1">
+            <div className="mt-4 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800/40">
+              <div className="flex items-center gap-2 text-purple-800 dark:text-purple-300 font-medium mb-1">
                 <CheckCircle className="w-4 h-4" />
                 Admin Approval Notes
               </div>
-              <p className="text-sm text-purple-700">{selectedUpload.admin_notes}</p>
+              <p className="text-sm text-purple-700 dark:text-purple-300">{selectedUpload.admin_notes}</p>
             </div>
           )}
           
           {selectedUpload.status === 'rejected' && selectedUpload.rejection_reason && (
-            <div className="mt-4 p-3 bg-red-50 rounded-lg border border-red-200">
-              <div className="flex items-center gap-2 text-red-800 font-medium mb-1">
+            <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800/40">
+              <div className="flex items-center gap-2 text-red-800 dark:text-red-400 font-medium mb-1">
                 <X className="w-4 h-4" />
                 Rejection Reason
               </div>
-              <p className="text-sm text-red-700">{selectedUpload.rejection_reason}</p>
+              <p className="text-sm text-red-700 dark:text-red-400">{selectedUpload.rejection_reason}</p>
             </div>
           )}
           
@@ -247,42 +247,42 @@ const ExcelUploadVerification = () => {
           <div className="flex items-center justify-center py-20">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading items...</p>
+              <p className="text-gray-600 dark:text-slate-400">Loading items...</p>
             </div>
           </div>
         ) : (
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            <div className="overflow-x-auto rounded-xl border border-gray-200 shadow-lg">
+          <div className="bg-white dark:bg-slate-800/80 rounded-lg shadow dark:border dark:border-slate-700/50 overflow-hidden">
+            <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-slate-700/50 shadow-lg">
               <table className="w-full">
                 <thead>
-                  <tr className="bg-gradient-to-r from-blue-100/80 via-sky-100/80 to-cyan-100/80 backdrop-blur-sm border-b border-blue-200/50">
-                    <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Product</th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Composition</th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Mfg</th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Batch</th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Qty</th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Purchase ₹</th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Selling ₹</th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Expiry</th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Section</th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Actions</th>
+                  <tr className="bg-gradient-to-r from-blue-100/80 via-sky-100/80 to-cyan-100/80 dark:from-slate-700/50 dark:via-slate-700/50 dark:to-slate-700/50 backdrop-blur-sm border-b border-blue-200/50 dark:border-slate-700/50">
+                    <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Product</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Composition</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Mfg</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Batch</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Qty</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Purchase ₹</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Selling ₹</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Expiry</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Section</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-100">
+                <tbody className="bg-white dark:bg-slate-800/80 divide-y divide-gray-100 dark:divide-slate-700/50">
                   {uploadItems.map((item, idx) => (
-                    <tr key={item.id} className={`transition-all duration-200 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:shadow-sm ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'}`}>
+                    <tr key={item.id} className={`transition-all duration-200 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 dark:hover:from-blue-900/20 dark:hover:to-indigo-900/20 hover:shadow-sm ${idx % 2 === 0 ? 'bg-white dark:bg-slate-800/80' : 'bg-slate-50/50 dark:bg-slate-700/30'}`}>
                       <td className="px-6 py-4">
-                        <div className="font-semibold text-gray-900 text-sm leading-tight">{item.product_name}</div>
+                        <div className="font-semibold text-gray-900 dark:text-white text-sm leading-tight">{item.product_name}</div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">{item.composition || '-'}</td>
-                      <td className="px-6 py-4 text-sm text-gray-600">{item.manufacturer || '-'}</td>
+                      <td className="px-6 py-4 text-sm text-gray-600 dark:text-slate-400">{item.composition || '-'}</td>
+                      <td className="px-6 py-4 text-sm text-gray-600 dark:text-slate-400">{item.manufacturer || '-'}</td>
                       <td className="px-6 py-4">
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 font-mono">
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-slate-700 text-gray-800 dark:text-slate-300 font-mono">
                           {item.batch_number}
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="font-bold text-gray-900 text-lg">{item.quantity_software}</span>
+                        <span className="font-bold text-gray-900 dark:text-white text-lg">{item.quantity_software}</span>
                       </td>
                       <td className="px-6 py-4">
                         <span className="font-bold text-red-600 text-sm">₹{item.unit_price || '-'}</span>
@@ -301,7 +301,7 @@ const ExcelUploadVerification = () => {
                           }`}>
                             {new Date(item.expiry_date).toLocaleDateString()}
                           </span>
-                        ) : <span className="text-gray-400">-</span>}
+                        ) : <span className="text-gray-400 dark:text-slate-600">-</span>}
                       </td>
                       <td className="px-6 py-4">
                         {item.section_name ? (
@@ -325,14 +325,14 @@ const ExcelUploadVerification = () => {
                             <>
                               <button
                                 disabled
-                                className="p-2 text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed border border-gray-200"
+                                className="p-2 text-gray-400 bg-gray-100 dark:bg-slate-700 dark:border-slate-600 rounded-lg cursor-not-allowed border border-gray-200"
                                 title="Cannot edit - Upload has been admin verified"
                               >
                                 <Edit className="w-4 h-4" />
                               </button>
                               <button
                                 disabled
-                                className="p-2 text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed border border-gray-200"
+                                className="p-2 text-gray-400 bg-gray-100 dark:bg-slate-700 dark:border-slate-600 rounded-lg cursor-not-allowed border border-gray-200"
                                 title="Cannot delete - Upload has been admin verified"
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -378,18 +378,18 @@ const ExcelUploadVerification = () => {
 
         {showVerifyModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-md">
-              <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+            <div className="bg-white dark:bg-slate-900 rounded-lg p-6 w-full max-w-md">
+              <h3 className="text-lg font-bold mb-4 flex items-center gap-2 dark:text-white">
                 <Check className="w-5 h-5 text-green-600" />
                 Verify Upload
               </h3>
               <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">Verification Notes (Optional)</label>
+                <label className="block text-sm font-medium mb-2 dark:text-slate-300">Verification Notes (Optional)</label>
                 <textarea
                   value={verifyNotes}
                   onChange={(e) => setVerifyNotes(e.target.value)}
                   placeholder="Add any notes about this verification..."
-                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400"
                   rows={3}
                 />
               </div>
@@ -399,7 +399,7 @@ const ExcelUploadVerification = () => {
                     setShowVerifyModal(false)
                     setVerifyNotes('')
                   }}
-                  className="px-4 py-2 border rounded-lg hover:bg-gray-50"
+                  className="px-4 py-2 border dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700/30 dark:bg-slate-700 dark:text-slate-300"
                 >
                   Cancel
                 </button>
@@ -416,18 +416,18 @@ const ExcelUploadVerification = () => {
 
         {showRejectModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-md">
-              <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+            <div className="bg-white dark:bg-slate-900 rounded-lg p-6 w-full max-w-md">
+              <h3 className="text-lg font-bold mb-4 flex items-center gap-2 dark:text-white">
                 <X className="w-5 h-5 text-red-600" />
                 Reject Upload
               </h3>
               <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">Rejection Reason *</label>
+                <label className="block text-sm font-medium mb-2 dark:text-slate-300">Rejection Reason *</label>
                 <textarea
                   value={rejectReason}
                   onChange={(e) => setRejectReason(e.target.value)}
                   placeholder="Please provide a reason for rejection..."
-                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400"
                   rows={3}
                   required
                 />
@@ -438,7 +438,7 @@ const ExcelUploadVerification = () => {
                     setShowRejectModal(false)
                     setRejectReason('')
                   }}
-                  className="px-4 py-2 border rounded-lg hover:bg-gray-50"
+                  className="px-4 py-2 border dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700/30 dark:bg-slate-700 dark:text-slate-300"
                 >
                   Cancel
                 </button>
@@ -464,7 +464,7 @@ const ExcelUploadVerification = () => {
 
   return (
     <div className="space-y-4">
-      <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4">
+      <div className="bg-white dark:bg-slate-800/80 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700/50 p-4">
         <div className="flex items-center gap-3">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 md:w-5 md:h-5" />
@@ -473,13 +473,13 @@ const ExcelUploadVerification = () => {
               placeholder="Search by filename or uploaded by..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 md:py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all text-sm md:text-base"
+              className="w-full pl-10 pr-4 py-2 md:py-3 border-2 border-gray-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all text-sm md:text-base dark:bg-slate-700 dark:text-white dark:placeholder-slate-400"
             />
           </div>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 md:py-3 bg-white border-2 border-gray-200 text-gray-900 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all text-sm md:text-base"
+            className="px-4 py-2 md:py-3 bg-white dark:bg-slate-700 border-2 border-gray-200 dark:border-slate-600 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all text-sm md:text-base"
           >
             <option value="all">All Status</option>
             <option value="pending_staff_verification">Pending Staff</option>
@@ -498,37 +498,37 @@ const ExcelUploadVerification = () => {
 
       <div className="grid gap-4">
         {uploads.map((upload) => (
-          <div key={upload.id} className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 hover:shadow-xl transition-all">
+          <div key={upload.id} className="bg-white dark:bg-slate-800/80 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700/50 p-4 hover:shadow-xl transition-all">
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-2 md:gap-3 mb-2 flex-wrap">
                   <FileSpreadsheet className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
-                  <h3 className="font-bold text-base md:text-lg text-gray-800">{upload.filename}</h3>
+                  <h3 className="font-bold text-base md:text-lg text-gray-800 dark:text-white">{upload.filename}</h3>
                   {getStatusBadge(upload.status)}
                 </div>
                 {upload.upload_notes && (
-                  <div className="mb-2 text-xs md:text-sm text-blue-700 bg-blue-50 px-2 py-1 rounded border border-blue-200">
+                  <div className="mb-2 text-xs md:text-sm text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded border border-blue-200 dark:border-blue-800/40">
                     <strong>Upload Notes:</strong> {upload.upload_notes}
                   </div>
                 )}
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 text-xs md:text-sm">
-                  <div className="flex items-center gap-2 text-gray-600">
+                  <div className="flex items-center gap-2 text-gray-600 dark:text-slate-400">
                     <Calendar className="w-3 h-3 md:w-4 md:h-4" />
                     {formatDate(upload.uploaded_at)}
                   </div>
-                  <div className="flex items-center gap-2 text-gray-600">
+                  <div className="flex items-center gap-2 text-gray-600 dark:text-slate-400">
                     <Package className="w-3 h-3 md:w-4 md:h-4" />
                     {upload.success_count} items
                     {upload.error_count > 0 && (
                       <span className="text-red-600 ml-1">({upload.error_count} errors)</span>
                     )}
                   </div>
-                  <div className="flex items-center gap-2 text-gray-600">
+                  <div className="flex items-center gap-2 text-gray-600 dark:text-slate-400">
                     <User className="w-3 h-3 md:w-4 md:h-4" />
                     {upload.uploaded_by}
                   </div>
                 </div>
-                <div className="mt-2 text-[10px] md:text-xs text-gray-500">
+                <div className="mt-2 text-[10px] md:text-xs text-gray-500 dark:text-slate-500">
                   Uploaded by: {upload.uploaded_by}
                   {upload.staff_verified_by && (
                     <span className="ml-2 md:ml-3 text-green-600">
@@ -570,7 +570,7 @@ const ExcelUploadVerification = () => {
       />
 
       {uploads.length === 0 && (
-        <div className="bg-white rounded-xl shadow-lg border border-slate-200 text-center py-8 md:py-12 text-gray-500">
+        <div className="bg-white dark:bg-slate-800/80 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700/50 text-center py-8 md:py-12 text-gray-500 dark:text-slate-500">
           <FileSpreadsheet className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-4 text-gray-300" />
           <p className="text-sm md:text-base">No uploads found</p>
         </div>
@@ -598,64 +598,64 @@ const EditItemModal = ({ item, sections, racks, onSave, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <h3 className="text-lg font-bold mb-4">Edit Item</h3>
+      <div className="bg-white dark:bg-slate-900 rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <h3 className="text-lg font-bold mb-4 dark:text-white">Edit Item</h3>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Product Name</label>
+              <label className="block text-sm font-medium mb-1 dark:text-slate-300">Product Name</label>
               <input
                 type="text"
                 value={formData.product_name}
                 onChange={(e) => setFormData({...formData, product_name: e.target.value})}
-                className="w-full px-3 py-2 border rounded"
+                className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Batch Number</label>
+              <label className="block text-sm font-medium mb-1 dark:text-slate-300">Batch Number</label>
               <input
                 type="text"
                 value={formData.batch_number}
                 onChange={(e) => setFormData({...formData, batch_number: e.target.value})}
-                className="w-full px-3 py-2 border rounded"
+                className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Composition</label>
+              <label className="block text-sm font-medium mb-1 dark:text-slate-300">Composition</label>
               <input
                 type="text"
                 value={formData.composition}
                 onChange={(e) => setFormData({...formData, composition: e.target.value})}
-                className="w-full px-3 py-2 border rounded"
+                className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Manufacturer</label>
+              <label className="block text-sm font-medium mb-1 dark:text-slate-300">Manufacturer</label>
               <input
                 type="text"
                 value={formData.manufacturer}
                 onChange={(e) => setFormData({...formData, manufacturer: e.target.value})}
-                className="w-full px-3 py-2 border rounded"
+                className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Quantity</label>
+              <label className="block text-sm font-medium mb-1 dark:text-slate-300">Quantity</label>
               <input
                 type="number"
                 value={formData.quantity_software}
                 onChange={(e) => setFormData({...formData, quantity_software: parseInt(e.target.value)})}
-                className="w-full px-3 py-2 border rounded"
+                className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Section</label>
+              <label className="block text-sm font-medium mb-1 dark:text-slate-300">Section</label>
               <select
                 value={formData.section_id}
                 onChange={(e) => setFormData({...formData, section_id: e.target.value})}
-                className="w-full px-3 py-2 border rounded"
+                className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white"
               >
                 <option value="">Unassigned</option>
                 {sections.map(section => {
@@ -669,23 +669,23 @@ const EditItemModal = ({ item, sections, racks, onSave, onClose }) => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Unit Price</label>
+              <label className="block text-sm font-medium mb-1 dark:text-slate-300">Unit Price</label>
               <input
                 type="number"
                 step="0.01"
                 value={formData.unit_price}
                 onChange={(e) => setFormData({...formData, unit_price: parseFloat(e.target.value)})}
-                className="w-full px-3 py-2 border rounded"
+                className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Selling Price</label>
+              <label className="block text-sm font-medium mb-1 dark:text-slate-300">Selling Price</label>
               <input
                 type="number"
                 step="0.01"
                 value={formData.selling_price}
                 onChange={(e) => setFormData({...formData, selling_price: parseFloat(e.target.value)})}
-                className="w-full px-3 py-2 border rounded"
+                className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white"
               />
             </div>
           </div>
@@ -693,7 +693,7 @@ const EditItemModal = ({ item, sections, racks, onSave, onClose }) => {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border rounded hover:bg-gray-50"
+              className="px-4 py-2 border dark:border-slate-600 rounded hover:bg-gray-50 dark:hover:bg-slate-700/30 dark:bg-slate-700 dark:text-slate-300"
             >
               Cancel
             </button>

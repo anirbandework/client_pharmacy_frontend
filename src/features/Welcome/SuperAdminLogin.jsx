@@ -248,9 +248,6 @@ const SuperAdminLogin = () => {
             <div className={`flex items-center gap-3 ${mounted ? 'sa-appear' : 'opacity-0'}`}>
               <div className="relative w-10 h-10 sm:w-11 sm:h-11 flex-shrink-0">
                 <div className="sa-spin-ring absolute inset-0 rounded-xl" style={{ background: 'conic-gradient(from 0deg,transparent 60%,rgba(139,92,246,0.6) 80%,rgba(168,85,247,0.8) 95%,transparent 100%)' }} />
-                <div className="absolute inset-[2px] rounded-[10px] flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#5b21b6,#7c3aed)' }}>
-                  <Building2 className="w-5 h-5 text-white" />
-                </div>
               </div>
               <div>
                 <h1 className="text-lg sm:text-xl font-bold tracking-tight" style={{ color: lm ? '#1e293b' : '#ffffff', transition: 'color 0.4s ease' }}>LedgerX</h1>

@@ -467,10 +467,10 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="bg-white rounded-xl max-w-7xl w-full my-8" onClick={(e) => e.stopPropagation()}>
-        <div className="sticky top-0 bg-white border-b p-4 flex justify-between items-center rounded-t-xl">
+      <div className="bg-white dark:bg-slate-900 rounded-xl max-w-7xl w-full my-8" onClick={(e) => e.stopPropagation()}>
+        <div className="sticky top-0 bg-white dark:bg-slate-900 border-b dark:border-slate-700/50 p-4 flex justify-between items-center rounded-t-xl">
           <div>
-            <h2 className="text-xl font-bold flex items-center gap-2">
+            <h2 className="text-xl font-bold flex items-center gap-2 dark:text-white">
               <AlertCircle className="w-5 h-5 text-blue-600" />
               {isDistributorInvoice ? 'Review & Verify Distributor Invoice' : invoice.id ? 'Edit & Verify Invoice' : 'Create New Invoice'}
             </h2>
@@ -485,20 +485,20 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
               </p>
             )}
           </div>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700 text-2xl">✕</button>
+          <button onClick={onClose} className="text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200 text-2xl">✕</button>
         </div>
         
         <div className="p-6 space-y-6 max-h-[calc(100vh-200px)] overflow-y-auto">
           {/* Supplier & Invoice Info */}
           <div className="grid md:grid-cols-2 gap-6">
             <div className="space-y-3">
-              <h3 className="font-semibold text-gray-700">{isDistributorInvoice ? 'Distributor Information' : 'Supplier Information'}</h3>
+              <h3 className="font-semibold text-gray-700 dark:text-slate-300">{isDistributorInvoice ? 'Distributor Information' : 'Supplier Information'}</h3>
               <input
                 type="text"
                 placeholder={isDistributorInvoice ? "Distributor Name" : "Supplier Name"}
                 value={formData.supplier_name}
                 onChange={(e) => handleChange('supplier_name', e.target.value)}
-                className="w-full px-3 py-2 border rounded-lg"
+                className="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400"
                 readOnly={isDistributorInvoice}
               />
               <input
@@ -506,7 +506,7 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
                 placeholder="GSTIN"
                 value={formData.supplier_gstin}
                 onChange={(e) => handleChange('supplier_gstin', e.target.value)}
-                className="w-full px-3 py-2 border rounded-lg"
+                className="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400"
                 readOnly={isDistributorInvoice}
               />
               <input
@@ -514,7 +514,7 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
                 placeholder="Phone"
                 value={formData.supplier_phone}
                 onChange={(e) => handleChange('supplier_phone', e.target.value)}
-                className="w-full px-3 py-2 border rounded-lg"
+                className="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400"
                 readOnly={isDistributorInvoice}
               />
               <input
@@ -522,14 +522,14 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
                 placeholder="DL Numbers"
                 value={formData.supplier_dl_numbers}
                 onChange={(e) => handleChange('supplier_dl_numbers', e.target.value)}
-                className="w-full px-3 py-2 border rounded-lg"
+                className="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400"
                 readOnly={isDistributorInvoice}
               />
             </div>
             <div className="space-y-3">
-              <h3 className="font-semibold text-gray-700">Invoice Information</h3>
+              <h3 className="font-semibold text-gray-700 dark:text-slate-300">Invoice Information</h3>
               <div>
-                <label className="text-sm text-gray-600">
+                <label className="text-sm text-gray-600 dark:text-slate-400">
                   Invoice Number
                   {formData.invoice_number?.startsWith('PI-') && (
                     <span className="ml-2 text-xs text-blue-500">(auto-generated)</span>
@@ -540,35 +540,35 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
                   placeholder="Invoice Number"
                   value={formData.invoice_number}
                   onChange={(e) => handleChange('invoice_number', e.target.value)}
-                  className="w-full px-3 py-2 border rounded-lg"
+                  className="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400"
                   readOnly={!invoice.id && formData.invoice_number?.startsWith('PI-')}
                 />
               </div>
               <div>
-                <label className="text-sm text-gray-600">Invoice Date</label>
+                <label className="text-sm text-gray-600 dark:text-slate-400">Invoice Date</label>
                 <input
                   type="date"
                   value={formData.invoice_date}
                   onChange={(e) => handleChange('invoice_date', e.target.value)}
-                  className="w-full px-3 py-2 border rounded-lg"
+                  className="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400"
                 />
               </div>
               <div>
-                <label className="text-sm text-gray-600">Due Date</label>
+                <label className="text-sm text-gray-600 dark:text-slate-400">Due Date</label>
                 <input
                   type="date"
                   placeholder="Due Date"
                   value={formData.due_date}
                   onChange={(e) => handleChange('due_date', e.target.value)}
-                  className="w-full px-3 py-2 border rounded-lg"
+                  className="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400"
                 />
               </div>
             </div>
           </div>
 
           {/* Custom Fields */}
-          <div className="border-t pt-4">
-            <h3 className="font-semibold text-gray-700 mb-3">Custom Fields (Shop-Specific)</h3>
+          <div className="border-t dark:border-slate-700/50 pt-4">
+            <h3 className="font-semibold text-gray-700 dark:text-slate-300 mb-3">Custom Fields (Shop-Specific)</h3>
             <div className="flex gap-2 mb-3">
               <input
                 type="text"
@@ -590,8 +590,8 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
             </div>
             <div className="flex flex-wrap gap-2">
               {Object.entries(formData.custom_fields).map(([key, value]) => (
-                <div key={key} className="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-lg">
-                  <span className="text-sm"><strong>{key}:</strong> {value}</span>
+                <div key={key} className="flex items-center gap-2 bg-gray-100 dark:bg-slate-700/50 px-3 py-1 rounded-lg">
+                  <span className="text-sm dark:text-slate-300"><strong>{key}:</strong> {value}</span>
                   <button onClick={() => removeCustomField(key)} className="text-red-600 hover:text-red-800">
                     <X className="w-3 h-3" />
                   </button>
@@ -601,9 +601,9 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
           </div>
 
           {/* Items */}
-          <div className="border-t pt-4">
+          <div className="border-t dark:border-slate-700/50 pt-4">
             <div className="flex justify-between items-center mb-3">
-              <h3 className="font-semibold text-gray-700">Items</h3>
+              <h3 className="font-semibold text-gray-700 dark:text-slate-300">Items</h3>
               <div className="flex gap-2">
                 <button onClick={addItem} className="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-1 text-sm">
                   <Plus className="w-4 h-4" /> Add Item
@@ -612,15 +612,15 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
             </div>
             
             {/* Add Custom Column */}
-            <div className="mb-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <p className="text-sm font-semibold text-gray-700 mb-2">Add Custom Column (applies to all items)</p>
+            <div className="mb-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800/40 rounded-lg">
+              <p className="text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">Add Custom Column (applies to all items)</p>
               <div className="flex gap-2">
                 <input
                   type="text"
                   placeholder="Column Name (e.g., MRP, Discount, Notes)"
                   value={newColumnName}
                   onChange={(e) => setNewColumnName(e.target.value)}
-                  className="flex-1 px-3 py-2 border rounded-lg text-sm"
+                  className="flex-1 px-3 py-2 border rounded-lg text-sm dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400"
                 />
                 <button onClick={addCustomItemColumn} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
                   <Plus className="w-4 h-4" />
@@ -628,10 +628,10 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
               </div>
               {customItemColumns.length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-2">
-                  <span className="text-xs text-gray-600">Custom Columns:</span>
+                  <span className="text-xs text-gray-600 dark:text-slate-400">Custom Columns:</span>
                   {customItemColumns.map(col => (
-                    <div key={col} className="flex items-center gap-1 bg-blue-100 px-2 py-1 rounded text-xs">
-                      <span>{col}</span>
+                    <div key={col} className="flex items-center gap-1 bg-blue-100 dark:bg-blue-900/20 px-2 py-1 rounded text-xs">
+                      <span className="dark:text-slate-300">{col}</span>
                       <button onClick={() => removeCustomItemColumn(col)} className="text-red-600 hover:text-red-800">
                         <X className="w-3 h-3" />
                       </button>
@@ -643,9 +643,9 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
             
             <div className="space-y-3 max-h-96 overflow-y-auto">
               {formData.items.map((item, idx) => (
-                <div key={idx} className="border rounded-lg p-3 bg-gray-50">
+                <div key={idx} className="border dark:border-slate-700/50 rounded-lg p-3 bg-gray-50 dark:bg-slate-700/30">
                   <div className="flex justify-between items-start mb-3">
-                    <span className="text-sm font-semibold text-gray-600">Item {idx + 1}</span>
+                    <span className="text-sm font-semibold text-gray-600 dark:text-slate-400">Item {idx + 1}</span>
                     <button onClick={() => removeItem(idx)} className="text-red-600 hover:text-red-800">
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -653,73 +653,73 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
                   
                   {/* VENDOR/PURCHASE SECTION */}
                   <div className="mb-4">
-                    <h4 className="text-xs font-bold text-purple-700 mb-2 uppercase border-b border-purple-200 pb-1 flex items-center gap-1">
+                    <h4 className="text-xs font-bold text-purple-700 dark:text-purple-300 mb-2 uppercase border-b border-purple-200 dark:border-purple-800/40 pb-1 flex items-center gap-1">
                       <Package className="w-3 h-3" /> Purchase from Vendor
                     </h4>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
                     <div>
-                      <label className="text-xs text-gray-500">Composition</label>
+                      <label className="text-xs text-gray-500 dark:text-slate-500">Composition</label>
                       <CompositionAutocomplete
                         value={item.composition}
                         onChange={(value) => handleItemChange(idx, 'composition', value)}
                         placeholder="Generic/Salt"
-                        className="px-2 py-1 border rounded w-full"
+                        className="px-2 py-1 border rounded w-full dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400"
                       />
                     </div>
                     <div>
-                      <label className="text-xs text-gray-500">Product Name</label>
+                      <label className="text-xs text-gray-500 dark:text-slate-500">Product Name</label>
                       <ProductAutocomplete
                         value={item.product_name}
                         onChange={(value) => handleItemChange(idx, 'product_name', value)}
                         placeholder="Brand Name"
-                        className="px-2 py-1 border rounded w-full"
+                        className="px-2 py-1 border rounded w-full dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400"
                       />
                     </div>
                     <div>
-                      <label className="text-xs text-gray-500">Manufacturer</label>
-                      <input type="text" placeholder="Manufacturer" value={item.manufacturer} onChange={(e) => handleItemChange(idx, 'manufacturer', e.target.value)} className="px-2 py-1 border rounded w-full" />
+                      <label className="text-xs text-gray-500 dark:text-slate-500">Manufacturer</label>
+                      <input type="text" placeholder="Manufacturer" value={item.manufacturer} onChange={(e) => handleItemChange(idx, 'manufacturer', e.target.value)} className="px-2 py-1 border rounded w-full dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400" />
                     </div>
                     <div>
-                      <label className="text-xs text-gray-500">HSN Code</label>
-                      <input type="text" placeholder="HSN" value={item.hsn_code} onChange={(e) => handleItemChange(idx, 'hsn_code', e.target.value)} className="px-2 py-1 border rounded w-full" />
+                      <label className="text-xs text-gray-500 dark:text-slate-500">HSN Code</label>
+                      <input type="text" placeholder="HSN" value={item.hsn_code} onChange={(e) => handleItemChange(idx, 'hsn_code', e.target.value)} className="px-2 py-1 border rounded w-full dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400" />
                     </div>
                     <div>
-                      <label className="text-xs text-gray-500">Batch Number</label>
-                      <input type="text" placeholder="Batch" value={item.batch_number} onChange={(e) => handleItemChange(idx, 'batch_number', e.target.value)} className="px-2 py-1 border rounded w-full" />
+                      <label className="text-xs text-gray-500 dark:text-slate-500">Batch Number</label>
+                      <input type="text" placeholder="Batch" value={item.batch_number} onChange={(e) => handleItemChange(idx, 'batch_number', e.target.value)} className="px-2 py-1 border rounded w-full dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400" />
                     </div>
                     <div>
-                      <label className="text-xs text-gray-500">Quantity</label>
-                      <input type="number" placeholder="Qty" value={item.quantity} onChange={(e) => handleItemChange(idx, 'quantity', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
+                      <label className="text-xs text-gray-500 dark:text-slate-500">Quantity</label>
+                      <input type="number" placeholder="Qty" value={item.quantity} onChange={(e) => handleItemChange(idx, 'quantity', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400" />
                     </div>
                     <div>
-                      <label className="text-xs text-gray-500">Complementary Quantity (if any)</label>
-                      <input type="number" placeholder="Free" value={item.free_quantity} onChange={(e) => handleItemChange(idx, 'free_quantity', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
+                      <label className="text-xs text-gray-500 dark:text-slate-500">Complementary Quantity (if any)</label>
+                      <input type="number" placeholder="Free" value={item.free_quantity} onChange={(e) => handleItemChange(idx, 'free_quantity', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400" />
                     </div>
                     <div>
-                      <label className="text-xs text-gray-500">Package</label>
-                      <input type="text" placeholder="10 X 10" value={item.package} onChange={(e) => handleItemChange(idx, 'package', e.target.value)} className="px-2 py-1 border rounded w-full" />
+                      <label className="text-xs text-gray-500 dark:text-slate-500">Package</label>
+                      <input type="text" placeholder="10 X 10" value={item.package} onChange={(e) => handleItemChange(idx, 'package', e.target.value)} className="px-2 py-1 border rounded w-full dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400" />
                     </div>
                     <div>
-                      <label className="text-xs text-gray-500">Unit</label>
+                      <label className="text-xs text-gray-500 dark:text-slate-500">Unit</label>
                       <UnitAutocomplete
                         value={item.unit}
                         onChange={(value) => handleItemChange(idx, 'unit', value)}
                         placeholder="Select or type unit"
-                        className="px-2 py-1 border rounded w-full"
+                        className="px-2 py-1 border rounded w-full dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400"
                       />
                     </div>
                     <div>
-                      <label className="text-xs text-gray-500">Manufacturing Date</label>
-                      <input type="text" placeholder="MM/YYYY" value={item.manufacturing_date} onChange={(e) => handleItemChange(idx, 'manufacturing_date', e.target.value)} className="px-2 py-1 border rounded w-full" />
+                      <label className="text-xs text-gray-500 dark:text-slate-500">Manufacturing Date</label>
+                      <input type="text" placeholder="MM/YYYY" value={item.manufacturing_date} onChange={(e) => handleItemChange(idx, 'manufacturing_date', e.target.value)} className="px-2 py-1 border rounded w-full dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400" />
                     </div>
                     <div>
-                      <label className="text-xs text-gray-500">Expiry Date</label>
-                      <input type="text" placeholder="MM/YYYY" value={item.expiry_date} onChange={(e) => handleItemChange(idx, 'expiry_date', e.target.value)} className="px-2 py-1 border rounded w-full" />
+                      <label className="text-xs text-gray-500 dark:text-slate-500">Expiry Date</label>
+                      <input type="text" placeholder="MM/YYYY" value={item.expiry_date} onChange={(e) => handleItemChange(idx, 'expiry_date', e.target.value)} className="px-2 py-1 border rounded w-full dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400" />
                     </div>
                       <div>
-                        <label className="text-xs text-gray-500">MRP</label>
+                        <label className="text-xs text-gray-500 dark:text-slate-500">MRP</label>
                         <div className="relative group">
-                          <input type="text" placeholder="169.00/STRIP" value={item.mrp || ''} onChange={(e) => handleItemChange(idx, 'mrp', e.target.value)} className="px-2 py-1 border rounded w-full" />
+                          <input type="text" placeholder="169.00/STRIP" value={item.mrp || ''} onChange={(e) => handleItemChange(idx, 'mrp', e.target.value)} className="px-2 py-1 border rounded w-full dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400" />
                           {item.mrp && item.unit_price > 0 && (
                             <div className="absolute hidden group-hover:block z-10 bg-gray-800 text-white text-xs rounded px-2 py-1 -top-8 left-0 whitespace-nowrap">
                               Profit at MRP: {(((parseFloat(item.mrp) - item.unit_price) / item.unit_price) * 100).toFixed(1)}%
@@ -728,70 +728,70 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
                         </div>
                       </div>
                       <div>
-                        <label className="text-xs text-gray-500">Before Discount</label>
-                        <input type="number" placeholder="Before Disc" value={item.before_discount} onChange={(e) => handleItemChange(idx, 'before_discount', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
+                        <label className="text-xs text-gray-500 dark:text-slate-500">Before Discount</label>
+                        <input type="number" placeholder="Before Disc" value={item.before_discount} onChange={(e) => handleItemChange(idx, 'before_discount', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400" />
                       </div>
                       <div>
-                        <label className="text-xs text-gray-500">Discount Percent</label>
-                        <input type="number" placeholder="Disc %" value={item.discount_percent} onChange={(e) => handleItemChange(idx, 'discount_percent', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
+                        <label className="text-xs text-gray-500 dark:text-slate-500">Discount Percent</label>
+                        <input type="number" placeholder="Disc %" value={item.discount_percent} onChange={(e) => handleItemChange(idx, 'discount_percent', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400" />
                       </div>
                       <div>
-                        <label className="text-xs text-gray-500">Discount Amount</label>
-                        <input type="number" placeholder="Disc Amt" value={item.discount_amount} onChange={(e) => handleItemChange(idx, 'discount_amount', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
+                        <label className="text-xs text-gray-500 dark:text-slate-500">Discount Amount</label>
+                        <input type="number" placeholder="Disc Amt" value={item.discount_amount} onChange={(e) => handleItemChange(idx, 'discount_amount', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400" />
                       </div>
                       <div>
-                        <label className="text-xs text-gray-500">Unit Price (Final)</label>
-                        <input type="number" placeholder="Rate" value={item.unit_price} onChange={(e) => handleItemChange(idx, 'unit_price', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
+                        <label className="text-xs text-gray-500 dark:text-slate-500">Unit Price (Final)</label>
+                        <input type="number" placeholder="Rate" value={item.unit_price} onChange={(e) => handleItemChange(idx, 'unit_price', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400" />
                       </div>
                       <div>
-                        <label className="text-xs text-gray-500">Discount On Purchase</label>
-                        <input type="number" placeholder="Disc" value={item.discount_on_purchase} onChange={(e) => handleItemChange(idx, 'discount_on_purchase', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
+                        <label className="text-xs text-gray-500 dark:text-slate-500">Discount On Purchase</label>
+                        <input type="number" placeholder="Disc" value={item.discount_on_purchase} onChange={(e) => handleItemChange(idx, 'discount_on_purchase', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400" />
                       </div>
                       <div>
-                        <label className="text-xs text-gray-500">Taxable Amount</label>
-                        <input type="number" placeholder="Taxable" value={item.taxable_amount} onChange={(e) => handleItemChange(idx, 'taxable_amount', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
+                        <label className="text-xs text-gray-500 dark:text-slate-500">Taxable Amount</label>
+                        <input type="number" placeholder="Taxable" value={item.taxable_amount} onChange={(e) => handleItemChange(idx, 'taxable_amount', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400" />
                       </div>
                       <div>
-                        <label className="text-xs text-gray-500">CGST Percent</label>
-                        <input type="number" placeholder="CGST%" value={item.cgst_percent} onChange={(e) => handleItemChange(idx, 'cgst_percent', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
+                        <label className="text-xs text-gray-500 dark:text-slate-500">CGST Percent</label>
+                        <input type="number" placeholder="CGST%" value={item.cgst_percent} onChange={(e) => handleItemChange(idx, 'cgst_percent', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400" />
                       </div>
                       <div>
-                        <label className="text-xs text-gray-500">CGST Amount</label>
-                        <input type="number" placeholder="CGST Amt" value={item.cgst_amount} onChange={(e) => handleItemChange(idx, 'cgst_amount', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
+                        <label className="text-xs text-gray-500 dark:text-slate-500">CGST Amount</label>
+                        <input type="number" placeholder="CGST Amt" value={item.cgst_amount} onChange={(e) => handleItemChange(idx, 'cgst_amount', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400" />
                       </div>
                       <div>
-                        <label className="text-xs text-gray-500">SGST Percent</label>
-                        <input type="number" placeholder="SGST%" value={item.sgst_percent} onChange={(e) => handleItemChange(idx, 'sgst_percent', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
+                        <label className="text-xs text-gray-500 dark:text-slate-500">SGST Percent</label>
+                        <input type="number" placeholder="SGST%" value={item.sgst_percent} onChange={(e) => handleItemChange(idx, 'sgst_percent', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400" />
                       </div>
                       <div>
-                        <label className="text-xs text-gray-500">SGST Amount</label>
-                        <input type="number" placeholder="SGST Amt" value={item.sgst_amount} onChange={(e) => handleItemChange(idx, 'sgst_amount', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
+                        <label className="text-xs text-gray-500 dark:text-slate-500">SGST Amount</label>
+                        <input type="number" placeholder="SGST Amt" value={item.sgst_amount} onChange={(e) => handleItemChange(idx, 'sgst_amount', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400" />
                       </div>
                       <div>
-                        <label className="text-xs text-gray-500">IGST Percent</label>
-                        <input type="number" placeholder="IGST%" value={item.igst_percent} onChange={(e) => handleItemChange(idx, 'igst_percent', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
+                        <label className="text-xs text-gray-500 dark:text-slate-500">IGST Percent</label>
+                        <input type="number" placeholder="IGST%" value={item.igst_percent} onChange={(e) => handleItemChange(idx, 'igst_percent', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400" />
                       </div>
                       <div>
-                        <label className="text-xs text-gray-500">IGST Amount</label>
-                        <input type="number" placeholder="IGST Amt" value={item.igst_amount} onChange={(e) => handleItemChange(idx, 'igst_amount', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
+                        <label className="text-xs text-gray-500 dark:text-slate-500">IGST Amount</label>
+                        <input type="number" placeholder="IGST Amt" value={item.igst_amount} onChange={(e) => handleItemChange(idx, 'igst_amount', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400" />
                       </div>
                       <div>
-                        <label className="text-xs text-gray-500">Total Amount</label>
-                        <input type="number" placeholder="Total" value={item.total_amount} onChange={(e) => handleItemChange(idx, 'total_amount', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" />
+                        <label className="text-xs text-gray-500 dark:text-slate-500">Total Amount</label>
+                        <input type="number" placeholder="Total" value={item.total_amount} onChange={(e) => handleItemChange(idx, 'total_amount', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400" />
                       </div>
                     </div>
                   </div>
                   
                   {/* CUSTOMER/SALES SECTION */}
                   <div className="mb-3">
-                    <h4 className="text-xs font-bold text-green-700 mb-2 uppercase border-b border-green-200 pb-1 flex items-center gap-1">
+                    <h4 className="text-xs font-bold text-green-700 dark:text-green-300 mb-2 uppercase border-b border-green-200 dark:border-green-800/40 pb-1 flex items-center gap-1">
                       <IndianRupee className="w-3 h-3" /> Sales to Customer (Admin Only)
                     </h4>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
                     <div>
-                      <label className="text-xs text-gray-500">Selling Price</label>
+                      <label className="text-xs text-gray-500 dark:text-slate-500">Selling Price</label>
                       <div className="relative group">
-                        <input type="number" placeholder="Selling" value={item.selling_price} onChange={(e) => handleItemChange(idx, 'selling_price', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" disabled={!isAdmin} />
+                        <input type="number" placeholder="Selling" value={item.selling_price} onChange={(e) => handleItemChange(idx, 'selling_price', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400" disabled={!isAdmin} />
                         {!isAdmin && (
                           <div className="absolute hidden group-hover:block z-10 bg-gray-800 text-white text-xs rounded px-2 py-1 -top-8 left-0 whitespace-nowrap">
                             Admin access required
@@ -801,9 +801,9 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
                       {priceErrors[idx] && <p className="text-xs text-red-600 mt-1">Selling price cannot exceed MRP</p>}
                     </div>
                     <div>
-                      <label className="text-xs text-gray-500">Profit Margin (%)</label>
+                      <label className="text-xs text-gray-500 dark:text-slate-500">Profit Margin (%)</label>
                       <div className="relative group">
-                        <input type="number" placeholder="Margin" value={item.profit_margin} onChange={(e) => handleItemChange(idx, 'profit_margin', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" disabled={!isAdmin} />
+                        <input type="number" placeholder="Margin" value={item.profit_margin} onChange={(e) => handleItemChange(idx, 'profit_margin', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400" disabled={!isAdmin} />
                         {!isAdmin && (
                           <div className="absolute hidden group-hover:block z-10 bg-gray-800 text-white text-xs rounded px-2 py-1 -top-8 left-0 whitespace-nowrap">
                             Admin access required
@@ -812,8 +812,8 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
                       </div>
                     </div>
                       <div>
-                        <label className="text-xs text-gray-500">Discount On Sales (%)</label>
-                        <input type="number" placeholder="Disc %" value={item.discount_on_sales} onChange={(e) => handleItemChange(idx, 'discount_on_sales', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full" disabled={!isAdmin} />
+                        <label className="text-xs text-gray-500 dark:text-slate-500">Discount On Sales (%)</label>
+                        <input type="number" placeholder="Disc %" value={item.discount_on_sales} onChange={(e) => handleItemChange(idx, 'discount_on_sales', parseFloat(e.target.value) || 0)} className="px-2 py-1 border rounded w-full dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400" disabled={!isAdmin} />
                         {item.discount_on_sales > 0 && (
                           <p className="text-xs text-green-600 mt-1">
                             Customer pays: ₹{(item.selling_price * (1 - item.discount_on_sales / 100)).toFixed(2)}
@@ -826,7 +826,7 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
                   {/* Custom Columns */}
                   {customItemColumns.length > 0 && (
                     <div className="mb-3">
-                      <h4 className="text-xs font-bold text-blue-700 mb-2 uppercase border-b border-blue-200 pb-1 flex items-center gap-1">
+                      <h4 className="text-xs font-bold text-blue-700 dark:text-blue-300 mb-2 uppercase border-b border-blue-200 dark:border-blue-800/40 pb-1 flex items-center gap-1">
                         <Settings className="w-3 h-3" /> Custom Fields
                       </h4>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
@@ -838,7 +838,7 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
                               placeholder={colName}
                               value={item.custom_fields?.[colName] || ''}
                               onChange={(e) => handleItemChange(idx, `custom_${colName}`, e.target.value)}
-                              className="px-2 py-1 border border-blue-300 rounded w-full bg-blue-50"
+                              className="px-2 py-1 border border-blue-300 dark:border-blue-700 rounded w-full bg-blue-50 dark:bg-blue-900/20 dark:text-white dark:placeholder-slate-400"
                             />
                           </div>
                         ))}
@@ -846,7 +846,7 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
                     </div>
                   )}
                   
-                  <div className="text-sm text-gray-600 bg-gray-100 p-2 rounded">
+                  <div className="text-sm text-gray-600 dark:text-slate-400 bg-gray-100 dark:bg-slate-700/50 p-2 rounded">
                     <span className="font-semibold">Purchase:</span> ₹{item.taxable_amount.toFixed(2)} + GST ₹{(item.cgst_amount + item.sgst_amount).toFixed(2)} = ₹{item.total_amount.toFixed(2)} | 
                     <span className="font-semibold text-green-700">Selling:</span> ₹{item.selling_price.toFixed(2)} ({item.profit_margin.toFixed(1)}% margin)
                     {item.discount_on_sales > 0 && (
@@ -859,30 +859,30 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
           </div>
 
           {/* Totals */}
-          <div className="border-t pt-4 bg-blue-50 p-4 rounded-lg">
+          <div className="border-t dark:border-slate-700/50 pt-4 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
               <div>
-                <label className="text-gray-600">Gross Amount</label>
-                <p className="font-bold">₹{formData.gross_amount.toFixed(2)}</p>
+                <label className="text-gray-600 dark:text-slate-400">Gross Amount</label>
+                <p className="font-bold dark:text-white">₹{formData.gross_amount.toFixed(2)}</p>
               </div>
               <div>
-                <label className="text-gray-600">Total GST</label>
+                <label className="text-gray-600 dark:text-slate-400">Total GST</label>
                 <p className="font-bold text-blue-600">₹{formData.total_gst.toFixed(2)}</p>
               </div>
               <div>
-                <label className="text-gray-600">Round Off</label>
-                <input type="number" step="0.01" value={formData.round_off} onChange={(e) => handleChange('round_off', parseFloat(e.target.value) || 0)} className="w-full px-2 py-1 border rounded" />
+                <label className="text-gray-600 dark:text-slate-400">Round Off</label>
+                <input type="number" step="0.01" value={formData.round_off} onChange={(e) => handleChange('round_off', parseFloat(e.target.value) || 0)} className="w-full px-2 py-1 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white" />
               </div>
               <div>
-                <label className="text-gray-600">Net Amount</label>
+                <label className="text-gray-600 dark:text-slate-400">Net Amount</label>
                 <p className="font-bold text-green-600 text-lg">₹{formData.net_amount.toFixed(2)}</p>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="sticky bottom-0 bg-white border-t p-4 flex justify-end gap-3 rounded-b-xl">
-          <button onClick={onClose} className="px-6 py-2 border rounded-lg hover:bg-gray-50">Cancel</button>
+        <div className="sticky bottom-0 bg-white dark:bg-slate-900 border-t dark:border-slate-700/50 p-4 flex justify-end gap-3 rounded-b-xl">
+          <button onClick={onClose} className="px-6 py-2 border dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700/30 dark:text-slate-300">Cancel</button>
           <button onClick={handleSave} disabled={saving || (isDistributorInvoice && !isAdmin && invoice.is_staff_verified && !invoice.is_rejected)} className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 flex items-center gap-2">
             <Save className="w-4 h-4" />
             {saving ? 'Processing...' : isDistributorInvoice ? (invoice.is_staff_verified && !invoice.is_rejected && !isAdmin ? 'Already Verified' : isAdmin ? 'Save Changes' : 'Verify Invoice') : invoice.id ? (isAdmin ? 'Save Changes' : 'Save & Verify') : 'Create & Verify'}

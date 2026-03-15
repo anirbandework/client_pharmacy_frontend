@@ -1,8 +1,9 @@
-import React, { Suspense, lazy, useEffect, useState } from 'react'
+import { Suspense, lazy, useEffect, useState } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from './contexts/AuthContext'
+import { ThemeProvider } from './contexts/ThemeContext'
 import ErrorBoundary from './components/ErrorBoundary'
 import LoadingSpinner from './components/LoadingSpinner'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -65,6 +66,7 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
       <AuthProvider>
         <ErrorBoundary>
           <Toaster position="top-right" />
@@ -106,6 +108,7 @@ function App() {
           </Router>
         </ErrorBoundary>
       </AuthProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   )
 }

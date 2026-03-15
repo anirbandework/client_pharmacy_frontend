@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { staffPurchaseInvoiceAPI } from '../../services/staff_purchase_invoice_apis'
 
 const ProductAutocomplete = ({ value, onChange, placeholder, className }) => {
@@ -60,12 +60,12 @@ const ProductAutocomplete = ({ value, onChange, placeholder, className }) => {
         onFocus={() => value && value.length >= 2 && suggestions.length > 0 && setShowDropdown(true)}
       />
       {showDropdown && suggestions.length > 0 && (
-        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+        <div className="absolute z-50 w-full mt-1 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-600 rounded-lg shadow-lg max-h-48 overflow-y-auto">
           {suggestions.map((suggestion, idx) => (
             <div
               key={idx}
               onClick={() => handleSelectSuggestion(suggestion)}
-              className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm border-b last:border-b-0"
+              className="px-3 py-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer text-sm text-gray-700 dark:text-slate-300 border-b border-gray-200 dark:border-slate-700 last:border-b-0"
             >
               {suggestion}
             </div>

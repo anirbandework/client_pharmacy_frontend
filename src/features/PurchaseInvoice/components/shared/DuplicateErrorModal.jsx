@@ -13,7 +13,7 @@ const DuplicateErrorModal = ({ error, onClose, onGoToList }) => {
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-md w-full" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className={`p-4 md:p-6 text-white rounded-t-2xl bg-gradient-to-r ${isApproved ? 'from-slate-600 to-slate-700' : 'from-orange-500 to-red-500'}`}>
           <div className="flex items-start justify-between gap-3">
@@ -41,15 +41,15 @@ const DuplicateErrorModal = ({ error, onClose, onGoToList }) => {
 
         {/* Body */}
         <div className="p-4 md:p-6 space-y-4">
-          <div className={`border-l-4 p-3 md:p-4 rounded-r-lg ${isApproved ? 'bg-slate-50 border-slate-400' : 'bg-orange-50 border-orange-500'}`}>
-            <p className="text-sm md:text-base text-gray-800">{error}</p>
+          <div className={`border-l-4 p-3 md:p-4 rounded-r-lg ${isApproved ? 'bg-slate-50 dark:bg-slate-800/60 border-slate-400' : 'bg-orange-50 dark:bg-orange-900/20 border-orange-500'}`}>
+            <p className="text-sm md:text-base text-gray-800 dark:text-slate-300">{error}</p>
           </div>
 
           {/* Actionable guidance */}
           {isEditable && (
-            <div className="flex items-start gap-3 bg-blue-50 border border-blue-200 rounded-xl p-3">
-              <FileEdit className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-blue-900">
+            <div className="flex items-start gap-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/40 rounded-xl p-3">
+              <FileEdit className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+              <div className="text-sm text-blue-900 dark:text-blue-300">
                 <p className="font-semibold mb-1">What to do</p>
                 <p>Switch to the <strong>Invoice List</strong> tab
                   {invoiceId && <>, find Invoice ID <strong>{invoiceId}</strong>,</>} and use the edit (✏️) button to correct any details.</p>
@@ -58,9 +58,9 @@ const DuplicateErrorModal = ({ error, onClose, onGoToList }) => {
           )}
 
           {isApproved && (
-            <div className="flex items-start gap-3 bg-slate-50 border border-slate-200 rounded-xl p-3">
-              <ShieldCheck className="w-5 h-5 text-slate-600 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-slate-800">
+            <div className="flex items-start gap-3 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/50 rounded-xl p-3">
+              <ShieldCheck className="w-5 h-5 text-slate-600 dark:text-slate-400 flex-shrink-0 mt-0.5" />
+              <div className="text-sm text-slate-800 dark:text-slate-300">
                 <p className="font-semibold mb-1">What to do</p>
                 <p>Contact your admin to modify or remove this invoice{invoiceId && <> (Invoice ID: <strong>{invoiceId}</strong>)</>}.</p>
               </div>
@@ -69,7 +69,7 @@ const DuplicateErrorModal = ({ error, onClose, onGoToList }) => {
         </div>
 
         {/* Footer */}
-        <div className="border-t border-gray-200 p-4 md:p-6 bg-gray-50 rounded-b-2xl flex gap-3">
+        <div className="border-t border-gray-200 dark:border-slate-700 p-4 md:p-6 bg-gray-50 dark:bg-slate-800/60 rounded-b-2xl flex gap-3">
           {isEditable && onGoToList && (
             <button
               onClick={() => { onClose(); onGoToList() }}
@@ -81,7 +81,7 @@ const DuplicateErrorModal = ({ error, onClose, onGoToList }) => {
           )}
           <button
             onClick={onClose}
-            className={`px-4 py-2.5 rounded-xl font-semibold text-sm transition-all ${isEditable && onGoToList ? 'bg-gray-200 hover:bg-gray-300 text-gray-700' : 'flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:opacity-90'}`}
+            className={`px-4 py-2.5 rounded-xl font-semibold text-sm transition-all ${isEditable && onGoToList ? 'bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 text-gray-700 dark:text-slate-300' : 'flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:opacity-90'}`}
           >
             {isEditable && onGoToList ? 'Close' : 'OK, Got It'}
           </button>

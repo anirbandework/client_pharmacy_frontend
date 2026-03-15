@@ -110,9 +110,9 @@ export default function StockAdjustments() {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 md:p-6">
+    <div className="bg-white dark:bg-slate-800/80 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700/50 p-4 md:p-6">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg md:text-xl font-bold text-gray-800 flex items-center gap-2">
+        <h2 className="text-lg md:text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
           <AlertCircle className="w-4 h-4 md:w-5 md:h-5 text-pink-600" />
           Stock Adjustments
         </h2>
@@ -127,7 +127,7 @@ export default function StockAdjustments() {
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="mb-6 p-4 bg-gradient-to-r from-pink-50 to-purple-50 rounded-xl border-2 border-pink-200">
+        <form onSubmit={handleSubmit} className="mb-6 p-4 bg-gradient-to-r from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-900/20 rounded-xl border-2 border-pink-200 dark:border-pink-800/40">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="relative md:col-span-2">
               <div className="relative">
@@ -138,32 +138,32 @@ export default function StockAdjustments() {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   onFocus={() => searchTerm && setShowDropdown(true)}
-                  className="w-full pl-10 pr-3 py-2 border-2 border-pink-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                  className="w-full pl-10 pr-3 py-2 border-2 border-pink-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400"
                   required={!formData.stock_item_id}
                 />
               </div>
               {showDropdown && filteredItems.length > 0 && (
-                <div className="absolute z-10 w-full mt-1 bg-white border-2 border-pink-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-slate-800 border-2 border-pink-200 dark:border-slate-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                   {filteredItems.map((item) => (
                     <div
                       key={item.id}
                       onClick={() => handleSelectItem(item)}
-                      className="px-4 py-2 hover:bg-pink-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                      className="px-4 py-2 hover:bg-pink-50 dark:hover:bg-pink-900/20 cursor-pointer border-b border-gray-100 dark:border-slate-700/50 last:border-b-0"
                     >
-                      <div className="font-semibold text-gray-800">{item.product_name}</div>
-                      {item.composition && <div className="text-sm text-gray-600">{item.composition}</div>}
-                      <div className="text-xs text-gray-500">Batch: {item.batch_number} | Stock: {item.quantity_software}</div>
+                      <div className="font-semibold text-gray-800 dark:text-white">{item.product_name}</div>
+                      {item.composition && <div className="text-sm text-gray-600 dark:text-slate-400">{item.composition}</div>}
+                      <div className="text-xs text-gray-500 dark:text-slate-500">Batch: {item.batch_number} | Stock: {item.quantity_software}</div>
                     </div>
                   ))}
                 </div>
               )}
             </div>
             {selectedItem && (
-              <div className="md:col-span-2 p-3 bg-white border-2 border-green-200 rounded-lg">
-                <p className="text-sm font-semibold text-gray-700">Current Stock: <span className="text-green-600 text-lg">{selectedItem.quantity_software}</span></p>
+              <div className="md:col-span-2 p-3 bg-white dark:bg-slate-700 border-2 border-green-200 dark:border-green-800/40 rounded-lg">
+                <p className="text-sm font-semibold text-gray-700 dark:text-slate-300">Current Stock: <span className="text-green-600 text-lg">{selectedItem.quantity_software}</span></p>
               </div>
             )}
-            <select value={formData.adjustment_type} onChange={(e) => setFormData({ ...formData, adjustment_type: e.target.value })} className="px-3 py-2 border-2 border-pink-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500" required>
+            <select value={formData.adjustment_type} onChange={(e) => setFormData({ ...formData, adjustment_type: e.target.value })} className="px-3 py-2 border-2 border-pink-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white" required>
               <option value="correction">Correction</option>
               <option value="damage">Damage</option>
               <option value="return">Return</option>
@@ -171,40 +171,40 @@ export default function StockAdjustments() {
               <option value="theft">Theft</option>
               <option value="found">Found</option>
             </select>
-            <input type="number" placeholder="Quantity Change (+ or -)" value={formData.quantity_change} onChange={(e) => setFormData({ ...formData, quantity_change: e.target.value })} className="px-3 py-2 border-2 border-pink-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500" required />
-            <input type="text" placeholder="Reason" value={formData.reason} onChange={(e) => setFormData({ ...formData, reason: e.target.value })} className="px-3 py-2 border-2 border-pink-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500" required />
-            <textarea placeholder="Notes (optional)" value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} className="px-3 py-2 border-2 border-pink-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 md:col-span-2" rows={2} />
+            <input type="number" placeholder="Quantity Change (+ or -)" value={formData.quantity_change} onChange={(e) => setFormData({ ...formData, quantity_change: e.target.value })} className="px-3 py-2 border-2 border-pink-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400" required />
+            <input type="text" placeholder="Reason" value={formData.reason} onChange={(e) => setFormData({ ...formData, reason: e.target.value })} className="px-3 py-2 border-2 border-pink-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400" required />
+            <textarea placeholder="Notes (optional)" value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} className="px-3 py-2 border-2 border-pink-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400 md:col-span-2" rows={2} />
           </div>
           <div className="mt-4 flex gap-2">
             <button type="submit" className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:shadow-lg transition-all">Save</button>
-            <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">Cancel</button>
+            <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 border-2 border-gray-300 dark:border-slate-600 text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors dark:bg-slate-700">Cancel</button>
           </div>
         </form>
       )}
 
       <div className="space-y-3">
         {adjustments.length === 0 ? (
-          <div className="text-center py-12 bg-gray-50 rounded-xl">
+          <div className="text-center py-12 bg-gray-50 dark:bg-slate-700/30 rounded-xl">
             <AlertCircle className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-4 text-gray-300" />
-            <p className="text-gray-500 text-sm md:text-base">No adjustments recorded</p>
+            <p className="text-gray-500 dark:text-slate-500 text-sm md:text-base">No adjustments recorded</p>
           </div>
         ) : (
           adjustments.map((adj) => (
-            <div key={adj.id} className="bg-gradient-to-br from-gray-50 to-slate-50 border-2 border-slate-200 rounded-xl p-4 hover:shadow-lg transition-all">
+            <div key={adj.id} className="bg-gradient-to-br from-gray-50 to-slate-50 dark:from-slate-800/60 dark:to-slate-700/40 border-2 border-slate-200 dark:border-slate-700/50 rounded-xl p-4 hover:shadow-lg transition-all">
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2 flex-wrap">
-                    <AlertCircle className="w-5 h-5 text-gray-600" />
-                    <h4 className="font-bold text-gray-800">{items.find(i => i.id === adj.stock_item_id)?.product_name || 'Item'}</h4>
+                    <AlertCircle className="w-5 h-5 text-gray-600 dark:text-slate-400" />
+                    <h4 className="font-bold text-gray-800 dark:text-white">{items.find(i => i.id === adj.stock_item_id)?.product_name || 'Item'}</h4>
                     <span className={`px-3 py-1 rounded-full text-xs font-bold ${getTypeColor(adj.adjustment_type)}`}>
                       {adj.adjustment_type}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-600 mb-1">Quantity Change: <span className={adj.quantity_change > 0 ? 'text-green-600 font-bold text-base' : 'text-red-600 font-bold text-base'}>{adj.quantity_change > 0 ? '+' : ''}{adj.quantity_change}</span></p>
-                  <p className="text-sm text-gray-600 mb-1"><span className="font-medium">Reason:</span> {adj.reason}</p>
-                  {adj.notes && <p className="text-sm text-gray-500 mb-1"><span className="font-medium">Notes:</span> {adj.notes}</p>}
-                  {adj.staff_name && <p className="text-xs text-gray-400 mt-2">By: {adj.staff_name}</p>}
-                  <p className="text-xs text-gray-400">{new Date(adj.adjustment_date).toLocaleString()}</p>
+                  <p className="text-sm text-gray-600 dark:text-slate-400 mb-1">Quantity Change: <span className={adj.quantity_change > 0 ? 'text-green-600 font-bold text-base' : 'text-red-600 font-bold text-base'}>{adj.quantity_change > 0 ? '+' : ''}{adj.quantity_change}</span></p>
+                  <p className="text-sm text-gray-600 dark:text-slate-400 mb-1"><span className="font-medium">Reason:</span> {adj.reason}</p>
+                  {adj.notes && <p className="text-sm text-gray-500 dark:text-slate-500 mb-1"><span className="font-medium">Notes:</span> {adj.notes}</p>}
+                  {adj.staff_name && <p className="text-xs text-gray-400 dark:text-slate-600 mt-2">By: {adj.staff_name}</p>}
+                  <p className="text-xs text-gray-400 dark:text-slate-600">{new Date(adj.adjustment_date).toLocaleString()}</p>
                 </div>
               </div>
             </div>

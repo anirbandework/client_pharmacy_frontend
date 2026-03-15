@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { TrendingUp, Package, IndianRupee, FileText } from 'lucide-react'
 import { staffPurchaseInvoiceAPI } from '../../services/staff_purchase_invoice_apis'
 
@@ -64,26 +64,26 @@ const Dashboard = () => {
     <div className="space-y-4 md:space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {statCards.map((stat, idx) => (
-          <div key={idx} className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 md:p-6 hover:shadow-xl transition-shadow">
+          <div key={idx} className="bg-white dark:bg-slate-800/80 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700/50 p-4 md:p-6 hover:shadow-xl transition-shadow">
             <div className="flex items-center justify-between mb-3 md:mb-4">
               <div className={`p-2 md:p-3 rounded-xl ${stat.bgColor}`}>
-                <stat.icon className="w-5 h-5 md:w-6 md:h-6 text-gray-700" />
+                <stat.icon className="w-5 h-5 md:w-6 md:h-6 text-gray-700 dark:text-slate-300" />
               </div>
             </div>
-            <h3 className="text-gray-600 text-xs md:text-sm font-medium mb-1">{stat.title}</h3>
-            <p className="text-xl md:text-2xl font-bold text-gray-800">{stat.value}</p>
+            <h3 className="text-gray-600 dark:text-slate-400 text-xs md:text-sm font-medium mb-1">{stat.title}</h3>
+            <p className="text-xl md:text-2xl font-bold text-gray-800 dark:text-white">{stat.value}</p>
           </div>
         ))}
       </div>
 
       {stats.top_suppliers && stats.top_suppliers.length > 0 && (
-        <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 md:p-6">
-          <h3 className="text-base md:text-lg font-bold text-gray-800 mb-4">Top Suppliers</h3>
+        <div className="bg-white dark:bg-slate-800/80 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700/50 p-4 md:p-6">
+          <h3 className="text-base md:text-lg font-bold text-gray-800 dark:text-white mb-4">Top Suppliers</h3>
           <div className="space-y-3">
             {stats.top_suppliers.map((supplier, idx) => (
-              <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                <span className="font-medium text-gray-700 text-sm md:text-base">{supplier.name}</span>
-                <span className="text-green-600 font-semibold text-sm md:text-base">₹{supplier.total.toFixed(2)}</span>
+              <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-700/30 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700/50 transition-colors">
+                <span className="font-medium text-gray-700 dark:text-slate-300 text-sm md:text-base">{supplier.name}</span>
+                <span className="text-green-600 dark:text-green-400 font-semibold text-sm md:text-base">₹{supplier.total.toFixed(2)}</span>
               </div>
             ))}
           </div>

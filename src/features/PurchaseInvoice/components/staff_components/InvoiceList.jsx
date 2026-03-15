@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { FileText, Eye, Trash2, Search, Calendar, IndianRupee, Package, Edit, CheckCircle, AlertCircle } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { staffPurchaseInvoiceAPI } from '../../services/staff_purchase_invoice_apis'
@@ -125,16 +125,16 @@ const InvoiceList = ({ refresh }) => {
 
   return (
     <div className="space-y-4">
-      <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4">
+      <div className="bg-white dark:bg-slate-800/80 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700/50 p-4">
         <div className="flex items-center gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 md:w-5 md:h-5" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-slate-500 w-4 h-4 md:w-5 md:h-5" />
             <input
               type="text"
               placeholder="Search by invoice number or supplier..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 md:py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all text-sm md:text-base"
+              className="w-full pl-10 pr-4 py-2 md:py-3 border-2 border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:placeholder-slate-400 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all text-sm md:text-base"
             />
           </div>
           <FieldsGuideModal />
@@ -143,52 +143,52 @@ const InvoiceList = ({ refresh }) => {
 
       <div className="grid gap-4">
         {filteredInvoices.map((invoice) => (
-          <div key={invoice.id} className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 hover:shadow-xl transition-all">
+          <div key={invoice.id} className="bg-white dark:bg-slate-800/80 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700/50 p-4 hover:shadow-xl transition-all">
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-2 md:gap-3 mb-2 flex-wrap">
                   <FileText className="w-4 h-4 md:w-5 md:h-5 text-purple-600" />
-                  <h3 className="font-bold text-base md:text-lg text-gray-800">{invoice.invoice_number}</h3>
+                  <h3 className="font-bold text-base md:text-lg text-gray-800 dark:text-white">{invoice.invoice_number}</h3>
                   {invoice.is_admin_verified ? (
-                    <span className="flex items-center gap-1 text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
+                    <span className="flex items-center gap-1 text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-1 rounded-full">
                       <CheckCircle className="w-3 h-3" />
                       Admin Verified
                     </span>
                   ) : invoice.is_rejected || invoice.admin_rejected_by_name ? (
-                    <span className="flex items-center gap-1 text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full animate-pulse">
+                    <span className="flex items-center gap-1 text-xs bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 px-2 py-1 rounded-full animate-pulse">
                       <AlertCircle className="w-3 h-3" />
                       Rejected - Reverify
                     </span>
                   ) : invoice.is_staff_verified ? (
-                    <span className="flex items-center gap-1 text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full animate-pulse">
+                    <span className="flex items-center gap-1 text-xs bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 px-2 py-1 rounded-full animate-pulse">
                       <AlertCircle className="w-3 h-3" />
                       Awaiting Admin Approval
                     </span>
                   ) : (
-                    <span className="flex items-center gap-1 text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full animate-pulse">
+                    <span className="flex items-center gap-1 text-xs bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 px-2 py-1 rounded-full animate-pulse">
                       <AlertCircle className="w-3 h-3" />
                       Staff Verification Required
                     </span>
                   )}
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 text-xs md:text-sm">
-                  <div className="flex items-center gap-2 text-gray-600">
+                  <div className="flex items-center gap-2 text-gray-600 dark:text-slate-400">
                     <Calendar className="w-3 h-3 md:w-4 md:h-4" />
                     {new Date(invoice.invoice_date).toLocaleDateString()}
                   </div>
-                  <div className="flex items-center gap-2 text-gray-600">
+                  <div className="flex items-center gap-2 text-gray-600 dark:text-slate-400">
                     <Package className="w-3 h-3 md:w-4 md:h-4" />
                     {invoice.total_items} items
                   </div>
-                  <div className="flex items-center gap-2 text-green-600 font-semibold">
+                  <div className="flex items-center gap-2 text-green-600 dark:text-green-400 font-semibold">
                     <IndianRupee className="w-3 h-3 md:w-4 md:h-4" />
                     ₹{invoice.net_amount.toFixed(2)}
                   </div>
-                  <div className="text-gray-700 font-medium">
+                  <div className="text-gray-700 dark:text-slate-300 font-medium">
                     {invoice.supplier_name}
                   </div>
                 </div>
-                <div className="mt-2 text-[10px] md:text-xs text-gray-500">
+                <div className="mt-2 text-[10px] md:text-xs text-gray-500 dark:text-slate-500">
                   Uploaded by: {invoice.staff_name}
                   {invoice.staff_verified_by_name && (
                     <span className="ml-2 md:ml-3 text-green-600">
@@ -211,9 +211,9 @@ const InvoiceList = ({ refresh }) => {
                 <button
                   onClick={() => handleEdit(invoice.id, invoice.is_distributor_invoice)}
                   className={`p-2 rounded-lg transition-colors ${
-                    invoice.is_admin_verified 
-                      ? 'text-gray-400 cursor-not-allowed' 
-                      : 'text-orange-600 hover:bg-orange-50'
+                    invoice.is_admin_verified
+                      ? 'text-gray-400 dark:text-slate-600 cursor-not-allowed'
+                      : 'text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20'
                   }`}
                   title={invoice.is_admin_verified ? 'Already approved - Contact admin' : invoice.is_distributor_invoice ? 'Verify Invoice' : 'Edit & Verify'}
                 >
@@ -221,7 +221,7 @@ const InvoiceList = ({ refresh }) => {
                 </button>
                 <button
                   onClick={() => handleView(invoice.id, invoice.is_distributor_invoice)}
-                  className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                  className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
                   title="View Details"
                 >
                   <Eye className="w-4 h-4 md:w-5 md:h-5" />
@@ -229,7 +229,7 @@ const InvoiceList = ({ refresh }) => {
                 {!invoice.is_staff_verified && !invoice.is_distributor_invoice && (
                   <button
                     onClick={() => handleDelete(invoice.id, invoice.is_distributor_invoice)}
-                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                     title="Delete"
                   >
                     <Trash2 className="w-4 h-4 md:w-5 md:h-5" />
@@ -242,8 +242,8 @@ const InvoiceList = ({ refresh }) => {
       </div>
 
       {filteredInvoices.length === 0 && (
-        <div className="bg-white rounded-xl shadow-lg border border-slate-200 text-center py-8 md:py-12 text-gray-500">
-          <FileText className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-4 text-gray-300" />
+        <div className="bg-white dark:bg-slate-800/80 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700/50 text-center py-8 md:py-12 text-gray-500 dark:text-slate-400">
+          <FileText className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-4 text-gray-300 dark:text-slate-600" />
           <p className="text-sm md:text-base">No invoices found</p>
         </div>
       )}

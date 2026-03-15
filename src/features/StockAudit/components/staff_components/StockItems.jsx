@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { staffStockAuditAPI } from '../../services/staff_stock_audit_apis'
 import { Plus, Edit, Trash2, Download, Package, AlertCircle, CheckCircle, List, Settings, Upload } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -461,19 +461,19 @@ const StockItems = () => {
   const displayItems = activeTab === 'all' ? items : unassignedItems
 
   return (
-    <div className="bg-white rounded-lg shadow p-6 mb-8">
+    <div className="bg-white dark:bg-slate-800/80 rounded-lg shadow dark:border dark:border-slate-700/50 p-6 mb-8">
       <div className="flex justify-between items-center mb-4">
         <div className="flex gap-4">
           <div className="flex gap-2 border-b">
             <button 
               onClick={() => setActiveTab('all')}
-              className={`px-4 py-2 ${activeTab === 'all' ? 'border-b-2 border-primary-600 text-primary-600 font-semibold' : 'text-gray-600'}`}
+              className={`px-4 py-2 ${activeTab === 'all' ? 'border-b-2 border-primary-600 text-primary-600 font-semibold' : 'text-gray-600 dark:text-slate-400'}`}
             >
               All Items ({allTotal})
             </button>
             <button 
               onClick={() => setActiveTab('unassigned')}
-              className={`px-4 py-2 flex items-center gap-2 ${activeTab === 'unassigned' ? 'border-b-2 border-orange-600 text-orange-600 font-semibold' : 'text-gray-600'}`}
+              className={`px-4 py-2 flex items-center gap-2 ${activeTab === 'unassigned' ? 'border-b-2 border-orange-600 text-orange-600 font-semibold' : 'text-gray-600 dark:text-slate-400'}`}
             >
               <AlertCircle className="w-4 h-4" />
               Unassigned ({unassignedTotal})
@@ -560,7 +560,7 @@ const StockItems = () => {
           `}</style>
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="px-4 py-2 border-2 border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 flex items-center gap-2 transition-all duration-200"
+            className="px-4 py-2 border-2 border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700/30 hover:border-gray-400 flex items-center gap-2 transition-all duration-200 dark:text-slate-300"
           >
             <Settings className="w-4 h-4" />
             {showFilters ? 'Hide Filters' : 'Show Filters'}
@@ -568,44 +568,44 @@ const StockItems = () => {
         </div>
         
         {showFilters && (
-          <div className="p-4 bg-gray-50 rounded-lg border">
+          <div className="p-4 bg-gray-50 dark:bg-slate-700/30 rounded-lg border dark:border-slate-700/50">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Composition</label>
+                <label className="block text-xs font-medium text-gray-700 dark:text-slate-300 mb-1">Composition</label>
                 <input
                   type="text"
                   placeholder="Filter by composition"
                   value={filters.composition}
                   onChange={(e) => setFilters({...filters, composition: e.target.value})}
-                  className="w-full px-3 py-2 border rounded"
+                  className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Manufacturer</label>
+                <label className="block text-xs font-medium text-gray-700 dark:text-slate-300 mb-1">Manufacturer</label>
                 <input
                   type="text"
                   placeholder="Filter by manufacturer"
                   value={filters.manufacturer}
                   onChange={(e) => setFilters({...filters, manufacturer: e.target.value})}
-                  className="w-full px-3 py-2 border rounded"
+                  className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Batch Number</label>
+                <label className="block text-xs font-medium text-gray-700 dark:text-slate-300 mb-1">Batch Number</label>
                 <input
                   type="text"
                   placeholder="Filter by batch"
                   value={filters.batch_number}
                   onChange={(e) => setFilters({...filters, batch_number: e.target.value})}
-                  className="w-full px-3 py-2 border rounded"
+                  className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Rack</label>
+                <label className="block text-xs font-medium text-gray-700 dark:text-slate-300 mb-1">Rack</label>
                 <select
                   value={filters.rack_id}
                   onChange={(e) => setFilters({...filters, rack_id: e.target.value, section_id: ''})}
-                  className="w-full px-3 py-2 border rounded"
+                  className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                 >
                   <option value="">All Racks</option>
                   {racks.map(rack => (
@@ -614,11 +614,11 @@ const StockItems = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Section</label>
+                <label className="block text-xs font-medium text-gray-700 dark:text-slate-300 mb-1">Section</label>
                 <select
                   value={filters.section_id}
                   onChange={(e) => setFilters({...filters, section_id: e.target.value})}
-                  className="w-full px-3 py-2 border rounded"
+                  className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                 >
                   <option value="">All Sections</option>
                   {sections
@@ -630,27 +630,27 @@ const StockItems = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Expiry After</label>
+                <label className="block text-xs font-medium text-gray-700 dark:text-slate-300 mb-1">Expiry After</label>
                 <input
                   type="date"
                   value={filters.expiry_after}
                   onChange={(e) => setFilters({...filters, expiry_after: e.target.value})}
-                  className="w-full px-3 py-2 border rounded"
+                  className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Expiry Before</label>
+                <label className="block text-xs font-medium text-gray-700 dark:text-slate-300 mb-1">Expiry Before</label>
                 <input
                   type="date"
                   value={filters.expiry_before}
                   onChange={(e) => setFilters({...filters, expiry_before: e.target.value})}
-                  className="w-full px-3 py-2 border rounded"
+                  className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                 />
               </div>
               <div className="flex items-end">
                 <button
                   onClick={() => setFilters({ composition: '', manufacturer: '', batch_number: '', expiry_before: '', expiry_after: '', rack_id: '', section_id: '' })}
-                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 w-full"
+                  className="px-4 py-2 bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300 rounded hover:bg-gray-300 dark:hover:bg-slate-600 w-full"
                 >
                   Clear Filters
                 </button>
@@ -661,7 +661,7 @@ const StockItems = () => {
       </div>
 
       {showBulkForm && (
-        <div className="mb-6 bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl border-2 border-purple-300 shadow-lg">
+        <div className="mb-6 bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-xl border-2 border-purple-300 dark:border-purple-800/40 shadow-lg">
           <div className="bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-4 rounded-t-xl">
             <h3 className="text-xl font-bold text-white flex items-center gap-2">
               <List className="w-6 h-6" />
@@ -671,12 +671,12 @@ const StockItems = () => {
           
           <form onSubmit={handleBulkSubmit} className="p-6">
             {/* Top Box - Section Selection */}
-            <div className="mb-6 p-4 bg-white rounded-lg border-2 border-purple-300 shadow-sm">
-              <label className="block text-sm font-bold text-gray-800 mb-3">Select Rack & Section *</label>
-              <select 
-                value={bulkSection} 
-                onChange={(e) => setBulkSection(e.target.value)} 
-                className="w-full px-4 py-3 border-2 border-purple-300 rounded-lg text-base focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white"
+            <div className="mb-6 p-4 bg-white dark:bg-slate-800/60 rounded-lg border-2 border-purple-300 dark:border-purple-800/40 shadow-sm">
+              <label className="block text-sm font-bold text-gray-800 dark:text-white mb-3">Select Rack & Section *</label>
+              <select
+                value={bulkSection}
+                onChange={(e) => setBulkSection(e.target.value)}
+                className="w-full px-4 py-3 border-2 border-purple-300 rounded-lg text-base focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                 required
               >
                 <option value="">Choose Section</option>
@@ -690,9 +690,9 @@ const StockItems = () => {
             {/* Items List */}
             <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
               {bulkItems.map((item, idx) => (
-                <div key={idx} className="p-5 bg-white rounded-lg border-2 border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                <div key={idx} className="p-5 bg-white dark:bg-slate-800/60 rounded-lg border-2 border-gray-200 dark:border-slate-700/50 shadow-sm hover:shadow-md transition-shadow">
                   <div className="flex justify-between items-center mb-4">
-                    <span className="font-bold text-base text-purple-700">Item {idx + 1}</span>
+                    <span className="font-bold text-base text-purple-700 dark:text-purple-400">Item {idx + 1}</span>
                     {bulkItems.length > 1 && (
                       <button 
                         type="button" 
@@ -708,45 +708,45 @@ const StockItems = () => {
                   {/* Row 1: Required Fields */}
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
                     <div>
-                      <label className="block text-xs font-semibold text-gray-700 mb-1">Product Name *</label>
+                      <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">Product Name *</label>
                       <ProductAutocomplete
                         value={item.product_name}
                         onChange={(value) => updateBulkItem(idx, 'product_name', value)}
                         placeholder="DAPAGLIFLOZIN"
-                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        className="w-full px-3 py-2 border-2 border-gray-300 dark:border-slate-600 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-slate-700 dark:text-white dark:placeholder-slate-400"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-gray-700 mb-1">Batch *</label>
+                      <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">Batch *</label>
                       <input 
                         type="text" 
                         placeholder="B12345" 
                         value={item.batch_number} 
                         onChange={(e) => updateBulkItem(idx, 'batch_number', e.target.value)} 
-                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500" 
+                        className="w-full px-3 py-2 border-2 border-gray-300 dark:border-slate-600 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-slate-700 dark:text-white dark:placeholder-slate-400"
                         required 
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-gray-700 mb-1">Qty *</label>
+                      <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">Qty *</label>
                       <input 
                         type="number" 
                         placeholder="100" 
                         value={item.quantity_software} 
                         onChange={(e) => updateBulkItem(idx, 'quantity_software', e.target.value)} 
-                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500" 
+                        className="w-full px-3 py-2 border-2 border-gray-300 dark:border-slate-600 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-slate-700 dark:text-white dark:placeholder-slate-400"
                         required 
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-gray-700 mb-1">Price *</label>
+                      <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">Price *</label>
                       <input 
                         type="number" 
                         step="0.01" 
                         placeholder="₹45.50" 
                         value={item.unit_price} 
                         onChange={(e) => updateBulkItem(idx, 'unit_price', e.target.value)} 
-                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500" 
+                        className="w-full px-3 py-2 border-2 border-gray-300 dark:border-slate-600 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-slate-700 dark:text-white dark:placeholder-slate-400"
                         required 
                       />
                     </div>
@@ -755,42 +755,42 @@ const StockItems = () => {
                   {/* Row 2: Optional Fields */}
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
                     <div>
-                      <label className="block text-xs font-semibold text-gray-700 mb-1">Composition</label>
+                      <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">Composition</label>
                       <CompositionAutocomplete
                         value={item.composition}
                         onChange={(value) => updateBulkItem(idx, 'composition', value)}
                         placeholder="10mg Tablet"
-                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        className="w-full px-3 py-2 border-2 border-gray-300 dark:border-slate-600 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-slate-700 dark:text-white dark:placeholder-slate-400"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-gray-700 mb-1">Manufacturer</label>
+                      <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">Manufacturer</label>
                       <input 
                         type="text" 
                         placeholder="Sun Pharma" 
                         value={item.manufacturer} 
                         onChange={(e) => updateBulkItem(idx, 'manufacturer', e.target.value)} 
-                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500" 
+                        className="w-full px-3 py-2 border-2 border-gray-300 dark:border-slate-600 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-slate-700 dark:text-white dark:placeholder-slate-400"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-gray-700 mb-1">HSN</label>
+                      <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">HSN</label>
                       <input 
                         type="text" 
                         placeholder="30049" 
                         value={item.hsn_code} 
                         onChange={(e) => updateBulkItem(idx, 'hsn_code', e.target.value)} 
-                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500" 
+                        className="w-full px-3 py-2 border-2 border-gray-300 dark:border-slate-600 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-slate-700 dark:text-white dark:placeholder-slate-400"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-gray-700 mb-1">Package</label>
+                      <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">Package</label>
                       <input 
                         type="text" 
                         placeholder="10x10" 
                         value={item.package} 
                         onChange={(e) => updateBulkItem(idx, 'package', e.target.value)} 
-                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500" 
+                        className="w-full px-3 py-2 border-2 border-gray-300 dark:border-slate-600 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-slate-700 dark:text-white dark:placeholder-slate-400"
                       />
                     </div>
                   </div>
@@ -798,31 +798,31 @@ const StockItems = () => {
                   {/* Row 3: Dates and Unit */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
                     <div>
-                      <label className="block text-xs font-semibold text-gray-700 mb-1">Unit</label>
+                      <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">Unit</label>
                       <input 
                         type="text" 
                         placeholder="TAB" 
                         value={item.unit} 
                         onChange={(e) => updateBulkItem(idx, 'unit', e.target.value)} 
-                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500" 
+                        className="w-full px-3 py-2 border-2 border-gray-300 dark:border-slate-600 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-slate-700 dark:text-white dark:placeholder-slate-400"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-gray-700 mb-1">Mfg Date</label>
+                      <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">Mfg Date</label>
                       <input 
                         type="date" 
                         value={item.manufacturing_date} 
                         onChange={(e) => updateBulkItem(idx, 'manufacturing_date', e.target.value)} 
-                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500" 
+                        className="w-full px-3 py-2 border-2 border-gray-300 dark:border-slate-600 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-slate-700 dark:text-white dark:placeholder-slate-400"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-gray-700 mb-1">Expiry Date *</label>
+                      <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">Expiry Date *</label>
                       <input 
                         type="date" 
                         value={item.expiry_date} 
                         onChange={(e) => updateBulkItem(idx, 'expiry_date', e.target.value)} 
-                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500" 
+                        className="w-full px-3 py-2 border-2 border-gray-300 dark:border-slate-600 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-slate-700 dark:text-white dark:placeholder-slate-400"
                         required 
                       />
                     </div>
@@ -831,35 +831,35 @@ const StockItems = () => {
                   {/* Row 4: Pricing */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <div>
-                      <label className="block text-xs font-semibold text-gray-700 mb-1">MRP</label>
+                      <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">MRP</label>
                       <input 
                         type="text" 
                         placeholder="₹50.00" 
                         value={item.mrp} 
                         onChange={(e) => updateBulkItem(idx, 'mrp', e.target.value)} 
-                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500" 
+                        className="w-full px-3 py-2 border-2 border-gray-300 dark:border-slate-600 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-slate-700 dark:text-white dark:placeholder-slate-400"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-gray-700 mb-1">Selling Price</label>
+                      <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">Selling Price</label>
                       <input 
                         type="number" 
                         step="0.01" 
                         placeholder="₹48.00" 
                         value={item.selling_price} 
                         onChange={(e) => updateBulkItem(idx, 'selling_price', e.target.value)} 
-                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500" 
+                        className="w-full px-3 py-2 border-2 border-gray-300 dark:border-slate-600 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-slate-700 dark:text-white dark:placeholder-slate-400"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-gray-700 mb-1">Margin %</label>
+                      <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">Margin %</label>
                       <input 
                         type="number" 
                         step="0.01" 
                         placeholder="5.5%" 
                         value={item.profit_margin} 
                         onChange={(e) => updateBulkItem(idx, 'profit_margin', e.target.value)} 
-                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500" 
+                        className="w-full px-3 py-2 border-2 border-gray-300 dark:border-slate-600 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-slate-700 dark:text-white dark:placeholder-slate-400"
                       />
                     </div>
                   </div>
@@ -891,7 +891,7 @@ const StockItems = () => {
                   setBulkSection(''); 
                   setBulkItems([{ product_name: '', batch_number: '', quantity_software: '', unit_price: '', composition: '', manufacturer: '', hsn_code: '', package: '', unit: '', expiry_date: '', manufacturing_date: '', mrp: '', selling_price: '', profit_margin: '' }]) 
                 }} 
-                className="px-5 py-2.5 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 font-medium shadow-md hover:shadow-lg transition-all"
+                className="px-5 py-2.5 bg-gray-300 dark:bg-slate-700 text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-400 dark:hover:bg-slate-600 font-medium shadow-md hover:shadow-lg transition-all"
               >
                 Cancel
               </button>
@@ -901,17 +901,17 @@ const StockItems = () => {
       )}
 
       {activeTab === 'unassigned' && unassignedItems.length > 0 && (
-        <div className="mb-4 p-4 bg-orange-50 rounded border-2 border-orange-200">
-          <h3 className="text-sm font-bold mb-3 text-orange-900">Bulk Assign Section</h3>
+        <div className="mb-4 p-4 bg-orange-50 dark:bg-orange-900/20 rounded border-2 border-orange-200 dark:border-orange-800/40">
+          <h3 className="text-sm font-bold mb-3 text-orange-900 dark:text-orange-300">Bulk Assign Section</h3>
           <div className="flex gap-3 items-end">
             <div className="flex-1">
-              <label className="block text-xs font-medium text-gray-700 mb-1">
+              <label className="block text-xs font-medium text-gray-700 dark:text-slate-300 mb-1">
                 Select Rack & Section ({selectedUnassignedItems.length} items selected)
               </label>
               <select 
                 value={bulkAssignSection} 
                 onChange={(e) => setBulkAssignSection(e.target.value)} 
-                className="w-full px-3 py-2 border-2 border-orange-300 rounded"
+                className="w-full px-3 py-2 border-2 border-orange-300 dark:border-slate-600 rounded dark:bg-slate-700 dark:text-white"
               >
                 <option value="">Choose Section</option>
                 {sections.map((section) => {
@@ -932,77 +932,77 @@ const StockItems = () => {
       )}
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="mb-6 p-4 bg-gray-50 rounded">
+        <form onSubmit={handleSubmit} className="mb-6 p-4 bg-gray-50 dark:bg-slate-700/30 rounded dark:border dark:border-slate-700/50">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Product Name *</label>
+              <label className="block text-xs font-medium text-gray-700 dark:text-slate-300 mb-1">Product Name *</label>
               <ProductAutocomplete
                 value={formData.product_name}
                 onChange={(value) => handleFormFieldChange('product_name', value)}
                 placeholder="e.g., Paracetamol 500mg"
-                className="w-full px-3 py-2 border rounded"
+                className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Composition</label>
+              <label className="block text-xs font-medium text-gray-700 dark:text-slate-300 mb-1">Composition</label>
               <CompositionAutocomplete
                 value={formData.composition}
                 onChange={(value) => handleFormFieldChange('composition', value)}
                 placeholder="e.g., Paracetamol 500mg"
-                className="w-full px-3 py-2 border rounded"
+                className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Manufacturer</label>
-              <input type="text" placeholder="e.g., ELEG" value={formData.manufacturer} onChange={(e) => handleFormFieldChange('manufacturer', e.target.value)} className="w-full px-3 py-2 border rounded" />
+              <label className="block text-xs font-medium text-gray-700 dark:text-slate-300 mb-1">Manufacturer</label>
+              <input type="text" placeholder="e.g., ELEG" value={formData.manufacturer} onChange={(e) => handleFormFieldChange('manufacturer', e.target.value)} className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">HSN Code</label>
-              <input type="text" placeholder="e.g., 30042064" value={formData.hsn_code} onChange={(e) => handleFormFieldChange('hsn_code', e.target.value)} className="w-full px-3 py-2 border rounded" />
+              <label className="block text-xs font-medium text-gray-700 dark:text-slate-300 mb-1">HSN Code</label>
+              <input type="text" placeholder="e.g., 30042064" value={formData.hsn_code} onChange={(e) => handleFormFieldChange('hsn_code', e.target.value)} className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Batch Number *</label>
-              <input type="text" placeholder="e.g., 4D116" value={formData.batch_number} onChange={(e) => handleFormFieldChange('batch_number', e.target.value)} className="w-full px-3 py-2 border rounded" required />
+              <label className="block text-xs font-medium text-gray-700 dark:text-slate-300 mb-1">Batch Number *</label>
+              <input type="text" placeholder="e.g., 4D116" value={formData.batch_number} onChange={(e) => handleFormFieldChange('batch_number', e.target.value)} className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white" required />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Package</label>
-              <input type="text" placeholder="e.g., 10 X 6" value={formData.package} onChange={(e) => handleFormFieldChange('package', e.target.value)} className="w-full px-3 py-2 border rounded" />
+              <label className="block text-xs font-medium text-gray-700 dark:text-slate-300 mb-1">Package</label>
+              <input type="text" placeholder="e.g., 10 X 6" value={formData.package} onChange={(e) => handleFormFieldChange('package', e.target.value)} className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Unit</label>
-              <input type="text" placeholder="e.g., Strip, Box" value={formData.unit} onChange={(e) => handleFormFieldChange('unit', e.target.value)} className="w-full px-3 py-2 border rounded" />
+              <label className="block text-xs font-medium text-gray-700 dark:text-slate-300 mb-1">Unit</label>
+              <input type="text" placeholder="e.g., Strip, Box" value={formData.unit} onChange={(e) => handleFormFieldChange('unit', e.target.value)} className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Expiry Date *</label>
-              <input type="date" value={formData.expiry_date} onChange={(e) => handleFormFieldChange('expiry_date', e.target.value)} className="w-full px-3 py-2 border rounded" required />
+              <label className="block text-xs font-medium text-gray-700 dark:text-slate-300 mb-1">Expiry Date *</label>
+              <input type="date" value={formData.expiry_date} onChange={(e) => handleFormFieldChange('expiry_date', e.target.value)} className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white" required />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Mfg Date</label>
-              <input type="date" value={formData.manufacturing_date} onChange={(e) => handleFormFieldChange('manufacturing_date', e.target.value)} className="w-full px-3 py-2 border rounded" />
+              <label className="block text-xs font-medium text-gray-700 dark:text-slate-300 mb-1">Mfg Date</label>
+              <input type="date" value={formData.manufacturing_date} onChange={(e) => handleFormFieldChange('manufacturing_date', e.target.value)} className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">MRP</label>
-              <input type="text" placeholder="e.g., 69.00/STRIP" value={formData.mrp} onChange={(e) => handleFormFieldChange('mrp', e.target.value)} className="w-full px-3 py-2 border rounded" />
+              <label className="block text-xs font-medium text-gray-700 dark:text-slate-300 mb-1">MRP</label>
+              <input type="text" placeholder="e.g., 69.00/STRIP" value={formData.mrp} onChange={(e) => handleFormFieldChange('mrp', e.target.value)} className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Purchase Price *</label>
-              <input type="number" step="0.01" placeholder="e.g., 74.45" value={formData.unit_price} onChange={(e) => handleFormFieldChange('unit_price', e.target.value)} className="w-full px-3 py-2 border rounded" required />
+              <label className="block text-xs font-medium text-gray-700 dark:text-slate-300 mb-1">Purchase Price *</label>
+              <input type="number" step="0.01" placeholder="e.g., 74.45" value={formData.unit_price} onChange={(e) => handleFormFieldChange('unit_price', e.target.value)} className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white" required />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Selling Price</label>
-              <input type="number" step="0.01" placeholder="e.g., 85.00" value={formData.selling_price} onChange={(e) => handleFormFieldChange('selling_price', e.target.value)} className="w-full px-3 py-2 border rounded" />
+              <label className="block text-xs font-medium text-gray-700 dark:text-slate-300 mb-1">Selling Price</label>
+              <input type="number" step="0.01" placeholder="e.g., 85.00" value={formData.selling_price} onChange={(e) => handleFormFieldChange('selling_price', e.target.value)} className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Profit Margin %</label>
-              <input type="number" step="0.01" placeholder="e.g., 15.5" value={formData.profit_margin} onChange={(e) => handleFormFieldChange('profit_margin', e.target.value)} className="w-full px-3 py-2 border rounded" />
+              <label className="block text-xs font-medium text-gray-700 dark:text-slate-300 mb-1">Profit Margin %</label>
+              <input type="number" step="0.01" placeholder="e.g., 15.5" value={formData.profit_margin} onChange={(e) => handleFormFieldChange('profit_margin', e.target.value)} className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Quantity *</label>
-              <input type="number" placeholder="e.g., 5" value={formData.quantity_software} onChange={(e) => handleFormFieldChange('quantity_software', e.target.value)} className="w-full px-3 py-2 border rounded" required />
+              <label className="block text-xs font-medium text-gray-700 dark:text-slate-300 mb-1">Quantity *</label>
+              <input type="number" placeholder="e.g., 5" value={formData.quantity_software} onChange={(e) => handleFormFieldChange('quantity_software', e.target.value)} className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white" required />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Section (Optional)</label>
-              <select value={formData.section_id} onChange={(e) => handleFormFieldChange('section_id', e.target.value)} className="w-full px-3 py-2 border rounded">
+              <label className="block text-xs font-medium text-gray-700 dark:text-slate-300 mb-1">Section (Optional)</label>
+              <select value={formData.section_id} onChange={(e) => handleFormFieldChange('section_id', e.target.value)} className="w-full px-3 py-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white">
                 <option value="">Select Section</option>
                 {sections.map((section) => {
                   const rack = racks.find(r => r.id === section.rack_id)
@@ -1013,28 +1013,28 @@ const StockItems = () => {
           </div>
           <div className="mt-4 flex gap-2">
             <button type="submit" className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">{editingItem ? 'Update' : 'Save'}</button>
-            <button type="button" onClick={resetForm} className="px-4 py-2 bg-gray-300 rounded">Cancel</button>
+            <button type="button" onClick={resetForm} className="px-4 py-2 bg-gray-300 dark:bg-slate-700 dark:text-slate-300 rounded dark:hover:bg-slate-600">Cancel</button>
           </div>
         </form>
       )}
 
-      <div className="mb-3 flex items-center gap-2 text-sm text-gray-600 bg-blue-50 px-4 py-2 rounded-lg border border-blue-200">
+      <div className="mb-3 flex items-center gap-2 text-sm text-gray-600 dark:text-slate-400 bg-blue-50 dark:bg-blue-900/20 px-4 py-2 rounded-lg border border-blue-200 dark:border-blue-800/40">
         <AlertCircle className="w-4 h-4 text-blue-600" />
         <span>Scroll right to see the full table</span>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-gray-200 shadow-lg mt-6">
+      <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-slate-700/50 shadow-lg mt-6">
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading stock items...</p>
+              <p className="text-gray-600 dark:text-slate-400">Loading stock items...</p>
             </div>
           </div>
         ) : (
           <table className="w-full">
             <thead>
-              <tr className="bg-gradient-to-r from-blue-100/80 via-sky-100/80 to-cyan-100/80 backdrop-blur-sm border-b border-blue-200/50">
+              <tr className="bg-gradient-to-r from-blue-100/80 via-sky-100/80 to-cyan-100/80 dark:from-slate-700/50 dark:via-slate-700/50 dark:to-slate-700/50 backdrop-blur-sm border-b border-blue-200/50 dark:border-slate-700/50">
                 {activeTab === 'unassigned' && (
                   <th className="px-6 py-4 text-center">
                     <input 
@@ -1045,32 +1045,32 @@ const StockItems = () => {
                     />
                   </th>
                 )}
-                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Product</th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Composition</th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Mfg</th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Batch</th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Unit</th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Expiry</th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Qty (S/P)</th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Purchase ₹</th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Selling ₹</th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Margin %</th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Value</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Product</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Composition</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Mfg</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Batch</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Unit</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Expiry</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Qty (S/P)</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Purchase ₹</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Selling ₹</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Margin %</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Value</th>
                 {activeTab === 'unassigned' && (
-                  <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Assign Section</th>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Assign Section</th>
                 )}
                 {activeTab === 'all' && (
                   <>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Rack/Section</th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Discrepancy</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Rack/Section</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Discrepancy</th>
                   </>
                 )}
-                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">Actions</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-100">
+            <tbody className="bg-white dark:bg-slate-800/80 divide-y divide-gray-100 dark:divide-slate-700/50">
               {displayItems.map((item, idx) => (
-                <tr key={item.id} className={`transition-all duration-200 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:shadow-sm ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'}`}>
+                <tr key={item.id} className={`transition-all duration-200 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 dark:hover:from-blue-900/20 dark:hover:to-indigo-900/20 hover:shadow-sm ${idx % 2 === 0 ? 'bg-white dark:bg-slate-800/80' : 'bg-slate-50/50 dark:bg-slate-700/30'}`}>
                   {activeTab === 'unassigned' && (
                     <td className="px-6 py-4 text-center">
                       <input 
@@ -1082,16 +1082,16 @@ const StockItems = () => {
                     </td>
                   )}
                   <td className="px-6 py-4">
-                    <div className="font-semibold text-gray-900 text-sm leading-tight">{item.product_name}</div>
+                    <div className="font-semibold text-gray-900 dark:text-white text-sm leading-tight">{item.product_name}</div>
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{item.composition || '-'}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{item.manufacturer || '-'}</td>
+                  <td className="px-6 py-4 text-sm text-gray-600 dark:text-slate-400">{item.composition || '-'}</td>
+                  <td className="px-6 py-4 text-sm text-gray-600 dark:text-slate-400">{item.manufacturer || '-'}</td>
                   <td className="px-6 py-4">
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 font-mono">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-slate-700 text-gray-800 dark:text-slate-300 font-mono">
                       {item.batch_number}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{item.unit || '-'}</td>
+                  <td className="px-6 py-4 text-sm text-gray-600 dark:text-slate-400">{item.unit || '-'}</td>
                   <td className="px-6 py-4">
                     {item.expiry_date ? (
                       <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${
@@ -1103,12 +1103,12 @@ const StockItems = () => {
                       }`}>
                         {formatExpiry(item.expiry_date)}
                       </span>
-                    ) : <span className="text-gray-400">-</span>}
+                    ) : <span className="text-gray-400 dark:text-slate-600">-</span>}
                   </td>
                   <td className="px-6 py-4">
                     <div className="text-sm">
-                      <span className="font-bold text-gray-900 text-lg">{item.quantity_software}</span>
-                      {item.quantity_physical !== null && <span className="text-gray-500 ml-1">/ {item.quantity_physical}</span>}
+                      <span className="font-bold text-gray-900 dark:text-white text-lg">{item.quantity_software}</span>
+                      {item.quantity_physical !== null && <span className="text-gray-500 dark:text-slate-500 ml-1">/ {item.quantity_physical}</span>}
                     </div>
                   </td>
                   <td className="px-6 py-4">
@@ -1127,7 +1127,7 @@ const StockItems = () => {
                       }`}>
                         {item.profit_margin.toFixed(1)}%
                       </span>
-                    ) : <span className="text-gray-400">-</span>}
+                    ) : <span className="text-gray-400 dark:text-slate-600">-</span>}
                   </td>
                   <td className="px-6 py-4">
                     <span className="font-bold text-blue-700 text-sm">
@@ -1144,7 +1144,7 @@ const StockItems = () => {
                             handleAssignSection(item.id, sectionId)
                           }
                         }}
-                        className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-white"
                       >
                         <option value="">Select Section</option>
                         {sections.map((section) => {
@@ -1158,22 +1158,22 @@ const StockItems = () => {
                       <td className="px-6 py-4">
                         {item.rack_name && item.section_name ? (
                           <div className="flex flex-col gap-1">
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-800 border border-purple-200">
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800/40">
                               {item.rack_name}
                             </span>
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 border border-blue-200">
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800/40">
                               {item.section_name}
                             </span>
                           </div>
                         ) : (
-                          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800 border border-orange-200">
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300 border border-orange-200 dark:border-orange-800/40">
                             Unassigned
                           </span>
                         )}
                       </td>
                       <td className="px-6 py-4">
                         {item.audit_discrepancy !== 0 && item.audit_discrepancy !== null ? (
-                          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800 border border-red-200">
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800/40">
                             {item.audit_discrepancy > 0 ? '+' : ''}{item.audit_discrepancy}
                           </span>
                         ) : '-'}
@@ -1202,9 +1202,9 @@ const StockItems = () => {
           </table>
         )}
         {!loading && displayItems.length === 0 && (
-          <div className="text-center py-16 bg-white">
+          <div className="text-center py-16 bg-white dark:bg-slate-800/80">
             <Package className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-            <p className="text-gray-500 text-lg">{activeTab === 'unassigned' ? 'No unassigned items' : 'No items found'}</p>
+            <p className="text-gray-500 dark:text-slate-500 text-lg">{activeTab === 'unassigned' ? 'No unassigned items' : 'No items found'}</p>
           </div>
         )}
       </div>

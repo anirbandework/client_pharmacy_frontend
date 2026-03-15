@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect } from 'react'
 
 const ThemeContext = createContext()
 
@@ -13,7 +13,8 @@ export const useTheme = () => {
 export const ThemeProvider = ({ children }) => {
   const [isDark, setIsDark] = useState(() => {
     const saved = localStorage.getItem('theme')
-    return saved === 'dark'
+    // Default to dark if nothing saved yet (matches current app aesthetic)
+    return saved ? saved === 'dark' : true
   })
 
   useEffect(() => {

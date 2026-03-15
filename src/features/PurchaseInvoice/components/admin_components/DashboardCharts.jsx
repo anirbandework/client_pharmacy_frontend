@@ -1,4 +1,3 @@
-import React from 'react'
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { TrendingUp, Package, IndianRupee, AlertTriangle } from 'lucide-react'
 
@@ -64,17 +63,17 @@ const DashboardCharts = ({ data }) => {
 
       {/* No Data Message */}
       {!hasData && (
-        <div className="bg-white rounded-xl shadow-md p-12 text-center">
-          <Package className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-          <h3 className="text-xl font-semibold text-gray-600 mb-2">No Invoice Data Available</h3>
-          <p className="text-gray-500">Upload invoices to see analytics and insights here.</p>
+        <div className="bg-white dark:bg-slate-800/80 rounded-xl shadow-md border border-slate-200 dark:border-slate-700/50 p-12 text-center">
+          <Package className="w-16 h-16 mx-auto text-gray-300 dark:text-slate-600 mb-4" />
+          <h3 className="text-xl font-semibold text-gray-600 dark:text-slate-400 mb-2">No Invoice Data Available</h3>
+          <p className="text-gray-500 dark:text-slate-500">Upload invoices to see analytics and insights here.</p>
         </div>
       )}
 
       {/* Spending Trends - Line Chart */}
       {data.spending_trends?.monthly?.length > 0 && (
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <h3 className="text-lg font-bold text-gray-800 mb-4">Monthly Spending Trends</h3>
+        <div className="bg-white dark:bg-slate-800/80 rounded-xl shadow-md border border-slate-200 dark:border-slate-700/50 p-6">
+          <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4">Monthly Spending Trends</h3>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={data.spending_trends.monthly}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -118,8 +117,8 @@ const DashboardCharts = ({ data }) => {
 
         {/* Expiry Timeline - Bar Chart */}
         <div className="bg-white rounded-xl shadow-md p-6">
-          <h3 className="text-lg font-bold text-gray-800 mb-2">Expiry Timeline</h3>
-          <p className="text-sm text-gray-600 mb-4">Items categorized by expiry status</p>
+          <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2">Expiry Timeline</h3>
+          <p className="text-sm text-gray-600 dark:text-slate-400 mb-4">Items categorized by expiry status</p>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={data.expiry_timeline?.categories || []}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -135,8 +134,8 @@ const DashboardCharts = ({ data }) => {
 
       {/* Top Products - Bar Chart */}
       {data.product_insights?.top_by_spend?.length > 0 && (
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <h3 className="text-lg font-bold text-gray-800 mb-4">Top Products by Spend</h3>
+        <div className="bg-white dark:bg-slate-800/80 rounded-xl shadow-md border border-slate-200 dark:border-slate-700/50 p-6">
+          <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4">Top Products by Spend</h3>
           <ResponsiveContainer width="100%" height={350}>
             <BarChart data={data.product_insights.top_by_spend.slice(0, 10)}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -152,8 +151,8 @@ const DashboardCharts = ({ data }) => {
 
       {/* Purchase Patterns - Day of Week */}
       {data.purchase_patterns?.by_day?.some(d => d.count > 0) && (
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <h3 className="text-lg font-bold text-gray-800 mb-4">Purchase Patterns by Day</h3>
+        <div className="bg-white dark:bg-slate-800/80 rounded-xl shadow-md border border-slate-200 dark:border-slate-700/50 p-6">
+          <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4">Purchase Patterns by Day</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={data.purchase_patterns.by_day}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -169,8 +168,8 @@ const DashboardCharts = ({ data }) => {
 
       {/* GST Breakdown */}
       {data.gst_breakdown?.by_rate?.length > 0 && (
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <h3 className="text-lg font-bold text-gray-800 mb-4">GST Breakdown by Rate</h3>
+        <div className="bg-white dark:bg-slate-800/80 rounded-xl shadow-md border border-slate-200 dark:border-slate-700/50 p-6">
+          <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4">GST Breakdown by Rate</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={data.gst_breakdown.by_rate}>
               <CartesianGrid strokeDasharray="3 3" />

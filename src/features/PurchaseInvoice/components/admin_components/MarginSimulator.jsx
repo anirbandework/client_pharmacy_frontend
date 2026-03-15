@@ -215,14 +215,14 @@ const MarginSimulator = () => {
   return (
     <div className="space-y-6">
       {/* Shop Filter */}
-      <div className="bg-white rounded-xl shadow-md p-4">
+      <div className="bg-white dark:bg-slate-800/80 rounded-xl shadow-md p-4">
         <div className="flex items-center gap-3">
-          <Store className="w-5 h-5 text-gray-600" />
-          <label className="text-sm font-medium text-gray-700">Filter by Shop:</label>
+          <Store className="w-5 h-5 text-gray-600 dark:text-slate-400" />
+          <label className="text-sm font-medium text-gray-700 dark:text-slate-300">Filter by Shop:</label>
           <select
             value={selectedShop || ''}
             onChange={(e) => setSelectedShop(e.target.value ? parseInt(e.target.value) : null)}
-            className="flex-1 max-w-xs px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className="flex-1 max-w-xs px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-slate-700 dark:text-white"
           >
             <option value="">All Shops</option>
             {shops.map(shop => (
@@ -233,30 +233,30 @@ const MarginSimulator = () => {
       </div>
 
       {/* Product Selection */}
-      <div className="bg-white rounded-xl shadow-md p-6">
+      <div className="bg-white dark:bg-slate-800/80 rounded-xl shadow-md p-6">
         <div className="flex items-center gap-2 mb-4">
           <Calculator className="w-5 h-5 text-purple-600" />
-          <h2 className="text-lg font-bold text-gray-800">Margin Adjustment Simulator</h2>
+          <h2 className="text-lg font-bold text-gray-800 dark:text-white">Margin Adjustment Simulator</h2>
         </div>
 
         {/* Search Products */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-1 block">Product Name</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-slate-300 mb-1 block">Product Name</label>
             <ProductAutocomplete
               value={searchProduct}
               onChange={setSearchProduct}
               placeholder="Search product..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-white dark:placeholder-slate-400"
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-1 block">Composition</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-slate-300 mb-1 block">Composition</label>
             <CompositionAutocomplete
               value={searchComposition}
               onChange={setSearchComposition}
               placeholder="Search composition..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-white dark:placeholder-slate-400"
             />
           </div>
           <div className="flex items-end">
@@ -274,26 +274,26 @@ const MarginSimulator = () => {
         {/* Available Products */}
         {availableProducts.length > 0 && (
           <div className="mb-6">
-            <h3 className="text-sm font-semibold text-gray-700 mb-2">Available Products (Click to add)</h3>
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">Available Products (Click to add)</h3>
             <div className="max-h-60 overflow-y-auto space-y-2">
               {availableProducts.map((product, idx) => (
                 <div
                   key={idx}
                   onClick={() => addItemToSelection(product)}
-                  className="p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-blue-50 hover:border-blue-300 cursor-pointer transition-all"
+                  className="p-3 bg-gray-50 dark:bg-slate-700/30 rounded-lg border border-gray-200 dark:border-slate-700/50 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-300 cursor-pointer transition-all"
                 >
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
-                      <p className="font-medium text-gray-800">{product.product_name}</p>
+                      <p className="font-medium text-gray-800 dark:text-white">{product.product_name}</p>
                       {product.composition && (
-                        <p className="text-xs text-gray-500">{product.composition}</p>
+                        <p className="text-xs text-gray-500 dark:text-slate-500">{product.composition}</p>
                       )}
                     </div>
                     <div className="text-right">
                       <p className="text-sm font-semibold text-green-600">
                         ₹{product.purchase_value.toLocaleString()}
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-gray-500 dark:text-slate-500">
                         {product.avg_purchase_margin.toFixed(1)}% margin
                       </p>
                     </div>
@@ -307,18 +307,18 @@ const MarginSimulator = () => {
         {/* Selected Items */}
         {selectedItems.length > 0 && (
           <div className="mb-6">
-            <h3 className="text-sm font-semibold text-gray-700 mb-2">
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
               Selected Items ({selectedItems.length})
             </h3>
             <div className="space-y-2 max-h-60 overflow-y-auto">
               {selectedItems.map((item, idx) => (
-                <div key={idx} className="flex items-center justify-between p-3 bg-purple-50 rounded-lg border border-purple-200">
+                <div key={idx} className="flex items-center justify-between p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800/40">
                   <div className="flex-1">
-                    <p className="font-medium text-gray-800">{item.product_name}</p>
+                    <p className="font-medium text-gray-800 dark:text-white">{item.product_name}</p>
                     {item.composition && (
-                      <p className="text-xs text-gray-500">{item.composition}</p>
+                      <p className="text-xs text-gray-500 dark:text-slate-500">{item.composition}</p>
                     )}
-                    <p className="text-xs text-gray-600 mt-1">
+                    <p className="text-xs text-gray-600 dark:text-slate-400 mt-1">
                       Current Margin: {item.current_margin.toFixed(1)}% | Qty: {item.quantity}
                     </p>
                   </div>
@@ -337,18 +337,18 @@ const MarginSimulator = () => {
         {/* Margin Adjustment Controls */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-1 block">Adjustment Type</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-slate-300 mb-1 block">Adjustment Type</label>
             <select
               value={adjustmentType}
               onChange={(e) => setAdjustmentType(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-white"
             >
               <option value="increase">Increase Margin</option>
               <option value="decrease">Decrease Margin</option>
             </select>
           </div>
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-1 block">
+            <label className="text-sm font-medium text-gray-700 dark:text-slate-300 mb-1 block">
               Margin Adjustment (%)
             </label>
             <input
@@ -356,7 +356,7 @@ const MarginSimulator = () => {
               value={marginAdjustment}
               onChange={(e) => setMarginAdjustment(parseFloat(e.target.value) || 0)}
               placeholder="e.g., 5"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-white dark:placeholder-slate-400"
               step="0.1"
             />
           </div>
@@ -372,7 +372,7 @@ const MarginSimulator = () => {
             {simulationResult && (
               <button
                 onClick={clearSimulation}
-                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+                className="px-4 py-2 bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-300 dark:hover:bg-slate-600"
               >
                 <RefreshCw className="w-4 h-4" />
               </button>
@@ -381,10 +381,10 @@ const MarginSimulator = () => {
         </div>
 
         {/* Info Box */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-start gap-2">
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/40 rounded-lg p-3 flex items-start gap-2">
           <AlertCircle className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
           <div className="flex-1">
-            <p className="text-xs text-blue-800">
+            <p className="text-xs text-blue-800 dark:text-blue-300">
               <strong>How it works:</strong> Select products, set margin adjustment, and run simulation. 
               The system will calculate new selling prices (capped at MRP), projected revenue, and profit changes.
             </p>
@@ -472,8 +472,8 @@ const MarginSimulator = () => {
           {/* Charts */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Revenue & Profit Comparison */}
-            <div className="bg-white rounded-xl shadow-md p-6">
-              <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <div className="bg-white dark:bg-slate-800/80 rounded-xl shadow-md p-6">
+              <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
                 <BarChart3 className="w-5 h-5 text-blue-600" />
                 Revenue & Profit Comparison
               </h3>
@@ -491,8 +491,8 @@ const MarginSimulator = () => {
             </div>
 
             {/* Margin Distribution */}
-            <div className="bg-white rounded-xl shadow-md p-6">
-              <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <div className="bg-white dark:bg-slate-800/80 rounded-xl shadow-md p-6">
+              <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
                 <PieChartIcon className="w-5 h-5 text-purple-600" />
                 New Margin Distribution
               </h3>
@@ -519,38 +519,38 @@ const MarginSimulator = () => {
           </div>
 
           {/* Top Impact Products */}
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+          <div className="bg-white dark:bg-slate-800/80 rounded-xl shadow-md p-6">
+            <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-green-600" />
               Top 10 Products by Profit Impact
             </h3>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead className="bg-gray-100">
+                <thead className="bg-gray-100 dark:bg-slate-700/50">
                   <tr>
-                    <th className="px-4 py-2 text-left">Product</th>
-                    <th className="px-4 py-2 text-right">Current Price</th>
-                    <th className="px-4 py-2 text-right">New Price</th>
-                    <th className="px-4 py-2 text-right">Current Margin</th>
-                    <th className="px-4 py-2 text-right">New Margin</th>
-                    <th className="px-4 py-2 text-right">Profit Change</th>
-                    <th className="px-4 py-2 text-center">MRP Status</th>
+                    <th className="px-4 py-2 text-left dark:text-slate-300">Product</th>
+                    <th className="px-4 py-2 text-right dark:text-slate-300">Current Price</th>
+                    <th className="px-4 py-2 text-right dark:text-slate-300">New Price</th>
+                    <th className="px-4 py-2 text-right dark:text-slate-300">Current Margin</th>
+                    <th className="px-4 py-2 text-right dark:text-slate-300">New Margin</th>
+                    <th className="px-4 py-2 text-right dark:text-slate-300">Profit Change</th>
+                    <th className="px-4 py-2 text-center dark:text-slate-300">MRP Status</th>
                   </tr>
                 </thead>
                 <tbody>
                   {getTopImpactProducts().map((item, idx) => (
-                    <tr key={idx} className="border-t hover:bg-gray-50">
+                    <tr key={idx} className="border-t dark:border-slate-700/50 hover:bg-gray-50 dark:hover:bg-slate-700/30">
                       <td className="px-4 py-3">
-                        <p className="font-medium text-gray-800">{item.product_name}</p>
+                        <p className="font-medium text-gray-800 dark:text-white">{item.product_name}</p>
                         {item.composition && (
-                          <p className="text-xs text-gray-500">{item.composition}</p>
+                          <p className="text-xs text-gray-500 dark:text-slate-500">{item.composition}</p>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-right">₹{item.current_selling_price.toFixed(2)}</td>
+                      <td className="px-4 py-3 text-right dark:text-slate-300">₹{item.current_selling_price.toFixed(2)}</td>
                       <td className="px-4 py-3 text-right font-semibold text-blue-600">
                         ₹{item.new_selling_price.toFixed(2)}
                       </td>
-                      <td className="px-4 py-3 text-right">{item.current_margin.toFixed(1)}%</td>
+                      <td className="px-4 py-3 text-right dark:text-slate-300">{item.current_margin.toFixed(1)}%</td>
                       <td className="px-4 py-3 text-right font-semibold text-green-600">
                         {item.new_margin.toFixed(1)}%
                       </td>
@@ -578,17 +578,17 @@ const MarginSimulator = () => {
           </div>
 
           {/* Detailed Results */}
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <h3 className="text-lg font-bold text-gray-800 mb-4">All Simulated Products</h3>
+          <div className="bg-white dark:bg-slate-800/80 rounded-xl shadow-md p-6">
+            <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4">All Simulated Products</h3>
             <div className="max-h-96 overflow-y-auto">
               <div className="space-y-3">
                 {simulationResult.items.map((item, idx) => (
-                  <div key={idx} className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <div key={idx} className="p-4 bg-gray-50 dark:bg-slate-700/30 rounded-lg border border-gray-200 dark:border-slate-700/50">
                     <div className="flex justify-between items-start mb-2">
                       <div className="flex-1">
-                        <p className="font-semibold text-gray-800">{item.product_name}</p>
+                        <p className="font-semibold text-gray-800 dark:text-white">{item.product_name}</p>
                         {item.composition && (
-                          <p className="text-xs text-gray-500">{item.composition}</p>
+                          <p className="text-xs text-gray-500 dark:text-slate-500">{item.composition}</p>
                         )}
                       </div>
                       {item.capped_by_mrp && (
@@ -599,25 +599,25 @@ const MarginSimulator = () => {
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
                       <div>
-                        <p className="text-gray-500">Price Change</p>
-                        <p className="font-semibold">
+                        <p className="text-gray-500 dark:text-slate-500">Price Change</p>
+                        <p className="font-semibold dark:text-slate-300">
                           ₹{item.current_selling_price.toFixed(2)} → ₹{item.new_selling_price.toFixed(2)}
                         </p>
                       </div>
                       <div>
-                        <p className="text-gray-500">Margin Change</p>
-                        <p className="font-semibold">
+                        <p className="text-gray-500 dark:text-slate-500">Margin Change</p>
+                        <p className="font-semibold dark:text-slate-300">
                           {item.current_margin.toFixed(1)}% → {item.new_margin.toFixed(1)}%
                         </p>
                       </div>
                       <div>
-                        <p className="text-gray-500">Revenue Impact</p>
+                        <p className="text-gray-500 dark:text-slate-500">Revenue Impact</p>
                         <p className={`font-semibold ${item.revenue_change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                           {item.revenue_change >= 0 ? '+' : ''}₹{item.revenue_change.toFixed(2)}
                         </p>
                       </div>
                       <div>
-                        <p className="text-gray-500">Profit Impact</p>
+                        <p className="text-gray-500 dark:text-slate-500">Profit Impact</p>
                         <p className={`font-semibold ${item.profit_change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                           {item.profit_change >= 0 ? '+' : ''}₹{item.profit_change.toFixed(2)}
                         </p>
