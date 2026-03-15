@@ -87,14 +87,14 @@ export default function AIInsights({ selectedShop }) {
   })
 
   if (loading) return (
-    <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-8 text-center">
+    <div className="bg-white dark:bg-slate-800/80 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700/50 p-8 text-center">
       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-      <p className="text-gray-600">Loading AI Analytics...</p>
+      <p className="text-gray-600 dark:text-slate-400">Loading AI Analytics...</p>
     </div>
   )
 
   if (error) return (
-    <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4 text-center text-red-600">{error}</div>
+    <div className="bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800/40 rounded-xl p-4 text-center text-red-600 dark:text-red-400">{error}</div>
   )
 
   if (!aiData) return null
@@ -106,10 +106,10 @@ export default function AIInsights({ selectedShop }) {
       {/* Header */}
       <div className="flex flex-wrap justify-between items-center gap-3">
         <div className="flex items-center gap-2">
-          <div className="p-2 bg-purple-100 rounded-lg">
+          <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
             <Brain className="w-5 h-5 md:w-6 md:h-6 text-purple-600" />
           </div>
-          <h2 className="text-xl md:text-2xl font-bold text-gray-800">AI-Powered Analytics</h2>
+          <h2 className="text-xl md:text-2xl font-bold text-gray-800 dark:text-white">AI-Powered Analytics</h2>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <button onClick={() => handleExport('items')} className="px-3 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:shadow-lg transition-all flex items-center gap-1 text-sm">
@@ -121,11 +121,11 @@ export default function AIInsights({ selectedShop }) {
           <button onClick={() => handleExport('adjustments')} className="px-3 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:shadow-lg transition-all flex items-center gap-1 text-sm">
             <Download className="w-4 h-4" /> Adjustments
           </button>
-          <Calendar className="w-4 h-4 text-gray-500" />
+          <Calendar className="w-4 h-4 text-gray-500 dark:text-slate-400" />
           <select
             value={days}
             onChange={(e) => setDays(parseInt(e.target.value))}
-            className="px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
+            className="px-3 py-2 border-2 border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
           >
             <option value="7">Last 7 Days</option>
             <option value="30">Last 30 Days</option>
@@ -138,24 +138,24 @@ export default function AIInsights({ selectedShop }) {
       {/* Summary Cards */}
       {summary && (
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 hover:shadow-xl transition-shadow">
-            <p className="text-xs md:text-sm text-gray-600 mb-1">Total Audits</p>
-            <p className="text-xl md:text-2xl font-bold text-gray-800">{summary.total_audits}</p>
+          <div className="bg-white dark:bg-slate-800/80 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700/50 p-4 hover:shadow-xl transition-shadow">
+            <p className="text-xs md:text-sm text-gray-600 dark:text-slate-400 mb-1">Total Audits</p>
+            <p className="text-xl md:text-2xl font-bold text-gray-800 dark:text-white">{summary.total_audits}</p>
           </div>
-          <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 hover:shadow-xl transition-shadow">
-            <p className="text-xs md:text-sm text-gray-600 mb-1">Total Items</p>
-            <p className="text-xl md:text-2xl font-bold text-gray-800">{summary.total_items}</p>
+          <div className="bg-white dark:bg-slate-800/80 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700/50 p-4 hover:shadow-xl transition-shadow">
+            <p className="text-xs md:text-sm text-gray-600 dark:text-slate-400 mb-1">Total Items</p>
+            <p className="text-xl md:text-2xl font-bold text-gray-800 dark:text-white">{summary.total_items}</p>
           </div>
-          <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 hover:shadow-xl transition-shadow">
-            <p className="text-xs md:text-sm text-gray-600 mb-1">Discrepancies</p>
+          <div className="bg-white dark:bg-slate-800/80 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700/50 p-4 hover:shadow-xl transition-shadow">
+            <p className="text-xs md:text-sm text-gray-600 dark:text-slate-400 mb-1">Discrepancies</p>
             <p className="text-xl md:text-2xl font-bold text-red-600">{summary.items_with_discrepancies}</p>
           </div>
-          <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 hover:shadow-xl transition-shadow">
-            <p className="text-xs md:text-sm text-gray-600 mb-1">Discrepancy Value</p>
+          <div className="bg-white dark:bg-slate-800/80 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700/50 p-4 hover:shadow-xl transition-shadow">
+            <p className="text-xs md:text-sm text-gray-600 dark:text-slate-400 mb-1">Discrepancy Value</p>
             <p className="text-xl md:text-2xl font-bold text-red-600">{summary.total_discrepancy_value}</p>
           </div>
-          <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 hover:shadow-xl transition-shadow">
-            <p className="text-xs md:text-sm text-gray-600 mb-1">Completion Rate</p>
+          <div className="bg-white dark:bg-slate-800/80 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700/50 p-4 hover:shadow-xl transition-shadow">
+            <p className="text-xs md:text-sm text-gray-600 dark:text-slate-400 mb-1">Completion Rate</p>
             <p className="text-xl md:text-2xl font-bold text-green-600">{summary.audit_completion_rate}%</p>
           </div>
         </div>
@@ -165,25 +165,25 @@ export default function AIInsights({ selectedShop }) {
       {charts && (
         <div className="grid grid-cols-3 gap-4">
           {charts.discrepancy_trend && charts.discrepancy_trend.labels?.length > 0 && (
-            <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 col-span-2">
-              <h3 className="font-bold text-gray-800 mb-3">Discrepancy Trend</h3>
+            <div className="bg-white dark:bg-slate-800/80 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700/50 p-4 col-span-2">
+              <h3 className="font-bold text-gray-800 dark:text-white mb-3">Discrepancy Trend</h3>
               <Line data={formatLineChart(charts.discrepancy_trend)} options={{ responsive: true, maintainAspectRatio: true }} />
             </div>
           )}
           {charts.section_discrepancies && charts.section_discrepancies.labels?.length > 0 && (
-            <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4">
-              <h3 className="font-bold text-gray-800 mb-3">Section Discrepancies</h3>
+            <div className="bg-white dark:bg-slate-800/80 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700/50 p-4">
+              <h3 className="font-bold text-gray-800 dark:text-white mb-3">Section Discrepancies</h3>
               <Pie data={formatPieChart(charts.section_discrepancies)} options={{ responsive: true, maintainAspectRatio: true }} />
             </div>
           )}
           {charts.staff_performance && charts.staff_performance.labels?.length > 0 && (
-            <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 col-span-3">
-              <h3 className="font-bold text-gray-800 mb-3">Staff Performance</h3>
+            <div className="bg-white dark:bg-slate-800/80 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700/50 p-4 col-span-3">
+              <h3 className="font-bold text-gray-800 dark:text-white mb-3">Staff Performance</h3>
               <Bar data={formatBarChart(charts.staff_performance)} options={{ responsive: true, maintainAspectRatio: true }} />
             </div>
           )}
           {(!charts.discrepancy_trend?.labels?.length && !charts.section_discrepancies?.labels?.length) && (
-            <div className="col-span-3 bg-gray-50 rounded-xl p-8 text-center text-gray-500">
+            <div className="col-span-3 bg-gray-50 dark:bg-slate-800/60 rounded-xl p-8 text-center text-gray-500 dark:text-slate-400">
               No audit activity in the selected period to display charts.
             </div>
           )}
@@ -193,40 +193,40 @@ export default function AIInsights({ selectedShop }) {
       {/* AI Insights: Findings / Risks / Recommendations / Predictions */}
       {ai_insights && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4">
+          <div className="bg-white dark:bg-slate-800/80 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700/50 p-4">
             <div className="flex items-center gap-2 mb-3">
-              <div className="p-2 bg-blue-100 rounded-lg"><TrendingUp className="w-4 h-4 md:w-5 md:h-5 text-blue-600" /></div>
-              <h3 className="font-bold text-gray-800">Key Findings</h3>
+              <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg"><TrendingUp className="w-4 h-4 md:w-5 md:h-5 text-blue-600" /></div>
+              <h3 className="font-bold text-gray-800 dark:text-white">Key Findings</h3>
             </div>
             <ul className="space-y-2">
-              {ai_insights.findings?.map((f, i) => <li key={i} className="text-sm text-gray-700">• {f}</li>)}
+              {ai_insights.findings?.map((f, i) => <li key={i} className="text-sm text-gray-700 dark:text-slate-300">• {f}</li>)}
             </ul>
           </div>
-          <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4">
+          <div className="bg-white dark:bg-slate-800/80 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700/50 p-4">
             <div className="flex items-center gap-2 mb-3">
-              <div className="p-2 bg-red-100 rounded-lg"><AlertCircle className="w-4 h-4 md:w-5 md:h-5 text-red-600" /></div>
-              <h3 className="font-bold text-gray-800">Risk Areas</h3>
+              <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg"><AlertCircle className="w-4 h-4 md:w-5 md:h-5 text-red-600" /></div>
+              <h3 className="font-bold text-gray-800 dark:text-white">Risk Areas</h3>
             </div>
             <ul className="space-y-2">
-              {ai_insights.risks?.map((r, i) => <li key={i} className="text-sm text-gray-700">• {r}</li>)}
+              {ai_insights.risks?.map((r, i) => <li key={i} className="text-sm text-gray-700 dark:text-slate-300">• {r}</li>)}
             </ul>
           </div>
-          <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4">
+          <div className="bg-white dark:bg-slate-800/80 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700/50 p-4">
             <div className="flex items-center gap-2 mb-3">
-              <div className="p-2 bg-yellow-100 rounded-lg"><Lightbulb className="w-4 h-4 md:w-5 md:h-5 text-yellow-600" /></div>
-              <h3 className="font-bold text-gray-800">Recommendations</h3>
+              <div className="p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg"><Lightbulb className="w-4 h-4 md:w-5 md:h-5 text-yellow-600" /></div>
+              <h3 className="font-bold text-gray-800 dark:text-white">Recommendations</h3>
             </div>
             <ul className="space-y-2">
-              {ai_insights.recommendations?.map((r, i) => <li key={i} className="text-sm text-gray-700">• {r}</li>)}
+              {ai_insights.recommendations?.map((r, i) => <li key={i} className="text-sm text-gray-700 dark:text-slate-300">• {r}</li>)}
             </ul>
           </div>
-          <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4">
+          <div className="bg-white dark:bg-slate-800/80 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700/50 p-4">
             <div className="flex items-center gap-2 mb-3">
-              <div className="p-2 bg-purple-100 rounded-lg"><Brain className="w-4 h-4 md:w-5 md:h-5 text-purple-600" /></div>
-              <h3 className="font-bold text-gray-800">Predictions</h3>
+              <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg"><Brain className="w-4 h-4 md:w-5 md:h-5 text-purple-600" /></div>
+              <h3 className="font-bold text-gray-800 dark:text-white">Predictions</h3>
             </div>
             <ul className="space-y-2">
-              {ai_insights.predictions?.map((p, i) => <li key={i} className="text-sm text-gray-700">• {p}</li>)}
+              {ai_insights.predictions?.map((p, i) => <li key={i} className="text-sm text-gray-700 dark:text-slate-300">• {p}</li>)}
             </ul>
           </div>
         </div>
@@ -245,7 +245,7 @@ export default function AIInsights({ selectedShop }) {
       )}
 
       {aiData.generated_at && (
-        <p className="text-xs text-gray-500 text-center">Generated at: {new Date(aiData.generated_at).toLocaleString()}</p>
+        <p className="text-xs text-gray-500 dark:text-slate-400 text-center">Generated at: {new Date(aiData.generated_at).toLocaleString()}</p>
       )}
     </div>
   )

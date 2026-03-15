@@ -1,4 +1,3 @@
-import React from 'react'
 import { theme } from '../../styles/theme'
 
 export const Input = ({ label, className = '', ...props }) => (

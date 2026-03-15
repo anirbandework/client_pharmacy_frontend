@@ -1,6 +1,8 @@
 import { useRef, useEffect } from 'react'
+import { useTheme } from '../contexts/ThemeContext'
 
 export default function OTPInput({ value, onChange, length = 6 }) {
+  const { isDark } = useTheme()
   const inputs = useRef([])
 
   useEffect(() => {
@@ -50,7 +52,16 @@ export default function OTPInput({ value, onChange, length = 6 }) {
           onChange={(e) => handleChange(index, e.target.value)}
           onKeyDown={(e) => handleKeyDown(index, e)}
           onPaste={handlePaste}
-          className="w-12 h-12 text-center text-xl font-bold bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-white/50 focus:bg-white/30 transition-all"
+          className="w-12 h-12 text-center text-xl font-bold backdrop-blur-sm rounded-lg focus:outline-none focus:ring-2 transition-all"
+          style={isDark ? {
+            background: 'rgba(255,255,255,0.12)',
+            border: '1px solid rgba(255,255,255,0.25)',
+            color: '#ffffff',
+          } : {
+            background: 'rgba(255,255,255,0.92)',
+            border: '1px solid rgba(59,130,246,0.35)',
+            color: '#1e293b',
+          }}
         />
       ))}
     </div>

@@ -70,15 +70,15 @@ const AdminStockAnalytics = () => {
         </div>
 
         {/* Shared Shop Filter */}
-        <div className="bg-white rounded-xl shadow border border-slate-200 p-3 mb-4 flex items-center gap-3">
-          <div className="p-2 bg-indigo-100 rounded-lg">
-            <Store className="w-4 h-4 text-indigo-600" />
+        <div className="bg-white dark:bg-slate-800/80 rounded-xl shadow border border-slate-200 dark:border-slate-700/50 p-3 mb-4 flex items-center gap-3">
+          <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
+            <Store className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
           </div>
-          <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Filter by Shop:</label>
+          <label className="text-sm font-medium text-gray-700 dark:text-slate-300 whitespace-nowrap">Filter by Shop:</label>
           <select
             value={selectedShop || ''}
             onChange={(e) => setSelectedShop(e.target.value ? parseInt(e.target.value) : null)}
-            className="flex-1 max-w-xs px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+            className="flex-1 max-w-xs px-3 py-2 border-2 border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
           >
             <option value="">All Shops</option>
             {shops.map((shop) => (
@@ -88,13 +88,13 @@ const AdminStockAnalytics = () => {
         </div>
 
         <div className="mb-4 overflow-x-auto pb-2">
-          <div className="bg-slate-800/50 backdrop-blur-xl border border-slate-700/50 rounded-xl shadow-lg p-1.5 inline-flex gap-1 min-w-full md:min-w-0">
+          <div className="bg-white/80 dark:bg-slate-800/50 backdrop-blur-xl border border-slate-200 dark:border-slate-700/50 rounded-xl shadow-lg p-1.5 inline-flex gap-1 min-w-full md:min-w-0">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`py-2 md:py-3 px-3 md:px-4 text-xs md:text-sm font-semibold rounded-lg transition-all duration-300 flex items-center gap-2 whitespace-nowrap ${
-                  activeTab === tab.id ? 'text-white bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/20' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
+                  activeTab === tab.id ? 'text-white bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/20' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700/50'
                 }`}
               >
                 <tab.icon className="w-4 h-4" />

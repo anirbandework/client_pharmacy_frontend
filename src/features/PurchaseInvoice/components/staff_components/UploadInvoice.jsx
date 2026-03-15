@@ -166,9 +166,9 @@ const UploadInvoice = ({ onUploadSuccess, onGoToList }) => {
         onGoToList={onGoToList}
       />
       
-      <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 md:p-6">
+      <div className="bg-white dark:bg-slate-800/80 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700/50 p-4 md:p-6">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg md:text-xl font-bold text-gray-800 flex items-center gap-2">
+        <h2 className="text-lg md:text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
           <Upload className="w-4 h-4 md:w-5 md:h-5 text-purple-600" />
           Upload Purchase Invoice
         </h2>
@@ -177,7 +177,7 @@ const UploadInvoice = ({ onUploadSuccess, onGoToList }) => {
 
       <div
         className={`border-2 border-dashed rounded-xl p-6 md:p-8 text-center transition-all ${
-          dragActive ? 'border-purple-500 bg-purple-50' : 'border-gray-300 hover:border-purple-400'
+          dragActive ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20' : 'border-gray-300 dark:border-slate-600 hover:border-purple-400 dark:hover:border-purple-400'
         }`}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
@@ -194,7 +194,7 @@ const UploadInvoice = ({ onUploadSuccess, onGoToList }) => {
               )}
               <div className="text-left">
                 <p className="font-semibold">{file.name}</p>
-                <p className="text-sm text-gray-500">{(file.size / 1024).toFixed(2)} KB</p>
+                <p className="text-sm text-gray-500 dark:text-slate-400">{(file.size / 1024).toFixed(2)} KB</p>
               </div>
             </div>
             <div className="flex gap-3 justify-center">
@@ -218,7 +218,7 @@ const UploadInvoice = ({ onUploadSuccess, onGoToList }) => {
               <button
                 onClick={() => setFile(null)}
                 disabled={uploading}
-                className="px-4 md:px-6 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 text-sm md:text-base"
+                className="px-4 md:px-6 py-2 border-2 border-gray-300 dark:border-slate-600 text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-50 text-sm md:text-base"
               >
                 Cancel
               </button>
@@ -232,8 +232,8 @@ const UploadInvoice = ({ onUploadSuccess, onGoToList }) => {
               <FileSpreadsheet className="w-16 h-16 text-green-400" />
             </div>
             <div>
-              <p className="text-lg font-semibold text-gray-700">Drop PDF or Excel here</p>
-              <p className="text-sm text-gray-500 mt-1">AI extracts from PDF • Excel for structured data</p>
+              <p className="text-lg font-semibold text-gray-700 dark:text-slate-300">Drop PDF or Excel here</p>
+              <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">AI extracts from PDF • Excel for structured data</p>
             </div>
             <div className="flex gap-3 justify-center flex-wrap">
               <label className="inline-block">
@@ -272,24 +272,24 @@ const UploadInvoice = ({ onUploadSuccess, onGoToList }) => {
         )}
       </div>
 
-      <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
+      <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg border border-blue-200 dark:border-blue-700/30">
         <div className="flex flex-col md:flex-row items-start justify-between gap-4">
           <div className="flex-1 space-y-3">
             <div className="flex items-start gap-2">
               <FileText className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-              <p className="text-xs md:text-sm text-blue-800">
+              <p className="text-xs md:text-sm text-blue-800 dark:text-blue-300">
                 <strong>AI-Powered PDF:</strong> Works with any invoice format. Automatically extracts supplier info, items, quantities, prices, GST, and more!
               </p>
             </div>
             <div className="flex items-start gap-2">
               <FileSpreadsheet className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-              <p className="text-xs md:text-sm text-green-800">
+              <p className="text-xs md:text-sm text-green-800 dark:text-green-300">
                 <strong>Excel Upload:</strong> Use structured Excel files with columns like Product Name, Quantity, Rate, CGST, SGST, etc.
               </p>
             </div>
             <div className="flex items-start gap-2">
               <XCircle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
-              <p className="text-xs md:text-sm text-orange-800">
+              <p className="text-xs md:text-sm text-orange-800 dark:text-orange-300">
                 <strong>Duplicate Detection:</strong> System checks for duplicate invoices by invoice number AND by supplier + date + amount to prevent accidental re-uploads.
               </p>
             </div>

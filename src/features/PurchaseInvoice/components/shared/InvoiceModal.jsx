@@ -1,10 +1,9 @@
-import React from 'react'
 import { FileText, Calendar, IndianRupee, Package, CheckCircle, AlertCircle, X } from 'lucide-react'
 
 const InvoiceModal = ({ invoice, onClose }) => {
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
         <div className="sticky top-0 bg-gradient-to-r from-purple-600 to-indigo-600 p-4 md:p-6 flex justify-between items-center">
           <h2 className="text-lg md:text-xl font-bold text-white">Invoice Details</h2>
           <button onClick={onClose} className="text-white/80 hover:text-white transition-colors">
@@ -15,12 +14,12 @@ const InvoiceModal = ({ invoice, onClose }) => {
         <div className="p-4 md:p-6 space-y-4 md:space-y-6 overflow-y-auto max-h-[calc(90vh-80px)]">
           {/* Supplier/Distributor & Invoice Info */}
           <div className="grid md:grid-cols-2 gap-4 md:gap-6">
-            <div className="bg-gradient-to-br from-gray-50 to-slate-50 p-4 rounded-xl border border-slate-200">
-              <h3 className="font-semibold text-gray-700 mb-3 flex items-center gap-2 text-sm md:text-base">
+            <div className="bg-gradient-to-br from-gray-50 to-slate-50 dark:from-slate-800/60 dark:to-slate-700/40 p-4 rounded-xl border border-slate-200 dark:border-slate-700/50">
+              <h3 className="font-semibold text-gray-700 dark:text-slate-300 mb-3 flex items-center gap-2 text-sm md:text-base">
                 <FileText className="w-4 h-4" />
                 {invoice.distributor ? 'Distributor Information' : 'Supplier Information'}
               </h3>
-              <div className="space-y-2 text-xs md:text-sm">
+              <div className="space-y-2 text-xs md:text-sm text-gray-700 dark:text-slate-300">
                 <p><strong>Name:</strong> {invoice.distributor ? invoice.distributor.company_name : invoice.supplier_name}</p>
                 {invoice.distributor ? (
                   <>
@@ -39,12 +38,12 @@ const InvoiceModal = ({ invoice, onClose }) => {
                 )}
               </div>
             </div>
-            <div className="bg-gradient-to-br from-gray-50 to-slate-50 p-4 rounded-xl border border-slate-200">
-              <h3 className="font-semibold text-gray-700 mb-3 flex items-center gap-2 text-sm md:text-base">
+            <div className="bg-gradient-to-br from-gray-50 to-slate-50 dark:from-slate-800/60 dark:to-slate-700/40 p-4 rounded-xl border border-slate-200 dark:border-slate-700/50">
+              <h3 className="font-semibold text-gray-700 dark:text-slate-300 mb-3 flex items-center gap-2 text-sm md:text-base">
                 <Calendar className="w-4 h-4" />
                 Invoice Information
               </h3>
-              <div className="space-y-2 text-xs md:text-sm">
+              <div className="space-y-2 text-xs md:text-sm text-gray-700 dark:text-slate-300">
                 <p><strong>Invoice Number:</strong> {invoice.invoice_number}</p>
                 <p><strong>Invoice Date:</strong> {new Date(invoice.invoice_date).toLocaleDateString()}</p>
                 {invoice.due_date && <p><strong>Due Date:</strong> {new Date(invoice.due_date).toLocaleDateString()}</p>}
@@ -90,36 +89,36 @@ const InvoiceModal = ({ invoice, onClose }) => {
           </div>
 
           {/* Financial Summary */}
-          <div className="bg-gradient-to-r from-blue-50 via-purple-50 to-green-50 p-4 rounded-xl border border-blue-200">
-            <h3 className="font-semibold text-gray-700 mb-3 flex items-center gap-2 text-sm md:text-base">
+          <div className="bg-gradient-to-r from-blue-50 via-purple-50 to-green-50 dark:from-blue-900/20 dark:via-purple-900/20 dark:to-green-900/20 p-4 rounded-xl border border-blue-200 dark:border-blue-800/30">
+            <h3 className="font-semibold text-gray-700 dark:text-slate-300 mb-3 flex items-center gap-2 text-sm md:text-base">
               <IndianRupee className="w-4 h-4" />
               Financial Summary
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 text-xs md:text-sm">
               <div>
-                <p className="text-gray-600 text-[10px] md:text-xs">Gross Amount</p>
+                <p className="text-gray-600 dark:text-slate-400 text-[10px] md:text-xs">Gross Amount</p>
                 <p className="text-base md:text-lg font-bold">₹{invoice.gross_amount.toFixed(2)}</p>
               </div>
               <div>
-                <p className="text-gray-600 text-[10px] md:text-xs">Discount</p>
+                <p className="text-gray-600 dark:text-slate-400 text-[10px] md:text-xs">Discount</p>
                 <p className="text-base md:text-lg font-bold text-orange-600">₹{invoice.discount_amount.toFixed(2)}</p>
               </div>
               <div>
-                <p className="text-gray-600 text-[10px] md:text-xs">Total GST</p>
+                <p className="text-gray-600 dark:text-slate-400 text-[10px] md:text-xs">Total GST</p>
                 <p className="text-base md:text-lg font-bold text-blue-600">₹{invoice.total_gst.toFixed(2)}</p>
               </div>
               <div>
-                <p className="text-gray-600 text-[10px] md:text-xs">Net Amount</p>
+                <p className="text-gray-600 dark:text-slate-400 text-[10px] md:text-xs">Net Amount</p>
                 <p className="text-lg md:text-xl font-bold text-green-600">₹{invoice.net_amount.toFixed(2)}</p>
               </div>
             </div>
             <div className="mt-3 pt-3 border-t border-gray-300 grid grid-cols-2 gap-3 md:gap-4 text-xs md:text-sm">
               <div>
-                <p className="text-gray-600 text-[10px] md:text-xs">Taxable Amount</p>
+                <p className="text-gray-600 dark:text-slate-400 text-[10px] md:text-xs">Taxable Amount</p>
                 <p className="font-semibold">₹{invoice.taxable_amount.toFixed(2)}</p>
               </div>
               <div>
-                <p className="text-gray-600 text-[10px] md:text-xs">Round Off</p>
+                <p className="text-gray-600 dark:text-slate-400 text-[10px] md:text-xs">Round Off</p>
                 <p className="font-semibold text-sm md:text-base">₹{invoice.round_off.toFixed(2)}</p>
               </div>
             </div>
@@ -127,13 +126,13 @@ const InvoiceModal = ({ invoice, onClose }) => {
 
           {/* Items Table */}
           <div>
-            <h3 className="font-semibold text-gray-700 mb-3 flex items-center gap-2 text-sm md:text-base">
+            <h3 className="font-semibold text-gray-700 dark:text-slate-300 mb-3 flex items-center gap-2 text-sm md:text-base">
               <Package className="w-4 h-4" />
               Items ({invoice.items.length})
             </h3>
-            <div className="overflow-x-auto border-2 border-slate-200 rounded-xl">
-              <table className="w-full text-sm">
-                <thead className="bg-gray-100">
+            <div className="overflow-x-auto border-2 border-slate-200 dark:border-slate-700 rounded-xl">
+              <table className="w-full text-sm text-gray-700 dark:text-slate-300">
+                <thead className="bg-gray-100 dark:bg-slate-700/50">
                   <tr>
                     <th className="px-3 py-2 text-left">#</th>
                     <th className="px-3 py-2 text-left">Composition</th>
@@ -169,7 +168,7 @@ const InvoiceModal = ({ invoice, onClose }) => {
                         }
                       })
                       return Array.from(customCols).map(col => (
-                        <th key={col} className="px-3 py-2 text-left bg-blue-50 text-blue-700">{col}</th>
+                        <th key={col} className="px-3 py-2 text-left bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">{col}</th>
                       ))
                     })()}
                   </tr>
@@ -183,7 +182,7 @@ const InvoiceModal = ({ invoice, onClose }) => {
                       }
                     })
                     return (
-                      <tr key={idx} className="border-t hover:bg-gray-50">
+                      <tr key={idx} className="border-t border-slate-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700/30">
                         <td className="px-3 py-2 text-gray-500">{idx + 1}</td>
                         <td className="px-3 py-2 text-gray-600">{item.composition || '-'}</td>
                         <td className="px-3 py-2 font-medium">{item.product_name || '-'}</td>
@@ -236,7 +235,7 @@ const InvoiceModal = ({ invoice, onClose }) => {
                         </td>
                         <td className="px-3 py-2 text-right font-bold text-green-600">₹{(item.total_amount || 0).toFixed(2)}</td>
                         {Array.from(customCols).map(col => (
-                          <td key={col} className="px-3 py-2 bg-blue-50 text-blue-900 font-medium">
+                          <td key={col} className="px-3 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-900 dark:text-blue-300 font-medium">
                             {item.custom_fields?.[col] || '-'}
                           </td>
                         ))}
@@ -244,7 +243,7 @@ const InvoiceModal = ({ invoice, onClose }) => {
                     )
                   })}
                 </tbody>
-                <tfoot className="bg-gray-50 font-bold">
+                <tfoot className="bg-gray-50 dark:bg-slate-700/30 font-bold">
                   <tr className="border-t-2">
                     <td colSpan="21" className="px-3 py-2 text-right">Totals:</td>
                     <td className="px-3 py-2 text-right">₹{invoice.taxable_amount.toFixed(2)}</td>

@@ -38,8 +38,8 @@ export default function AIInsightsCharts({ discrepancyData, expiryData, valueDat
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div className="bg-white rounded-xl shadow-md p-6">
-        <h3 className="text-lg font-bold text-gray-800 mb-4">Discrepancy Distribution</h3>
+      <div className="bg-white dark:bg-slate-800/80 rounded-xl shadow-md p-6 border border-slate-200 dark:border-slate-700/50">
+        <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4">Discrepancy Distribution</h3>
         <ResponsiveContainer width="100%" height={300}>
           <PieChart>
             <Pie data={discrepancyChartData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
@@ -53,8 +53,8 @@ export default function AIInsightsCharts({ discrepancyData, expiryData, valueDat
         </ResponsiveContainer>
       </div>
 
-      <div className="bg-white rounded-xl shadow-md p-6">
-        <h3 className="text-lg font-bold text-gray-800 mb-4">Expiry Timeline</h3>
+      <div className="bg-white dark:bg-slate-800/80 rounded-xl shadow-md p-6 border border-slate-200 dark:border-slate-700/50">
+        <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4">Expiry Timeline</h3>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={expiryChartData}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -70,8 +70,8 @@ export default function AIInsightsCharts({ discrepancyData, expiryData, valueDat
         </ResponsiveContainer>
       </div>
 
-      <div className="bg-white rounded-xl shadow-md p-6">
-        <h3 className="text-lg font-bold text-gray-800 mb-4">Stock Value Distribution</h3>
+      <div className="bg-white dark:bg-slate-800/80 rounded-xl shadow-md p-6 border border-slate-200 dark:border-slate-700/50">
+        <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4">Stock Value Distribution</h3>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={valueChartData} layout="vertical">
             <CartesianGrid strokeDasharray="3 3" />
@@ -83,8 +83,8 @@ export default function AIInsightsCharts({ discrepancyData, expiryData, valueDat
         </ResponsiveContainer>
       </div>
 
-      <div className="bg-white rounded-xl shadow-md p-6">
-        <h3 className="text-lg font-bold text-gray-800 mb-4">Audit Performance (30 Days)</h3>
+      <div className="bg-white dark:bg-slate-800/80 rounded-xl shadow-md p-6 border border-slate-200 dark:border-slate-700/50">
+        <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4">Audit Performance (30 Days)</h3>
         <ResponsiveContainer width="100%" height={300}>
           {auditData.daily_audits && auditData.daily_audits.length > 0 ? (
             <LineChart data={auditData.daily_audits}>
@@ -96,15 +96,15 @@ export default function AIInsightsCharts({ discrepancyData, expiryData, valueDat
               <Line type="monotone" dataKey="audits" stroke="#8884d8" />
             </LineChart>
           ) : (
-            <div className="flex items-center justify-center h-full text-gray-400">
+            <div className="flex items-center justify-center h-full text-gray-400 dark:text-slate-500">
               No audit data available
             </div>
           )}
         </ResponsiveContainer>
       </div>
 
-      <div className="bg-white rounded-xl shadow-md p-6">
-        <h3 className="text-lg font-bold text-gray-800 mb-4">Stock Movement</h3>
+      <div className="bg-white dark:bg-slate-800/80 rounded-xl shadow-md p-6 border border-slate-200 dark:border-slate-700/50">
+        <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4">Stock Movement</h3>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={movementChartData}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -120,8 +120,8 @@ export default function AIInsightsCharts({ discrepancyData, expiryData, valueDat
         </ResponsiveContainer>
       </div>
 
-      <div className="bg-white rounded-xl shadow-md p-6">
-        <h3 className="text-lg font-bold text-gray-800 mb-4">Adjustments by Type</h3>
+      <div className="bg-white dark:bg-slate-800/80 rounded-xl shadow-md p-6 border border-slate-200 dark:border-slate-700/50">
+        <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4">Adjustments by Type</h3>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={adjustmentChartData} layout="vertical">
             <CartesianGrid strokeDasharray="3 3" />

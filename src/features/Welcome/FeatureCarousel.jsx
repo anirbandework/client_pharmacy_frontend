@@ -61,7 +61,7 @@ const FeatureCarousel = ({ darkMode = true }) => {
         ref={scrollRef}
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => { setIsPaused(false); setHovered(null) }}
-        className="fc-scrollbar flex gap-4 overflow-x-auto pb-4"
+        className="fc-scrollbar flex gap-4 overflow-x-auto pb-4 pt-2"
       >
         {[...features, ...features].map((f, i) => {
           const Icon = f.icon

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { staffStockAuditAPI } from '../../services/staff_stock_audit_apis'
 import { Package, Plus, Grid, Edit, Trash2, ChevronDown, ChevronUp } from 'lucide-react'
 
@@ -98,9 +98,9 @@ const RackManagement = () => {
 
   return (
     <div className="space-y-4">
-      <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 md:p-6">
+      <div className="bg-white dark:bg-slate-800/80 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700/50 p-4 md:p-6">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg md:text-xl font-bold text-gray-800 flex items-center gap-2">
+          <h2 className="text-lg md:text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
             <Package className="w-4 h-4 md:w-5 md:h-5 text-purple-600" />
             Racks
           </h2>
@@ -109,24 +109,24 @@ const RackManagement = () => {
           </button>
         </div>
         {showRackForm && (
-          <form onSubmit={handleRackSubmit} className="mb-4 p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border border-purple-200">
+          <form onSubmit={handleRackSubmit} className="mb-4 p-4 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-lg border border-purple-200 dark:border-purple-800/40">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1">Rack Number</label>
-                <input type="text" placeholder="e.g., R-101" value={rackData.rack_number} onChange={(e) => setRackData({ ...rackData, rack_number: e.target.value })} className="w-full px-3 py-2 border-2 border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500" required />
+                <label className="block text-xs md:text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Rack Number</label>
+                <input type="text" placeholder="e.g., R-101" value={rackData.rack_number} onChange={(e) => setRackData({ ...rackData, rack_number: e.target.value })} className="w-full px-3 py-2 border-2 border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400" required />
               </div>
               <div>
-                <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1">Location</label>
-                <input type="text" placeholder="e.g., Ground Floor" value={rackData.location} onChange={(e) => setRackData({ ...rackData, location: e.target.value })} className="w-full px-3 py-2 border-2 border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500" required />
+                <label className="block text-xs md:text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Location</label>
+                <input type="text" placeholder="e.g., Ground Floor" value={rackData.location} onChange={(e) => setRackData({ ...rackData, location: e.target.value })} className="w-full px-3 py-2 border-2 border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400" required />
               </div>
               <div>
-                <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1">Description</label>
-                <input type="text" placeholder="e.g., Main storage area" value={rackData.description} onChange={(e) => setRackData({ ...rackData, description: e.target.value })} className="w-full px-3 py-2 border-2 border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500" />
+                <label className="block text-xs md:text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Description</label>
+                <input type="text" placeholder="e.g., Main storage area" value={rackData.description} onChange={(e) => setRackData({ ...rackData, description: e.target.value })} className="w-full px-3 py-2 border-2 border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400" />
               </div>
             </div>
             <div className="mt-4 flex gap-2">
               <button type="submit" className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:shadow-lg transition-all text-sm md:text-base">{editingRack ? 'Update' : 'Save'}</button>
-              <button type="button" onClick={() => { setShowRackForm(false); setEditingRack(null); }} className="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm md:text-base">Cancel</button>
+              <button type="button" onClick={() => { setShowRackForm(false); setEditingRack(null); }} className="px-4 py-2 border-2 border-gray-300 dark:border-slate-600 text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors text-sm md:text-base dark:bg-slate-700">Cancel</button>
             </div>
           </form>
         )}
@@ -136,7 +136,7 @@ const RackManagement = () => {
             const isExpanded = expandedRacks.has(rack.id)
             
             return (
-              <div key={rack.id} className="bg-gradient-to-br from-purple-50 to-indigo-50 border-2 border-purple-200 rounded-xl overflow-hidden hover:shadow-lg transition-all">
+              <div key={rack.id} className="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 border-2 border-purple-200 dark:border-purple-800/40 rounded-xl overflow-hidden hover:shadow-lg transition-all">
                 <div 
                   className="p-4 cursor-pointer hover:bg-purple-100/50 transition-colors"
                   onClick={() => {
@@ -156,13 +156,13 @@ const RackManagement = () => {
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <h3 className="font-bold text-gray-800 text-sm md:text-base">{rack.rack_number}</h3>
+                          <h3 className="font-bold text-gray-800 dark:text-white text-sm md:text-base">{rack.rack_number}</h3>
                           <span className="px-2 py-0.5 bg-purple-200 text-purple-700 text-xs rounded-full font-semibold">
                             {rackSections.length} {rackSections.length === 1 ? 'section' : 'sections'}
                           </span>
                         </div>
-                        <p className="text-xs md:text-sm text-gray-600">{rack.location}</p>
-                        {rack.description && <p className="text-xs text-gray-500 mt-1">{rack.description}</p>}
+                        <p className="text-xs md:text-sm text-gray-600 dark:text-slate-400">{rack.location}</p>
+                        {rack.description && <p className="text-xs text-gray-500 dark:text-slate-500 mt-1">{rack.description}</p>}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -184,10 +184,10 @@ const RackManagement = () => {
                 </div>
                 
                 {isExpanded && rackSections.length > 0 && (
-                  <div className="px-4 pb-4 pt-2 bg-white/50 border-t border-purple-200">
+                  <div className="px-4 pb-4 pt-2 bg-white/50 dark:bg-slate-700/20 border-t border-purple-200 dark:border-purple-800/40">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                       {rackSections.map((section) => (
-                        <div key={section.id} className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-lg p-3 hover:shadow-md transition-all">
+                        <div key={section.id} className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-2 border-green-200 dark:border-green-800/40 rounded-lg p-3 hover:shadow-md transition-all">
                           <div className="flex justify-between items-start mb-2">
                             <div className="p-1.5 bg-green-100 rounded-lg">
                               <Grid className="w-4 h-4 text-green-600" />
@@ -197,8 +197,8 @@ const RackManagement = () => {
                               <button onClick={() => handleSectionDelete(section.id)} className="p-1.5 text-red-600 hover:bg-red-100 rounded-lg transition-colors"><Trash2 className="w-3 h-3" /></button>
                             </div>
                           </div>
-                          <p className="font-bold text-gray-800 text-sm">{section.section_name}</p>
-                          <p className="text-xs text-gray-600 font-mono mt-1">{section.section_code}</p>
+                          <p className="font-bold text-gray-800 dark:text-white text-sm">{section.section_name}</p>
+                          <p className="text-xs text-gray-600 dark:text-slate-400 font-mono mt-1">{section.section_code}</p>
                         </div>
                       ))}
                     </div>
@@ -206,8 +206,8 @@ const RackManagement = () => {
                 )}
                 
                 {isExpanded && rackSections.length === 0 && (
-                  <div className="px-4 pb-4 pt-2 bg-white/50 border-t border-purple-200">
-                    <p className="text-sm text-gray-500 text-center py-3">No sections in this rack</p>
+                  <div className="px-4 pb-4 pt-2 bg-white/50 dark:bg-slate-700/20 border-t border-purple-200 dark:border-purple-800/40">
+                    <p className="text-sm text-gray-500 dark:text-slate-500 text-center py-3">No sections in this rack</p>
                   </div>
                 )}
               </div>
@@ -215,9 +215,9 @@ const RackManagement = () => {
           })}
         </div>
       </div>
-      <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 md:p-6">
+      <div className="bg-white dark:bg-slate-800/80 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700/50 p-4 md:p-6">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg md:text-xl font-bold text-gray-800 flex items-center gap-2">
+          <h2 className="text-lg md:text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
             <Grid className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
             Sections
           </h2>
@@ -226,33 +226,33 @@ const RackManagement = () => {
           </button>
         </div>
         {showSectionForm && (
-          <form onSubmit={handleSectionSubmit} className="mb-4 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+          <form onSubmit={handleSectionSubmit} className="mb-4 p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg border border-green-200 dark:border-green-800/40">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1">Select Rack</label>
-                <select value={sectionData.rack_id} onChange={(e) => setSectionData({ ...sectionData, rack_id: e.target.value })} className="w-full px-3 py-2 border-2 border-green-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" required>
+                <label className="block text-xs md:text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Select Rack</label>
+                <select value={sectionData.rack_id} onChange={(e) => setSectionData({ ...sectionData, rack_id: e.target.value })} className="w-full px-3 py-2 border-2 border-green-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white" required>
                   <option value="">Choose a rack</option>
                   {racks.map((rack) => (<option key={rack.id} value={rack.id}>{rack.rack_number}</option>))}
                 </select>
               </div>
               <div>
-                <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1">Section Name</label>
-                <input type="text" placeholder="e.g., Shelf A" value={sectionData.section_name} onChange={(e) => setSectionData({ ...sectionData, section_name: e.target.value })} className="w-full px-3 py-2 border-2 border-green-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" required />
+                <label className="block text-xs md:text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Section Name</label>
+                <input type="text" placeholder="e.g., Shelf A" value={sectionData.section_name} onChange={(e) => setSectionData({ ...sectionData, section_name: e.target.value })} className="w-full px-3 py-2 border-2 border-green-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400" required />
               </div>
               <div>
-                <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1">Section Code</label>
-                <input type="text" placeholder="e.g., S-A1" value={sectionData.section_code} onChange={(e) => setSectionData({ ...sectionData, section_code: e.target.value })} className="w-full px-3 py-2 border-2 border-green-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" required />
+                <label className="block text-xs md:text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Section Code</label>
+                <input type="text" placeholder="e.g., S-A1" value={sectionData.section_code} onChange={(e) => setSectionData({ ...sectionData, section_code: e.target.value })} className="w-full px-3 py-2 border-2 border-green-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400" required />
               </div>
             </div>
             <div className="mt-4 flex gap-2">
               <button type="submit" className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:shadow-lg transition-all text-sm md:text-base">{editingSection ? 'Update' : 'Save'}</button>
-              <button type="button" onClick={() => { setShowSectionForm(false); setEditingSection(null); }} className="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm md:text-base">Cancel</button>
+              <button type="button" onClick={() => { setShowSectionForm(false); setEditingSection(null); }} className="px-4 py-2 border-2 border-gray-300 dark:border-slate-600 text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors text-sm md:text-base dark:bg-slate-700">Cancel</button>
             </div>
           </form>
         )}
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {sections.map((section) => (
-            <div key={section.id} className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-3 hover:shadow-lg transition-all">
+            <div key={section.id} className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-2 border-green-200 dark:border-green-800/40 rounded-xl p-3 hover:shadow-lg transition-all">
               <div className="flex justify-between items-start mb-2">
                 <div className="p-1.5 bg-green-100 rounded-lg">
                   <Grid className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
@@ -264,7 +264,7 @@ const RackManagement = () => {
               </div>
               <p className="font-bold text-gray-800 text-sm">{section.section_name}</p>
               <p className="text-xs text-gray-600 font-mono mt-1">{section.section_code}</p>
-              <p className="text-xs text-purple-600 font-semibold mt-1">{racks.find(r => r.id === section.rack_id)?.rack_number}</p>
+              <p className="text-xs text-purple-600 dark:text-purple-400 font-semibold mt-1">{racks.find(r => r.id === section.rack_id)?.rack_number}</p>
             </div>
           ))}
         </div>
