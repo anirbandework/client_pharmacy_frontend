@@ -1,8 +1,11 @@
 import { useNavigate, Link } from 'react-router-dom'
-import { ShieldX, LogOut, Building2, Shield } from 'lucide-react'
+import { ShieldX, LogOut, ArrowLeft, AlertCircle } from 'lucide-react'
+import { useTheme } from '../contexts/ThemeContext'
+import { t } from '../theme'
 
 const Unauthorized = () => {
   const navigate = useNavigate()
+  const { isDark } = useTheme()
 
   const handleGoBack = () => {
     localStorage.clear()
@@ -10,75 +13,181 @@ const Unauthorized = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 relative overflow-hidden">
-      {/* Subtle Grid Pattern */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
-      
-      {/* Animated Gradient Orbs */}
+    <div
+      className="fixed inset-0 overflow-y-auto"
+      style={{ 
+        background: t.pageBg(isDark),
+        transition: 'background 0.4s ease'
+      }}
+    >
+      {/* Background layers */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+        <div 
+          className="absolute inset-0" 
+          style={{ 
+            background: isDark
+              ? 'radial-gradient(ellipse 90% 65% at 50% -10%, rgba(17,43,99,0.55) 0%, transparent 68%)'
+              : 'radial-gradient(ellipse 90% 65% at 50% -10%, rgba(147,197,253,0.45) 0%, transparent 68%)'
+          }} 
+        />
+        <div 
+          className="absolute inset-0" 
+          style={{ 
+            background: isDark
+              ? 'radial-gradient(ellipse 60% 50% at 85% 90%, rgba(29,20,85,0.4) 0%, transparent 60%)'
+              : 'radial-gradient(ellipse 60% 50% at 85% 90%, rgba(167,139,250,0.28) 0%, transparent 60%)'
+          }} 
+        />
+        <div 
+          className="absolute inset-0" 
+          style={{
+            backgroundImage: isDark
+              ? 'linear-gradient(rgba(255,255,255,0.028) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.028) 1px, transparent 1px)'
+              : 'linear-gradient(rgba(59,130,246,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(59,130,246,0.07) 1px, transparent 1px)',
+            backgroundSize: '36px 36px'
+          }} 
+        />
       </div>
 
-      <div className="relative z-10 min-h-screen flex flex-col">
-        {/* Professional Header */}
-        <header className="sticky top-0 z-20 border-b border-white/10 bg-slate-900/50 backdrop-blur-xl">
-          <div className="w-full px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
-                <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+      {/* Content */}
+      <div className="relative z-10 min-h-screen flex items-center justify-center px-4">
+        <div className="max-w-md w-full">
+          {/* Main Card */}
+          <div
+            className="rounded-3xl p-8 text-center"
+            style={{
+              ...t.glassCard(isDark),
+              boxShadow: isDark
+                ? '0 0 0 1px rgba(59,130,246,0.25), 0 0 30px rgba(59,130,246,0.08)'
+                : '0 8px 40px rgba(59,130,246,0.12), 0 0 0 1px rgba(59,130,246,0.15)'
+            }}
+          >
+            {/* Icon */}
+            <div className="mb-6 flex justify-center">
+              <div
+                className="w-20 h-20 rounded-2xl flex items-center justify-center relative"
+                style={{
+                  background: 'rgba(239,68,68,0.1)',
+                  border: '1px solid rgba(239,68,68,0.25)'
+                }}
+              >
+                <ShieldX className="w-10 h-10 text-red-400" />
               </div>
+            </div>
+
+            {/* Title */}
+            <h1 
+              className="text-2xl font-bold mb-3"
+              style={{ 
+                color: t.text.primary(isDark),
+                transition: 'color 0.4s ease'
+              }}
+            >
+              Access Denied
+            </h1>
+
+            {/* Description */}
+            <p 
+              className="text-sm mb-8 leading-relaxed"
+              style={{ 
+                color: t.text.secondary(isDark),
+                transition: 'color 0.4s ease'
+              }}
+            >
+              You don't have permission to access this module. Please contact your administrator or return to login.
+            </p>
+
+            {/* Info Box */}
+            <div
+              className="mb-8 p-4 rounded-xl flex items-start gap-3 text-left"
+              style={{
+                background: 'rgba(59,130,246,0.08)',
+                border: '1px solid rgba(59,130,246,0.2)'
+              }}
+            >
+              <AlertCircle className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
               <div>
-                <h1 className="text-base sm:text-xl font-bold text-white">LedgerX</h1>
-                <p className="text-[10px] sm:text-xs text-slate-400">A Business Solution</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 sm:gap-4">
-              <p className="text-[10px] sm:text-xs text-slate-400 hidden sm:block">powered by <span className="text-sm sm:text-base font-semibold text-white">Indus Infotech</span></p>
-              <div className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs text-slate-400">
-                <Shield className="w-3 h-3" />
-                <span className="hidden sm:inline">Secure Access</span>
-              </div>
-            </div>
-          </div>
-        </header>
-
-        {/* Main Content */}
-        <div className="flex-1 flex items-center justify-center px-4 py-12">
-          <div className="max-w-md w-full">
-            <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-xl p-8">
-              {/* Icon */}
-              <div className="flex items-center justify-center mb-6">
-                <div className="w-16 h-16 bg-red-500/10 rounded-xl flex items-center justify-center">
-                  <ShieldX className="w-8 h-8 text-red-400" />
-                </div>
-              </div>
-
-              {/* Content */}
-              <div className="text-center space-y-3 mb-6">
-                <h1 className="text-2xl font-bold text-white">Access Denied</h1>
-                <p className="text-slate-400 text-sm leading-relaxed">
-                  You don't have permission to access this module. Please contact your administrator.
+                <p className="text-xs text-blue-300 font-medium mb-1">Why am I seeing this?</p>
+                <p className="text-xs" style={{ color: t.text.muted(isDark) }}>
+                  Your account doesn't have the required permissions for this resource. Contact your system administrator for access.
                 </p>
               </div>
+            </div>
 
-              {/* Action button */}
+            {/* Actions */}
+            <div className="flex flex-col gap-3">
               <button
                 onClick={handleGoBack}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
+                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-semibold text-sm text-white transition-all"
+                style={{
+                  background: 'linear-gradient(135deg, #2563eb 0%, #4f46e5 50%, #7c3aed 100%)',
+                  boxShadow: '0 4px 16px rgba(59,130,246,0.3)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)'
+                  e.currentTarget.style.boxShadow = '0 8px 24px rgba(59,130,246,0.4)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow = '0 4px 16px rgba(59,130,246,0.3)'
+                }}
               >
                 <LogOut className="w-4 h-4" />
-                <span>Back to Login</span>
+                Back to Login
               </button>
 
-              {/* Additional info */}
-              <div className="mt-6 pt-6 border-t border-slate-700">
-                <p className="text-xs text-slate-400 text-center">
-                  Need help? <Link to="/support" className="text-blue-400 hover:text-blue-300 underline transition-colors">Contact your system administrator</Link>
-                </p>
-              </div>
+              <button
+                onClick={() => navigate(-1)}
+                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-semibold text-sm transition-all"
+                style={{
+                  background: isDark ? 'rgba(255,255,255,0.07)' : 'rgba(59,130,246,0.08)',
+                  border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(59,130,246,0.15)',
+                  color: t.text.secondary(isDark)
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(59,130,246,0.12)'
+                  e.currentTarget.style.transform = 'translateY(-1px)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(59,130,246,0.08)'
+                  e.currentTarget.style.transform = 'translateY(0)'
+                }}
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Go Back
+              </button>
+            </div>
+
+            {/* Footer */}
+            <div 
+              className="mt-8 pt-6"
+              style={{ borderTop: `1px solid ${t.divider(isDark)}` }}
+            >
+              <p 
+                className="text-xs"
+                style={{ color: t.text.muted(isDark) }}
+              >
+                Need help?{' '}
+                <Link 
+                  to="/support" 
+                  className="text-blue-400 hover:text-blue-300 font-medium transition-colors"
+                >
+                  Contact Support
+                </Link>
+              </p>
             </div>
           </div>
+
+          {/* Bottom note */}
+          <p 
+            className="text-center text-xs mt-5"
+            style={{ 
+              color: t.text.label(isDark),
+              transition: 'color 0.4s ease'
+            }}
+          >
+            Protected by enterprise-grade security · LedgerX v1.0
+          </p>
         </div>
       </div>
     </div>
