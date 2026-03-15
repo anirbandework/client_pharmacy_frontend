@@ -19,6 +19,7 @@ export const adminStockAuditAPI = {
   // Admin Stock Items (read-only view)
   getAdminItems: (params) => axiosInstance.get(`${API_BASE}/items`, { params }),
   getConsolidatedItems: (params) => axiosInstance.get(`${API_BASE}/items/consolidated`, { params }),
+  getProductDetail: (params) => axiosInstance.get(`${API_BASE}/items/product-detail`, { params }),
 
   // Admin Reports
   getAdminLowStock: (params) => axiosInstance.get(`${API_BASE}/reports/low-stock`, { params }),

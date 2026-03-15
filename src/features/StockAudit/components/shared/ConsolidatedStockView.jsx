@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { Search, Layers, List, ChevronDown, ChevronRight, ChevronLeft } from 'lucide-react'
 import { staffStockAuditAPI } from '../../services/staff_stock_audit_apis'
 import { adminStockAuditAPI } from '../../services/admin_stock_audit_apis'
+import ItemDetailModal from './ItemDetailModal'
 import toast from 'react-hot-toast'
 
 const PER_PAGE = 50
@@ -15,6 +16,7 @@ const ConsolidatedStockView = ({ mode = 'staff', selectedShop = null }) => {
   const [search, setSearch] = useState('')
   const [showBatches, setShowBatches] = useState(false)
   const [expanded, setExpanded] = useState({})
+  const [selectedItem, setSelectedItem] = useState(null)
 
   const fetchItems = useCallback(async (currentPage) => {
     setLoading(true)
@@ -163,9 +165,12 @@ const ConsolidatedStockView = ({ mode = 'staff', selectedShop = null }) => {
                   <tr
                     key={idx}
                     className={`transition-all duration-200 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 dark:hover:from-blue-900/20 dark:hover:to-indigo-900/20 hover:shadow-sm cursor-pointer ${idx % 2 === 0 ? 'bg-white dark:bg-slate-800/80' : 'bg-slate-50/50 dark:bg-slate-700/30'}`}
-                    onClick={() => toggleExpand(idx)}
+                    onClick={() => setSelectedItem(item)}
                   >
-                    <td className="px-6 py-4 text-gray-400 dark:text-slate-500">
+                    <td
+                      className="px-6 py-4 text-gray-400 dark:text-slate-500"
+                      onClick={(e) => { e.stopPropagation(); if (item.batch_count > 1) toggleExpand(idx) }}
+                    >
                       {item.batch_count > 1
                         ? (expanded[idx] ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />)
                         : <span className="w-4 h-4 inline-block" />
@@ -234,7 +239,8 @@ const ConsolidatedStockView = ({ mode = 'staff', selectedShop = null }) => {
                 item.batches.map((batch, bIdx) => (
                   <tr
                     key={`${idx}-${bIdx}`}
-                    className={`transition-all duration-200 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 dark:hover:from-blue-900/20 dark:hover:to-indigo-900/20 hover:shadow-sm ${bIdx === 0 ? (idx % 2 === 0 ? 'bg-white dark:bg-slate-800/80' : 'bg-slate-50/50 dark:bg-slate-700/30') : 'bg-gray-50/30 dark:bg-slate-800/60'}`}
+                    className={`transition-all duration-200 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 dark:hover:from-blue-900/20 dark:hover:to-indigo-900/20 hover:shadow-sm cursor-pointer ${bIdx === 0 ? (idx % 2 === 0 ? 'bg-white dark:bg-slate-800/80' : 'bg-slate-50/50 dark:bg-slate-700/30') : 'bg-gray-50/30 dark:bg-slate-800/60'}`}
+                    onClick={() => setSelectedItem(item)}
                   >
                     {showShop && (
                       <td className="px-6 py-4 text-sm text-gray-600 dark:text-slate-400">{bIdx === 0 ? item.shop_name : ''}</td>
@@ -315,6 +321,15 @@ const ConsolidatedStockView = ({ mode = 'staff', selectedShop = null }) => {
           </div>
         )}
       </div>
+
+      {selectedItem && (
+        <ItemDetailModal
+          item={selectedItem}
+          mode={mode}
+          selectedShop={selectedShop}
+          onClose={() => setSelectedItem(null)}
+        />
+      )}
     </div>
   )
 }
