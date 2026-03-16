@@ -38,7 +38,7 @@ const AdminStockItems = ({ selectedShop }) => {
       setCurrentPage(page)
 
       const params = {
-        item_name: searchTerm || undefined,
+        search: searchTerm || undefined,
         composition: filters.composition || undefined,
         manufacturer: filters.manufacturer || undefined,
         batch_number: filters.batch_number || undefined,
