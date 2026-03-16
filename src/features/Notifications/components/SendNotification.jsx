@@ -3,8 +3,11 @@ import { notificationsApi } from '../services/notificationsApi';
 import { adminApi } from '../../Admin&SuperAdmin/services/admin&superAminApi';
 import { Send, X, Info, AlertTriangle, AlertCircle, Megaphone, Store, Users, Calendar } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useTheme } from '../../../contexts/ThemeContext';
+import { t } from '../../../theme';
 
 export default function SendNotification({ onClose, onSuccess }) {
+  const { isDark } = useTheme();
   const [shops, setShops] = useState([]);
   const [staff, setStaff] = useState([]);
   const [formData, setFormData] = useState({
@@ -109,7 +112,7 @@ export default function SendNotification({ onClose, onSuccess }) {
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden">
+      <div style={t.glassCard(isDark)} className="rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden">
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6">
           <div className="flex justify-between items-center">
@@ -132,27 +135,29 @@ export default function SendNotification({ onClose, onSuccess }) {
         <form onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto max-h-[calc(90vh-120px)]">
           {/* Title */}
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">Title *</label>
+            <label style={{ color: t.text.primary(isDark) }} className="block text-sm font-bold mb-2">Title *</label>
             <input
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               placeholder="Enter notification title"
               maxLength={200}
-              className="w-full border-2 border-gray-200 focus:border-blue-500 p-3 rounded-xl transition-colors outline-none"
+              style={t.input(isDark)}
+              className="w-full p-3 rounded-xl transition-colors outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
-            <p className="text-xs text-gray-500 mt-1">{formData.title.length}/200 characters</p>
+            <p style={{ color: t.text.muted(isDark) }} className="text-xs mt-1">{formData.title.length}/200 characters</p>
           </div>
 
           {/* Message */}
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">Message *</label>
+            <label style={{ color: t.text.primary(isDark) }} className="block text-sm font-bold mb-2">Message *</label>
             <textarea
               value={formData.message}
               onChange={(e) => setFormData({ ...formData, message: e.target.value })}
               placeholder="Write your message here..."
               rows={4}
-              className="w-full border-2 border-gray-200 focus:border-blue-500 p-3 rounded-xl transition-colors outline-none resize-none"
+              style={t.input(isDark)}
+              className="w-full p-3 rounded-xl transition-colors outline-none resize-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
@@ -160,11 +165,12 @@ export default function SendNotification({ onClose, onSuccess }) {
           {/* Type & Target */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Type *</label>
+              <label style={{ color: t.text.primary(isDark) }} className="block text-sm font-bold mb-2">Type *</label>
               <select
                 value={formData.type}
                 onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                className="w-full border-2 border-gray-200 focus:border-blue-500 p-3 rounded-xl transition-colors outline-none"
+                style={t.input(isDark)}
+                className="w-full p-3 rounded-xl transition-colors outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="info">Info</option>
                 <option value="warning">Warning</option>
@@ -174,11 +180,12 @@ export default function SendNotification({ onClose, onSuccess }) {
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Target *</label>
+              <label style={{ color: t.text.primary(isDark) }} className="block text-sm font-bold mb-2">Target *</label>
               <select
                 value={formData.target_type}
                 onChange={(e) => setFormData({ ...formData, target_type: e.target.value, shop_ids: [], staff_ids: [] })}
-                className="w-full border-2 border-gray-200 focus:border-blue-500 p-3 rounded-xl transition-colors outline-none"
+                style={t.input(isDark)}
+                className="w-full p-3 rounded-xl transition-colors outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="shop">Shops</option>
                 <option value="staff">Staff</option>
@@ -188,36 +195,37 @@ export default function SendNotification({ onClose, onSuccess }) {
 
           {/* Expires At */}
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">Expires At (Optional)</label>
+            <label style={{ color: t.text.primary(isDark) }} className="block text-sm font-bold mb-2">Expires At (Optional)</label>
             <input
               type="datetime-local"
               value={formData.expires_at}
               onChange={(e) => setFormData({ ...formData, expires_at: e.target.value })}
-              className="w-full border-2 border-gray-200 focus:border-blue-500 p-3 rounded-xl transition-colors outline-none"
+              style={t.input(isDark)}
+              className="w-full p-3 rounded-xl transition-colors outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <p className="text-xs text-gray-500 mt-1">Leave empty for no expiration</p>
+            <p style={{ color: t.text.muted(isDark) }} className="text-xs mt-1">Leave empty for no expiration</p>
           </div>
 
           {/* Select Shops/Staff */}
           {formData.target_type === 'shop' ? (
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">
+              <label style={{ color: t.text.primary(isDark) }} className="block text-sm font-bold mb-2">
                 Select Shops * ({formData.shop_ids.length} selected)
               </label>
-              <div className="border-2 border-gray-200 rounded-xl p-4 max-h-64 overflow-y-auto bg-gray-50">
+              <div style={{ ...t.innerRow(isDark), borderColor: t.divider(isDark) }} className="rounded-xl p-4 max-h-64 overflow-y-auto">
                 {shops.length === 0 ? (
-                  <p className="text-gray-500 text-center py-4">No shops available</p>
+                  <p style={{ color: t.text.secondary(isDark) }} className="text-center py-4">No shops available</p>
                 ) : (
                   <div className="space-y-2">
                     {shops.map(shop => (
-                      <label key={shop.id} className="flex items-center gap-3 cursor-pointer hover:bg-white p-3 rounded-lg transition-colors group">
+                      <label key={shop.id} style={t.innerRow(isDark)} className="flex items-center gap-3 cursor-pointer p-3 rounded-lg transition-colors group">
                         <input
                           type="checkbox"
                           checked={formData.shop_ids.includes(shop.id)}
                           onChange={() => toggleShop(shop.id)}
                           className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
                         />
-                        <span className="text-sm font-medium text-gray-700 group-hover:text-blue-600">{shop.shop_name}</span>
+                        <span style={{ color: t.text.primary(isDark) }} className="text-sm font-medium group-hover:text-blue-600">{shop.shop_name}</span>
                       </label>
                     ))}
                   </div>
@@ -226,16 +234,16 @@ export default function SendNotification({ onClose, onSuccess }) {
             </div>
           ) : (
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">
+              <label style={{ color: t.text.primary(isDark) }} className="block text-sm font-bold mb-2">
                 Select Staff * ({formData.staff_ids.length} selected)
               </label>
-              <div className="border-2 border-gray-200 rounded-xl p-4 max-h-64 overflow-y-auto bg-gray-50">
+              <div style={{ ...t.innerRow(isDark), borderColor: t.divider(isDark) }} className="rounded-xl p-4 max-h-64 overflow-y-auto">
                 {staff.length === 0 ? (
-                  <p className="text-gray-500 text-center py-4">No staff available</p>
+                  <p style={{ color: t.text.secondary(isDark) }} className="text-center py-4">No staff available</p>
                 ) : (
                   <div className="space-y-2">
                     {staff.map(s => (
-                      <label key={s.id} className="flex items-center gap-3 cursor-pointer hover:bg-white p-3 rounded-lg transition-colors group">
+                      <label key={s.id} style={t.innerRow(isDark)} className="flex items-center gap-3 cursor-pointer p-3 rounded-lg transition-colors group">
                         <input
                           type="checkbox"
                           checked={formData.staff_ids.includes(s.id)}
@@ -243,8 +251,8 @@ export default function SendNotification({ onClose, onSuccess }) {
                           className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
                         />
                         <div className="flex-1">
-                          <span className="text-sm font-medium text-gray-700 group-hover:text-blue-600">{s.name}</span>
-                          <span className="text-xs text-gray-500 ml-2">({s.shop_name})</span>
+                          <span style={{ color: t.text.primary(isDark) }} className="text-sm font-medium group-hover:text-blue-600">{s.name}</span>
+                          <span style={{ color: t.text.muted(isDark) }} className="text-xs ml-2">({s.shop_name})</span>
                         </div>
                       </label>
                     ))}
@@ -255,7 +263,7 @@ export default function SendNotification({ onClose, onSuccess }) {
           )}
 
           {/* Action Buttons */}
-          <div className="flex gap-3 pt-4 border-t">
+          <div style={{ borderColor: t.divider(isDark) }} className="flex gap-3 pt-4 border-t">
             <button
               type="submit"
               disabled={loading || (formData.target_type === 'shop' ? formData.shop_ids.length === 0 : formData.staff_ids.length === 0)}
@@ -267,7 +275,8 @@ export default function SendNotification({ onClose, onSuccess }) {
             <button
               type="button"
               onClick={onClose}
-              className="px-6 py-3.5 border-2 border-gray-300 text-gray-700 rounded-xl font-bold hover:bg-gray-50 transition-colors"
+              style={{ borderColor: t.divider(isDark), color: t.text.primary(isDark) }}
+              className="px-6 py-3.5 border-2 rounded-xl font-bold hover:opacity-70 transition-colors"
             >
               Cancel
             </button>

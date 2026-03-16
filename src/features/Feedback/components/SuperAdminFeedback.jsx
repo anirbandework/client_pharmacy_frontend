@@ -2,8 +2,11 @@ import React, { useState, useEffect } from 'react'
 import Layout from '../../../components/Layout'
 import { feedbackAPI } from '../services/feedbackApi'
 import { MessageSquare, TrendingUp, Users, Star, Smile, Meh, Frown, Angry, Laugh, Rocket, Bug, Lightbulb, AlertCircle, Heart, Bookmark, Phone, Building, User } from 'lucide-react'
+import { useTheme } from '../../../contexts/ThemeContext'
+import { t } from '../../../theme'
 
 const SuperAdminFeedback = () => {
+  const { isDark } = useTheme()
   const [feedbacks, setFeedbacks] = useState([])
   const [stats, setStats] = useState(null)
   const [filter, setFilter] = useState({ status: '', feedback_type: '', user_type: '' })
@@ -111,9 +114,9 @@ const SuperAdminFeedback = () => {
             </div>
           )}
 
-          <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 border border-gray-200">
+          <div style={t.card(isDark)} className="rounded-xl shadow-lg p-4 md:p-6">
             <div className="flex flex-col sm:flex-row gap-3 mb-6">
-              <select value={filter.status} onChange={(e) => setFilter({ ...filter, status: e.target.value })} className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-sm">
+              <select value={filter.status} onChange={(e) => setFilter({ ...filter, status: e.target.value })} style={t.input(isDark)} className="w-full sm:w-auto px-4 py-2 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-sm">
                 <option value="">All Status</option>
                 <option value="pending">Pending</option>
                 <option value="reviewed">Reviewed</option>
@@ -121,7 +124,7 @@ const SuperAdminFeedback = () => {
                 <option value="resolved">Resolved</option>
                 <option value="closed">Closed</option>
               </select>
-              <select value={filter.feedback_type} onChange={(e) => setFilter({ ...filter, feedback_type: e.target.value })} className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-sm">
+              <select value={filter.feedback_type} onChange={(e) => setFilter({ ...filter, feedback_type: e.target.value })} style={t.input(isDark)} className="w-full sm:w-auto px-4 py-2 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-sm">
                 <option value="">All Types</option>
                 <option value="feature_request">Feature Request</option>
                 <option value="bug_report">Bug Report</option>
@@ -130,7 +133,7 @@ const SuperAdminFeedback = () => {
                 <option value="appreciation">Appreciation</option>
                 <option value="other">Other</option>
               </select>
-              <select value={filter.user_type} onChange={(e) => setFilter({ ...filter, user_type: e.target.value })} className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-sm">
+              <select value={filter.user_type} onChange={(e) => setFilter({ ...filter, user_type: e.target.value })} style={t.input(isDark)} className="w-full sm:w-auto px-4 py-2 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-sm">
                 <option value="">All Users</option>
                 <option value="staff">Staff</option>
                 <option value="admin">Admin</option>
@@ -139,24 +142,24 @@ const SuperAdminFeedback = () => {
 
             <div className="space-y-3">
               {feedbacks.map((fb) => (
-                <div key={fb.id} className="border border-gray-200 rounded-xl p-5 hover:shadow-lg hover:border-purple-300 cursor-pointer transition-all" onClick={() => setSelectedFeedback(fb)}>
+                <div key={fb.id} style={{ ...t.innerRow(isDark), borderColor: t.divider(isDark) }} className="rounded-xl p-5 hover:shadow-lg cursor-pointer transition-all" onClick={() => setSelectedFeedback(fb)}>
                   <div className="flex justify-between items-start mb-3">
                     <div className="flex items-center gap-3">
                       <div className="flex gap-2">
-                        {React.createElement(getMoodIcon(fb.mood), { className: 'w-5 h-5 text-purple-600' })}
-                        {React.createElement(getTypeIcon(fb.feedback_type), { className: 'w-5 h-5 text-pink-600' })}
+                        {React.createElement(getMoodIcon(fb.mood), { className: 'w-5 h-5 text-purple-600 dark:text-purple-400' })}
+                        {React.createElement(getTypeIcon(fb.feedback_type), { className: 'w-5 h-5 text-pink-600 dark:text-pink-400' })}
                       </div>
                       <div>
-                        <h4 className="font-bold text-gray-900">{fb.title}</h4>
-                        <p className="text-xs text-gray-500 mt-1">{fb.user_name} • <span className="capitalize">{fb.user_type}</span></p>
+                        <h4 style={{ color: t.text.primary(isDark) }} className="font-bold">{fb.title}</h4>
+                        <p style={{ color: t.text.muted(isDark) }} className="text-xs mt-1">{fb.user_name} • <span className="capitalize">{fb.user_type}</span></p>
                       </div>
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${fb.status === 'pending' ? 'bg-orange-100 text-orange-700' : fb.status === 'in_progress' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${fb.status === 'pending' ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400' : fb.status === 'in_progress' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'}`}>
                       {fb.status.replace('_', ' ')}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-700 mb-3 line-clamp-2">{fb.message}</p>
-                  <div className="flex flex-wrap gap-4 text-xs text-gray-600">
+                  <p style={{ color: t.text.secondary(isDark) }} className="text-sm mb-3 line-clamp-2">{fb.message}</p>
+                  <div style={{ color: t.text.muted(isDark) }} className="flex flex-wrap gap-4 text-xs">
                     <span className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" />{fb.user_phone}</span>
                     {fb.shop_name && <span className="flex items-center gap-1.5"><Building className="w-3.5 h-3.5" />{fb.shop_name}</span>}
                     <span className="flex items-center gap-1.5"><Star className="w-3.5 h-3.5 fill-purple-500 text-purple-500" />{fb.satisfaction_rating}/5</span>
@@ -168,19 +171,19 @@ const SuperAdminFeedback = () => {
 
           {selectedFeedback && (
             <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-              <div className="bg-white rounded-2xl p-6 w-full max-w-2xl max-h-[85vh] overflow-y-auto shadow-2xl">
-                <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-6">Respond to Feedback</h3>
-                <div className="space-y-4 mb-6 bg-gray-50 p-4 rounded-xl">
-                  <p className="flex items-center gap-2 text-sm"><User className="w-4 h-4 text-purple-600" /><strong>From:</strong> {selectedFeedback.user_name} <span className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full text-xs">{selectedFeedback.user_type}</span></p>
-                  <p className="flex items-center gap-2 text-sm"><Phone className="w-4 h-4 text-purple-600" /><strong>Phone:</strong> {selectedFeedback.user_phone}</p>
-                  {selectedFeedback.shop_name && <p className="flex items-center gap-2 text-sm"><Building className="w-4 h-4 text-purple-600" /><strong>Shop:</strong> {selectedFeedback.shop_name} - {selectedFeedback.shop_location}</p>}
-                  {selectedFeedback.admin_name && <p className="flex items-center gap-2 text-sm"><User className="w-4 h-4 text-purple-600" /><strong>Admin:</strong> {selectedFeedback.admin_name} ({selectedFeedback.admin_phone})</p>}
-                  <div className="pt-3 border-t">
-                    <p className="font-semibold text-gray-900 mb-2">{selectedFeedback.title}</p>
-                    <p className="text-sm text-gray-700">{selectedFeedback.message}</p>
+              <div style={t.glassCard(isDark)} className="rounded-2xl p-6 w-full max-w-2xl max-h-[85vh] overflow-y-auto shadow-2xl">
+                <h3 style={{ color: t.text.primary(isDark) }} className="text-2xl font-bold mb-6">Respond to Feedback</h3>
+                <div style={t.innerRow(isDark)} className="space-y-4 mb-6 p-4 rounded-xl">
+                  <p style={{ color: t.text.secondary(isDark) }} className="flex items-center gap-2 text-sm"><User className="w-4 h-4 text-purple-600 dark:text-purple-400" /><strong>From:</strong> {selectedFeedback.user_name} <span className="px-2 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 rounded-full text-xs">{selectedFeedback.user_type}</span></p>
+                  <p style={{ color: t.text.secondary(isDark) }} className="flex items-center gap-2 text-sm"><Phone className="w-4 h-4 text-purple-600 dark:text-purple-400" /><strong>Phone:</strong> {selectedFeedback.user_phone}</p>
+                  {selectedFeedback.shop_name && <p style={{ color: t.text.secondary(isDark) }} className="flex items-center gap-2 text-sm"><Building className="w-4 h-4 text-purple-600 dark:text-purple-400" /><strong>Shop:</strong> {selectedFeedback.shop_name} - {selectedFeedback.shop_location}</p>}
+                  {selectedFeedback.admin_name && <p style={{ color: t.text.secondary(isDark) }} className="flex items-center gap-2 text-sm"><User className="w-4 h-4 text-purple-600 dark:text-purple-400" /><strong>Admin:</strong> {selectedFeedback.admin_name} ({selectedFeedback.admin_phone})</p>}
+                  <div style={{ borderColor: t.divider(isDark) }} className="pt-3 border-t">
+                    <p style={{ color: t.text.primary(isDark) }} className="font-semibold mb-2">{selectedFeedback.title}</p>
+                    <p style={{ color: t.text.secondary(isDark) }} className="text-sm">{selectedFeedback.message}</p>
                   </div>
                 </div>
-                <select value={status} onChange={(e) => setStatus(e.target.value)} className="w-full px-4 py-3 border border-gray-300 rounded-xl mb-4 focus:ring-2 focus:ring-purple-500 outline-none">
+                <select value={status} onChange={(e) => setStatus(e.target.value)} style={t.input(isDark)} className="w-full px-4 py-3 rounded-xl mb-4 focus:ring-2 focus:ring-purple-500 outline-none">
                   <option value="">Select Status</option>
                   <option value="reviewed">Reviewed</option>
                   <option value="in_progress">In Progress</option>
@@ -191,11 +194,12 @@ const SuperAdminFeedback = () => {
                   value={response}
                   onChange={(e) => setResponse(e.target.value)}
                   rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl mb-4 focus:ring-2 focus:ring-purple-500 outline-none resize-none"
+                  style={t.input(isDark)}
+                  className="w-full px-4 py-3 rounded-xl mb-4 focus:ring-2 focus:ring-purple-500 outline-none resize-none"
                 />
                 <div className="flex gap-3">
                   <button onClick={handleRespond} className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all">Send Response</button>
-                  <button onClick={() => setSelectedFeedback(null)} className="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl font-semibold hover:bg-gray-300 transition-all">Cancel</button>
+                  <button onClick={() => setSelectedFeedback(null)} style={{ background: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)', color: t.text.primary(isDark) }} className="px-6 py-3 rounded-xl font-semibold hover:opacity-80 transition-all">Cancel</button>
                 </div>
               </div>
             </div>

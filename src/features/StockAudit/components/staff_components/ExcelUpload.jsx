@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 
 const ExcelUpload = () => {
   const [uploadingExcel, setUploadingExcel] = useState(false)
+  const [downloadingTemplate, setDownloadingTemplate] = useState(false)
   const [uploadResult, setUploadResult] = useState(null)
   const [uploadNotes, setUploadNotes] = useState('')
 
@@ -35,6 +36,7 @@ const ExcelUpload = () => {
   }
 
   const handleExport = async () => {
+    setDownloadingTemplate(true)
     try {
       const response = await staffStockAuditAPI.exportStockItems()
       const url = window.URL.createObjectURL(response.data)
@@ -46,6 +48,8 @@ const ExcelUpload = () => {
       toast.success('Template downloaded')
     } catch (error) {
       toast.error('Failed to download template')
+    } finally {
+      setDownloadingTemplate(false)
     }
   }
 
@@ -81,15 +85,24 @@ const ExcelUpload = () => {
               
               <div className="flex gap-3">
                 <button 
-                  onClick={handleExport} 
-                  className="flex items-center gap-2 px-4 py-3 bg-white dark:bg-slate-700 border-2 border-blue-300 dark:border-slate-600 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-50 dark:hover:bg-slate-600 transition-colors font-medium"
+                  onClick={handleExport}
+                  disabled={downloadingTemplate}
+                  className="flex items-center gap-2 px-4 py-3 bg-white dark:bg-slate-700 border-2 border-blue-300 dark:border-slate-600 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-50 dark:hover:bg-slate-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <Download className="w-5 h-5" />
-                  Download Template
+                  {downloadingTemplate ? (
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+                  ) : (
+                    <Download className="w-5 h-5" />
+                  )}
+                  {downloadingTemplate ? 'Downloading...' : 'Download Template'}
                 </button>
                 
-                <label className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:shadow-lg cursor-pointer transition-all font-medium">
-                  <Upload className="w-5 h-5" />
+                <label className={`flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:shadow-lg transition-all font-medium ${uploadingExcel ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
+                  {uploadingExcel ? (
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  ) : (
+                    <Upload className="w-5 h-5" />
+                  )}
                   {uploadingExcel ? 'Uploading...' : 'Select Excel File'}
                   <input 
                     type="file" 

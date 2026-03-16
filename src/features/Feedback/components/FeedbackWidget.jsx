@@ -3,8 +3,11 @@ import { feedbackAPI } from '../services/feedbackApi'
 import { MessageCircle, Send, X, Star, Smile, Meh, Frown, Angry, Laugh, Rocket, Bug, Lightbulb, AlertCircle, Heart, Bookmark, ThumbsUp, ThumbsDown } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
+import { useTheme } from '../../../contexts/ThemeContext'
+import { t } from '../../../theme'
 
 const FeedbackWidget = () => {
+  const { isDark } = useTheme()
   const navigate = useNavigate()
   const [isOpen, setIsOpen] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
@@ -86,7 +89,8 @@ const FeedbackWidget = () => {
       <div className="fixed bottom-6 left-6 z-50 flex flex-col gap-3">
         <button
           onClick={() => navigate('/my-feedback')}
-          className="relative bg-gradient-to-br from-purple-500/10 to-pink-500/10 backdrop-blur-xl border border-purple-200/50 shadow-2xl text-purple-600 px-4 py-3 rounded-full hover:shadow-purple-500/50 transition-all hover:scale-105 flex items-center gap-2 font-medium"
+          style={t.card(isDark)}
+          className="relative shadow-2xl text-purple-600 dark:text-purple-400 px-4 py-3 rounded-full hover:shadow-purple-500/50 transition-all hover:scale-105 flex items-center gap-2 font-medium"
         >
           <MessageCircle className="w-5 h-5" />
           My Feedback
@@ -98,7 +102,8 @@ const FeedbackWidget = () => {
         </button>
         <button
           onClick={() => setIsOpen(true)}
-          className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 backdrop-blur-xl border border-purple-200/50 shadow-2xl text-purple-600 p-4 rounded-full hover:shadow-purple-500/50 transition-all hover:scale-110"
+          style={t.card(isDark)}
+          className="shadow-2xl text-purple-600 dark:text-purple-400 p-4 rounded-full hover:shadow-purple-500/50 transition-all hover:scale-110"
         >
           <Send className="w-6 h-6" />
         </button>
@@ -108,35 +113,35 @@ const FeedbackWidget = () => {
 
   if (submitted) {
     return (
-      <div className="fixed bottom-6 left-6 bg-gradient-to-br from-green-50/95 to-emerald-50/95 backdrop-blur-2xl border border-green-200/50 rounded-2xl shadow-2xl p-8 w-96 z-50 text-center">
+      <div style={t.glassCard(isDark)} className="fixed bottom-6 left-6 rounded-2xl shadow-2xl p-8 w-96 z-50 text-center">
         <div className="flex justify-center mb-4">
-          <div className="bg-gradient-to-br from-green-400/20 to-green-600/20 backdrop-blur-xl p-4 rounded-full">
-            <ThumbsUp className="w-12 h-12 text-green-600" />
+          <div className="bg-green-500/20 backdrop-blur-xl p-4 rounded-full">
+            <ThumbsUp className="w-12 h-12 text-green-600 dark:text-green-400" />
           </div>
         </div>
-        <h3 className="text-2xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-2">Thank You!</h3>
-        <p className="text-gray-600">Your feedback helps us improve!</p>
+        <h3 style={{ color: t.text.primary(isDark) }} className="text-2xl font-bold mb-2">Thank You!</h3>
+        <p style={{ color: t.text.secondary(isDark) }}>Your feedback helps us improve!</p>
       </div>
     )
   }
 
   return (
-    <div className="fixed bottom-6 left-6 bg-gradient-to-br from-purple-50/95 to-pink-50/95 backdrop-blur-2xl border border-purple-200/50 rounded-2xl shadow-2xl p-6 w-96 max-h-[600px] overflow-y-auto z-50">
+    <div style={t.glassCard(isDark)} className="fixed bottom-6 left-6 rounded-2xl shadow-2xl p-6 w-96 max-h-[600px] overflow-y-auto z-50">
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-2">
-          <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 p-2 rounded-xl">
-            <MessageCircle className="w-5 h-5 text-purple-600" />
+          <div className="bg-purple-500/20 p-2 rounded-xl">
+            <MessageCircle className="w-5 h-5 text-purple-600 dark:text-purple-400" />
           </div>
-          <h3 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Share Your Thoughts</h3>
+          <h3 style={{ color: t.text.primary(isDark) }} className="text-xl font-bold">Share Your Thoughts</h3>
         </div>
-        <button onClick={() => setIsOpen(false)} className="text-gray-400 hover:text-gray-600 hover:bg-gray-100/50 p-1 rounded-lg transition-all">
+        <button onClick={() => setIsOpen(false)} style={{ color: t.text.muted(isDark), transition: 'color 0.4s ease' }} className="hover:opacity-70 p-1 rounded-lg transition-all">
           <X className="w-5 h-5" />
         </button>
       </div>
 
       <div className="space-y-4">
         <div>
-          <p className="text-sm font-medium text-gray-700 mb-2">How are you feeling?</p>
+          <p style={{ color: t.text.primary(isDark) }} className="text-sm font-medium mb-2">How are you feeling?</p>
           <div className="flex gap-2">
             {moods.map((m) => (
               <button
@@ -152,17 +157,18 @@ const FeedbackWidget = () => {
         </div>
 
         <div>
-          <p className="text-sm font-medium text-gray-700 mb-2">What's this about?</p>
+          <p style={{ color: t.text.primary(isDark) }} className="text-sm font-medium mb-2">What's this about?</p>
           <div className="grid grid-cols-3 gap-2">
-            {types.map((t) => (
+            {types.map((typeItem) => (
               <button
-                key={t.value}
-                onClick={() => setType(t.value)}
-                className={`p-3 rounded-xl text-center transition-all ${type === t.value ? 'bg-gradient-to-br from-purple-500/20 to-pink-500/20 ring-2 ring-purple-500 shadow-lg' : 'bg-white/50 hover:bg-white/80'}`}
+                key={typeItem.value}
+                onClick={() => setType(typeItem.value)}
+                style={type === typeItem.value ? { background: 'rgba(99,102,241,0.15)', border: '2px solid #6366f1' } : t.innerRow(isDark)}
+                className="p-3 rounded-xl text-center transition-all hover:opacity-80"
               >
-                <t.icon className="w-6 h-6 mx-auto mb-1 text-gray-700" />
-                <div className="text-xs font-medium">{t.title}</div>
-                <div className="text-xs text-gray-500">{t.desc}</div>
+                <typeItem.icon style={{ color: t.text.primary(isDark) }} className="w-6 h-6 mx-auto mb-1" />
+                <div style={{ color: t.text.primary(isDark) }} className="text-xs font-medium">{typeItem.title}</div>
+                <div style={{ color: t.text.secondary(isDark) }} className="text-xs">{typeItem.desc}</div>
               </button>
             ))}
           </div>
@@ -173,7 +179,8 @@ const FeedbackWidget = () => {
           placeholder="Give it a catchy title..."
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="w-full px-3 py-2 bg-white/50 backdrop-blur-xl border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
+          style={t.input(isDark)}
+          className="w-full px-3 py-2 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
         />
 
         <textarea
@@ -181,11 +188,12 @@ const FeedbackWidget = () => {
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           rows={4}
-          className="w-full px-3 py-2 bg-white/50 backdrop-blur-xl border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none resize-none transition-all"
+          style={t.input(isDark)}
+          className="w-full px-3 py-2 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none resize-none transition-all"
         />
 
         <div>
-          <p className="text-sm font-medium text-gray-700 mb-2">Rate your experience</p>
+          <p style={{ color: t.text.primary(isDark) }} className="text-sm font-medium mb-2">Rate your experience</p>
           <div className="flex gap-1 justify-center">
             {[1, 2, 3, 4, 5].map((star) => (
               <button
@@ -199,8 +207,8 @@ const FeedbackWidget = () => {
           </div>
         </div>
 
-        <div className="flex items-center justify-between p-3 bg-white/50 backdrop-blur-xl rounded-lg border border-gray-200">
-          <span className="text-sm font-medium text-gray-700">Would you recommend?</span>
+        <div style={t.innerRow(isDark)} className="flex items-center justify-between p-3 rounded-lg">
+          <span style={{ color: t.text.primary(isDark) }} className="text-sm font-medium">Would you recommend?</span>
           <button
             onClick={() => setRecommend(!recommend)}
             className={`px-4 py-2 rounded-full font-medium transition-all flex items-center gap-2 ${recommend ? 'bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg shadow-green-500/30' : 'bg-gray-200 text-gray-700'}`}

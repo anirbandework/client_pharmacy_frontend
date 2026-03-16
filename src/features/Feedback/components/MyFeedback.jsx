@@ -3,8 +3,11 @@ import Layout from '../../../components/Layout'
 import PasswordProtectedRoute from '../../../components/PasswordProtectedRoute'
 import { feedbackAPI } from '../services/feedbackApi'
 import { MessageSquare, Star, Smile, Meh, Frown, Angry, Laugh, Rocket, Bug, Lightbulb, AlertCircle, Heart, Bookmark, User, Clock, CheckCircle } from 'lucide-react'
+import { useTheme } from '../../../contexts/ThemeContext'
+import { t } from '../../../theme'
 
 const MyFeedback = () => {
+  const { isDark } = useTheme()
   const [feedbacks, setFeedbacks] = useState([])
 
   useEffect(() => {
@@ -58,56 +61,56 @@ const MyFeedback = () => {
 
         <div className="space-y-4">
           {feedbacks.length === 0 ? (
-            <div className="bg-white rounded-xl shadow-lg p-8 md:p-12 text-center border border-slate-200">
-              <MessageSquare className="w-12 h-12 md:w-16 md:h-16 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500 text-sm md:text-base">No feedback submitted yet</p>
+            <div style={t.card(isDark)} className="rounded-xl shadow-lg p-8 md:p-12 text-center">
+              <MessageSquare style={{ color: t.text.muted(isDark) }} className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-4" />
+              <p style={{ color: t.text.secondary(isDark) }} className="text-sm md:text-base">No feedback submitted yet</p>
             </div>
           ) : (
             feedbacks.map((fb) => (
-              <div key={fb.id} className="bg-white rounded-xl shadow-lg p-4 md:p-6 border border-slate-200 hover:shadow-xl transition-all">
+              <div key={fb.id} style={t.card(isDark)} className="rounded-xl shadow-lg p-4 md:p-6 hover:shadow-xl transition-all">
                 <div className="flex flex-col sm:flex-row justify-between items-start gap-3 mb-4">
                   <div className="flex items-center gap-3">
                     <div className="flex gap-2">
-                      {React.createElement(getMoodIcon(fb.mood), { className: 'w-5 h-5 md:w-6 md:h-6 text-purple-600' })}
-                      {React.createElement(getTypeIcon(fb.feedback_type), { className: 'w-5 h-5 md:w-6 md:h-6 text-pink-600' })}
+                      {React.createElement(getMoodIcon(fb.mood), { className: 'w-5 h-5 md:w-6 md:h-6 text-purple-600 dark:text-purple-400' })}
+                      {React.createElement(getTypeIcon(fb.feedback_type), { className: 'w-5 h-5 md:w-6 md:h-6 text-pink-600 dark:text-pink-400' })}
                     </div>
                     <div>
-                      <h3 className="text-base md:text-lg font-bold text-gray-900">{fb.title}</h3>
-                      <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                      <h3 style={{ color: t.text.primary(isDark) }} className="text-base md:text-lg font-bold">{fb.title}</h3>
+                      <p style={{ color: t.text.muted(isDark) }} className="text-xs mt-1 flex items-center gap-1">
                         <Clock className="w-3 h-3" />
                         {new Date(fb.created_at).toLocaleString()}
                       </p>
                     </div>
                   </div>
-                  <span className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${fb.status === 'pending' ? 'bg-orange-100 text-orange-700' : fb.status === 'in_progress' ? 'bg-blue-100 text-blue-700' : fb.status === 'reviewed' ? 'bg-purple-100 text-purple-700' : 'bg-green-100 text-green-700'}`}>
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${fb.status === 'pending' ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400' : fb.status === 'in_progress' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : fb.status === 'reviewed' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' : 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'}`}>
                     {fb.status.replace('_', ' ')}
                   </span>
                 </div>
 
-                <p className="text-sm md:text-base text-gray-700 mb-4 bg-gray-50 p-3 md:p-4 rounded-lg">{fb.message}</p>
+                <p style={{ color: t.text.secondary(isDark), ...t.innerRow(isDark) }} className="text-sm md:text-base p-3 md:p-4 rounded-lg mb-4">{fb.message}</p>
 
                 {fb.satisfaction_rating != null && (
-                  <div className="flex items-center gap-4 text-xs md:text-sm text-gray-600 mb-4 flex-wrap">
+                  <div className="flex items-center gap-4 text-xs md:text-sm mb-4 flex-wrap">
                     <div className="flex items-center gap-1">
                       {[...Array(5)].map((_, i) => (
-                        <Star key={i} className={`w-4 h-4 ${i < fb.satisfaction_rating ? 'fill-purple-500 text-purple-500' : 'text-gray-300'}`} />
+                        <Star key={i} className={`w-4 h-4 ${i < fb.satisfaction_rating ? 'fill-purple-500 text-purple-500' : isDark ? 'text-slate-600' : 'text-gray-300'}`} />
                       ))}
                     </div>
-                    <span className="text-xs text-gray-500">Rating: {fb.satisfaction_rating}/5</span>
+                    <span style={{ color: t.text.muted(isDark) }} className="text-xs">Rating: {fb.satisfaction_rating}/5</span>
                   </div>
                 )}
 
                 {fb.admin_response && (
-                  <div className="bg-gradient-to-br from-purple-50 to-pink-50 border-l-4 border-purple-500 p-3 md:p-4 rounded-lg relative">
+                  <div style={{ background: 'rgba(99,102,241,0.08)', borderLeft: '4px solid #6366f1' }} className="p-3 md:p-4 rounded-lg relative">
                     <div className="flex items-center gap-2 mb-2 flex-wrap">
-                      <User className="w-4 h-4 text-purple-600" />
-                      <span className="font-semibold text-purple-900 text-sm md:text-base">Response from {fb.responded_by || 'Admin'}</span>
+                      <User className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                      <span style={{ color: t.text.primary(isDark) }} className="font-semibold text-sm md:text-base">Response from {fb.responded_by || 'Admin'}</span>
                       {fb.status !== 'closed' && (
                         <span className="bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold px-2 py-1 rounded-full animate-pulse">NEW</span>
                       )}
-                      <span className="text-xs text-gray-500">{new Date(fb.responded_at).toLocaleString()}</span>
+                      <span style={{ color: t.text.muted(isDark) }} className="text-xs">{new Date(fb.responded_at).toLocaleString()}</span>
                     </div>
-                    <p className="text-sm md:text-base text-gray-700 mb-3">{fb.admin_response}</p>
+                    <p style={{ color: t.text.secondary(isDark) }} className="text-sm md:text-base mb-3">{fb.admin_response}</p>
                     {fb.status !== 'closed' && (
                       <button
                         onClick={() => handleMarkAsRead(fb.id)}

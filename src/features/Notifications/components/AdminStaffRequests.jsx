@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { notificationsApi } from '../services/notificationsApi';
 import { MessageSquare, Check, X, Clock, Filter } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useTheme } from '../../../contexts/ThemeContext';
+import { t } from '../../../theme';
 
 const STATUS_COLORS = {
   pending:      'bg-yellow-100 text-yellow-700 border-yellow-200',
@@ -16,6 +18,7 @@ const STATUS_ICONS = {
 };
 
 export default function AdminStaffRequests({ shopCode }) {
+  const { isDark } = useTheme();
   const [requests, setRequests] = useState([]);
   const [statusFilter, setStatusFilter] = useState('pending');
   const [loading, setLoading] = useState(true);
@@ -66,11 +69,11 @@ export default function AdminStaffRequests({ shopCode }) {
   return (
     <div className="space-y-4">
       {/* Filter bar */}
-      <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4">
+      <div style={t.card(isDark)} className="rounded-xl shadow-lg p-4">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div className="flex items-center gap-2">
-            <MessageSquare className="w-5 h-5 text-purple-600" />
-            <h2 className="text-base md:text-lg font-bold text-gray-800">Staff Requests</h2>
+            <MessageSquare className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+            <h2 style={{ color: t.text.primary(isDark) }} className="text-base md:text-lg font-bold">Staff Requests</h2>
             {pendingCount > 0 && (
               <span className="bg-yellow-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
                 {pendingCount} pending
@@ -82,7 +85,8 @@ export default function AdminStaffRequests({ shopCode }) {
             <select
               value={statusFilter}
               onChange={e => setStatusFilter(e.target.value)}
-              className="border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+              style={t.input(isDark)}
+              className="rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
             >
               <option value="pending">Pending</option>
               <option value="acknowledged">Acknowledged</option>
@@ -95,31 +99,30 @@ export default function AdminStaffRequests({ shopCode }) {
 
       {/* List */}
       {loading ? (
-        <div className="text-center py-8 text-gray-500">Loading...</div>
+        <div style={{ color: t.text.secondary(isDark) }} className="text-center py-8">Loading...</div>
       ) : requests.length === 0 ? (
-        <div className="bg-white p-6 md:p-8 rounded-xl shadow-lg border border-slate-200 text-center text-gray-500">
-          No {statusFilter} requests
+        <div style={t.card(isDark)} className="p-6 md:p-8 rounded-xl shadow-lg text-center">
+          <span style={{ color: t.text.secondary(isDark) }}>No {statusFilter} requests</span>
         </div>
       ) : (
         requests.map(req => (
           <div
             key={req.id}
-            className={`bg-white p-4 rounded-xl shadow-lg border-2 ${
-              req.status === 'pending' ? 'border-yellow-200' : 'border-slate-200'
-            }`}
+            style={{ ...t.card(isDark), borderWidth: '2px', borderColor: req.status === 'pending' ? '#fef3c7' : t.divider(isDark) }}
+            className="p-4 rounded-xl shadow-lg"
           >
             <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1 flex-wrap">
-                  <h3 className="font-bold text-gray-800 text-sm md:text-base">{req.title}</h3>
+                  <h3 style={{ color: t.text.primary(isDark) }} className="font-bold text-sm md:text-base">{req.title}</h3>
                   <span className={`px-2 py-0.5 rounded-full text-xs font-semibold border flex items-center gap-1 ${STATUS_COLORS[req.status]}`}>
                     {STATUS_ICONS[req.status]}
                     {req.status}
                   </span>
                 </div>
-                <p className="text-xs md:text-sm text-gray-700 mb-2">{req.message}</p>
-                <div className="flex items-center gap-3 text-xs text-gray-500 flex-wrap">
-                  <span className="font-medium text-gray-700">{req.staff_name}</span>
+                <p style={{ color: t.text.secondary(isDark) }} className="text-xs md:text-sm mb-2">{req.message}</p>
+                <div style={{ color: t.text.muted(isDark) }} className="flex items-center gap-3 text-xs flex-wrap">
+                  <span style={{ color: t.text.primary(isDark) }} className="font-medium">{req.staff_name}</span>
                   <span>{new Date(req.created_at).toLocaleString()}</span>
                   {req.acknowledged_by && (
                     <span className="text-green-600">by {req.acknowledged_by}</span>
