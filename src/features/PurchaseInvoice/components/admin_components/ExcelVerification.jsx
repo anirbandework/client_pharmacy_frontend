@@ -7,6 +7,7 @@ import { adminApi } from '../../../Admin&SuperAdmin/services/admin&superAminApi'
 import InvoiceModal from '../shared/InvoiceModal'
 import EditInvoice from '../staff_components/EditInvoice'
 import DeleteConfirmationModal from '../shared/DeleteConfirmationModal'
+import MarginReviewCard from './MarginReviewCard'
 
 const ExcelVerification = () => {
   const [pendingInvoices, setPendingInvoices] = useState(null)
@@ -166,31 +167,68 @@ const ExcelVerification = () => {
 }
 
 const PendingInvoiceCard = ({ invoice, onAction }) => {
-  const [processing, setProcessing] = useState(false)
-  const [viewing, setViewing] = useState(false)
-  const [editing, setEditing] = useState(false)
+  const [loadingAction, setLoadingAction] = useState(null)
   const [invoiceDetails, setInvoiceDetails] = useState(null)
+  const [pendingAction, setPendingAction] = useState(null) // 'view' | 'edit' | 'approve'
+  const [showMarginCard, setShowMarginCard] = useState(false)
+  const [showInvoiceModal, setShowInvoiceModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [approving, setApproving] = useState(false)
+  const [rejecting, setRejecting] = useState(false)
   const [showRejectConfirm, setShowRejectConfirm] = useState(false)
 
-  const handleApprove = async () => {
-    setProcessing(true)
+  const fetchThenShowMargin = async (action) => {
+    setLoadingAction(action)
     try {
-      if (invoice.is_distributor_invoice) {
-        await adminPurchaseInvoiceAPI.adminVerifyDistributorInvoice(invoice.id)
-      } else {
-        await adminPurchaseInvoiceAPI.adminVerifyInvoice(invoice.id)
-      }
-      toast.success('Invoice approved and synced to stock!')
-      onAction()
-    } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to approve invoice')
+      const response = invoice.is_distributor_invoice
+        ? await adminPurchaseInvoiceAPI.getDistributorInvoiceAdmin(invoice.id)
+        : await staffPurchaseInvoiceAPI.getInvoice(invoice.id)
+      const data = response.data
+      if (invoice.is_distributor_invoice) data.is_distributor_invoice = true
+      setInvoiceDetails(data)
+      setPendingAction(action)
+      setShowMarginCard(true)
+    } catch {
+      toast.error('Failed to fetch invoice details')
     } finally {
-      setProcessing(false)
+      setLoadingAction(null)
     }
   }
 
+  const handleMarginProceed = async () => {
+    setShowMarginCard(false)
+    if (pendingAction === 'view') {
+      setShowInvoiceModal(true)
+    } else if (pendingAction === 'edit') {
+      setShowEditModal(true)
+    } else if (pendingAction === 'approve') {
+      setApproving(true)
+      try {
+        if (invoice.is_distributor_invoice) {
+          await adminPurchaseInvoiceAPI.adminVerifyDistributorInvoice(invoice.id)
+        } else {
+          await adminPurchaseInvoiceAPI.adminVerifyInvoice(invoice.id)
+        }
+        toast.success('Invoice approved and synced to stock!')
+        onAction()
+      } catch (error) {
+        toast.error(error.response?.data?.detail || 'Failed to approve invoice')
+      } finally {
+        setApproving(false)
+        setInvoiceDetails(null)
+        setPendingAction(null)
+      }
+    }
+  }
+
+  const handleMarginClose = () => {
+    setShowMarginCard(false)
+    setInvoiceDetails(null)
+    setPendingAction(null)
+  }
+
   const handleReject = async () => {
-    setProcessing(true)
+    setRejecting(true)
     try {
       if (invoice.is_distributor_invoice) {
         await adminPurchaseInvoiceAPI.adminRejectDistributorInvoice(invoice.id)
@@ -202,38 +240,12 @@ const PendingInvoiceCard = ({ invoice, onAction }) => {
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Failed to reject invoice')
     } finally {
-      setProcessing(false)
+      setRejecting(false)
       setShowRejectConfirm(false)
     }
   }
 
-  const handleView = async () => {
-    try {
-      const response = invoice.is_distributor_invoice
-        ? await adminPurchaseInvoiceAPI.getDistributorInvoiceAdmin(invoice.id)
-        : await staffPurchaseInvoiceAPI.getInvoice(invoice.id)
-      setInvoiceDetails(response.data)
-      setViewing(true)
-    } catch (error) {
-      toast.error('Failed to fetch invoice details')
-    }
-  }
-
-  const handleEdit = async () => {
-    try {
-      const response = invoice.is_distributor_invoice
-        ? await adminPurchaseInvoiceAPI.getDistributorInvoiceAdmin(invoice.id)
-        : await staffPurchaseInvoiceAPI.getInvoice(invoice.id)
-      const invoiceData = response.data
-      if (invoice.is_distributor_invoice) {
-        invoiceData.is_distributor_invoice = true
-      }
-      setInvoiceDetails(invoiceData)
-      setEditing(true)
-    } catch (error) {
-      toast.error('Failed to fetch invoice details')
-    }
-  }
+  const busy = !!loadingAction || approving
 
   return (
     <>
@@ -266,54 +278,66 @@ const PendingInvoiceCard = ({ invoice, onAction }) => {
         </div>
         <div className="flex gap-2 mt-3">
           <button
-            onClick={handleEdit}
-            className="flex-1 px-3 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors flex items-center justify-center gap-2 text-sm"
+            onClick={() => fetchThenShowMargin('edit')}
+            disabled={busy}
+            className="flex-1 px-3 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-60 flex items-center justify-center gap-2 text-sm"
           >
-            <Edit className="w-4 h-4" />
+            {loadingAction === 'edit' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Edit className="w-4 h-4" />}
             Edit
           </button>
           <button
-            onClick={handleView}
-            className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 text-sm"
+            onClick={() => fetchThenShowMargin('view')}
+            disabled={busy}
+            className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-60 flex items-center justify-center gap-2 text-sm"
           >
-            <Eye className="w-4 h-4" />
+            {loadingAction === 'view' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Eye className="w-4 h-4" />}
             View
           </button>
           <button
-            onClick={handleApprove}
-            disabled={processing}
-            className="flex-1 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 text-sm"
+            onClick={() => fetchThenShowMargin('approve')}
+            disabled={busy}
+            className="flex-1 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-60 flex items-center justify-center gap-2 text-sm"
           >
-            {processing ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-            {processing ? 'Processing...' : 'Approve'}
+            {(loadingAction === 'approve' || approving) ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+            {approving ? 'Approving...' : 'Approve'}
           </button>
           <button
             onClick={() => setShowRejectConfirm(true)}
-            disabled={processing}
+            disabled={busy || rejecting}
             className="flex-1 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 text-sm"
           >
-            {processing ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
+            {rejecting ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
             Reject
           </button>
         </div>
       </div>
 
-      {viewing && invoiceDetails && (
-        <InvoiceModal invoice={invoiceDetails} onClose={() => setViewing(false)} />
+      {/* Step 1: Margin overview card */}
+      {showMarginCard && invoiceDetails && (
+        <MarginReviewCard
+          invoice={invoiceDetails}
+          actionLabel={pendingAction === 'view' ? 'View Invoice' : pendingAction === 'edit' ? 'Open Editor' : 'Approve Invoice'}
+          onProceed={handleMarginProceed}
+          onClose={handleMarginClose}
+        />
       )}
 
-      {editing && invoiceDetails && (
+      {/* Step 2a: Original view modal */}
+      {showInvoiceModal && invoiceDetails && (
+        <InvoiceModal invoice={invoiceDetails} onClose={() => { setShowInvoiceModal(false); setInvoiceDetails(null); setPendingAction(null) }} />
+      )}
+
+      {/* Step 2b: Original edit modal */}
+      {showEditModal && invoiceDetails && (
         <EditInvoice
           invoice={invoiceDetails}
-          onClose={() => setEditing(false)}
-          onSave={() => {
-            setEditing(false)
-            onAction()
-          }}
+          onClose={() => { setShowEditModal(false); setInvoiceDetails(null); setPendingAction(null) }}
+          onSave={() => { setShowEditModal(false); setInvoiceDetails(null); setPendingAction(null); onAction() }}
           isAdmin={true}
         />
       )}
 
+      {/* Reject confirm */}
       {showRejectConfirm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl max-w-md w-full p-6 border border-slate-200 dark:border-slate-700">
@@ -329,18 +353,18 @@ const PendingInvoiceCard = ({ invoice, onAction }) => {
             <div className="flex gap-3">
               <button
                 onClick={() => setShowRejectConfirm(false)}
-                disabled={processing}
+                disabled={rejecting}
                 className="flex-1 px-4 py-2 bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-300 dark:hover:bg-slate-600 transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
                 onClick={handleReject}
-                disabled={processing}
+                disabled={rejecting}
                 className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
-                {processing ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                {processing ? 'Rejecting...' : 'Reject'}
+                {rejecting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                {rejecting ? 'Rejecting...' : 'Reject'}
               </button>
             </div>
           </div>
@@ -382,38 +406,43 @@ const StaffPendingInvoiceCard = ({ invoice }) => {
 }
 
 const ApprovedInvoiceCard = ({ invoice, onDelete }) => {
-  const [viewing, setViewing] = useState(false)
-  const [editing, setEditing] = useState(false)
+  const [loadingAction, setLoadingAction] = useState(null)
   const [invoiceDetails, setInvoiceDetails] = useState(null)
+  const [pendingAction, setPendingAction] = useState(null)
+  const [showMarginCard, setShowMarginCard] = useState(false)
+  const [showInvoiceModal, setShowInvoiceModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
-  const handleView = async () => {
+  const fetchThenShowMargin = async (action) => {
+    setLoadingAction(action)
     try {
       const response = invoice.is_distributor_invoice
         ? await adminPurchaseInvoiceAPI.getDistributorInvoiceAdmin(invoice.id)
         : await staffPurchaseInvoiceAPI.getInvoice(invoice.id)
-      setInvoiceDetails(response.data)
-      setViewing(true)
-    } catch (error) {
+      const data = response.data
+      if (invoice.is_distributor_invoice) data.is_distributor_invoice = true
+      setInvoiceDetails(data)
+      setPendingAction(action)
+      setShowMarginCard(true)
+    } catch {
       toast.error('Failed to fetch invoice details')
+    } finally {
+      setLoadingAction(null)
     }
   }
 
-  const handleEdit = async () => {
-    try {
-      const response = invoice.is_distributor_invoice
-        ? await adminPurchaseInvoiceAPI.getDistributorInvoiceAdmin(invoice.id)
-        : await staffPurchaseInvoiceAPI.getInvoice(invoice.id)
-      const invoiceData = response.data
-      if (invoice.is_distributor_invoice) {
-        invoiceData.is_distributor_invoice = true
-      }
-      setInvoiceDetails(invoiceData)
-      setEditing(true)
-    } catch (error) {
-      toast.error('Failed to fetch invoice details')
-    }
+  const handleMarginProceed = () => {
+    setShowMarginCard(false)
+    if (pendingAction === 'view') setShowInvoiceModal(true)
+    else if (pendingAction === 'edit') setShowEditModal(true)
+  }
+
+  const handleMarginClose = () => {
+    setShowMarginCard(false)
+    setInvoiceDetails(null)
+    setPendingAction(null)
   }
 
   const handleDelete = async () => {
@@ -452,18 +481,20 @@ const ApprovedInvoiceCard = ({ invoice, onDelete }) => {
           </div>
           <div className="flex gap-2">
             <button
-              onClick={handleEdit}
-              className="p-2 text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20 rounded-lg transition-colors"
+              onClick={() => fetchThenShowMargin('edit')}
+              disabled={!!loadingAction}
+              className="p-2 text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20 rounded-lg transition-colors disabled:opacity-60"
               title="Edit"
             >
-              <Edit className="w-4 h-4 md:w-5 md:h-5" />
+              {loadingAction === 'edit' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Edit className="w-4 h-4 md:w-5 md:h-5" />}
             </button>
             <button
-              onClick={handleView}
-              className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+              onClick={() => fetchThenShowMargin('view')}
+              disabled={!!loadingAction}
+              className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors disabled:opacity-60"
               title="View Details"
             >
-              <Eye className="w-4 h-4 md:w-5 md:h-5" />
+              {loadingAction === 'view' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Eye className="w-4 h-4 md:w-5 md:h-5" />}
             </button>
             {!invoice.is_distributor_invoice && (
               <button
@@ -479,18 +510,27 @@ const ApprovedInvoiceCard = ({ invoice, onDelete }) => {
         </div>
       </div>
 
-      {viewing && invoiceDetails && (
-        <InvoiceModal invoice={invoiceDetails} onClose={() => setViewing(false)} />
+      {/* Step 1: Margin overview */}
+      {showMarginCard && invoiceDetails && (
+        <MarginReviewCard
+          invoice={invoiceDetails}
+          actionLabel={pendingAction === 'view' ? 'View Invoice' : 'Open Editor'}
+          onProceed={handleMarginProceed}
+          onClose={handleMarginClose}
+        />
       )}
 
-      {editing && invoiceDetails && (
+      {/* Step 2a: Original view modal */}
+      {showInvoiceModal && invoiceDetails && (
+        <InvoiceModal invoice={invoiceDetails} onClose={() => { setShowInvoiceModal(false); setInvoiceDetails(null); setPendingAction(null) }} />
+      )}
+
+      {/* Step 2b: Original edit modal */}
+      {showEditModal && invoiceDetails && (
         <EditInvoice
           invoice={invoiceDetails}
-          onClose={() => setEditing(false)}
-          onSave={() => {
-            setEditing(false)
-            if (onDelete) onDelete()
-          }}
+          onClose={() => { setShowEditModal(false); setInvoiceDetails(null); setPendingAction(null) }}
+          onSave={() => { setShowEditModal(false); setInvoiceDetails(null); setPendingAction(null); if (onDelete) onDelete() }}
           isAdmin={true}
         />
       )}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { billingAPI } from '../../services/staff_billing_apis'
 import { Search, Plus, Trash2, Save, X, Printer, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -40,7 +40,9 @@ const CreateBill = ({ onBillCreated }) => {
   const [notes, setNotes] = useState('')
   const [amountPaid, setAmountPaid] = useState('')
   const [loading, setLoading] = useState(false)
+  const [isPayLater, setIsPayLater] = useState(false)
   const [createdBill, setCreatedBill] = useState(null)
+  const searchTimer = useRef(null)
   
   // Customer tracking fields
   const [customerCategory, setCustomerCategory] = useState('first_time_prescription')
@@ -89,6 +91,7 @@ const CreateBill = ({ onBillCreated }) => {
       quantity_available: medicine.quantity_available,  // always in strips
       tablets_per_strip: pkg?.tabletsPerStrip || null,
       mrp_per_strip: mrpVal,                            // numeric MRP per strip
+      strip_price: defaultPrice,                        // canonical per-strip price (selling → MRP → purchase)
       unit_price: defaultPrice,
       quantity: 1,
       sale_unit: 'strip',
@@ -109,11 +112,12 @@ const CreateBill = ({ onBillCreated }) => {
   const updateSaleUnit = (index, newUnit) => {
     const updated = [...billItems]
     const item = updated[index]
-    if (newUnit === 'tablet' && item.tablets_per_strip && item.mrp_per_strip) {
-      item.unit_price = parseFloat((item.mrp_per_strip / item.tablets_per_strip).toFixed(2))
+    if (newUnit === 'tablet' && item.tablets_per_strip) {
+      // use selling price per strip (not MRP) to avoid overcharging the customer
+      item.unit_price = parseFloat((item.strip_price / item.tablets_per_strip).toFixed(2))
     } else {
-      // switching back to strip: restore MRP per strip (or keep current)
-      item.unit_price = item.mrp_per_strip || item.unit_price
+      // switching back to strip: restore the original per-strip selling price
+      item.unit_price = item.strip_price
     }
     item.sale_unit = newUnit
     item.quantity = 1
@@ -141,14 +145,19 @@ const CreateBill = ({ onBillCreated }) => {
     }
     
     const { total, totalPaid } = calculateTotal()
-    
-    if (totalPaid < total) {
+
+    if (!isPayLater && totalPaid < total) {
       toast.error(`Insufficient payment. Total: ₹${total.toFixed(2)}, Paid: ₹${totalPaid.toFixed(2)}`)
+      return
+    }
+    if (isPayLater && !customerInfo.customer_phone) {
+      toast.error('Customer phone number is required for Pay Later bills.')
       return
     }
 
     setLoading(true)
     try {
+      const { discountAmount } = calculateTotal()
       const billData = {
         ...customerInfo,
         customer_category: customerCategory,
@@ -157,7 +166,8 @@ const CreateBill = ({ onBillCreated }) => {
         card_amount: parseFloat(paymentAmounts.card) || 0,
         online_amount: parseFloat(paymentAmounts.online) || 0,
         payment_reference: paymentReference || undefined,
-        discount_percent: discountPercent,
+        discount_amount: discountAmount,
+        is_pay_later: isPayLater,
         notes: notes || undefined,
         items: billItems.map(item => ({
           stock_item_id: item.stock_item_id,
@@ -182,6 +192,7 @@ const CreateBill = ({ onBillCreated }) => {
       setTaxPercent(5.0)
       setDiscountPercent(0)
       setNotes('')
+      setIsPayLater(false)
       onBillCreated?.()
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Failed to create bill')
@@ -271,8 +282,10 @@ const CreateBill = ({ onBillCreated }) => {
             placeholder="Search by name, generic name, brand, or batch..."
             value={searchTerm}
             onChange={(e) => {
-              setSearchTerm(e.target.value)
-              searchMedicines(e.target.value)
+              const val = e.target.value
+              setSearchTerm(val)
+              if (searchTimer.current) clearTimeout(searchTimer.current)
+              searchTimer.current = setTimeout(() => searchMedicines(val), 300)
             }}
             className="w-full pl-10 pr-4 py-2 md:py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all text-sm md:text-base"
           />
@@ -540,6 +553,35 @@ const CreateBill = ({ onBillCreated }) => {
               rows="2"
               className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
             />
+          </div>
+
+          {/* Pay Later toggle */}
+          <div className={`mt-4 p-4 rounded-xl border-2 transition-all ${isPayLater ? 'border-amber-400/60 bg-amber-400/5' : 'border-slate-200 bg-white'}`}>
+            <label className="flex items-center justify-between cursor-pointer">
+              <div>
+                <p className="font-semibold text-sm">Pay Later</p>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  {customerInfo.customer_phone
+                    ? 'Customer will settle the bill later'
+                    : 'Enter customer phone number to enable Pay Later'}
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                {isPayLater && total > 0 && totalPaid < total && (
+                  <span className="text-xs font-semibold text-amber-600 bg-amber-50 border border-amber-200 px-2 py-1 rounded-full">
+                    ₹{(total - totalPaid).toFixed(2)} due later
+                  </span>
+                )}
+                <button
+                  type="button"
+                  disabled={!customerInfo.customer_phone}
+                  onClick={() => setIsPayLater(v => !v)}
+                  className={`relative w-12 h-6 rounded-full transition-colors focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed ${isPayLater ? 'bg-amber-400' : 'bg-gray-300'}`}
+                >
+                  <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${isPayLater ? 'translate-x-6' : ''}`} />
+                </button>
+              </div>
+            </label>
           </div>
 
           <button

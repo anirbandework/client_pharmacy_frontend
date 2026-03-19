@@ -17,5 +17,9 @@ export const billingAdminAPI = {
   exportBills: (params) => axiosInstance.get(`${ADMIN_BASE}/export/bills`, { params, responseType: 'blob' }),
   updateShopBillConfig: (shopId, config) => axiosInstance.put(`${ADMIN_BASE}/shop/${shopId}/bill-config`, config),
 
-  getProfitAnalysis: (params) => axiosInstance.get(`${ADMIN_BASE}/profit-analysis`, { params })
+  getProfitAnalysis: (params) => axiosInstance.get(`${ADMIN_BASE}/profit-analysis`, { params }),
+
+  getPayLaterCustomers: (params) => axiosInstance.get(`${ADMIN_BASE}/pay-later/customers`, { params }),
+  getPayLaterBills: (phone, params) => axiosInstance.get(`${ADMIN_BASE}/pay-later/bills/${phone}`, { params }),
+  recordPayLaterPayment: (data, params) => axiosInstance.post(`${ADMIN_BASE}/pay-later/record-payment`, data, { params }),
 }

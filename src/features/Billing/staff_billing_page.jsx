@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Toaster } from 'react-hot-toast'
 import ReactMarkdown from 'react-markdown'
 import Layout from '../../components/Layout'
-// import GeofenceGuard from '../../components/GeofenceGuard'
+import GeofenceGuard from '../../components/GeofenceGuard'
 import CreateBill from './components/staff_components/CreateBill'
 import BillHistory from './components/staff_components/BillHistory'
 import Dashboard from './components/staff_components/Dashboard'
@@ -10,9 +10,10 @@ import Reports from './components/staff_components/Reports'
 import DailyRecords from './components/staff_components/DailyRecords'
 import BillConfigManager from './components/staff_components/BillConfigManager'
 import StaffProfitAnalysis from './components/staff_components/StaffProfitAnalysis'
+import PayLaterTab from './components/shared/PayLaterTab'
 import { billingAPI } from './services/staff_billing_apis'
 import useTabPermissions from '../../hooks/useTabPermissions'
-import { LayoutDashboard, Plus, FileText, BarChart3, Receipt, Calendar, Settings, HelpCircle, X, TrendingUp } from 'lucide-react'
+import { LayoutDashboard, Plus, FileText, BarChart3, Receipt, Calendar, Settings, HelpCircle, X, TrendingUp, Clock } from 'lucide-react'
 
 const StaffBillingPage = () => {
   const [activeTab, setActiveTab] = useState('create')
@@ -49,7 +50,8 @@ const StaffBillingPage = () => {
     { id: 'daily', label: 'Daily Records', icon: Calendar, color: 'from-pink-500 to-pink-600' },
     { id: 'config', label: 'Bill Config', icon: Settings, color: 'from-gray-500 to-gray-600' },
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, color: 'from-blue-500 to-blue-600' },
-    { id: 'profit', label: 'Profit Analysis', icon: TrendingUp, color: 'from-indigo-500 to-purple-600' }
+    { id: 'profit', label: 'Profit Analysis', icon: TrendingUp, color: 'from-indigo-500 to-purple-600' },
+    { id: 'pay-later', label: 'Pay Later', icon: Clock, color: 'from-rose-500 to-orange-500' },
   ]
   const tabs = allTabs.filter(t => isTabEnabled(t.id))
 
@@ -62,7 +64,7 @@ const StaffBillingPage = () => {
   return (
     <Layout>
       <Toaster position="top-right" />
-      {/* <GeofenceGuard moduleName="billing"> */}
+      <GeofenceGuard moduleName="billing">
       <div className="max-w-7xl mx-auto px-4">
         <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 rounded-xl shadow-lg p-4 md:p-6 mb-4 md:mb-6 animate-fade-in relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
@@ -113,6 +115,7 @@ const StaffBillingPage = () => {
           {activeTab === 'daily' && <DailyRecords />}
           {activeTab === 'config' && <BillConfigManager />}
           {activeTab === 'profit' && <StaffProfitAnalysis />}
+          {activeTab === 'pay-later' && <PayLaterTab />}
         </div>
       </div>
       
@@ -161,7 +164,7 @@ const StaffBillingPage = () => {
           </div>
         </div>
       )}
-      {/* </GeofenceGuard> */}
+      </GeofenceGuard>
     </Layout>
   )
 }

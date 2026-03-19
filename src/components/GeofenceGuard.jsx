@@ -42,6 +42,11 @@ const GeofenceGuard = ({ children, moduleName = 'this module' }) => {
     )
   }
 
+  // If geofence is not required by admin, always allow access (WiFi SSID match is enough for attendance tracking)
+  if (!wifiStatus?.geofence_required) {
+    return <>{children}</>
+  }
+
   if (wifiStatus?.can_access_modules) {
     return <>{children}</>
   }
@@ -77,7 +82,7 @@ const GeofenceGuard = ({ children, moduleName = 'this module' }) => {
               <ul className="text-xs sm:text-sm space-y-1" style={{ color: isDark ? '#cbd5e1' : '#475569' }}>
                 <li>• You must be within the shop's geofence radius</li>
                 <li>• GPS location must be enabled on your device</li>
-                <li>• You must be checked in via WiFi attendance</li>
+                <li>• You must be connected to the shop WiFi</li>
               </ul>
             </div>
           </div>

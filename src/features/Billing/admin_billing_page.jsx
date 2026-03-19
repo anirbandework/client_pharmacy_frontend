@@ -8,7 +8,8 @@ import AdminReports from './components/admin_components/AdminReports'
 import AdminDashboard from './components/admin_components/AdminDashboard'
 import AdminBillConfigManager from './components/admin_components/AdminBillConfigManager'
 import AdminProfitAnalysis from './components/admin_components/AdminProfitAnalysis'
-import { BarChart3, TrendingUp, Brain, FileText, BarChart, LayoutDashboard, Settings, Store, IndianRupee } from 'lucide-react'
+import PayLaterTab from './components/shared/PayLaterTab'
+import { BarChart3, TrendingUp, Brain, FileText, BarChart, LayoutDashboard, Settings, Store, IndianRupee, Clock } from 'lucide-react'
 import { adminApi } from '../Admin&SuperAdmin/services/admin&superAminApi'
 import useTabPermissions from '../../hooks/useTabPermissions'
 import toast from 'react-hot-toast'
@@ -27,6 +28,7 @@ const AdminBillingPage = () => {
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, color: 'from-teal-500 to-teal-600' },
     { id: 'config', label: 'Bill Config', icon: Settings, color: 'from-gray-500 to-gray-600' },
     { id: 'profit', label: 'Profit Analysis', icon: IndianRupee, color: 'from-indigo-500 to-purple-600' },
+    { id: 'pay-later', label: 'Pay Later', icon: Clock, color: 'from-rose-500 to-orange-500' },
   ]
   const tabs = allTabs.filter(t => isTabEnabled(t.id))
 
@@ -115,6 +117,7 @@ const AdminBillingPage = () => {
           {activeTab === 'dashboard' && <AdminDashboard selectedShop={selectedShop} />}
           {activeTab === 'config' && <AdminBillConfigManager selectedShop={selectedShop} />}
           {activeTab === 'profit' && <AdminProfitAnalysis selectedShop={selectedShop} />}
+          {activeTab === 'pay-later' && <PayLaterTab isAdmin={true} selectedShop={selectedShop} />}
         </div>
       </div>
     </Layout>
