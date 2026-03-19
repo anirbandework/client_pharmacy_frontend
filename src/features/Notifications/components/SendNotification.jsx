@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { notificationsApi } from '../services/notificationsApi';
 import { adminApi } from '../../Admin&SuperAdmin/services/admin&superAminApi';
-import { Send, X, Info, AlertTriangle, AlertCircle, Megaphone, Store, Users, Calendar } from 'lucide-react';
+import { Send, X, Info, AlertTriangle, AlertCircle, Megaphone, Store, Users, Calendar, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { t } from '../../../theme';
@@ -269,7 +269,7 @@ export default function SendNotification({ onClose, onSuccess }) {
               disabled={loading || (formData.target_type === 'shop' ? formData.shop_ids.length === 0 : formData.staff_ids.length === 0)}
               className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3.5 rounded-xl font-bold hover:shadow-xl hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2"
             >
-              <Send className="w-5 h-5" />
+              {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
               {loading ? 'Sending...' : 'Send Notification'}
             </button>
             <button

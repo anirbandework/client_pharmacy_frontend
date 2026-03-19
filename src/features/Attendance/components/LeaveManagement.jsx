@@ -1,7 +1,7 @@
 import toast from 'react-hot-toast'
 import { useState, useEffect } from 'react'
 import { attendanceAPI } from '../services/attendanceApi'
-import { FileText, Check, X, Filter } from 'lucide-react'
+import { FileText, Check, X, Filter, Loader2 } from 'lucide-react'
 import { adminApi } from '../../Admin&SuperAdmin/services/admin&superAminApi'
 
 const LeaveManagement = ({ shopCode }) => {
@@ -9,6 +9,7 @@ const LeaveManagement = ({ shopCode }) => {
   const [staff, setStaff] = useState([])
   const [filters, setFilters] = useState({ staff_id: '', status: 'pending' })
   const [loading, setLoading] = useState(true)
+  const [actionLoading, setActionLoading] = useState({ approve: null, reject: null, filter: false })
   const [rejectModal, setRejectModal] = useState(null) // { id } | null
   const [rejectReason, setRejectReason] = useState('')
 
@@ -29,28 +30,33 @@ const LeaveManagement = ({ shopCode }) => {
   }
 
   const fetchLeaves = async () => {
-    setLoading(true)
+    setActionLoading(prev => ({ ...prev, filter: true }))
     try {
       const res = await attendanceAPI.getAllLeaves(shopCode, filters.staff_id || null, filters.status || null)
       setLeaves(res.data)
     } catch (error) {
       console.error(error)
     } finally {
+      setActionLoading(prev => ({ ...prev, filter: false }))
       setLoading(false)
     }
   }
 
   const handleApprove = async (id) => {
+    setActionLoading(prev => ({ ...prev, approve: id }))
     try {
       await attendanceAPI.approveLeave(id, shopCode)
       fetchLeaves()
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Action failed')
+    } finally {
+      setActionLoading(prev => ({ ...prev, approve: null }))
     }
   }
 
   const handleRejectConfirm = async () => {
     if (!rejectModal) return
+    setActionLoading(prev => ({ ...prev, reject: rejectModal.id }))
     try {
       await attendanceAPI.rejectLeave(rejectModal.id, shopCode, { rejection_reason: rejectReason || null })
       setRejectModal(null)
@@ -58,6 +64,8 @@ const LeaveManagement = ({ shopCode }) => {
       fetchLeaves()
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Rejection failed')
+    } finally {
+      setActionLoading(prev => ({ ...prev, reject: null }))
     }
   }
 
@@ -82,8 +90,8 @@ const LeaveManagement = ({ shopCode }) => {
           <option value="approved">Approved</option>
           <option value="rejected">Rejected</option>
         </select>
-        <button onClick={fetchLeaves} className="bg-primary-600 text-white text-sm font-semibold py-2 rounded-lg hover:bg-primary-700 flex items-center justify-center gap-2">
-          <Filter className="w-4 h-4" />
+        <button onClick={fetchLeaves} disabled={actionLoading.filter} className="bg-primary-600 text-white text-sm font-semibold py-2 rounded-lg hover:bg-primary-700 flex items-center justify-center gap-2 disabled:opacity-50">
+          {actionLoading.filter ? <Loader2 className="w-4 h-4 animate-spin" /> : <Filter className="w-4 h-4" />}
           Apply Filters
         </button>
       </div>
@@ -109,11 +117,11 @@ const LeaveManagement = ({ shopCode }) => {
                   </div>
                   {leave.status === 'pending' && (
                     <>
-                      <button onClick={() => handleApprove(leave.id)} className="p-1.5 bg-green-500 text-white rounded-lg hover:bg-green-600">
-                        <Check className="w-4 h-4" />
+                      <button onClick={() => handleApprove(leave.id)} disabled={actionLoading.approve === leave.id} className="p-1.5 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50">
+                        {actionLoading.approve === leave.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                       </button>
-                      <button onClick={() => { setRejectModal({ id: leave.id }); setRejectReason('') }} className="p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600">
-                        <X className="w-4 h-4" />
+                      <button onClick={() => { setRejectModal({ id: leave.id }); setRejectReason('') }} disabled={actionLoading.reject === leave.id} className="p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50">
+                        {actionLoading.reject === leave.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <X className="w-4 h-4" />}
                       </button>
                     </>
                   )}
@@ -144,7 +152,8 @@ const LeaveManagement = ({ shopCode }) => {
               className="w-full text-sm border rounded-lg px-3 py-2 resize-none h-20 focus:outline-none focus:ring-2 focus:ring-red-300"
             />
             <div className="flex gap-2 mt-3">
-              <button onClick={handleRejectConfirm} className="flex-1 bg-red-500 text-white text-sm font-semibold py-2 rounded-lg hover:bg-red-600">
+              <button onClick={handleRejectConfirm} disabled={actionLoading.reject === rejectModal?.id} className="flex-1 bg-red-500 text-white text-sm font-semibold py-2 rounded-lg hover:bg-red-600 disabled:opacity-50 flex items-center justify-center gap-2">
+                {actionLoading.reject === rejectModal?.id && <Loader2 className="w-4 h-4 animate-spin" />}
                 Confirm Reject
               </button>
               <button onClick={() => setRejectModal(null)} className="flex-1 bg-gray-100 text-gray-700 text-sm font-semibold py-2 rounded-lg hover:bg-gray-200">

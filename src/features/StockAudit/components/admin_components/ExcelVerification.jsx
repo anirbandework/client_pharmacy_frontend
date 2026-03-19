@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Upload, Eye, Check, X, Edit, Trash2, Clock, User, AlertCircle, CheckCircle, Shield, Search } from 'lucide-react'
+import { Upload, Eye, Check, X, Edit, Trash2, Clock, User, AlertCircle, CheckCircle, Shield, Search, Loader2 } from 'lucide-react'
 import { adminStockAuditAPI } from '../../services/admin_stock_audit_apis'
 import toast from 'react-hot-toast'
 import Pagination from '../shared/Pagination'
@@ -26,6 +26,12 @@ const ExcelVerification = ({ selectedShop }) => {
   const [rejectReason, setRejectReason] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [searchTerm, setSearchTerm] = useState('')
+  const [approvingUpload, setApprovingUpload] = useState(false)
+  const [rejectingUpload, setRejectingUpload] = useState(false)
+  const [deletingUpload, setDeletingUpload] = useState(false)
+  const [updatingItem, setUpdatingItem] = useState(false)
+  const [deletingItem, setDeletingItem] = useState(false)
+  const [reviewingUpload, setReviewingUpload] = useState(new Set())
 
   useEffect(() => {
     fetchSections()
@@ -88,6 +94,7 @@ const ExcelVerification = ({ selectedShop }) => {
   }
 
   const handleAdminVerify = async (uploadId, notes) => {
+    setApprovingUpload(true)
     try {
       await adminStockAuditAPI.adminVerifyUpload(uploadId, notes)
       setSelectedUpload(null)
@@ -99,10 +106,13 @@ const ExcelVerification = ({ selectedShop }) => {
     } catch (error) {
       console.error('Error approving upload:', error)
       toast.error('Error approving upload')
+    } finally {
+      setApprovingUpload(false)
     }
   }
 
   const handleReject = async (uploadId, reason) => {
+    setRejectingUpload(true)
     try {
       await adminStockAuditAPI.rejectUpload(uploadId, reason)
       setSelectedUpload(null)
@@ -114,10 +124,13 @@ const ExcelVerification = ({ selectedShop }) => {
     } catch (error) {
       console.error('Error rejecting upload:', error)
       toast.error('Error rejecting upload')
+    } finally {
+      setRejectingUpload(false)
     }
   }
 
   const handleDeleteUpload = async (uploadId) => {
+    setDeletingUpload(true)
     try {
       await adminStockAuditAPI.deleteUpload(uploadId)
       setUploadsPage(1)
@@ -131,10 +144,13 @@ const ExcelVerification = ({ selectedShop }) => {
     } catch (error) {
       console.error('Error deleting upload:', error)
       toast.error('Error deleting upload')
+    } finally {
+      setDeletingUpload(false)
     }
   }
 
   const handleUpdateItem = async (itemId, itemData) => {
+    setUpdatingItem(true)
     try {
       await adminStockAuditAPI.updateUploadItem(selectedUpload.id, itemId, itemData)
       fetchUploadItems(selectedUpload.id)
@@ -143,10 +159,13 @@ const ExcelVerification = ({ selectedShop }) => {
     } catch (error) {
       console.error('Error updating item:', error)
       toast.error('Error updating item')
+    } finally {
+      setUpdatingItem(false)
     }
   }
 
   const handleDeleteItem = async (itemId) => {
+    setDeletingItem(true)
     try {
       await adminStockAuditAPI.deleteUploadItem(selectedUpload.id, itemId)
       fetchUploadItems(selectedUpload.id)
@@ -156,6 +175,8 @@ const ExcelVerification = ({ selectedShop }) => {
     } catch (error) {
       console.error('Error deleting item:', error)
       toast.error('Error deleting item')
+    } finally {
+      setDeletingItem(false)
     }
   }
 
@@ -198,17 +219,27 @@ const ExcelVerification = ({ selectedShop }) => {
               <div className="flex gap-2">
                 <button
                   onClick={() => setShowApproveModal(true)}
-                  className="px-4 py-2 bg-gradient-to-r from-green-400 to-emerald-400 text-white rounded-lg hover:from-green-500 hover:to-emerald-500 flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
+                  disabled={approvingUpload}
+                  className="px-4 py-2 bg-gradient-to-r from-green-400 to-emerald-400 text-white rounded-lg hover:from-green-500 hover:to-emerald-500 flex items-center gap-2 shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <Check className="w-4 h-4" />
-                  Approve & Add to Inventory
+                  {approvingUpload ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Check className="w-4 h-4" />
+                  )}
+                  {approvingUpload ? 'Approving...' : 'Approve & Add to Inventory'}
                 </button>
                 <button
                   onClick={() => setShowRejectModal(true)}
-                  className="px-4 py-2 bg-gradient-to-r from-red-400 to-rose-400 text-white rounded-lg hover:from-red-500 hover:to-rose-500 flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
+                  disabled={rejectingUpload}
+                  className="px-4 py-2 bg-gradient-to-r from-red-400 to-rose-400 text-white rounded-lg hover:from-red-500 hover:to-rose-500 flex items-center gap-2 shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <X className="w-4 h-4" />
-                  Reject
+                  {rejectingUpload ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <X className="w-4 h-4" />
+                  )}
+                  {rejectingUpload ? 'Rejecting...' : 'Reject'}
                 </button>
               </div>
             )}
@@ -217,10 +248,15 @@ const ExcelVerification = ({ selectedShop }) => {
                 setDeleteTarget(selectedUpload.id)
                 setShowDeleteModal(true)
               }}
-              className="px-4 py-2 bg-gradient-to-r from-red-400 to-rose-400 text-white rounded-lg hover:from-red-500 hover:to-rose-500 flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
+              disabled={deletingUpload}
+              className="px-4 py-2 bg-gradient-to-r from-red-400 to-rose-400 text-white rounded-lg hover:from-red-500 hover:to-rose-500 flex items-center gap-2 shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Trash2 className="w-4 h-4" />
-              Delete Upload
+              {deletingUpload ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Trash2 className="w-4 h-4" />
+              )}
+              {deletingUpload ? 'Deleting...' : 'Delete Upload'}
             </button>
           </div>
         </div>
@@ -440,9 +476,13 @@ const ExcelVerification = ({ selectedShop }) => {
                 </button>
                 <button
                   onClick={() => handleAdminVerify(selectedUpload.id, approveNotes)}
-                  className="px-4 py-2 bg-gradient-to-r from-green-400 to-emerald-400 text-white rounded-lg hover:from-green-500 hover:to-emerald-500 shadow-md hover:shadow-lg transition-all"
+                  disabled={approvingUpload}
+                  className="px-4 py-2 bg-gradient-to-r from-green-400 to-emerald-400 text-white rounded-lg hover:from-green-500 hover:to-emerald-500 shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
-                  Approve & Add to Inventory
+                  {approvingUpload ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : null}
+                  {approvingUpload ? 'Approving...' : 'Approve & Add to Inventory'}
                 </button>
               </div>
             </div>
@@ -485,9 +525,13 @@ const ExcelVerification = ({ selectedShop }) => {
                       toast.error('Please provide a rejection reason')
                     }
                   }}
-                  className="px-4 py-2 bg-gradient-to-r from-red-400 to-rose-400 text-white rounded-lg hover:from-red-500 hover:to-rose-500 shadow-md hover:shadow-lg transition-all"
+                  disabled={rejectingUpload}
+                  className="px-4 py-2 bg-gradient-to-r from-red-400 to-rose-400 text-white rounded-lg hover:from-red-500 hover:to-rose-500 shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
-                  Reject Upload
+                  {rejectingUpload ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : null}
+                  {rejectingUpload ? 'Rejecting...' : 'Reject Upload'}
                 </button>
               </div>
             </div>
@@ -516,9 +560,13 @@ const ExcelVerification = ({ selectedShop }) => {
                 </button>
                 <button
                   onClick={() => handleDeleteUpload(deleteTarget)}
-                  className="px-4 py-2 bg-gradient-to-r from-red-400 to-rose-400 text-white rounded-lg hover:from-red-500 hover:to-rose-500 shadow-md hover:shadow-lg transition-all"
+                  disabled={deletingUpload}
+                  className="px-4 py-2 bg-gradient-to-r from-red-400 to-rose-400 text-white rounded-lg hover:from-red-500 hover:to-rose-500 shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
-                  Delete Permanently
+                  {deletingUpload ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : null}
+                  {deletingUpload ? 'Deleting...' : 'Delete Permanently'}
                 </button>
               </div>
             </div>
@@ -547,9 +595,13 @@ const ExcelVerification = ({ selectedShop }) => {
                 </button>
                 <button
                   onClick={() => handleDeleteItem(deleteTarget)}
-                  className="px-4 py-2 bg-gradient-to-r from-red-400 to-rose-400 text-white rounded-lg hover:from-red-500 hover:to-rose-500 shadow-md hover:shadow-lg transition-all"
+                  disabled={deletingItem}
+                  className="px-4 py-2 bg-gradient-to-r from-red-400 to-rose-400 text-white rounded-lg hover:from-red-500 hover:to-rose-500 shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
-                  Delete Item
+                  {deletingItem ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : null}
+                  {deletingItem ? 'Deleting...' : 'Delete Item'}
                 </button>
               </div>
             </div>
@@ -676,10 +728,15 @@ const ExcelVerification = ({ selectedShop }) => {
                     <div className="flex gap-2">
                       <button
                         onClick={() => fetchUploadItems(upload.id)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-sm hover:shadow-md text-xs font-medium"
+                        disabled={reviewingUpload.has(upload.id)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-sm hover:shadow-md text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        <Eye className="w-3.5 h-3.5" />
-                        Review
+                        {reviewingUpload.has(upload.id) ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <Eye className="w-3.5 h-3.5" />
+                        )}
+                        {reviewingUpload.has(upload.id) ? 'Loading...' : 'Review'}
                       </button>
                       <button
                         onClick={() => {
@@ -834,9 +891,13 @@ const EditItemModal = ({ item, sections, racks, onSave, onClose }) => {
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-gradient-to-r from-blue-400 to-indigo-400 text-white rounded-lg hover:from-blue-500 hover:to-indigo-500 shadow-md hover:shadow-lg transition-all"
+              disabled={updatingItem}
+              className="px-4 py-2 bg-gradient-to-r from-blue-400 to-indigo-400 text-white rounded-lg hover:from-blue-500 hover:to-indigo-500 shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
-              Save Changes
+              {updatingItem ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : null}
+              {updatingItem ? 'Saving...' : 'Save Changes'}
             </button>
           </div>
         </form>

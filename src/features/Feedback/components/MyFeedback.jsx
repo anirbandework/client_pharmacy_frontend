@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react'
 import Layout from '../../../components/Layout'
 import PasswordProtectedRoute from '../../../components/PasswordProtectedRoute'
 import { feedbackAPI } from '../services/feedbackApi'
-import { MessageSquare, Star, Smile, Meh, Frown, Angry, Laugh, Rocket, Bug, Lightbulb, AlertCircle, Heart, Bookmark, User, Clock, CheckCircle } from 'lucide-react'
+import { MessageSquare, Star, Smile, Meh, Frown, Angry, Laugh, Rocket, Bug, Lightbulb, AlertCircle, Heart, Bookmark, User, Clock, CheckCircle, Loader2 } from 'lucide-react'
 import { useTheme } from '../../../contexts/ThemeContext'
 import { t } from '../../../theme'
 
 const MyFeedback = () => {
   const { isDark } = useTheme()
   const [feedbacks, setFeedbacks] = useState([])
+  const [markingAsRead, setMarkingAsRead] = useState({})
 
   useEffect(() => {
     fetchFeedback()
@@ -24,11 +25,14 @@ const MyFeedback = () => {
   }
 
   const handleMarkAsRead = async (feedbackId) => {
+    setMarkingAsRead(prev => ({ ...prev, [feedbackId]: true }))
     try {
       await feedbackAPI.markAsRead(feedbackId)
       fetchFeedback()
     } catch (error) {
       console.error('Failed to mark as read:', error)
+    } finally {
+      setMarkingAsRead(prev => ({ ...prev, [feedbackId]: false }))
     }
   }
 
@@ -114,10 +118,11 @@ const MyFeedback = () => {
                     {fb.status !== 'closed' && (
                       <button
                         onClick={() => handleMarkAsRead(fb.id)}
-                        className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 md:px-4 py-2 rounded-lg font-medium hover:shadow-lg transition-all flex items-center gap-2 text-xs md:text-sm shadow-lg shadow-blue-500/20 w-full sm:w-auto justify-center"
+                        disabled={markingAsRead[fb.id]}
+                        className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 md:px-4 py-2 rounded-lg font-medium hover:shadow-lg transition-all flex items-center gap-2 text-xs md:text-sm shadow-lg shadow-blue-500/20 w-full sm:w-auto justify-center disabled:opacity-50"
                       >
-                        <CheckCircle className="w-4 h-4" />
-                        Got it, thanks!
+                        {markingAsRead[fb.id] ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+                        {markingAsRead[fb.id] ? 'Marking...' : 'Got it, thanks!'}
                       </button>
                     )}
                   </div>

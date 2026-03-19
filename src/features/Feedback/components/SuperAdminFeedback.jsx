@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import Layout from '../../../components/Layout'
 import { feedbackAPI } from '../services/feedbackApi'
-import { MessageSquare, TrendingUp, Users, Star, Smile, Meh, Frown, Angry, Laugh, Rocket, Bug, Lightbulb, AlertCircle, Heart, Bookmark, Phone, Building, User } from 'lucide-react'
+import { MessageSquare, TrendingUp, Users, Star, Smile, Meh, Frown, Angry, Laugh, Rocket, Bug, Lightbulb, AlertCircle, Heart, Bookmark, Phone, Building, User, Loader2 } from 'lucide-react'
 import { useTheme } from '../../../contexts/ThemeContext'
 import { t } from '../../../theme'
 
@@ -13,6 +13,7 @@ const SuperAdminFeedback = () => {
   const [selectedFeedback, setSelectedFeedback] = useState(null)
   const [response, setResponse] = useState('')
   const [status, setStatus] = useState('')
+  const [responding, setResponding] = useState(false)
 
   useEffect(() => {
     fetchData()
@@ -32,6 +33,7 @@ const SuperAdminFeedback = () => {
   }
 
   const handleRespond = async () => {
+    setResponding(true)
     try {
       await feedbackAPI.respondToFeedback(selectedFeedback.id, {
         status,
@@ -43,6 +45,8 @@ const SuperAdminFeedback = () => {
       fetchData()
     } catch (error) {
       // Global error handler will show toast
+    } finally {
+      setResponding(false)
     }
   }
 
@@ -198,7 +202,10 @@ const SuperAdminFeedback = () => {
                   className="w-full px-4 py-3 rounded-xl mb-4 focus:ring-2 focus:ring-purple-500 outline-none resize-none"
                 />
                 <div className="flex gap-3">
-                  <button onClick={handleRespond} className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all">Send Response</button>
+                  <button onClick={handleRespond} disabled={responding} className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+                    {responding ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                    {responding ? 'Sending...' : 'Send Response'}
+                  </button>
                   <button onClick={() => setSelectedFeedback(null)} style={{ background: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)', color: t.text.primary(isDark) }} className="px-6 py-3 rounded-xl font-semibold hover:opacity-80 transition-all">Cancel</button>
                 </div>
               </div>

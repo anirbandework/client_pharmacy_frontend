@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { staffStockAuditAPI } from '../../services/staff_stock_audit_apis'
-import { Package, Plus, Grid, Edit, Trash2, ChevronDown, ChevronUp } from 'lucide-react'
+import { Package, Plus, Grid, Edit, Trash2, ChevronDown, ChevronUp, Loader2 } from 'lucide-react'
 
 const RackManagement = () => {
   const [racks, setRacks] = useState([])
@@ -12,6 +12,10 @@ const RackManagement = () => {
   const [rackData, setRackData] = useState({ rack_number: '', location: '', description: '' })
   const [sectionData, setSectionData] = useState({ rack_id: '', section_name: '', section_code: '' })
   const [expandedRacks, setExpandedRacks] = useState(new Set())
+  const [savingRack, setSavingRack] = useState(false)
+  const [savingSection, setSavingSection] = useState(false)
+  const [deletingRack, setDeletingRack] = useState(new Set())
+  const [deletingSection, setDeletingSection] = useState(new Set())
 
   useEffect(() => {
     fetchData()
@@ -32,6 +36,7 @@ const RackManagement = () => {
 
   const handleRackSubmit = async (e) => {
     e.preventDefault()
+    setSavingRack(true)
     try {
       if (editingRack) {
         await staffStockAuditAPI.updateRack(editingRack.id, rackData)
@@ -44,6 +49,8 @@ const RackManagement = () => {
       fetchData()
     } catch (error) {
       console.error('Failed to save rack:', error)
+    } finally {
+      setSavingRack(false)
     }
   }
 
@@ -55,16 +62,20 @@ const RackManagement = () => {
 
   const handleRackDelete = async (id) => {
     if (!confirm('Delete this rack?')) return
+    setDeletingRack(prev => new Set(prev).add(id))
     try {
       await staffStockAuditAPI.deleteRack(id)
       fetchData()
     } catch (error) {
       alert(error.response?.data?.detail || 'Failed to delete rack')
+    } finally {
+      setDeletingRack(prev => { const s = new Set(prev); s.delete(id); return s })
     }
   }
 
   const handleSectionSubmit = async (e) => {
     e.preventDefault()
+    setSavingSection(true)
     try {
       if (editingSection) {
         await staffStockAuditAPI.updateSection(editingSection.id, sectionData)
@@ -77,6 +88,8 @@ const RackManagement = () => {
       fetchData()
     } catch (error) {
       console.error('Failed to save section:', error)
+    } finally {
+      setSavingSection(false)
     }
   }
 
@@ -88,11 +101,14 @@ const RackManagement = () => {
 
   const handleSectionDelete = async (id) => {
     if (!confirm('Delete this section?')) return
+    setDeletingSection(prev => new Set(prev).add(id))
     try {
       await staffStockAuditAPI.deleteSection(id)
       fetchData()
     } catch (error) {
       alert(error.response?.data?.detail || 'Failed to delete section')
+    } finally {
+      setDeletingSection(prev => { const s = new Set(prev); s.delete(id); return s })
     }
   }
 
@@ -125,7 +141,16 @@ const RackManagement = () => {
               </div>
             </div>
             <div className="mt-4 flex gap-2">
-              <button type="submit" className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:shadow-lg transition-all text-sm md:text-base">{editingRack ? 'Update' : 'Save'}</button>
+              <button 
+                type="submit" 
+                disabled={savingRack}
+                className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:shadow-lg transition-all text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {savingRack ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : null}
+                {savingRack ? 'Saving...' : (editingRack ? 'Update' : 'Save')}
+              </button>
               <button type="button" onClick={() => { setShowRackForm(false); setEditingRack(null); }} className="px-4 py-2 border-2 border-gray-300 dark:border-slate-600 text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors text-sm md:text-base dark:bg-slate-700">Cancel</button>
             </div>
           </form>
@@ -174,9 +199,14 @@ const RackManagement = () => {
                       </button>
                       <button 
                         onClick={(e) => { e.stopPropagation(); handleRackDelete(rack.id); }} 
-                        className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
+                        disabled={deletingRack.has(rack.id)}
+                        className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        {deletingRack.has(rack.id) ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="w-4 h-4" />
+                        )}
                       </button>
                       {isExpanded ? <ChevronUp className="w-5 h-5 text-purple-600" /> : <ChevronDown className="w-5 h-5 text-purple-600" />}
                     </div>
@@ -194,7 +224,17 @@ const RackManagement = () => {
                             </div>
                             <div className="flex gap-1">
                               <button onClick={() => handleSectionEdit(section)} className="p-1.5 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"><Edit className="w-3 h-3" /></button>
-                              <button onClick={() => handleSectionDelete(section.id)} className="p-1.5 text-red-600 hover:bg-red-100 rounded-lg transition-colors"><Trash2 className="w-3 h-3" /></button>
+                              <button 
+                                onClick={() => handleSectionDelete(section.id)} 
+                                disabled={deletingSection.has(section.id)}
+                                className="p-1.5 text-red-600 hover:bg-red-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                {deletingSection.has(section.id) ? (
+                                  <Loader2 className="w-3 h-3 animate-spin" />
+                                ) : (
+                                  <Trash2 className="w-3 h-3" />
+                                )}
+                              </button>
                             </div>
                           </div>
                           <p className="font-bold text-gray-800 dark:text-white text-sm">{section.section_name}</p>
@@ -245,7 +285,16 @@ const RackManagement = () => {
               </div>
             </div>
             <div className="mt-4 flex gap-2">
-              <button type="submit" className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:shadow-lg transition-all text-sm md:text-base">{editingSection ? 'Update' : 'Save'}</button>
+              <button 
+                type="submit" 
+                disabled={savingSection}
+                className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:shadow-lg transition-all text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {savingSection ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : null}
+                {savingSection ? 'Saving...' : (editingSection ? 'Update' : 'Save')}
+              </button>
               <button type="button" onClick={() => { setShowSectionForm(false); setEditingSection(null); }} className="px-4 py-2 border-2 border-gray-300 dark:border-slate-600 text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors text-sm md:text-base dark:bg-slate-700">Cancel</button>
             </div>
           </form>
@@ -259,7 +308,17 @@ const RackManagement = () => {
                 </div>
                 <div className="flex gap-1">
                   <button onClick={() => handleSectionEdit(section)} className="p-1.5 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"><Edit className="w-3 h-3" /></button>
-                  <button onClick={() => handleSectionDelete(section.id)} className="p-1.5 text-red-600 hover:bg-red-100 rounded-lg transition-colors"><Trash2 className="w-3 h-3" /></button>
+                  <button 
+                    onClick={() => handleSectionDelete(section.id)} 
+                    disabled={deletingSection.has(section.id)}
+                    className="p-1.5 text-red-600 hover:bg-red-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {deletingSection.has(section.id) ? (
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                    ) : (
+                      <Trash2 className="w-3 h-3" />
+                    )}
+                  </button>
                 </div>
               </div>
               <p className="font-bold text-gray-800 text-sm">{section.section_name}</p>

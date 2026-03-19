@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { billingAPI } from '../../services/staff_billing_apis'
-import { Search, Plus, Trash2, Save, X, Printer } from 'lucide-react'
+import { Search, Plus, Trash2, Save, X, Printer, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 // Parse "140.00/STRIP" → 140.0, or "140" → 140.0
@@ -545,8 +545,9 @@ const CreateBill = ({ onBillCreated }) => {
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="mt-4 w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50 text-sm md:text-base"
+            className="mt-4 w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50 text-sm md:text-base flex items-center justify-center gap-2"
           >
+            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
             {loading ? 'Creating...' : 'Create Bill'}
           </button>
         </div>

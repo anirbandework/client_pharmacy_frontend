@@ -1,11 +1,14 @@
 import React from 'react'
 import toast from 'react-hot-toast'
-import { FileText, Calendar } from 'lucide-react'
+import { FileText, Calendar, Loader2 } from 'lucide-react'
 import { attendanceAPI } from '../services/attendanceApi'
 
 const StaffLeaves = ({ leaveForm, setLeaveForm, myLeaves, fetchData }) => {
+  const [submitLoading, setSubmitLoading] = React.useState(false)
+  
   const handleLeaveRequest = async (e) => {
     e.preventDefault()
+    setSubmitLoading(true)
     try {
       await attendanceAPI.requestLeave(leaveForm)
       toast.success('Leave request submitted!')
@@ -13,6 +16,8 @@ const StaffLeaves = ({ leaveForm, setLeaveForm, myLeaves, fetchData }) => {
       fetchData()
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Request failed')
+    } finally {
+      setSubmitLoading(false)
     }
   }
 
@@ -49,7 +54,8 @@ const StaffLeaves = ({ leaveForm, setLeaveForm, myLeaves, fetchData }) => {
             <label className="block text-xs font-medium text-gray-600 mb-1">Reason</label>
             <textarea value={leaveForm.reason} onChange={(e) => setLeaveForm({ ...leaveForm, reason: e.target.value })} rows="2" required className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
-          <button type="submit" className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-semibold py-2 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition shadow-lg shadow-blue-500/20">
+          <button type="submit" disabled={submitLoading} className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-semibold py-2 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition shadow-lg shadow-blue-500/20 disabled:opacity-50 flex items-center justify-center gap-2">
+            {submitLoading && <Loader2 className="w-4 h-4 animate-spin" />}
             Submit Request
           </button>
         </form>

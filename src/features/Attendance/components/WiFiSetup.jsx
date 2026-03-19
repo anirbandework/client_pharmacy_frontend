@@ -1,13 +1,14 @@
 import toast from 'react-hot-toast'
 import React, { useState, useEffect } from 'react'
 import { attendanceAPI } from '../services/attendanceApi'
-import { Wifi, MapPin, CheckCircle } from 'lucide-react'
+import { Wifi, MapPin, CheckCircle, Loader2 } from 'lucide-react'
 
 const WiFiSetup = ({ shopCode }) => {
   const [wifiData, setWifiData] = useState(null)
   const [editMode, setEditMode] = useState(false)
   const [formData, setFormData] = useState({ wifi_ssid: '', wifi_password: '', shop_latitude: '', shop_longitude: '', geofence_radius_meters: 100 })
   const [loading, setLoading] = useState(true)
+  const [submitLoading, setSubmitLoading] = useState(false)
   const [currentLocation, setCurrentLocation] = useState(null)
   const [fetchingLocation, setFetchingLocation] = useState(false)
 
@@ -69,7 +70,7 @@ const WiFiSetup = ({ shopCode }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setLoading(true)
+    setSubmitLoading(true)
     try {
       await attendanceAPI.setupWiFi(shopCode, formData)
       toast.success('WiFi setup successful!')
@@ -77,7 +78,7 @@ const WiFiSetup = ({ shopCode }) => {
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Setup failed')
     } finally {
-      setLoading(false)
+      setSubmitLoading(false)
     }
   }
 
@@ -194,7 +195,7 @@ const WiFiSetup = ({ shopCode }) => {
           disabled={fetchingLocation}
           className="w-full bg-blue-500 text-white text-sm font-semibold py-2 rounded-lg hover:bg-blue-600 transition disabled:opacity-50 flex items-center justify-center gap-2"
         >
-          <MapPin className="w-4 h-4" />
+          {fetchingLocation ? <Loader2 className="w-4 h-4 animate-spin" /> : <MapPin className="w-4 h-4" />}
           {fetchingLocation ? 'Getting Location...' : 'Get My Current Location'}
         </button>
         <div>
@@ -213,10 +214,11 @@ const WiFiSetup = ({ shopCode }) => {
         </div>
         <button
           type="submit"
-          disabled={loading}
-          className="w-full bg-gradient-to-r from-primary-500 to-primary-600 text-white text-sm font-semibold py-2.5 rounded-lg hover:shadow-lg transition-all disabled:opacity-50"
+          disabled={submitLoading}
+          className="w-full bg-gradient-to-r from-primary-500 to-primary-600 text-white text-sm font-semibold py-2.5 rounded-lg hover:shadow-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2"
         >
-          {loading ? 'Setting up...' : 'Setup WiFi'}
+          {submitLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+          {submitLoading ? 'Setting up...' : 'Setup WiFi'}
         </button>
       </form>
     </div>

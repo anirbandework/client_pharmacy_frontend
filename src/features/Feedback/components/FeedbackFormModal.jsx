@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { feedbackAPI } from '../services/feedbackApi'
-import { X, Star, Smile, Meh, Frown, Angry, Laugh, Rocket, Bug, Lightbulb, AlertCircle, Heart, Bookmark, ThumbsUp, ThumbsDown, Send } from 'lucide-react'
+import { X, Star, Smile, Meh, Frown, Angry, Laugh, Rocket, Bug, Lightbulb, AlertCircle, Heart, Bookmark, ThumbsUp, ThumbsDown, Send, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useTheme } from '../../../contexts/ThemeContext'
 import { t } from '../../../theme'
@@ -14,6 +14,7 @@ const FeedbackFormModal = ({ isOpen, onClose }) => {
   const [rating, setRating] = useState(5)
   const [recommend, setRecommend] = useState(true)
   const [submitted, setSubmitted] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
 
   const moods = [
     { value: 'excited', icon: Laugh, label: 'Excited', color: 'bg-green-100 hover:bg-green-200 text-green-700' },
@@ -33,6 +34,7 @@ const FeedbackFormModal = ({ isOpen, onClose }) => {
   ]
 
   const handleSubmit = async () => {
+    setSubmitting(true)
     try {
       await feedbackAPI.submitFeedback({
         feedback_type: type,
@@ -50,6 +52,8 @@ const FeedbackFormModal = ({ isOpen, onClose }) => {
       }, 2000)
     } catch (error) {
       // Global error handler will show toast
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -174,11 +178,11 @@ const FeedbackFormModal = ({ isOpen, onClose }) => {
 
           <button
             onClick={handleSubmit}
-            disabled={!mood || !type || !title || !message}
+            disabled={!mood || !type || !title || !message || submitting}
             className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-lg font-semibold shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center gap-2"
           >
-            <Send className="w-4 h-4" />
-            Send Feedback
+            {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+            {submitting ? 'Sending...' : 'Send Feedback'}
           </button>
         </div>
       </div>

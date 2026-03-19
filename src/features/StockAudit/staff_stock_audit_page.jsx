@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import useTabPermissions from '../../hooks/useTabPermissions'
 import Layout from '../../components/Layout'
-import GeofenceGuard from '../../components/GeofenceGuard'
+// import GeofenceGuard from '../../components/GeofenceGuard'
 import Dashboard from './components/staff_components/Dashboard'
 import RackManagement from './components/staff_components/RackManagement'
 import StockItems from './components/staff_components/StockItems'
@@ -43,7 +43,7 @@ const StockAudit = () => {
 
   return (
     <Layout>
-      <GeofenceGuard moduleName="stock audit">
+      {/* <GeofenceGuard moduleName="stock audit"> */}
       <div className="max-w-7xl mx-auto px-4">
         <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 rounded-xl shadow-lg p-4 md:p-6 mb-4 animate-fade-in relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
@@ -99,7 +99,7 @@ const StockAudit = () => {
           </ErrorBoundary>
         </div>
       </div>
-      </GeofenceGuard>
+      {/* </GeofenceGuard> */}
     </Layout>
   )
 }

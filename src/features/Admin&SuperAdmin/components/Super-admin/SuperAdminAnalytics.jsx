@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { BarChart, Bar, PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
-import { TrendingUp, Users, Building2, UserCheck, Activity } from 'lucide-react'
+import { TrendingUp, Users, Building2, UserCheck, Activity, Loader2 } from 'lucide-react'
 import Layout from '../../../../components/Layout'
 import { superAdminApi } from '../../services/admin&superAminApi'
 
@@ -24,7 +24,7 @@ const SuperAdminAnalytics = () => {
   }
 
   if (loading) {
-    return <div className="flex items-center justify-center py-20"><div className="text-xl">Loading analytics...</div></div>
+    return <div className="flex items-center justify-center py-20"><div className="text-xl flex items-center gap-2"><Loader2 className="w-6 h-6 animate-spin" />Loading analytics...</div></div>
   }
 
   if (!analytics) {

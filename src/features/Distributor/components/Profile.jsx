@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { User, Building2, Phone, Mail, MapPin, CreditCard, Save, X } from 'lucide-react';
+import { User, Building2, Phone, Mail, MapPin, CreditCard, Save, X, Loader2 } from 'lucide-react';
 import { distributorApi } from '../services/api';
 
 export default function Profile() {
@@ -80,7 +80,7 @@ export default function Profile() {
                 disabled={saving}
                 className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50"
               >
-                <Save className="w-4 h-4" />
+                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                 {saving ? 'Saving...' : 'Save'}
               </button>
             </div>

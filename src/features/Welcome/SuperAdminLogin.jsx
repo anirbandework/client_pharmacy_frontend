@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import OTPInput from '../../components/OTPInput'
 import { ArrowRight, ArrowLeft, Shield, Eye, EyeOff, Building2, Lock, AlertTriangle, Sun, Moon } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 const PARTICLES = Array.from({ length: 20 }, (_, i) => ({
   id: i,
@@ -20,11 +21,14 @@ const SuperAdminLogin = () => {
   const [step, setStep] = useState('credentials')
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [otp, setOtp] = useState('')
+  const [resetToken, setResetToken] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [countdown, setCountdown] = useState(0)
   const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [darkMode, setDarkMode] = useState(true)
 
@@ -67,7 +71,80 @@ const SuperAdminLogin = () => {
   }
 
   const handleResendOTP = () => { setOtp(''); setStep('credentials') }
-  const resetForm = () => { setStep('credentials'); setOtp(''); setError('') }
+  const resetForm = () => { setStep('credentials'); setOtp(''); setError(''); setResetToken(''); setConfirmPassword('') }
+
+  const handleForgotPassword = async () => {
+    if (!phone) { setError('Please enter your phone number'); return }
+    setError('')
+    setLoading(true)
+    try {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+      const response = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, user_type: 'super_admin' })
+      })
+      if (!response.ok) throw new Error('Failed to send reset OTP')
+      setStep('reset-otp')
+      setCountdown(30)
+    } catch (err) {
+      setError(err.message || 'Failed to send reset OTP')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleVerifyResetOTP = async (e) => {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+    try {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+      const response = await fetch(`${API_BASE_URL}/api/auth/verify-reset-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, otp, user_type: 'super_admin' })
+      })
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.detail || 'Invalid OTP')
+      setResetToken(data.reset_token)
+      setStep('new-password')
+    } catch (err) {
+      setError(err.message || 'Failed to verify OTP')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleResetPassword = async (e) => {
+    e.preventDefault()
+    if (password !== confirmPassword) { setError('Passwords do not match'); return }
+    if (password.length < 6) { setError('Password must be at least 6 characters'); return }
+    setError('')
+    setLoading(true)
+    try {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+      const response = await fetch(`${API_BASE_URL}/api/auth/reset-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reset_token: resetToken, new_password: password, user_type: 'super_admin' })
+      })
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.detail || 'Failed to reset password')
+      setPassword('')
+      setConfirmPassword('')
+      setStep('credentials')
+      setError('')
+      toast.success('Password reset successfully! Please login with your new password.', {
+        duration: 4000,
+        position: 'top-right',
+      })
+    } catch (err) {
+      setError(err.message || 'Failed to reset password')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const lm = !darkMode
 
@@ -341,7 +418,16 @@ const SuperAdminLogin = () => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium mb-1.5" style={{ color: lm ? '#64748b' : '#94a3b8' }}>Password</label>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="block text-xs font-medium" style={{ color: lm ? '#64748b' : '#94a3b8' }}>Password</label>
+                      <button
+                        type="button"
+                        onClick={handleForgotPassword}
+                        className="text-xs font-medium text-violet-400 hover:text-violet-300 transition-colors"
+                      >
+                        Forgot?
+                      </button>
+                    </div>
                     <div className="relative">
                       <input
                         type={showPassword ? 'text' : 'password'} value={password}
@@ -376,6 +462,116 @@ const SuperAdminLogin = () => {
                       <ArrowLeft className="w-3 h-3" /> Back to Login
                     </Link>
                   </div>
+                </form>
+              )}
+
+              {/* Reset OTP step */}
+              {step === 'reset-otp' && (
+                <form onSubmit={handleVerifyResetOTP} className="sa-step space-y-5">
+                  <div className="text-center">
+                    <div className="relative w-20 h-20 mx-auto mb-4">
+                      <div className="sa-spin-ring absolute inset-0 rounded-full" style={{ background: 'conic-gradient(from 0deg,transparent 55%,rgba(139,92,246,0.5) 75%,rgba(168,85,247,0.8) 92%,transparent 100%)' }} />
+                      <div className="absolute inset-[3px] rounded-full flex items-center justify-center" style={{ background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.25)' }}>
+                        <Lock className="sa-lock-glow w-8 h-8 text-violet-400" />
+                      </div>
+                    </div>
+                    <h3 className="font-bold text-lg mb-1" style={{ color: lm ? '#1e293b' : '#ffffff', transition: 'color 0.4s ease' }}>Reset Password</h3>
+                    <p className="text-sm" style={{ color: lm ? '#64748b' : '#94a3b8' }}>OTP sent to <span style={{ color: lm ? '#475569' : '#cbd5e1' }}>+91 {phone}</span></p>
+                    <button type="button" onClick={resetForm}
+                      className="inline-flex items-center gap-1 text-violet-400 text-xs hover:text-violet-300 transition-colors mt-2">
+                      <ArrowLeft className="w-3 h-3" /> Back to login
+                    </button>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium mb-3 text-center" style={{ color: lm ? '#64748b' : '#94a3b8' }}>Enter 6-digit OTP</label>
+                    <OTPInput value={otp} onChange={setOtp} length={6} />
+                  </div>
+
+                  {error && (
+                    <div className="px-4 py-3 rounded-xl text-sm" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', color: lm ? '#991b1b' : '#fca5a5' }}>
+                      {error}
+                    </div>
+                  )}
+
+                  <button type="submit" disabled={loading || otp.length !== 6}
+                    className="sa-btn w-full text-white py-3.5 rounded-xl font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                    {loading ? 'Verifying…' : 'Verify OTP'}
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+
+                  <div className="text-center">
+                    {countdown > 0 ? (
+                      <p className="text-sm" style={{ color: lm ? '#64748b' : '#94a3b8' }}>Resend in <span className="tabular-nums" style={{ color: lm ? '#475569' : '#cbd5e1' }}>{countdown}s</span></p>
+                    ) : (
+                      <button type="button" onClick={handleForgotPassword}
+                        className="text-violet-400 text-sm hover:text-violet-300 font-medium transition-colors">
+                        Resend OTP
+                      </button>
+                    )}
+                  </div>
+                </form>
+              )}
+
+              {/* New Password step */}
+              {step === 'new-password' && (
+                <form onSubmit={handleResetPassword} className="sa-step space-y-4">
+                  <div className="text-center mb-5">
+                    <h3 className="font-bold text-lg mb-1" style={{ color: lm ? '#1e293b' : '#ffffff', transition: 'color 0.4s ease' }}>Set New Password</h3>
+                    <p className="text-sm" style={{ color: lm ? '#64748b' : '#94a3b8' }}>Create a strong password for your account</p>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium mb-1.5" style={{ color: lm ? '#64748b' : '#94a3b8' }}>New Password</label>
+                    <div className="relative">
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
+                        placeholder="Enter new password (min 6 chars)"
+                        className="sa-input w-full px-4 py-3 pr-11 rounded-xl text-sm"
+                        style={{ color: lm ? '#1e293b' : '#ffffff' }}
+                        required
+                      />
+                      <button type="button" onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
+                        style={{ color: lm ? '#94a3b8' : '#64748b' }}>
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium mb-1.5" style={{ color: lm ? '#64748b' : '#94a3b8' }}>Confirm Password</label>
+                    <div className="relative">
+                      <input
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        value={confirmPassword}
+                        onChange={e => setConfirmPassword(e.target.value)}
+                        placeholder="Re-enter new password"
+                        className="sa-input w-full px-4 py-3 pr-11 rounded-xl text-sm"
+                        style={{ color: lm ? '#1e293b' : '#ffffff' }}
+                        required
+                      />
+                      <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
+                        style={{ color: lm ? '#94a3b8' : '#64748b' }}>
+                        {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {error && (
+                    <div className="px-4 py-3 rounded-xl text-sm" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', color: lm ? '#991b1b' : '#fca5a5' }}>
+                      {error}
+                    </div>
+                  )}
+
+                  <button type="submit" disabled={loading}
+                    className="sa-btn w-full text-white py-3.5 rounded-xl font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                    {loading ? 'Resetting…' : 'Reset Password'}
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
                 </form>
               )}
 

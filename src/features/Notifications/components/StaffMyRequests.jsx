@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { notificationsApi } from '../services/notificationsApi';
-import { MessageSquare, Plus, Send, Check, X, Clock } from 'lucide-react';
+import { MessageSquare, Plus, Send, Check, X, Clock, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { t } from '../../../theme';
@@ -152,7 +152,7 @@ export default function StaffMyRequests() {
                 disabled={submitting}
                 className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:from-purple-700 hover:to-indigo-700 flex items-center gap-1.5 disabled:opacity-50 shadow-lg shadow-purple-500/20"
               >
-                <Send className="w-4 h-4" />
+                {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                 {submitting ? 'Sending...' : 'Send'}
               </button>
             </div>

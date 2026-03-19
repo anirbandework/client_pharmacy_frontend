@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { superAdminApi } from '../../services/admin&superAminApi';
-import { Info, Edit2, Trash2, Ban, CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
+import { Info, Edit2, Trash2, Ban, CheckCircle, AlertTriangle, XCircle, Loader2 } from 'lucide-react';
 import ConfirmDialog from '../../../../components/ConfirmDialog';
 
 export default function AdminsManagement() {
@@ -8,6 +8,7 @@ export default function AdminsManagement() {
   const [showForm, setShowForm] = useState(false);
   const [editingAdmin, setEditingAdmin] = useState(null);
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, type: null, admin: null, meta: null });
+  const [loading, setLoading] = useState({ submit: false, toggle: null, delete: null, load: false });
   const [formData, setFormData] = useState({
     organization_id: '', phone: '', full_name: '', email: ''
   });
@@ -15,16 +16,20 @@ export default function AdminsManagement() {
   useEffect(() => { loadAdmins(); }, []);
 
   const loadAdmins = async () => {
+    setLoading(prev => ({ ...prev, load: true }));
     try {
       const data = await superAdminApi.getAllAdmins();
       setAdmins(data);
     } catch (err) {
       alert(err.message);
+    } finally {
+      setLoading(prev => ({ ...prev, load: false }));
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(prev => ({ ...prev, submit: true }));
     try {
       if (editingAdmin) {
         await superAdminApi.updateAdmin(editingAdmin.id, formData);
@@ -37,6 +42,8 @@ export default function AdminsManagement() {
       loadAdmins();
     } catch (err) {
       alert(err.message);
+    } finally {
+      setLoading(prev => ({ ...prev, submit: false }));
     }
   };
 
@@ -59,6 +66,8 @@ export default function AdminsManagement() {
   const confirmAction = async () => {
     const { type, admin } = confirmDialog;
     setConfirmDialog({ isOpen: false, type: null, admin: null, meta: null });
+    const actionType = type === 'delete' ? 'delete' : 'toggle';
+    setLoading(prev => ({ ...prev, [actionType]: admin.id }));
     try {
       if (type === 'delete') {
         const result = await superAdminApi.deleteAdmin(admin.id);
@@ -69,6 +78,8 @@ export default function AdminsManagement() {
       loadAdmins();
     } catch (err) {
       alert(err.message);
+    } finally {
+      setLoading(prev => ({ ...prev, [actionType]: null }));
     }
   };
 
@@ -104,7 +115,8 @@ export default function AdminsManagement() {
             <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
             <span>Admin will set their own password during first login</span>
           </div>
-          <button type="submit" className="mt-4 bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-2 rounded-lg shadow-md hover:shadow-lg transition-all">
+          <button type="submit" disabled={loading.submit} className="mt-4 bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-2 rounded-lg shadow-md hover:shadow-lg transition-all disabled:opacity-50 flex items-center gap-2">
+            {loading.submit && <Loader2 className="w-4 h-4 animate-spin" />}
             {editingAdmin ? 'Update Admin' : 'Create Admin'}
           </button>
         </form>
@@ -130,14 +142,14 @@ export default function AdminsManagement() {
                       </span>
                     </div>
                     <div className="flex gap-2">
-                      <button onClick={() => handleToggleActive(admin)} className={`p-2 ${admin.is_active ? 'bg-orange-500 hover:bg-orange-600' : 'bg-green-500 hover:bg-green-600'} text-white rounded-lg transition-all`} title={admin.is_active ? 'Deactivate' : 'Activate'}>
-                        {admin.is_active ? <Ban className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
+                      <button onClick={() => handleToggleActive(admin)} disabled={loading.toggle === admin.id} className={`p-2 ${admin.is_active ? 'bg-orange-500 hover:bg-orange-600' : 'bg-green-500 hover:bg-green-600'} text-white rounded-lg transition-all disabled:opacity-50`} title={admin.is_active ? 'Deactivate' : 'Activate'}>
+                        {loading.toggle === admin.id ? <Loader2 className="w-4 h-4 animate-spin" /> : admin.is_active ? <Ban className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
                       </button>
                       <button onClick={() => handleEdit(admin)} className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all">
                         <Edit2 className="w-4 h-4" />
                       </button>
-                      <button onClick={() => handleDelete(admin)} className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all">
-                        <Trash2 className="w-4 h-4" />
+                      <button onClick={() => handleDelete(admin)} disabled={loading.delete === admin.id} className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all disabled:opacity-50">
+                        {loading.delete === admin.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                       </button>
                     </div>
                   </div>

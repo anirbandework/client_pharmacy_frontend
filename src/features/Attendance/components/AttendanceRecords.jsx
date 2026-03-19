@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { attendanceAPI } from '../services/attendanceApi'
-import { List } from 'lucide-react'
+import { List, Loader2 } from 'lucide-react'
 import { adminApi } from '../../Admin&SuperAdmin/services/admin&superAminApi'
 
 const AttendanceRecords = ({ shopCode }) => {
@@ -8,6 +8,7 @@ const AttendanceRecords = ({ shopCode }) => {
   const [staff, setStaff] = useState([])
   const [filters, setFilters] = useState({ staff_id: '', from_date: '', to_date: '' })
   const [loading, setLoading] = useState(false)
+  const [searchLoading, setSearchLoading] = useState(false)
 
   useEffect(() => {
     if (shopCode) loadStaff()
@@ -23,14 +24,14 @@ const AttendanceRecords = ({ shopCode }) => {
   }
 
   const fetchRecords = async () => {
-    setLoading(true)
+    setSearchLoading(true)
     try {
       const res = await attendanceAPI.getRecords(shopCode, filters.staff_id, filters.from_date, filters.to_date)
       setRecords(res.data)
     } catch (error) {
       console.error(error)
     } finally {
-      setLoading(false)
+      setSearchLoading(false)
     }
   }
 
@@ -48,7 +49,8 @@ const AttendanceRecords = ({ shopCode }) => {
           </select>
           <input type="date" value={filters.from_date} onChange={(e) => setFilters({ ...filters, from_date: e.target.value })} className="px-3 py-2 text-sm border rounded-lg" />
           <input type="date" value={filters.to_date} onChange={(e) => setFilters({ ...filters, to_date: e.target.value })} className="px-3 py-2 text-sm border rounded-lg" />
-          <button onClick={fetchRecords} className="bg-primary-600 text-white text-sm font-semibold py-2 rounded-lg hover:bg-primary-700">
+          <button onClick={fetchRecords} disabled={searchLoading} className="bg-primary-600 text-white text-sm font-semibold py-2 rounded-lg hover:bg-primary-700 disabled:opacity-50 flex items-center justify-center gap-2">
+            {searchLoading && <Loader2 className="w-4 h-4 animate-spin" />}
             Search
           </button>
         </div>

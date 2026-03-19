@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Save, X, Plus, Trash2, AlertCircle, Package, IndianRupee, Settings } from 'lucide-react'
+import { Save, X, Plus, Trash2, AlertCircle, Package, IndianRupee, Settings, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { staffPurchaseInvoiceAPI } from '../../services/staff_purchase_invoice_apis'
 import { adminPurchaseInvoiceAPI } from '../../services/admin_purchase_invoice_apis'
@@ -897,7 +897,7 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
         <div className="sticky bottom-0 bg-white dark:bg-slate-900 border-t dark:border-slate-700/50 p-4 flex justify-end gap-3 rounded-b-xl">
           <button onClick={onClose} className="px-6 py-2 border dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700/30 dark:text-slate-300">Cancel</button>
           <button onClick={handleSave} disabled={saving || (isDistributorInvoice && !isAdmin && invoice.is_staff_verified && !invoice.is_rejected)} className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 flex items-center gap-2">
-            <Save className="w-4 h-4" />
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             {saving ? 'Processing...' : isDistributorInvoice ? (invoice.is_staff_verified && !invoice.is_rejected && !isAdmin ? 'Already Verified' : isAdmin ? 'Save Changes' : 'Verify Invoice') : invoice.id ? (isAdmin ? 'Save Changes' : 'Save & Verify') : 'Create & Verify'}
           </button>
         </div>

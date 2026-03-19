@@ -1,12 +1,13 @@
 import toast from 'react-hot-toast'
 import React, { useState, useEffect } from 'react'
 import { attendanceAPI } from '../services/attendanceApi'
-import { Settings as SettingsIcon, AlertCircle, Shield, CheckCircle, XCircle } from 'lucide-react'
+import { Settings as SettingsIcon, AlertCircle, Shield, CheckCircle, XCircle, Loader2 } from 'lucide-react'
 
 const Settings = ({ shopCode }) => {
   const [settings, setSettings] = useState(null)
   const [editMode, setEditMode] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [saveLoading, setSaveLoading] = useState(false)
 
   useEffect(() => {
     if (shopCode) fetchSettings()
@@ -25,6 +26,7 @@ const Settings = ({ shopCode }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setSaveLoading(true)
     try {
       await attendanceAPI.updateSettings(shopCode, settings)
       toast.success('Settings updated!')
@@ -32,6 +34,8 @@ const Settings = ({ shopCode }) => {
       fetchSettings()
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Update failed')
+    } finally {
+      setSaveLoading(false)
     }
   }
 
@@ -211,7 +215,8 @@ const Settings = ({ shopCode }) => {
             ))}
           </div>
         </div>
-        <button type="submit" className="w-full bg-gradient-to-r from-primary-500 to-primary-600 text-white text-sm font-semibold py-2 rounded-lg hover:shadow-lg">
+        <button type="submit" disabled={saveLoading} className="w-full bg-gradient-to-r from-primary-500 to-primary-600 text-white text-sm font-semibold py-2 rounded-lg hover:shadow-lg disabled:opacity-50 flex items-center justify-center gap-2">
+          {saveLoading && <Loader2 className="w-4 h-4 animate-spin" />}
           Update Settings
         </button>
       </form>

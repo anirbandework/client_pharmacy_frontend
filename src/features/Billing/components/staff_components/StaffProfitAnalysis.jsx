@@ -5,7 +5,7 @@ import {
 } from 'recharts'
 import {
   TrendingUp, TrendingDown, IndianRupee, Receipt, Target, ShoppingCart,
-  Users, Search, X, RefreshCw, AlertCircle
+  Users, Search, X, RefreshCw, AlertCircle, Loader2
 } from 'lucide-react'
 import { billingAPI } from '../../services/staff_billing_apis'
 import toast from 'react-hot-toast'
@@ -65,6 +65,7 @@ export default function StaffProfitAnalysis() {
   const [search, setSearch] = useState('')
   const [searchInput, setSearchInput] = useState('')
   const [activeSection, setActiveSection] = useState('overview')
+  const [searchLoading, setSearchLoading] = useState(false)
 
   const fetchData = useCallback(async (searchVal) => {
     setLoading(true)
@@ -87,7 +88,8 @@ export default function StaffProfitAnalysis() {
   const handleSearch = (e) => {
     e.preventDefault()
     setSearch(searchInput)
-    fetchData(searchInput)
+    setSearchLoading(true)
+    fetchData(searchInput).finally(() => setSearchLoading(false))
   }
 
   const clearSearch = () => {
@@ -141,12 +143,13 @@ export default function StaffProfitAnalysis() {
                 </button>
               )}
             </div>
-            <button type="submit" className="px-3 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700">
-              Search
+            <button type="submit" disabled={searchLoading} className="px-3 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 flex items-center gap-2">
+              {searchLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+              {searchLoading ? 'Searching...' : 'Search'}
             </button>
           </form>
         </div>
-        <button onClick={() => fetchData(search)} className="p-2 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all" title="Refresh">
+        <button onClick={() => fetchData(search)} disabled={loading} className="p-2 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all disabled:opacity-50" title="Refresh">
           <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
         </button>
       </div>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { billingAdminAPI } from '../../services/admin_billing_apis'
-import { Eye, Search, Printer, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Eye, Search, Printer, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 const AdminBillHistory = ({ selectedShop = null }) => {
@@ -11,6 +11,8 @@ const AdminBillHistory = ({ selectedShop = null }) => {
   const [storeConfig, setStoreConfig] = useState(null)
   const [page, setPage] = useState(1)
   const [pagination, setPagination] = useState({ total: 0, pages: 1 })
+  const [searchLoading, setSearchLoading] = useState(false)
+  const [viewLoading, setViewLoading] = useState(false)
   const PER_PAGE = 20
 
   useEffect(() => {
@@ -35,16 +37,19 @@ const AdminBillHistory = ({ selectedShop = null }) => {
 
   const handleSearch = () => {
     setPage(1)
-    fetchBills()
+    setSearchLoading(true)
+    fetchBills().finally(() => setSearchLoading(false))
   }
 
   const handleReset = () => {
     setSearchPhone('')
     setPage(1)
-    fetchBills()
+    setSearchLoading(true)
+    fetchBills().finally(() => setSearchLoading(false))
   }
 
   const viewBill = async (bill) => {
+    setViewLoading(true)
     try {
       const [billRes, configRes] = await Promise.all([
         billingAdminAPI.getBill(bill.id),
@@ -54,6 +59,8 @@ const AdminBillHistory = ({ selectedShop = null }) => {
       setStoreConfig(configRes.data.config)
     } catch {
       toast.error('Failed to load bill details')
+    } finally {
+      setViewLoading(false)
     }
   }
 
@@ -90,10 +97,11 @@ const AdminBillHistory = ({ selectedShop = null }) => {
               50% { box-shadow: 0 0 30px rgba(59, 130, 246, 0.5), 0 0 60px rgba(59, 130, 246, 0.2); }
             }
           `}</style>
-          <button onClick={handleSearch} className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium shadow-md hover:shadow-lg transition-all">
-            Search
+          <button onClick={handleSearch} disabled={searchLoading} className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium shadow-md hover:shadow-lg transition-all disabled:opacity-50 flex items-center gap-2">
+            {searchLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+            {searchLoading ? 'Searching...' : 'Search'}
           </button>
-          <button onClick={handleReset} className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-medium shadow-md hover:shadow-lg transition-all">
+          <button onClick={handleReset} disabled={searchLoading} className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-medium shadow-md hover:shadow-lg transition-all disabled:opacity-50">
             Reset
           </button>
         </div>
@@ -157,8 +165,8 @@ const AdminBillHistory = ({ selectedShop = null }) => {
                     <td className="px-6 py-4 text-right text-green-600 font-semibold text-sm">₹{bill.change_returned?.toFixed(2) || '0.00'}</td>
                     <td className="px-6 py-4 text-sm">{bill.staff_name}</td>
                     <td className="px-6 py-4 text-right">
-                      <button onClick={() => viewBill(bill)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-blue-200 hover:border-blue-300">
-                        <Eye className="w-4 h-4" />
+                      <button onClick={() => viewBill(bill)} disabled={viewLoading} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-blue-200 hover:border-blue-300 disabled:opacity-50 flex items-center gap-1">
+                        {viewLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Eye className="w-4 h-4" />}
                       </button>
                     </td>
                   </tr>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { dailyRecordsAPI } from '../../services/dailyRecords'
-import { Calendar, Plus, Trash2, Save, IndianRupee, TrendingUp, TrendingDown, Download } from 'lucide-react'
+import { Calendar, Plus, Trash2, Save, IndianRupee, TrendingUp, TrendingDown, Download, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 const DailyRecords = () => {
@@ -9,6 +9,10 @@ const DailyRecords = () => {
   const [loading, setLoading] = useState(false)
   const [editMode, setEditMode] = useState(false)
   const [showExportModal, setShowExportModal] = useState(false)
+  const [updateLoading, setUpdateLoading] = useState(false)
+  const [addExpenseLoading, setAddExpenseLoading] = useState(false)
+  const [deleteExpenseLoading, setDeleteExpenseLoading] = useState({})
+  const [exportLoading, setExportLoading] = useState(false)
   const [exportDates, setExportDates] = useState({
     startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     endDate: new Date().toISOString().split('T')[0]
@@ -48,6 +52,7 @@ const DailyRecords = () => {
   }
 
   const handleUpdate = async () => {
+    setUpdateLoading(true)
     try {
       await dailyRecordsAPI.updateRecord(selectedDate, formData)
       toast.success('Record updated')
@@ -55,6 +60,8 @@ const DailyRecords = () => {
       fetchRecord()
     } catch (error) {
       toast.error('Failed to update record')
+    } finally {
+      setUpdateLoading(false)
     }
   }
 
@@ -63,6 +70,7 @@ const DailyRecords = () => {
       toast.error('Please fill expense details')
       return
     }
+    setAddExpenseLoading(true)
     try {
       await dailyRecordsAPI.addExpense(selectedDate, newExpense)
       toast.success('Expense added')
@@ -70,17 +78,22 @@ const DailyRecords = () => {
       fetchRecord()
     } catch (error) {
       toast.error('Failed to add expense')
+    } finally {
+      setAddExpenseLoading(false)
     }
   }
 
   const handleDeleteExpense = async (expenseId) => {
     if (!confirm('Delete this expense?')) return
+    setDeleteExpenseLoading(prev => ({ ...prev, [expenseId]: true }))
     try {
       await dailyRecordsAPI.deleteExpense(expenseId)
       toast.success('Expense deleted')
       fetchRecord()
     } catch (error) {
       toast.error('Failed to delete expense')
+    } finally {
+      setDeleteExpenseLoading(prev => ({ ...prev, [expenseId]: false }))
     }
   }
 
@@ -89,6 +102,7 @@ const DailyRecords = () => {
       toast.error('Start date cannot be after end date')
       return
     }
+    setExportLoading(true)
     try {
       const response = await dailyRecordsAPI.exportExcel(exportDates.startDate, exportDates.endDate)
       const url = window.URL.createObjectURL(new Blob([response.data]))
@@ -102,6 +116,8 @@ const DailyRecords = () => {
       toast.success('Excel exported successfully')
     } catch (error) {
       toast.error('Failed to export Excel')
+    } finally {
+      setExportLoading(false)
     }
   }
 
@@ -207,10 +223,11 @@ const DailyRecords = () => {
                 </button>
               ) : (
                 <div className="flex gap-2">
-                  <button onClick={handleUpdate} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2">
-                    <Save className="w-4 h-4" />Save
+                  <button onClick={handleUpdate} disabled={updateLoading} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2 disabled:opacity-50">
+                    {updateLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                    {updateLoading ? 'Saving...' : 'Save'}
                   </button>
-                  <button onClick={() => setEditMode(false)} className="px-4 py-2 bg-gray-300 rounded-lg">Cancel</button>
+                  <button onClick={() => setEditMode(false)} disabled={updateLoading} className="px-4 py-2 bg-gray-300 rounded-lg disabled:opacity-50">Cancel</button>
                 </div>
               )}
             </div>
@@ -304,8 +321,9 @@ const DailyRecords = () => {
                   onChange={(e) => setNewExpense({ ...newExpense, description: e.target.value })}
                   className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
                 />
-                <button onClick={handleAddExpense} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center justify-center gap-2">
-                  <Plus className="w-4 h-4" />Add Expense
+                <button onClick={handleAddExpense} disabled={addExpenseLoading} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center justify-center gap-2 disabled:opacity-50">
+                  {addExpenseLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                  {addExpenseLoading ? 'Adding...' : 'Add Expense'}
                 </button>
               </div>
             </div>
@@ -322,8 +340,8 @@ const DailyRecords = () => {
                     </div>
                     <div className="flex items-center gap-4">
                       <p className="font-bold text-red-600">₹{expense.amount.toFixed(2)}</p>
-                      <button onClick={() => handleDeleteExpense(expense.id)} className="text-red-600 hover:text-red-800">
-                        <Trash2 className="w-4 h-4" />
+                      <button onClick={() => handleDeleteExpense(expense.id)} disabled={deleteExpenseLoading[expense.id]} className="text-red-600 hover:text-red-800 disabled:opacity-50">
+                        {deleteExpenseLoading[expense.id] ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                       </button>
                     </div>
                   </div>
@@ -364,10 +382,11 @@ const DailyRecords = () => {
             <div className="flex gap-3 mt-6">
               <button
                 onClick={handleExportExcel}
-                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center justify-center gap-2"
+                disabled={exportLoading}
+                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                <Download className="w-4 h-4" />
-                Download Excel
+                {exportLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                {exportLoading ? 'Downloading...' : 'Download Excel'}
               </button>
               <button
                 onClick={() => setShowExportModal(false)}

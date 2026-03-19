@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { notificationsApi } from '../services/notificationsApi';
-import { Bell, Check } from 'lucide-react';
+import { Bell, Check, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { t } from '../../../theme';
@@ -11,6 +11,7 @@ export default function StaffNotifications() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [includeRead, setIncludeRead] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [markingAsRead, setMarkingAsRead] = useState({});
 
   useEffect(() => { loadNotifications(); }, [includeRead]);
   
@@ -35,12 +36,15 @@ export default function StaffNotifications() {
   };
 
   const handleMarkAsRead = async (notificationId) => {
+    setMarkingAsRead(prev => ({ ...prev, [notificationId]: true }));
     try {
       await notificationsApi.markAsRead(notificationId);
       toast.success('Marked as read');
       loadNotifications();
     } catch (err) {
       toast.error(err.message);
+    } finally {
+      setMarkingAsRead(prev => ({ ...prev, [notificationId]: false }));
     }
   };
 
@@ -118,10 +122,11 @@ export default function StaffNotifications() {
               {!notif.is_read && (
                 <button
                   onClick={() => handleMarkAsRead(notif.id)}
-                  className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 py-2 rounded-lg text-xs md:text-sm hover:from-blue-700 hover:to-indigo-700 flex items-center gap-1 shadow-lg shadow-blue-500/20 w-full sm:w-auto justify-center"
+                  disabled={markingAsRead[notif.id]}
+                  className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 py-2 rounded-lg text-xs md:text-sm hover:from-blue-700 hover:to-indigo-700 flex items-center gap-1 shadow-lg shadow-blue-500/20 w-full sm:w-auto justify-center disabled:opacity-50"
                 >
-                  <Check className="w-4 h-4" />
-                  Mark Read
+                  {markingAsRead[notif.id] ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                  {markingAsRead[notif.id] ? 'Marking...' : 'Mark Read'}
                 </button>
               )}
             </div>
