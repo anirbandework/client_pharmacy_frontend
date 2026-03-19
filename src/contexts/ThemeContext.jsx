@@ -13,8 +13,7 @@ export const useTheme = () => {
 export const ThemeProvider = ({ children }) => {
   const [isDark, setIsDark] = useState(() => {
     const saved = localStorage.getItem('theme')
-    // Default to dark if nothing saved yet (matches current app aesthetic)
-    return saved ? saved === 'dark' : true
+    return saved ? saved === 'dark' : false
   })
 
   useEffect(() => {
