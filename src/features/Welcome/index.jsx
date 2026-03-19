@@ -2,6 +2,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useTheme } from '../../contexts/ThemeContext'
+import { t } from '../../theme'
 import OTPInput from '../../components/OTPInput'
 import FeatureCarousel from './FeatureCarousel'
 import Logo from '../../components/Logo'
@@ -47,7 +48,8 @@ const Welcome = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [mounted, setMounted] = useState(false)
-  const { isDark: darkMode, toggleTheme } = useTheme()
+  const { isDark, toggleTheme } = useTheme()
+  const darkMode = isDark
 
   useEffect(() => { setTimeout(() => setMounted(true), 60) }, [])
 
@@ -208,7 +210,7 @@ const Welcome = () => {
     <div
       className="fixed inset-0 overflow-y-auto"
       data-light={lm}
-      style={{ background: lm ? '#f0f6ff' : '#010c1a', transition: 'background 0.4s ease' }}
+      style={{ background: t.pageBg(isDark), transition: 'background 0.4s ease' }}
     >
       <style>{`
         @keyframes float-orb {
@@ -350,26 +352,15 @@ const Welcome = () => {
       {/* ─── Background Layer ─── */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* Base radial gradients */}
-        <div className="absolute inset-0" style={{ background: lm
-          ? 'radial-gradient(ellipse 90% 65% at 50% -10%, rgba(147,197,253,0.45) 0%, transparent 68%)'
-          : 'radial-gradient(ellipse 90% 65% at 50% -10%, rgba(17,43,99,0.55) 0%, transparent 68%)'
-        }} />
-        <div className="absolute inset-0" style={{ background: lm
-          ? 'radial-gradient(ellipse 60% 50% at 85% 90%, rgba(167,139,250,0.28) 0%, transparent 60%)'
-          : 'radial-gradient(ellipse 60% 50% at 85% 90%, rgba(29,20,85,0.4) 0%, transparent 60%)'
-        }} />
+        <div className="absolute inset-0" style={t.radialTop(isDark)} />
+        <div className="absolute inset-0" style={t.radialBottomRight(isDark)} />
         <div className="absolute inset-0" style={{ background: lm
           ? 'radial-gradient(ellipse 50% 40% at 10% 80%, rgba(96,165,250,0.22) 0%, transparent 55%)'
           : 'radial-gradient(ellipse 50% 40% at 10% 80%, rgba(15,30,70,0.35) 0%, transparent 55%)'
         }} />
 
         {/* Fine grid */}
-        <div className="absolute inset-0" style={{
-          backgroundImage: lm
-            ? 'linear-gradient(rgba(59,130,246,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(59,130,246,0.07) 1px, transparent 1px)'
-            : 'linear-gradient(rgba(255,255,255,0.028) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.028) 1px, transparent 1px)',
-          backgroundSize: '36px 36px'
-        }} />
+        <div className="absolute inset-0" style={t.gridBg(isDark)} />
 
         {/* Animated orbs */}
         <div className="orb-1 absolute top-[5%] left-[8%] w-[520px] h-[520px] rounded-full" style={{
@@ -414,12 +405,7 @@ const Welcome = () => {
         {/* Header */}
         <header
           className="sticky top-0 z-20"
-          style={{
-            background: lm ? 'rgba(255,255,255,0.82)' : 'rgba(1,12,26,0.6)',
-            backdropFilter: 'blur(20px)',
-            borderBottom: lm ? '1px solid rgba(59,130,246,0.12)' : '1px solid rgba(255,255,255,0.07)',
-            transition: 'background 0.4s ease, border-color 0.4s ease',
-          }}
+          style={t.header(isDark)}
         >
           <div className="w-full px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
             <div className={`flex items-center gap-3 ${mounted ? 'appear' : 'opacity-0'}`}>
@@ -512,7 +498,7 @@ const Welcome = () => {
                     }}
                   >
                     <div className="text-2xl font-bold" style={{ color: lm ? '#1e293b' : '#ffffff', transition: 'color 0.4s ease' }}>{s.value}</div>
-                    <div className="text-xs text-slate-500 mt-0.5">{s.label}</div>
+                    <div className="text-xs mt-0.5" style={{ color: t.text.muted(isDark) }}>{s.label}</div>
                   </div>
                 ))}
               </div>
@@ -522,7 +508,7 @@ const Welcome = () => {
                 className={mounted ? 'appear' : 'opacity-0'}
                 style={{ animationDelay: '0.35s' }}
               >
-                <FeatureCarousel darkMode={darkMode} />
+                <FeatureCarousel />
               </div>
 
               {/* Trust indicators */}
@@ -540,8 +526,8 @@ const Welcome = () => {
                     className="trust-item flex items-center gap-2"
                     style={{ animationDelay: `${0.5 + i * 0.08}s` }}
                   >
-                    <Icon className="w-3.5 h-3.5 text-slate-500" />
-                    <span className="text-xs text-slate-500">{label}</span>
+                    <Icon className="w-3.5 h-3.5" style={{ color: t.text.muted(isDark) }} />
+                    <span className="text-xs" style={{ color: t.text.muted(isDark) }}>{label}</span>
                   </div>
                 ))}
                 <div
@@ -549,7 +535,7 @@ const Welcome = () => {
                   style={{ animationDelay: '0.74s' }}
                 >
                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                  <span className="text-xs text-slate-500">99.9% Uptime</span>
+                  <span className="text-xs" style={{ color: t.text.muted(isDark) }}>99.9% Uptime</span>
                 </div>
               </div>
             </div>
@@ -562,14 +548,7 @@ const Welcome = () => {
               {/* Card */}
               <div
                 className="card-glow rounded-3xl p-6 sm:p-8"
-                style={{
-                  background: lm
-                    ? 'linear-gradient(145deg, rgba(255,255,255,0.97) 0%, rgba(248,250,255,0.99) 100%)'
-                    : 'linear-gradient(145deg, rgba(10,20,46,0.85) 0%, rgba(5,12,32,0.92) 100%)',
-                  backdropFilter: 'blur(24px)',
-                  border: lm ? '1px solid rgba(59,130,246,0.15)' : '1px solid rgba(59,130,246,0.2)',
-                  transition: 'background 0.4s ease, border-color 0.4s ease',
-                }}
+                style={t.glassCard(isDark)}
               >
                 {!loginType ? (
                   // Role Selection Screen
@@ -908,7 +887,7 @@ const Welcome = () => {
                         </div>
                       </div>
                       <h3 className="font-bold text-lg mb-1" style={{ color: lm ? '#1e293b' : '#ffffff', transition: 'color 0.4s ease' }}>Verify OTP</h3>
-                      <p className="text-slate-500 text-sm">Code sent to <span style={{ color: lm ? '#475569' : '#cbd5e1' }}>{phone}</span></p>
+                      <p className="text-sm" style={{ color: t.text.secondary(isDark) }}>Code sent to <span style={{ color: lm ? '#475569' : '#cbd5e1' }}>{phone}</span></p>
                       <button
                         type="button"
                         onClick={resetForm}
@@ -940,7 +919,7 @@ const Welcome = () => {
 
                     <div className="text-center">
                       {countdown > 0 ? (
-                        <p className="text-slate-500 text-sm">Resend OTP in <span className="font-medium tabular-nums" style={{ color: lm ? '#475569' : '#cbd5e1' }}>{countdown}s</span></p>
+                        <p className="text-sm" style={{ color: t.text.secondary(isDark) }}>Resend OTP in <span className="font-medium tabular-nums" style={{ color: lm ? '#475569' : '#cbd5e1' }}>{countdown}s</span></p>
                       ) : (
                         <button type="button" onClick={handleResendOTP} className="text-blue-400 text-sm hover:text-blue-300 font-medium transition-colors">
                           Resend OTP

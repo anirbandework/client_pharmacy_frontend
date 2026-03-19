@@ -1,7 +1,7 @@
 import toast from 'react-hot-toast'
 import React, { useState, useEffect } from 'react'
 import { attendanceAPI } from '../services/attendanceApi'
-import { Settings as SettingsIcon, AlertCircle, Shield, CheckCircle, XCircle, Loader2 } from 'lucide-react'
+import { Settings as SettingsIcon, AlertCircle, Shield, MapPin, CheckCircle, XCircle, Loader2 } from 'lucide-react'
 
 const Settings = ({ shopCode }) => {
   const [settings, setSettings] = useState(null)
@@ -89,6 +89,23 @@ const Settings = ({ shopCode }) => {
             </div>
           </div>
 
+          {/* Geofence Status */}
+          <div className={`p-4 rounded-lg border ${
+            settings?.geofence_required ? 'bg-green-50 border-green-200' : 'bg-orange-50 border-orange-200'
+          }`}>
+            <div className="flex items-center gap-2 mb-1">
+              <MapPin className="w-4 h-4" />
+              <span className="font-semibold text-sm">GPS / Geofence</span>
+            </div>
+            <div className="text-sm text-gray-600 flex items-center gap-1">
+              {settings?.geofence_required ? (
+                <><CheckCircle className="w-4 h-4" /> GPS location required for check-in</>
+              ) : (
+                <><XCircle className="w-4 h-4" /> GPS not required — WiFi SSID match is enough</>
+              )}
+            </div>
+          </div>
+
           {/* Work Hours */}
           <div className="grid grid-cols-2 gap-4">
             <div className="p-3 bg-gray-50 rounded-lg">
@@ -171,10 +188,10 @@ const Settings = ({ shopCode }) => {
             <div className="font-semibold text-blue-900 mb-1">WiFi Enforcement</div>
             <div className="text-sm text-blue-700 mb-3">Require staff to be connected to shop WiFi to access protected modules (billing, stock audit, etc.)</div>
             <label className="flex items-center gap-2 cursor-pointer">
-              <input 
-                type="checkbox" 
-                checked={settings?.require_wifi_for_modules || false} 
-                onChange={(e) => setSettings({ ...settings, require_wifi_for_modules: e.target.checked })} 
+              <input
+                type="checkbox"
+                checked={settings?.require_wifi_for_modules || false}
+                onChange={(e) => setSettings({ ...settings, require_wifi_for_modules: e.target.checked })}
                 className="w-5 h-5 rounded"
               />
               <span className="text-sm font-medium text-blue-900 flex items-center gap-1">
@@ -182,6 +199,35 @@ const Settings = ({ shopCode }) => {
                   <><CheckCircle className="w-4 h-4" /> WiFi Required for Modules</>
                 ) : (
                   <><XCircle className="w-4 h-4" /> WiFi Not Required</>
+                )}
+              </span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      {/* Geofence / GPS Toggle */}
+      <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+        <div className="flex items-start gap-3">
+          <MapPin className="w-5 h-5 text-green-600 mt-0.5" />
+          <div className="flex-1">
+            <div className="font-semibold text-green-900 mb-1">GPS / Geofence Check</div>
+            <div className="text-sm text-green-700 mb-3">
+              When enabled, staff must be physically within the shop's GPS radius to check in.
+              Disable this for shops with old computers or GPS-unreliable devices — WiFi SSID match alone will be used for attendance.
+            </div>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={settings?.geofence_required ?? true}
+                onChange={(e) => setSettings({ ...settings, geofence_required: e.target.checked })}
+                className="w-5 h-5 rounded"
+              />
+              <span className="text-sm font-medium text-green-900 flex items-center gap-1">
+                {settings?.geofence_required ? (
+                  <><CheckCircle className="w-4 h-4" /> GPS Location Required</>
+                ) : (
+                  <><XCircle className="w-4 h-4" /> GPS Not Required (WiFi SSID only)</>
                 )}
               </span>
             </label>

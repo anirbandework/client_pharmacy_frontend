@@ -80,21 +80,9 @@ const WiFiHeartbeatService = () => {
         const response = await attendanceAPI.wifiHeartbeat(payload)
         console.log('✅ Heartbeat sent - Response:', response.data)
       } catch (error) {
-        // If heartbeat fails, log and store the error message
+        // Log heartbeat errors but always continue — do not stop heartbeats
         const errorMsg = error.response?.data?.message || error.response?.data?.detail || error.message
-        console.error('❌ Heartbeat failed:', errorMsg)
-        
-        // Store error in localStorage for UI to display
-        localStorage.setItem('heartbeat_error', errorMsg)
-        
-        // Stop sending heartbeats on location/geofence errors
-        if (error.response?.status === 403 || errorMsg?.includes('away') || errorMsg?.includes('Location')) {
-          console.warn('⚠️ Stopping heartbeats:', errorMsg)
-          if (heartbeatInterval) {
-            clearInterval(heartbeatInterval)
-            heartbeatInterval = null
-          }
-        }
+        console.warn('⚠️ Heartbeat error (will retry):', errorMsg)
       }
     }
 

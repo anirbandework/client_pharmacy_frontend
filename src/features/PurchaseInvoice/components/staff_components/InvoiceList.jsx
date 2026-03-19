@@ -115,8 +115,8 @@ const InvoiceList = ({ refresh }) => {
   }
 
   const filteredInvoices = invoices.filter(inv =>
-    inv.invoice_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    inv.supplier_name.toLowerCase().includes(searchTerm.toLowerCase())
+    (inv.invoice_number || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (inv.supplier_name || '').toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   if (loading) {

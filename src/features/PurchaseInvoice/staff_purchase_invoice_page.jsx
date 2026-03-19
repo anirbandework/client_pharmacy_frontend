@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import useTabPermissions from '../../hooks/useTabPermissions'
 import Layout from '../../components/Layout'
-// import GeofenceGuard from '../../components/GeofenceGuard'
+import GeofenceGuard from '../../components/GeofenceGuard'
 import UploadInvoice from './components/staff_components/UploadInvoice'
 import InvoiceList from './components/staff_components/InvoiceList'
 import Dashboard from './components/staff_components/Dashboard'
@@ -35,7 +35,7 @@ const StaffPurchaseInvoicePage = () => {
 
   return (
     <Layout>
-      {/* <GeofenceGuard moduleName="invoice analyzer"> */}
+      <GeofenceGuard moduleName="invoice analyzer">
       <div className="max-w-7xl mx-auto px-4">
         <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 rounded-xl shadow-lg p-4 md:p-6 mb-4 animate-fade-in relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
@@ -90,7 +90,7 @@ const StaffPurchaseInvoicePage = () => {
       {showHelp && (
         <HowToUseModal role="staff" activeTab={activeTab} onClose={() => setShowHelp(false)} />
       )}
-      {/* </GeofenceGuard> */}
+      </GeofenceGuard>
     </Layout>
   )
 }

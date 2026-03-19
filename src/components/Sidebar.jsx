@@ -1,11 +1,80 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Package, ShoppingCart, Wallet, Settings, Clock, Shield, Bell, MessageCircle, Send, Receipt, UserCheck, Brain, BarChart3, LineChart, Building2, User } from 'lucide-react'
+import { Package, ShoppingCart, Wallet, Settings, Clock, Shield, Bell, MessageCircle, Send, Receipt, UserCheck, Brain, BarChart3, LineChart, Building2, User, Lock, Crown, Star, X } from 'lucide-react'
 import { useSidebar } from '../contexts/SidebarContext'
 import { useTheme } from '../contexts/ThemeContext'
 import { feedbackAPI } from '../features/Feedback/services/feedbackApi'
 import FeedbackFormModal from '../features/Feedback/components/FeedbackFormModal'
 import axios from 'axios'
+
+// ─── Locked Module Modal ──────────────────────────────────────────────────────
+
+const LockedModuleModal = ({ item, onClose }) => {
+  const Icon = item.icon
+  return (
+    <div
+      className="fixed inset-0 z-[999] flex items-center justify-center p-4"
+      style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)' }}
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 text-center relative"
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Close */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+        >
+          <X className="w-4 h-4" />
+        </button>
+
+        {/* Icon */}
+        <div className="flex justify-center mb-5">
+          <div className="relative">
+            <div className="w-20 h-20 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center">
+              <Lock className="w-9 h-9 text-indigo-600" />
+            </div>
+            <div className="absolute -top-1 -right-1 w-7 h-7 bg-amber-400 rounded-full flex items-center justify-center shadow">
+              <Crown className="w-4 h-4 text-white" />
+            </div>
+          </div>
+        </div>
+
+        <h2 className="text-xl font-bold text-gray-900 mb-1">Premium Feature</h2>
+
+        <p className="text-sm font-semibold text-indigo-600 mb-4 flex items-center justify-center gap-2">
+          <Icon className="w-4 h-4" />
+          {item.label}
+        </p>
+
+        <p className="text-sm text-gray-500 mb-6 leading-relaxed">
+          This module is not included in your current plan. Upgrade to unlock{' '}
+          <strong className="text-gray-700">{item.label}</strong> and get access to powerful analytics & tools.
+        </p>
+
+        <div className="bg-indigo-50 rounded-xl p-4 mb-6 text-left space-y-2.5">
+          {[
+            'Full access to all premium modules',
+            'Priority support & updates',
+            'Advanced analytics & AI insights',
+          ].map((f, i) => (
+            <div key={i} className="flex items-center gap-2 text-sm text-indigo-700">
+              <Star className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" fill="currentColor" />
+              {f}
+            </div>
+          ))}
+        </div>
+
+        <p className="text-xs text-gray-400">
+          Contact your administrator or reach out to us to upgrade your plan.
+        </p>
+      </div>
+    </div>
+  )
+}
+
+// ─── Sidebar ──────────────────────────────────────────────────────────────────
 
 const Sidebar = () => {
   const navigate = useNavigate()
@@ -18,6 +87,7 @@ const Sidebar = () => {
   const [navItems, setNavItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [profileIncomplete, setProfileIncomplete] = useState(false)
+  const [lockedModal, setLockedModal] = useState(null) // the locked item to show in modal
 
   const showFeedback = userType === 'staff' || userType === 'admin'
 
@@ -72,7 +142,8 @@ const Sidebar = () => {
         id: m.module_key,
         label: m.module_name,
         path: m.path,
-        icon: getIcon(m.icon)
+        icon: getIcon(m.icon),
+        locked: m.locked || false
       }))
 
       setNavItems(items)
@@ -152,10 +223,43 @@ const Sidebar = () => {
                 )}
                 {navItems.map((item) => {
                   const isActive = location.pathname === item.path
+                  const isLocked = item.locked
+
+                  if (isLocked) {
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => setLockedModal(item)}
+                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all"
+                        style={{
+                          color: isDark ? '#475569' : '#94a3b8',
+                          background: 'transparent',
+                        }}
+                        onMouseEnter={e => {
+                          e.currentTarget.style.background = isDark ? 'rgba(245,158,11,0.08)' : 'rgba(245,158,11,0.06)'
+                          e.currentTarget.style.color = isDark ? '#fbbf24' : '#b45309'
+                        }}
+                        onMouseLeave={e => {
+                          e.currentTarget.style.background = 'transparent'
+                          e.currentTarget.style.color = isDark ? '#475569' : '#94a3b8'
+                        }}
+                      >
+                        <item.icon className="w-5 h-5 opacity-50" />
+                        <span className="font-medium flex-1 opacity-50">{item.label}</span>
+                        <div
+                          className="flex items-center justify-center w-5 h-5 rounded-full flex-shrink-0"
+                          style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)' }}
+                        >
+                          <Lock className="w-3 h-3 text-white" />
+                        </div>
+                      </button>
+                    )
+                  }
+
                   return (
                     <button
                       key={item.id}
-                      onClick={() => navigate(item.path)}
+                      onClick={() => { navigate(item.path); closeSidebar() }}
                       className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all"
                       style={isActive ? {
                         background: 'linear-gradient(135deg, #2563eb 0%, #4f46e5 100%)',
@@ -229,6 +333,10 @@ const Sidebar = () => {
           className="fixed inset-0 z-30 top-16"
           style={{ background: isDark ? 'rgba(1,12,26,0.5)' : 'rgba(15,23,42,0.2)', backdropFilter: 'blur(4px)' }}
         />
+      )}
+
+      {lockedModal && (
+        <LockedModuleModal item={lockedModal} onClose={() => setLockedModal(null)} />
       )}
 
       <FeedbackFormModal isOpen={showFeedbackForm} onClose={() => setShowFeedbackForm(false)} />

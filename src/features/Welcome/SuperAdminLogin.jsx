@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
+import { useTheme } from '../../contexts/ThemeContext'
 import OTPInput from '../../components/OTPInput'
 import { ArrowRight, ArrowLeft, Shield, Eye, EyeOff, Building2, Lock, AlertTriangle, Sun, Moon } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -30,7 +31,7 @@ const SuperAdminLogin = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [mounted, setMounted] = useState(false)
-  const [darkMode, setDarkMode] = useState(true)
+  const { isDark: darkMode, toggleTheme } = useTheme()
 
   useEffect(() => { setTimeout(() => setMounted(true), 60) }, [])
 
@@ -338,7 +339,7 @@ const SuperAdminLogin = () => {
 
               {/* Theme Toggle */}
               <button
-                onClick={() => setDarkMode(!darkMode)}
+                onClick={toggleTheme}
                 style={{
                   display: 'flex', alignItems: 'center', gap: '6px',
                   padding: '6px 12px', borderRadius: '999px', cursor: 'pointer',

@@ -43,9 +43,19 @@ const useTabPermissions = (moduleKey) => {
     return tabPerms[tabKey]
   }
 
+  /**
+   * Returns true if a tab is explicitly disabled (set to false) — meaning it requires payment/upgrade.
+   * Returns false while loading, for super_admin, or if tab has no record (default allowed).
+   */
+  const isTabLocked = (tabKey) => {
+    if (tabPerms === null) return false
+    if (userType === 'super_admin') return false
+    return tabPerms[tabKey] === false
+  }
+
   const isLoaded = tabPerms !== null
 
-  return { isTabEnabled, isLoaded }
+  return { isTabEnabled, isTabLocked, isLoaded }
 }
 
 export default useTabPermissions

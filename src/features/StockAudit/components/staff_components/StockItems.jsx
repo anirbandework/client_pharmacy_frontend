@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { staffStockAuditAPI } from '../../services/staff_stock_audit_apis'
 import { Plus, Edit, Trash2, Download, Package, AlertCircle, CheckCircle, List, Settings, Upload } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -36,6 +36,7 @@ const StockItems = () => {
   const [bulkAssignSection, setBulkAssignSection] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+  const filterChangedRef = useRef(false)
   const [allTotal, setAllTotal] = useState(0)
   const [unassignedTotal, setUnassignedTotal] = useState(0)
   const [formData, setFormData] = useState({ 
@@ -59,20 +60,26 @@ const StockItems = () => {
   // Debounce filter/search/tab changes → reset to page 1 and fetch
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
+      filterChangedRef.current = true
+      setCurrentPage(1)
       fetchData(1)
     }, 500)
     return () => clearTimeout(delayDebounce)
   }, [activeTab, searchTerm, filters])
 
-  // Immediate fetch when page changes (triggered by pagination controls)
+  // Fetch when page changes (triggered by pagination controls only)
+  // Skip when page was reset by a filter change — that fetch already happened above
   useEffect(() => {
+    if (filterChangedRef.current) {
+      filterChangedRef.current = false
+      return
+    }
     fetchData(currentPage)
   }, [currentPage])
 
   const fetchData = async (page = 1) => {
     try {
       setLoading(true)
-      setCurrentPage(page)
 
       const [sectionsRes, racksRes] = await Promise.all([
         staffStockAuditAPI.getSections(),

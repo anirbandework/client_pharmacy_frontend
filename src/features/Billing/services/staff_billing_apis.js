@@ -35,5 +35,9 @@ export const billingAPI = {
   
   exportBills: (params) => axiosInstance.get(`${API_BASE}/export/bills`, { params, responseType: 'blob' }),
 
-  getProfitAnalysis: (params) => axiosInstance.get(`${API_BASE}/profit-analysis`, { params })
+  getProfitAnalysis: (params) => axiosInstance.get(`${API_BASE}/profit-analysis`, { params }),
+
+  getPayLaterCustomers: (params) => axiosInstance.get(`${API_BASE}/pay-later/customers`, { params }),
+  getPayLaterBills: (phone) => axiosInstance.get(`${API_BASE}/pay-later/bills/${phone}`),
+  recordPayLaterPayment: (data) => axiosInstance.post(`${API_BASE}/pay-later/record-payment`, data),
 }

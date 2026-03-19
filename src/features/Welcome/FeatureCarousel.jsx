@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Users, Clock, FileText, BarChart3, Package, IndianRupee } from 'lucide-react'
+import { useTheme } from '../../contexts/ThemeContext'
 
 const features = [
   { icon: Users,        color: 'blue',   title: 'Multi-Level Access',      description: 'Organization, Admin & Staff hierarchy' },
@@ -19,7 +20,8 @@ const palette = {
   rose:    { border: 'rgba(244,63,94,0.35)',   bg: 'rgba(244,63,94,0.1)',   glow: 'rgba(244,63,94,0.12)',   text: '#fb7185' },
 }
 
-const FeatureCarousel = ({ darkMode = true }) => {
+const FeatureCarousel = () => {
+  const { isDark: darkMode } = useTheme()
   const scrollRef = useRef(null)
   const [isPaused, setIsPaused] = useState(false)
   const [hovered, setHovered] = useState(null)
