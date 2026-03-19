@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Trash2, Save } from 'lucide-react';
+import { Plus, Trash2, Save, Loader2 } from 'lucide-react';
 import { distributorApi } from '../services/api';
 import toast from 'react-hot-toast';
 
@@ -280,7 +280,8 @@ export default function CreateInvoice({ shop, onClose, onSuccess }) {
 
           <div className="flex gap-3">
             <button onClick={handleSubmit} disabled={saving} className="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 disabled:opacity-50 flex items-center justify-center gap-2">
-              <Save className="w-4 h-4" /> {saving ? 'Saving...' : 'Create Invoice'}
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              {saving ? 'Saving...' : 'Create Invoice'}
             </button>
             <button onClick={onClose} className="px-6 bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300">Cancel</button>
           </div>

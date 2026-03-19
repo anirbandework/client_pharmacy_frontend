@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Clock, CheckCircle, XCircle, Eye, Edit, FileText, Trash2, Store } from 'lucide-react'
+import { Clock, CheckCircle, XCircle, Eye, Edit, FileText, Trash2, Store, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { adminPurchaseInvoiceAPI } from '../../services/admin_purchase_invoice_apis'
 import { staffPurchaseInvoiceAPI } from '../../services/staff_purchase_invoice_apis'
@@ -284,7 +284,7 @@ const PendingInvoiceCard = ({ invoice, onAction }) => {
             disabled={processing}
             className="flex-1 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 text-sm"
           >
-            <CheckCircle className="w-4 h-4" />
+            {processing ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
             {processing ? 'Processing...' : 'Approve'}
           </button>
           <button
@@ -292,7 +292,7 @@ const PendingInvoiceCard = ({ invoice, onAction }) => {
             disabled={processing}
             className="flex-1 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 text-sm"
           >
-            <XCircle className="w-4 h-4" />
+            {processing ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
             Reject
           </button>
         </div>
@@ -337,8 +337,9 @@ const PendingInvoiceCard = ({ invoice, onAction }) => {
               <button
                 onClick={handleReject}
                 disabled={processing}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
+                {processing ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
                 {processing ? 'Rejecting...' : 'Reject'}
               </button>
             </div>

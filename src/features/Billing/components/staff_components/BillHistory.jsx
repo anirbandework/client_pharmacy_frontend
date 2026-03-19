@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { billingAPI } from '../../services/staff_billing_apis'
-import { Eye, Trash2, Search, Printer } from 'lucide-react'
+import { Eye, Trash2, Search, Printer, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 const BillHistory = () => {
@@ -9,6 +9,9 @@ const BillHistory = () => {
   const [searchPhone, setSearchPhone] = useState('')
   const [selectedBill, setSelectedBill] = useState(null)
   const [storeConfig, setStoreConfig] = useState(null)
+  const [searchLoading, setSearchLoading] = useState(false)
+  const [deleteLoading, setDeleteLoading] = useState({})
+  const [viewLoading, setViewLoading] = useState(false)
 
   useEffect(() => {
     fetchBills()
@@ -40,32 +43,41 @@ const BillHistory = () => {
       fetchBills()
       return
     }
+    setSearchLoading(true)
     try {
       const { data } = await billingAPI.getBills({ customer_phone: searchPhone })
       setBills(data)
     } catch (error) {
       toast.error('Search failed')
+    } finally {
+      setSearchLoading(false)
     }
   }
 
   const viewBill = async (billId) => {
+    setViewLoading(true)
     try {
       const { data } = await billingAPI.getBill(billId)
       setSelectedBill(data)
     } catch (error) {
       toast.error('Failed to load bill details')
+    } finally {
+      setViewLoading(false)
     }
   }
 
   const deleteBill = async (billId) => {
     if (!window.confirm('Delete this bill? Stock will be restored.')) return
     
+    setDeleteLoading(prev => ({ ...prev, [billId]: true }))
     try {
       await billingAPI.deleteBill(billId)
       toast.success('Bill deleted and stock restored')
       fetchBills()
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Failed to delete bill')
+    } finally {
+      setDeleteLoading(prev => ({ ...prev, [billId]: false }))
     }
   }
 
@@ -108,13 +120,16 @@ const BillHistory = () => {
           `}</style>
           <button
             onClick={searchByPhone}
-            className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium shadow-md hover:shadow-lg transition-all"
+            disabled={searchLoading}
+            className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium shadow-md hover:shadow-lg transition-all disabled:opacity-50 flex items-center gap-2"
           >
-            Search
+            {searchLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+            {searchLoading ? 'Searching...' : 'Search'}
           </button>
           <button
             onClick={fetchBills}
-            className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-medium shadow-md hover:shadow-lg transition-all"
+            disabled={searchLoading}
+            className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-medium shadow-md hover:shadow-lg transition-all disabled:opacity-50"
           >
             Reset
           </button>
@@ -185,15 +200,17 @@ const BillHistory = () => {
                       <div className="flex gap-2 justify-end">
                         <button
                           onClick={() => viewBill(bill.id)}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-blue-200 hover:border-blue-300"
+                          disabled={viewLoading}
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-blue-200 hover:border-blue-300 disabled:opacity-50 flex items-center"
                         >
-                          <Eye className="w-4 h-4" />
+                          {viewLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Eye className="w-4 h-4" />}
                         </button>
                         <button
                           onClick={() => deleteBill(bill.id)}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-red-200 hover:border-red-300"
+                          disabled={deleteLoading[bill.id]}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-red-200 hover:border-red-300 disabled:opacity-50 flex items-center"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          {deleteLoading[bill.id] ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                         </button>
                       </div>
                     </td>

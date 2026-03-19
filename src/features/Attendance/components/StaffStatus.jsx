@@ -1,20 +1,25 @@
 import React from 'react'
-import { Clock, Wifi, WifiOff, AlertCircle, LogOut, CheckCircle, XCircle } from 'lucide-react'
+import { Clock, Wifi, WifiOff, AlertCircle, LogOut, CheckCircle, XCircle, Loader2 } from 'lucide-react'
 import { attendanceAPI } from '../services/attendanceApi'
 import toast from 'react-hot-toast'
 
 const StaffStatus = ({ wifiStatus, wifiInfo, todayRecord, fetchData }) => {
+  const [checkoutLoading, setCheckoutLoading] = React.useState(false)
+  
   const isInsideGeofence = wifiStatus?.is_inside_geofence
   const canAccessModules = wifiStatus?.can_access_modules
   const locationError = wifiStatus?.location_error
 
   const handleManualCheckout = async () => {
+    setCheckoutLoading(true)
     try {
       await attendanceAPI.wifiDisconnect()
       toast.success('Checked out successfully')
       fetchData()
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Checkout failed')
+    } finally {
+      setCheckoutLoading(false)
     }
   }
 

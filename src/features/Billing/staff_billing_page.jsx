@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Toaster } from 'react-hot-toast'
 import ReactMarkdown from 'react-markdown'
 import Layout from '../../components/Layout'
-import GeofenceGuard from '../../components/GeofenceGuard'
+// import GeofenceGuard from '../../components/GeofenceGuard'
 import CreateBill from './components/staff_components/CreateBill'
 import BillHistory from './components/staff_components/BillHistory'
 import Dashboard from './components/staff_components/Dashboard'
@@ -62,7 +62,7 @@ const StaffBillingPage = () => {
   return (
     <Layout>
       <Toaster position="top-right" />
-      <GeofenceGuard moduleName="billing">
+      {/* <GeofenceGuard moduleName="billing"> */}
       <div className="max-w-7xl mx-auto px-4">
         <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 rounded-xl shadow-lg p-4 md:p-6 mb-4 md:mb-6 animate-fade-in relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
@@ -161,7 +161,7 @@ const StaffBillingPage = () => {
           </div>
         </div>
       )}
-      </GeofenceGuard>
+      {/* </GeofenceGuard> */}
     </Layout>
   )
 }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { rbacAPI } from '../services/rbacApi'
 import toast from 'react-hot-toast'
-import { Shield, Users, RefreshCw, Search, CheckCircle, XCircle, ChevronDown, ChevronUp, Layers } from 'lucide-react'
+import { Shield, Users, RefreshCw, Search, CheckCircle, XCircle, ChevronDown, ChevronUp, Layers, Loader2 } from 'lucide-react'
 
 const OrganizationPermissions = () => {
   const [organizations, setOrganizations] = useState([])
@@ -12,6 +12,9 @@ const OrganizationPermissions = () => {
   const [expandedTabs, setExpandedTabs] = useState(new Set()) // module_keys with tabs panel open
   const [moduleTabs, setModuleTabs] = useState({}) // { module_key: [{tab_key, tab_label, enabled}] }
   const [tabsLoading, setTabsLoading] = useState(new Set())
+  const [updatingPermissions, setUpdatingPermissions] = useState(new Set())
+  const [resettingDefaults, setResettingDefaults] = useState(false)
+  const [updatingTabs, setUpdatingTabs] = useState(new Set())
 
   useEffect(() => {
     fetchOrganizations()
@@ -51,7 +54,9 @@ const OrganizationPermissions = () => {
     const perm = getPermission(moduleKey)
     const currentValue = perm[field] === true
     const newValue = !currentValue
+    const permissionKey = `${moduleKey}-${field}`
     
+    setUpdatingPermissions(prev => new Set(prev).add(permissionKey))
     try {
       await rbacAPI.updateModulePermission(selectedOrg.id, moduleKey, {
         [field]: newValue
@@ -64,18 +69,23 @@ const OrganizationPermissions = () => {
       toast.success('Permission updated')
     } catch (error) {
       toast.error('Failed to update permission')
+    } finally {
+      setUpdatingPermissions(prev => { const s = new Set(prev); s.delete(permissionKey); return s })
     }
   }
 
   const handleResetDefaults = async () => {
     if (!confirm('Reset all permissions to defaults? This will enable all modules.')) return
     
+    setResettingDefaults(true)
     try {
       await rbacAPI.resetToDefaults(selectedOrg.id)
       await fetchModulesAndPermissions(selectedOrg.id)
       toast.success('Permissions reset to defaults')
     } catch (error) {
       toast.error('Failed to reset permissions')
+    } finally {
+      setResettingDefaults(false)
     }
   }
 
@@ -104,6 +114,9 @@ const OrganizationPermissions = () => {
   }
 
   const toggleTab = async (moduleKey, tabKey, currentEnabled) => {
+    const tabPermissionKey = `${moduleKey}-${tabKey}`
+    
+    setUpdatingTabs(prev => new Set(prev).add(tabPermissionKey))
     try {
       await rbacAPI.updateTabPermission(selectedOrg.id, moduleKey, tabKey, !currentEnabled)
       setModuleTabs(prev => ({
@@ -113,6 +126,8 @@ const OrganizationPermissions = () => {
       toast.success('Tab permission updated')
     } catch {
       toast.error('Failed to update tab permission')
+    } finally {
+      setUpdatingTabs(prev => { const s = new Set(prev); s.delete(tabPermissionKey); return s })
     }
   }
 
@@ -185,10 +200,11 @@ const OrganizationPermissions = () => {
               </div>
               <button
                 onClick={handleResetDefaults}
-                className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                disabled={resettingDefaults}
+                className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50"
               >
-                <RefreshCw className="w-4 h-4" />
-                Reset to Defaults
+                {resettingDefaults ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                {resettingDefaults ? 'Resetting...' : 'Reset to Defaults'}
               </button>
             </div>
 
@@ -235,19 +251,31 @@ const OrganizationPermissions = () => {
                           <div className="flex gap-2 flex-wrap">
                             <button
                               onClick={() => togglePermission(module.module_key, 'staff_enabled')}
-                              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${staffEnabled ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
+                              disabled={updatingPermissions.has(`${module.module_key}-staff_enabled`)}
+                              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${staffEnabled ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
                             >
-                              {staffEnabled ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
+                              {updatingPermissions.has(`${module.module_key}-staff_enabled`) ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : staffEnabled ? (
+                                <CheckCircle className="w-4 h-4" />
+                              ) : (
+                                <XCircle className="w-4 h-4" />
+                              )}
                               <span className="text-sm font-medium">Staff</span>
                             </button>
                             {hasTabConfig && (
                               <button
                                 onClick={() => toggleTabsPanel(module.module_key)}
-                                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-100 text-purple-700 hover:bg-purple-200 transition-all"
+                                disabled={loadingTabs}
+                                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-100 text-purple-700 hover:bg-purple-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                               >
-                                <Layers className="w-4 h-4" />
+                                {loadingTabs ? (
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                  <Layers className="w-4 h-4" />
+                                )}
                                 <span className="text-sm font-medium">Tabs</span>
-                                {tabsOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                                {!loadingTabs && (tabsOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />)}
                               </button>
                             )}
                           </div>
@@ -259,16 +287,26 @@ const OrganizationPermissions = () => {
                               <p className="text-sm text-gray-500 py-2">Loading tabs...</p>
                             ) : (
                               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-                                {tabs.map(tab => (
-                                  <button
-                                    key={tab.tab_key}
-                                    onClick={() => toggleTab(module.module_key, tab.tab_key, tab.enabled)}
-                                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all border ${tab.enabled ? 'bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100' : 'bg-gray-50 border-gray-200 text-gray-500 hover:bg-gray-100'}`}
-                                  >
-                                    {tab.enabled ? <CheckCircle className="w-3.5 h-3.5 flex-shrink-0" /> : <XCircle className="w-3.5 h-3.5 flex-shrink-0" />}
-                                    <span className="truncate">{tab.tab_label}</span>
-                                  </button>
-                                ))}
+                                {tabs.map(tab => {
+                                  const tabUpdating = updatingTabs.has(`${module.module_key}-${tab.tab_key}`)
+                                  return (
+                                    <button
+                                      key={tab.tab_key}
+                                      onClick={() => toggleTab(module.module_key, tab.tab_key, tab.enabled)}
+                                      disabled={tabUpdating}
+                                      className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all border disabled:opacity-50 disabled:cursor-not-allowed ${tab.enabled ? 'bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100' : 'bg-gray-50 border-gray-200 text-gray-500 hover:bg-gray-100'}`}
+                                    >
+                                      {tabUpdating ? (
+                                        <Loader2 className="w-3.5 h-3.5 flex-shrink-0 animate-spin" />
+                                      ) : tab.enabled ? (
+                                        <CheckCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                                      ) : (
+                                        <XCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                                      )}
+                                      <span className="truncate">{tab.tab_label}</span>
+                                    </button>
+                                  )
+                                })}
                               </div>
                             )}
                           </div>
@@ -308,19 +346,31 @@ const OrganizationPermissions = () => {
                           <div className="flex gap-2 flex-wrap">
                             <button
                               onClick={() => togglePermission(module.module_key, 'admin_enabled')}
-                              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${adminEnabled ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
+                              disabled={updatingPermissions.has(`${module.module_key}-admin_enabled`)}
+                              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${adminEnabled ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
                             >
-                              {adminEnabled ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
+                              {updatingPermissions.has(`${module.module_key}-admin_enabled`) ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : adminEnabled ? (
+                                <CheckCircle className="w-4 h-4" />
+                              ) : (
+                                <XCircle className="w-4 h-4" />
+                              )}
                               <span className="text-sm font-medium">Admin</span>
                             </button>
                             {hasTabConfig && (
                               <button
                                 onClick={() => toggleTabsPanel(module.module_key)}
-                                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-100 text-purple-700 hover:bg-purple-200 transition-all"
+                                disabled={loadingTabs}
+                                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-100 text-purple-700 hover:bg-purple-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                               >
-                                <Layers className="w-4 h-4" />
+                                {loadingTabs ? (
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                  <Layers className="w-4 h-4" />
+                                )}
                                 <span className="text-sm font-medium">Tabs</span>
-                                {tabsOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                                {!loadingTabs && (tabsOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />)}
                               </button>
                             )}
                           </div>
@@ -332,16 +382,26 @@ const OrganizationPermissions = () => {
                               <p className="text-sm text-gray-500 py-2">Loading tabs...</p>
                             ) : (
                               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-                                {tabs.map(tab => (
-                                  <button
-                                    key={tab.tab_key}
-                                    onClick={() => toggleTab(module.module_key, tab.tab_key, tab.enabled)}
-                                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all border ${tab.enabled ? 'bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100' : 'bg-gray-50 border-gray-200 text-gray-500 hover:bg-gray-100'}`}
-                                  >
-                                    {tab.enabled ? <CheckCircle className="w-3.5 h-3.5 flex-shrink-0" /> : <XCircle className="w-3.5 h-3.5 flex-shrink-0" />}
-                                    <span className="truncate">{tab.tab_label}</span>
-                                  </button>
-                                ))}
+                                {tabs.map(tab => {
+                                  const tabUpdating = updatingTabs.has(`${module.module_key}-${tab.tab_key}`)
+                                  return (
+                                    <button
+                                      key={tab.tab_key}
+                                      onClick={() => toggleTab(module.module_key, tab.tab_key, tab.enabled)}
+                                      disabled={tabUpdating}
+                                      className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all border disabled:opacity-50 disabled:cursor-not-allowed ${tab.enabled ? 'bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100' : 'bg-gray-50 border-gray-200 text-gray-500 hover:bg-gray-100'}`}
+                                    >
+                                      {tabUpdating ? (
+                                        <Loader2 className="w-3.5 h-3.5 flex-shrink-0 animate-spin" />
+                                      ) : tab.enabled ? (
+                                        <CheckCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                                      ) : (
+                                        <XCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                                      )}
+                                      <span className="truncate">{tab.tab_label}</span>
+                                    </button>
+                                  )
+                                })}
                               </div>
                             )}
                           </div>

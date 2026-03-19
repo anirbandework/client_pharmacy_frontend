@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Save, X, Plus, Trash2, AlertCircle, Package, IndianRupee, Settings } from 'lucide-react'
+import { Save, X, Plus, Trash2, AlertCircle, Package, IndianRupee, Settings, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { staffPurchaseInvoiceAPI } from '../../services/staff_purchase_invoice_apis'
 import { adminPurchaseInvoiceAPI } from '../../services/admin_purchase_invoice_apis'
@@ -493,38 +493,50 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
           <div className="grid md:grid-cols-2 gap-6">
             <div className="space-y-3">
               <h3 className="font-semibold text-gray-700 dark:text-slate-300">{isDistributorInvoice ? 'Distributor Information' : 'Supplier Information'}</h3>
-              <input
-                type="text"
-                placeholder={isDistributorInvoice ? "Distributor Name" : "Supplier Name"}
-                value={formData.supplier_name}
-                onChange={(e) => handleChange('supplier_name', e.target.value)}
-                className="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400"
-                readOnly={isDistributorInvoice}
-              />
-              <input
-                type="text"
-                placeholder="GSTIN"
-                value={formData.supplier_gstin}
-                onChange={(e) => handleChange('supplier_gstin', e.target.value)}
-                className="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400"
-                readOnly={isDistributorInvoice}
-              />
-              <input
-                type="text"
-                placeholder="Phone"
-                value={formData.supplier_phone}
-                onChange={(e) => handleChange('supplier_phone', e.target.value)}
-                className="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400"
-                readOnly={isDistributorInvoice}
-              />
-              <input
-                type="text"
-                placeholder="DL Numbers"
-                value={formData.supplier_dl_numbers}
-                onChange={(e) => handleChange('supplier_dl_numbers', e.target.value)}
-                className="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400"
-                readOnly={isDistributorInvoice}
-              />
+              <div>
+                <label className="text-sm text-gray-600 dark:text-slate-400">{isDistributorInvoice ? "Distributor Name" : "Supplier Name"}</label>
+                <input
+                  type="text"
+                  placeholder="Anjali Drug Agency"
+                  value={formData.supplier_name}
+                  onChange={(e) => handleChange('supplier_name', e.target.value)}
+                  className="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400"
+                  readOnly={isDistributorInvoice}
+                />
+              </div>
+              <div>
+                <label className="text-sm text-gray-600 dark:text-slate-400">GSTIN</label>
+                <input
+                  type="text"
+                  placeholder="16DKZPR0183R1ZX"
+                  value={formData.supplier_gstin}
+                  onChange={(e) => handleChange('supplier_gstin', e.target.value)}
+                  className="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400"
+                  readOnly={isDistributorInvoice}
+                />
+              </div>
+              <div>
+                <label className="text-sm text-gray-600 dark:text-slate-400">Phone</label>
+                <input
+                  type="text"
+                  placeholder="9862494794"
+                  value={formData.supplier_phone}
+                  onChange={(e) => handleChange('supplier_phone', e.target.value)}
+                  className="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400"
+                  readOnly={isDistributorInvoice}
+                />
+              </div>
+              <div>
+                <label className="text-sm text-gray-600 dark:text-slate-400">DL Numbers</label>
+                <input
+                  type="text"
+                  placeholder="WLF20B2025TR000022, WLF21B2025TR000021"
+                  value={formData.supplier_dl_numbers}
+                  onChange={(e) => handleChange('supplier_dl_numbers', e.target.value)}
+                  className="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400"
+                  readOnly={isDistributorInvoice}
+                />
+              </div>
             </div>
             <div className="space-y-3">
               <h3 className="font-semibold text-gray-700 dark:text-slate-300">Invoice Information</h3>
@@ -537,7 +549,7 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
                 </label>
                 <input
                   type="text"
-                  placeholder="Invoice Number"
+                  placeholder="GMPL/TR/25-26/SW000112"
                   value={formData.invoice_number}
                   onChange={(e) => handleChange('invoice_number', e.target.value)}
                   className="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400"
@@ -548,6 +560,7 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
                 <label className="text-sm text-gray-600 dark:text-slate-400">Invoice Date</label>
                 <input
                   type="date"
+                  placeholder="06/08/2025"
                   value={formData.invoice_date}
                   onChange={(e) => handleChange('invoice_date', e.target.value)}
                   className="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400"
@@ -557,7 +570,7 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
                 <label className="text-sm text-gray-600 dark:text-slate-400">Due Date</label>
                 <input
                   type="date"
-                  placeholder="Due Date"
+                  placeholder="06/08/2025"
                   value={formData.due_date}
                   onChange={(e) => handleChange('due_date', e.target.value)}
                   className="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400"
@@ -884,7 +897,7 @@ const EditInvoice = ({ invoice, onClose, onSave, isAdmin = false }) => {
         <div className="sticky bottom-0 bg-white dark:bg-slate-900 border-t dark:border-slate-700/50 p-4 flex justify-end gap-3 rounded-b-xl">
           <button onClick={onClose} className="px-6 py-2 border dark:border-slate-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700/30 dark:text-slate-300">Cancel</button>
           <button onClick={handleSave} disabled={saving || (isDistributorInvoice && !isAdmin && invoice.is_staff_verified && !invoice.is_rejected)} className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 flex items-center gap-2">
-            <Save className="w-4 h-4" />
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             {saving ? 'Processing...' : isDistributorInvoice ? (invoice.is_staff_verified && !invoice.is_rejected && !isAdmin ? 'Already Verified' : isAdmin ? 'Save Changes' : 'Verify Invoice') : invoice.id ? (isAdmin ? 'Save Changes' : 'Save & Verify') : 'Create & Verify'}
           </button>
         </div>

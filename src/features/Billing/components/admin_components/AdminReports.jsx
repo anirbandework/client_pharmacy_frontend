@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { billingAdminAPI } from '../../services/admin_billing_apis'
-import { TrendingUp, Download } from 'lucide-react'
+import { TrendingUp, Download, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 const AdminReports = ({ selectedShop = null }) => {
@@ -8,6 +8,7 @@ const AdminReports = ({ selectedShop = null }) => {
   const [dailySales, setDailySales] = useState([])
   const [loading, setLoading] = useState(true)
   const [days, setDays] = useState(30)
+  const [exportLoading, setExportLoading] = useState(false)
 
   useEffect(() => {
     fetchReports()
@@ -32,6 +33,7 @@ const AdminReports = ({ selectedShop = null }) => {
   }
 
   const exportBills = async () => {
+    setExportLoading(true)
     try {
       const params = {}
       if (selectedShop) params.shop_id = selectedShop
@@ -46,6 +48,8 @@ const AdminReports = ({ selectedShop = null }) => {
       toast.success('Bills exported successfully')
     } catch {
       toast.error('Export failed')
+    } finally {
+      setExportLoading(false)
     }
   }
 
@@ -73,10 +77,11 @@ const AdminReports = ({ selectedShop = null }) => {
       <div className="bg-white rounded-xl shadow-md p-4">
         <button
           onClick={exportBills}
-          className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:shadow-lg transition-all"
+          disabled={exportLoading}
+          className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:shadow-lg transition-all disabled:opacity-50"
         >
-          <Download className="w-5 h-5" />
-          Export Bills to Excel{selectedShop ? ` (Shop ${selectedShop})` : ' (All Shops)'}
+          {exportLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
+          {exportLoading ? 'Exporting...' : `Export Bills to Excel${selectedShop ? ` (Shop ${selectedShop})` : ' (All Shops)'}`}
         </button>
       </div>
 

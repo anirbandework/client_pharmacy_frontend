@@ -1,7 +1,22 @@
 import React, { useState, useEffect } from 'react'
 import { billingAPI } from '../../services/staff_billing_apis'
-import { Search, Plus, Trash2, Save, X, Printer } from 'lucide-react'
+import { Search, Plus, Trash2, Save, X, Printer, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
+
+// Parse "140.00/STRIP" → 140.0, or "140" → 140.0
+const parseMrpValue = (mrp) => {
+  if (!mrp) return null
+  const n = parseFloat(String(mrp).split('/')[0].trim())
+  return isNaN(n) ? null : n
+}
+
+// Parse "10 X 10", "40X6", "10*10", "10 x 6" → { stripsPerBox, tabletsPerStrip }
+const parsePackage = (pkg) => {
+  if (!pkg) return null
+  const m = String(pkg).trim().match(/^(\d+)\s*[xX*]\s*(\d+)$/)
+  if (!m) return null
+  return { stripsPerBox: parseInt(m[1]), tabletsPerStrip: parseInt(m[2]) }
+}
 
 const CreateBill = ({ onBillCreated }) => {
   const [storeConfig, setStoreConfig] = useState(null)
@@ -63,13 +78,20 @@ const CreateBill = ({ onBillCreated }) => {
       toast.error('Item already added')
       return
     }
+    const pkg = parsePackage(medicine.package)
+    const mrpVal = parseMrpValue(medicine.mrp)
+    // Prefer selling_price → MRP value → purchase unit_price (in that order)
+    const defaultPrice = medicine.selling_price || mrpVal || medicine.unit_price || 0
     setBillItems([...billItems, {
       stock_item_id: medicine.id,
       item_name: medicine.product_name,
       batch_number: medicine.batch_number,
-      quantity_available: medicine.quantity_available,
-      unit_price: medicine.unit_price || 0,
+      quantity_available: medicine.quantity_available,  // always in strips
+      tablets_per_strip: pkg?.tabletsPerStrip || null,
+      mrp_per_strip: mrpVal,                            // numeric MRP per strip
+      unit_price: defaultPrice,
       quantity: 1,
+      sale_unit: 'strip',
       mrp: medicine.mrp || '',
       rack_number: medicine.rack_number,
       section_name: medicine.section_name
@@ -81,6 +103,20 @@ const CreateBill = ({ onBillCreated }) => {
   const updateItem = (index, field, value) => {
     const updated = [...billItems]
     updated[index][field] = parseFloat(value) || 0
+    setBillItems(updated)
+  }
+
+  const updateSaleUnit = (index, newUnit) => {
+    const updated = [...billItems]
+    const item = updated[index]
+    if (newUnit === 'tablet' && item.tablets_per_strip && item.mrp_per_strip) {
+      item.unit_price = parseFloat((item.mrp_per_strip / item.tablets_per_strip).toFixed(2))
+    } else {
+      // switching back to strip: restore MRP per strip (or keep current)
+      item.unit_price = item.mrp_per_strip || item.unit_price
+    }
+    item.sale_unit = newUnit
+    item.quantity = 1
     setBillItems(updated)
   }
 
@@ -128,7 +164,8 @@ const CreateBill = ({ onBillCreated }) => {
           quantity: item.quantity,
           unit_price: item.unit_price,
           mrp: item.mrp,
-          tax_percent: taxPercent
+          tax_percent: taxPercent,
+          sale_unit: item.sale_unit || 'strip'
         }))
       }
       
@@ -270,6 +307,9 @@ const CreateBill = ({ onBillCreated }) => {
                         {medicine.selling_price && (
                           <span className="text-xs text-gray-500">Sell: <span className="font-medium text-green-700">₹{medicine.selling_price}</span></span>
                         )}
+                        {medicine.unit_price != null && (
+                          <span className="text-xs text-gray-500">Purchase: <span className="font-medium text-gray-600">₹{medicine.unit_price}</span></span>
+                        )}
                         {expiry ? (
                           <span className={`text-xs font-medium ${expiryWarning ? 'text-red-600' : 'text-gray-500'}`}>
                             Exp: {expiry.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })}
@@ -311,6 +351,7 @@ const CreateBill = ({ onBillCreated }) => {
                 <tr>
                   <th className="px-3 md:px-4 py-2 text-left text-xs md:text-sm font-semibold">Item</th>
                   <th className="px-3 md:px-4 py-2 text-left text-xs md:text-sm font-semibold">Batch</th>
+                  <th className="px-3 md:px-4 py-2 text-left text-xs md:text-sm font-semibold">Unit</th>
                   <th className="px-3 md:px-4 py-2 text-left text-xs md:text-sm font-semibold">Available</th>
                   <th className="px-3 md:px-4 py-2 text-left text-xs md:text-sm font-semibold">Qty</th>
                   <th className="px-3 md:px-4 py-2 text-left text-xs md:text-sm font-semibold">Price</th>
@@ -319,16 +360,38 @@ const CreateBill = ({ onBillCreated }) => {
                 </tr>
               </thead>
               <tbody>
-                {billItems.map((item, index) => (
+                {billItems.map((item, index) => {
+                  const isTablet = item.sale_unit === 'tablet'
+                  const availableInUnit = isTablet && item.tablets_per_strip
+                    ? item.quantity_available * item.tablets_per_strip
+                    : item.quantity_available
+                  return (
                   <tr key={index} className="border-b hover:bg-gray-50 transition-colors">
                     <td className="px-3 md:px-4 py-2 text-xs md:text-sm">{item.item_name}</td>
                     <td className="px-3 md:px-4 py-2 text-xs md:text-sm">{item.batch_number}</td>
-                    <td className="px-3 md:px-4 py-2 text-xs md:text-sm">{item.quantity_available}</td>
+                    <td className="px-3 md:px-4 py-2">
+                      {item.tablets_per_strip ? (
+                        <select
+                          value={item.sale_unit}
+                          onChange={(e) => updateSaleUnit(index, e.target.value)}
+                          className="px-2 py-1 border-2 border-gray-200 rounded text-xs focus:ring-2 focus:ring-purple-500"
+                        >
+                          <option value="strip">Strip</option>
+                          <option value="tablet">Tablet</option>
+                        </select>
+                      ) : (
+                        <span className="text-xs text-gray-500">Strip</span>
+                      )}
+                    </td>
+                    <td className="px-3 md:px-4 py-2 text-xs md:text-sm">
+                      {availableInUnit}
+                      <span className="text-gray-400 ml-1">{isTablet ? 'tab' : 'strip'}</span>
+                    </td>
                     <td className="px-3 md:px-4 py-2">
                       <input
                         type="number"
                         min="1"
-                        max={item.quantity_available}
+                        max={availableInUnit}
                         value={item.quantity}
                         onChange={(e) => updateItem(index, 'quantity', e.target.value)}
                         className="w-16 md:w-20 px-2 py-1 border-2 border-gray-200 rounded focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-xs md:text-sm"
@@ -350,7 +413,8 @@ const CreateBill = ({ onBillCreated }) => {
                       </button>
                     </td>
                   </tr>
-                ))}
+                  )
+                })}
               </tbody>
             </table>
           </div>
@@ -481,8 +545,9 @@ const CreateBill = ({ onBillCreated }) => {
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="mt-4 w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50 text-sm md:text-base"
+            className="mt-4 w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50 text-sm md:text-base flex items-center justify-center gap-2"
           >
+            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
             {loading ? 'Creating...' : 'Create Bill'}
           </button>
         </div>

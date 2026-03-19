@@ -4,7 +4,7 @@ import PasswordProtectedRoute from '../../../components/PasswordProtectedRoute'
 import ErrorBoundary from '../../../components/ErrorBoundary'
 import useTabPermissions from '../../../hooks/useTabPermissions'
 import { salaryAPI, API_BASE_URL } from '../services/salaryApi'
-import { User, IndianRupee, Calendar, CheckCircle, Clock, AlertTriangle, CreditCard, History } from 'lucide-react'
+import { User, IndianRupee, Calendar, CheckCircle, Clock, AlertTriangle, CreditCard, History, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 const StaffSalaryProfile = () => {
@@ -209,8 +209,9 @@ const StaffSalaryProfile = () => {
                     </h3>
                     <button
                       onClick={() => setShowEditModal(true)}
-                      className="px-3 md:px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 text-xs md:text-sm shadow-lg shadow-blue-500/20"
+                      className="px-3 md:px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 text-xs md:text-sm shadow-lg shadow-blue-500/20 flex items-center gap-2"
                     >
+                      <CreditCard className="w-4 h-4" />
                       Edit Payment Info
                     </button>
                   </div>
@@ -339,7 +340,10 @@ const StaffSalaryProfile = () => {
                     {qrPreviewUrl && <img src={qrPreviewUrl} alt="Preview" className="mt-2 w-32 h-32 border rounded" />}
                   </div>
                   <div className="flex gap-2">
-                    <button type="submit" disabled={loading} className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 text-sm font-semibold">
+                    <button type="submit" disabled={loading} className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 text-sm font-semibold flex items-center justify-center gap-2">
+                      {loading ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : null}
                       {loading ? 'Saving...' : 'Save Changes'}
                     </button>
                     <button type="button" onClick={() => setShowEditModal(false)} className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm font-semibold">

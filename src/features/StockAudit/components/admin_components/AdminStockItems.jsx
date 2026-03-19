@@ -18,6 +18,7 @@ const AdminStockItems = ({ selectedShop }) => {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [total, setTotal] = useState(0)
+  const [exporting, setExporting] = useState(false)
 
   // Debounce filter/search changes → reset to page 1 and fetch
   useEffect(() => {
@@ -38,7 +39,7 @@ const AdminStockItems = ({ selectedShop }) => {
       setCurrentPage(page)
 
       const params = {
-        item_name: searchTerm || undefined,
+        search: searchTerm || undefined,
         composition: filters.composition || undefined,
         manufacturer: filters.manufacturer || undefined,
         batch_number: filters.batch_number || undefined,
@@ -75,6 +76,7 @@ const AdminStockItems = ({ selectedShop }) => {
   }
 
   const handleExport = async () => {
+    setExporting(true)
     try {
       const res = await adminStockAuditAPI.exportStockItems()
       const url = window.URL.createObjectURL(new Blob([res.data]))
@@ -87,6 +89,8 @@ const AdminStockItems = ({ selectedShop }) => {
     } catch (error) {
       console.error('Export failed:', error)
       alert('Export failed')
+    } finally {
+      setExporting(false)
     }
   }
 
@@ -100,11 +104,16 @@ const AdminStockItems = ({ selectedShop }) => {
         <div className="flex gap-2">
           <button
             onClick={handleExport}
-            className="group relative flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-lg text-sm font-medium shadow-md hover:shadow-lg hover:from-emerald-600 hover:to-green-700 transition-all duration-300 transform hover:scale-105"
+            disabled={exporting}
+            className="group relative flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-lg text-sm font-medium shadow-md hover:shadow-lg hover:from-emerald-600 hover:to-green-700 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
             <div className="absolute inset-0 bg-white/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <Download className="w-3.5 h-3.5 relative z-10" />
-            <span className="relative z-10">Export</span>
+            {exporting ? (
+              <Loader2 className="w-3.5 h-3.5 relative z-10 animate-spin" />
+            ) : (
+              <Download className="w-3.5 h-3.5 relative z-10" />
+            )}
+            <span className="relative z-10">{exporting ? 'Exporting...' : 'Export'}</span>
           </button>
         </div>
       </div>

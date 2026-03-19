@@ -4,7 +4,7 @@ import ErrorBoundary from '../../../components/ErrorBoundary'
 import useTabPermissions from '../../../hooks/useTabPermissions'
 import { salaryAPI, API_BASE_URL } from '../services/salaryApi'
 import { adminApi } from '../../Admin&SuperAdmin/services/admin&superAminApi'
-import { IndianRupee, Users, AlertTriangle, Calendar, CheckCircle, Clock, CreditCard, Lightbulb, LayoutDashboard, List, Store } from 'lucide-react'
+import { IndianRupee, Users, AlertTriangle, Calendar, CheckCircle, Clock, CreditCard, Lightbulb, LayoutDashboard, List, Store, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 const AdminSalaryManagement = () => {
@@ -21,6 +21,10 @@ const AdminSalaryManagement = () => {
   const [showQRModal, setShowQRModal] = useState(null)
   const [showQREnlarged, setShowQREnlarged] = useState(false)
   const [generateResult, setGenerateResult] = useState(null)
+  const [dismissingAlert, setDismissingAlert] = useState(new Set())
+  const [generatingRecords, setGeneratingRecords] = useState(false)
+  const [payingRecord, setPayingRecord] = useState(false)
+  const [loadingPaymentInfo, setLoadingPaymentInfo] = useState(new Set())
   const { isTabEnabled, isLoaded } = useTabPermissions('salary_management')
 
   const allTabs = [
@@ -95,6 +99,7 @@ const AdminSalaryManagement = () => {
   }
 
   const handlePaySalary = async (recordId, notes) => {
+    setPayingRecord(true)
     try {
       await salaryAPI.paySalary(recordId, { notes }, selectedShop)
       toast.success('Salary paid successfully')
@@ -103,29 +108,38 @@ const AdminSalaryManagement = () => {
       loadRecords()
     } catch (err) {
       toast.error(err.response?.data?.detail || 'Failed to pay salary')
+    } finally {
+      setPayingRecord(false)
     }
   }
 
   const handleDismissAlert = async (alertId) => {
+    setDismissingAlert(prev => new Set(prev).add(alertId))
     try {
       await salaryAPI.dismissAlert(alertId, selectedShop)
       toast.success('Alert dismissed')
       loadAlerts()
     } catch (err) {
       toast.error('Failed to dismiss alert')
+    } finally {
+      setDismissingAlert(prev => { const s = new Set(prev); s.delete(alertId); return s })
     }
   }
 
   const viewQRCode = async (staffId) => {
+    setLoadingPaymentInfo(prev => new Set(prev).add(staffId))
     try {
       const { data } = await salaryAPI.getStaffPaymentInfo(staffId, selectedShop)
       setShowQRModal(data)
     } catch (err) {
       toast.error('Failed to load payment info')
+    } finally {
+      setLoadingPaymentInfo(prev => { const s = new Set(prev); s.delete(staffId); return s })
     }
   }
 
   const handleGenerateRecords = async () => {
+    setGeneratingRecords(true)
     try {
       const { data } = await salaryAPI.generateMonthlyRecords(selectedYear, selectedMonth, selectedShop)
       setGenerateResult(data)
@@ -135,6 +149,8 @@ const AdminSalaryManagement = () => {
       loadRecords()
     } catch (err) {
       toast.error(err.response?.data?.detail || 'Failed to generate records')
+    } finally {
+      setGeneratingRecords(false)
     }
   }
 
@@ -264,8 +280,15 @@ const AdminSalaryManagement = () => {
                               <p className="font-medium text-gray-800">{alert.staff_name}</p>
                               <p className="text-sm text-gray-600 capitalize">{alert.alert_type} — {alert.month}/{alert.year} — ₹{alert.salary_amount}</p>
                             </div>
-                            <button onClick={() => handleDismissAlert(alert.id)} className="text-sm text-orange-600 hover:text-orange-700 font-medium">
-                              Dismiss
+                            <button 
+                              onClick={() => handleDismissAlert(alert.id)} 
+                              disabled={dismissingAlert.has(alert.id)}
+                              className="text-sm text-orange-600 hover:text-orange-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+                            >
+                              {dismissingAlert.has(alert.id) ? (
+                                <Loader2 className="w-3 h-3 animate-spin" />
+                              ) : null}
+                              {dismissingAlert.has(alert.id) ? 'Dismissing...' : 'Dismiss'}
                             </button>
                           </div>
                         ))}
@@ -292,10 +315,15 @@ const AdminSalaryManagement = () => {
                       </select>
                       <button
                         onClick={handleGenerateRecords}
-                        className="px-3 md:px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 flex items-center gap-2 text-sm shadow-lg shadow-blue-500/20"
+                        disabled={generatingRecords}
+                        className="px-3 md:px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 flex items-center gap-2 text-sm shadow-lg shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        <Calendar className="w-4 h-4" />
-                        Create Records
+                        {generatingRecords ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Calendar className="w-4 h-4" />
+                        )}
+                        {generatingRecords ? 'Creating...' : 'Create Records'}
                       </button>
                       <span className="text-xs text-gray-500 flex items-center gap-1">
                         <Lightbulb className="w-3 h-3" />
@@ -360,10 +388,15 @@ const AdminSalaryManagement = () => {
                                     )}
                                     <button
                                       onClick={() => viewQRCode(record.staff_id)}
-                                      className="px-3 py-1 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600 flex items-center gap-1"
+                                      disabled={loadingPaymentInfo.has(record.staff_id)}
+                                      className="px-3 py-1 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600 flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
-                                      <CreditCard className="w-4 h-4" />
-                                      Payment Info
+                                      {loadingPaymentInfo.has(record.staff_id) ? (
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                      ) : (
+                                        <CreditCard className="w-4 h-4" />
+                                      )}
+                                      {loadingPaymentInfo.has(record.staff_id) ? 'Loading...' : 'Payment Info'}
                                     </button>
                                   </div>
                                 </td>
@@ -395,11 +428,25 @@ const AdminSalaryManagement = () => {
                 If not, please check their payment information first before confirming.
               </p>
               <div className="flex gap-2">
-                <button onClick={() => viewQRCode(showPayModal.staff_id)} className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
-                  View Payment Info
+                <button 
+                  onClick={() => viewQRCode(showPayModal.staff_id)} 
+                  disabled={loadingPaymentInfo.has(showPayModal.staff_id)}
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1"
+                >
+                  {loadingPaymentInfo.has(showPayModal.staff_id) ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : null}
+                  {loadingPaymentInfo.has(showPayModal.staff_id) ? 'Loading...' : 'View Payment Info'}
                 </button>
-                <button onClick={() => handlePaySalary(showPayModal.id, 'Paid via admin')} className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">
-                  Yes, Confirm
+                <button 
+                  onClick={() => handlePaySalary(showPayModal.id, 'Paid via admin')} 
+                  disabled={payingRecord}
+                  className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1"
+                >
+                  {payingRecord ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : null}
+                  {payingRecord ? 'Confirming...' : 'Yes, Confirm'}
                 </button>
                 <button onClick={() => setShowPayModal(null)} className="flex-1 px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 text-sm">
                   Cancel

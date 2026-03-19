@@ -15,6 +15,8 @@ const UploadInvoice = ({ onUploadSuccess, onGoToList }) => {
   const [duplicateError, setDuplicateError] = useState(null)
   const [pendingFile, setPendingFile] = useState(null)
   const [showManualEntry, setShowManualEntry] = useState(false)
+  const [downloadingPDF, setDownloadingPDF] = useState(false)
+  const [downloadingExcel, setDownloadingExcel] = useState(false)
 
   const handleDrag = (e) => {
     e.preventDefault()
@@ -114,6 +116,7 @@ const UploadInvoice = ({ onUploadSuccess, onGoToList }) => {
   }
 
   const handleDownloadPDFTemplate = async () => {
+    setDownloadingPDF(true)
     try {
       const response = await staffPurchaseInvoiceAPI.downloadPDFTemplate()
       const url = window.URL.createObjectURL(new Blob([response.data]))
@@ -126,10 +129,13 @@ const UploadInvoice = ({ onUploadSuccess, onGoToList }) => {
       toast.success('PDF sample downloaded successfully!')
     } catch (error) {
       toast.error('Failed to download PDF sample')
+    } finally {
+      setDownloadingPDF(false)
     }
   }
 
   const handleDownloadTemplate = async () => {
+    setDownloadingExcel(true)
     try {
       const response = await staffPurchaseInvoiceAPI.downloadTemplate()
       const url = window.URL.createObjectURL(new Blob([response.data]))
@@ -142,6 +148,8 @@ const UploadInvoice = ({ onUploadSuccess, onGoToList }) => {
       toast.success('Template downloaded successfully!')
     } catch (error) {
       toast.error('Failed to download template')
+    } finally {
+      setDownloadingExcel(false)
     }
   }
 
@@ -297,17 +305,27 @@ const UploadInvoice = ({ onUploadSuccess, onGoToList }) => {
           <div className="flex flex-col gap-2 w-full md:w-auto">
             <button
               onClick={handleDownloadPDFTemplate}
-              className="px-3 md:px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:shadow-lg flex items-center gap-2 text-xs md:text-sm whitespace-nowrap transition-all justify-center"
+              disabled={downloadingPDF}
+              className="px-3 md:px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:shadow-lg flex items-center gap-2 text-xs md:text-sm whitespace-nowrap transition-all justify-center disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Download className="w-4 h-4" />
-              Download PDF Sample
+              {downloadingPDF ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Download className="w-4 h-4" />
+              )}
+              {downloadingPDF ? 'Downloading...' : 'Download PDF Sample'}
             </button>
             <button
               onClick={handleDownloadTemplate}
-              className="px-3 md:px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:shadow-lg flex items-center gap-2 text-xs md:text-sm whitespace-nowrap transition-all justify-center"
+              disabled={downloadingExcel}
+              className="px-3 md:px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:shadow-lg flex items-center gap-2 text-xs md:text-sm whitespace-nowrap transition-all justify-center disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Download className="w-4 h-4" />
-              Download Excel Template
+              {downloadingExcel ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Download className="w-4 h-4" />
+              )}
+              {downloadingExcel ? 'Downloading...' : 'Download Excel Template'}
             </button>
           </div>
         </div>

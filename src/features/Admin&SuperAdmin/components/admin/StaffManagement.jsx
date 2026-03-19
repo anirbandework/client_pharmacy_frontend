@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { adminApi } from '../../services/admin&superAminApi';
-import { ChevronDown, ChevronUp, Info, Ban, CheckCircle, AlertTriangle } from 'lucide-react';
+import { ChevronDown, ChevronUp, Info, Ban, CheckCircle, AlertTriangle, Loader2 } from 'lucide-react';
 import ConfirmDialog from '../../../../components/ConfirmDialog';
 
 export default function StaffManagement() {
@@ -11,6 +11,7 @@ export default function StaffManagement() {
   const [editingStaff, setEditingStaff] = useState(null);
   const [expandedStaff, setExpandedStaff] = useState({});
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, staff: null });
+  const [loading, setLoading] = useState({ submit: false, toggle: null, loadShops: false, loadStaff: false });
   const [formData, setFormData] = useState({
     name: '', phone: '', email: '', role: 'staff', staff_code: '', monthly_salary: '',
     joining_date: '', salary_eligibility_days: 4,
@@ -22,26 +23,33 @@ export default function StaffManagement() {
   useEffect(() => { if (selectedShop) loadStaff(); }, [selectedShop]);
 
   const loadShops = async () => {
+    setLoading(prev => ({ ...prev, loadShops: true }));
     try {
       const data = await adminApi.getShops();
       setShops(data);
       if (data.length > 0) setSelectedShop(data[0].shop_code);
     } catch (err) {
       alert(err.message);
+    } finally {
+      setLoading(prev => ({ ...prev, loadShops: false }));
     }
   };
 
   const loadStaff = async () => {
+    setLoading(prev => ({ ...prev, loadStaff: true }));
     try {
       const data = await adminApi.getShopStaff(selectedShop);
       setStaff(data);
     } catch (err) {
       alert(err.message);
+    } finally {
+      setLoading(prev => ({ ...prev, loadStaff: false }));
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(prev => ({ ...prev, submit: true }));
     try {
       const submitData = { ...formData, role: 'staff' };
       if (editingStaff) {
@@ -55,6 +63,8 @@ export default function StaffManagement() {
       loadStaff();
     } catch (err) {
       alert(err.message);
+    } finally {
+      setLoading(prev => ({ ...prev, submit: false }));
     }
   };
 
@@ -71,11 +81,14 @@ export default function StaffManagement() {
   const confirmToggleActive = async () => {
     const staff = confirmDialog.staff;
     setConfirmDialog({ isOpen: false, staff: null });
+    setLoading(prev => ({ ...prev, toggle: staff.id }));
     try {
       await adminApi.updateStaff(staff.id, { is_active: !staff.is_active });
       loadStaff();
     } catch (err) {
       alert(err.message);
+    } finally {
+      setLoading(prev => ({ ...prev, toggle: null }));
     }
   };
 
@@ -144,7 +157,8 @@ export default function StaffManagement() {
             <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
             <span>Staff will set their own password during first login</span>
           </div>
-          <button type="submit" className="mt-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-2 rounded-lg shadow-lg hover:shadow-xl transition-all text-sm md:text-base">
+          <button type="submit" disabled={loading.submit} className="mt-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-2 rounded-lg shadow-lg hover:shadow-xl transition-all text-sm md:text-base disabled:opacity-50 flex items-center gap-2">
+            {loading.submit && <Loader2 className="w-4 h-4 animate-spin" />}
             {editingStaff ? 'Update' : 'Create'} Staff
           </button>
         </form>
@@ -177,8 +191,8 @@ export default function StaffManagement() {
                 )}
               </div>
               <div className="flex gap-2 w-full sm:w-auto">
-                <button onClick={() => handleToggleActive(s)} className={`${s.is_active ? 'bg-gradient-to-r from-orange-600 to-red-600' : 'bg-gradient-to-r from-green-600 to-emerald-600'} text-white px-3 py-1.5 rounded-lg text-xs md:text-sm hover:shadow-lg transition-all flex items-center gap-1 justify-center flex-1 sm:flex-initial`}>
-                  {s.is_active ? <><Ban className="w-3 h-3" /> Deactivate</> : <><CheckCircle className="w-3 h-3" /> Activate</>}
+                <button onClick={() => handleToggleActive(s)} disabled={loading.toggle === s.id} className={`${s.is_active ? 'bg-gradient-to-r from-orange-600 to-red-600' : 'bg-gradient-to-r from-green-600 to-emerald-600'} text-white px-3 py-1.5 rounded-lg text-xs md:text-sm hover:shadow-lg transition-all flex items-center gap-1 justify-center flex-1 sm:flex-initial disabled:opacity-50`}>
+                  {loading.toggle === s.id ? <Loader2 className="w-3 h-3 animate-spin" /> : s.is_active ? <><Ban className="w-3 h-3" /> Deactivate</> : <><CheckCircle className="w-3 h-3" /> Activate</>}
                 </button>
                 <button onClick={() => handleEdit(s)} className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 py-1.5 rounded-lg text-xs md:text-sm hover:shadow-lg transition-all flex-1 sm:flex-initial">Edit</button>
               </div>

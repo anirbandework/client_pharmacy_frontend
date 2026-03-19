@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { distributorApi } from '../../services/admin&superAminApi';
-import { Info, Edit2, Trash2, Ban, CheckCircle, AlertTriangle, Building2, Phone, Mail, MapPin, IndianRupee, Calendar, Package, ChevronDown, ChevronUp, CreditCard, FileText } from 'lucide-react';
+import { Info, Edit2, Trash2, Ban, CheckCircle, AlertTriangle, Building2, Phone, Mail, MapPin, IndianRupee, Calendar, Package, ChevronDown, ChevronUp, CreditCard, FileText, Loader2 } from 'lucide-react';
 import ConfirmDialog from '../../../../components/ConfirmDialog';
 
 export default function DistributorsManagement() {
@@ -9,6 +9,7 @@ export default function DistributorsManagement() {
   const [editingDistributor, setEditingDistributor] = useState(null);
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, type: null, distributor: null });
   const [expandedCards, setExpandedCards] = useState({});
+  const [loading, setLoading] = useState({ submit: false, toggle: null, delete: null, load: false });
   const [formData, setFormData] = useState({
     company_name: '', distributor_code: '', contact_person: '', phone: ''
   });
@@ -18,16 +19,20 @@ export default function DistributorsManagement() {
   }, []);
 
   const loadDistributors = async () => {
+    setLoading(prev => ({ ...prev, load: true }));
     try {
       const data = await distributorApi.getAllDistributors();
       setDistributors(data);
     } catch (err) {
       alert(err.message);
+    } finally {
+      setLoading(prev => ({ ...prev, load: false }));
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(prev => ({ ...prev, submit: true }));
     try {
       if (editingDistributor) {
         await distributorApi.updateDistributor(editingDistributor.id, formData);
@@ -38,6 +43,8 @@ export default function DistributorsManagement() {
       loadDistributors();
     } catch (err) {
       alert(err.message);
+    } finally {
+      setLoading(prev => ({ ...prev, submit: false }));
     }
   };
 
@@ -71,6 +78,8 @@ export default function DistributorsManagement() {
   const confirmAction = async () => {
     const { type, distributor } = confirmDialog;
     setConfirmDialog({ isOpen: false, type: null, distributor: null });
+    const actionType = type === 'delete' ? 'delete' : 'toggle';
+    setLoading(prev => ({ ...prev, [actionType]: distributor.id }));
     try {
       if (type === 'delete') {
         await distributorApi.deleteDistributor(distributor.id);
@@ -80,6 +89,8 @@ export default function DistributorsManagement() {
       loadDistributors();
     } catch (err) {
       alert(err.message);
+    } finally {
+      setLoading(prev => ({ ...prev, [actionType]: null }));
     }
   };
 
@@ -144,8 +155,10 @@ export default function DistributorsManagement() {
 
           <button 
             type="submit" 
-            className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-2 rounded-lg shadow-md hover:shadow-lg transition-all"
+            disabled={loading.submit}
+            className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-2 rounded-lg shadow-md hover:shadow-lg transition-all disabled:opacity-50 flex items-center gap-2"
           >
+            {loading.submit && <Loader2 className="w-4 h-4 animate-spin" />}
             {editingDistributor ? 'Update Distributor' : 'Create Distributor'}
           </button>
         </form>
@@ -199,12 +212,13 @@ export default function DistributorsManagement() {
                   )}
                   <button 
                     onClick={() => handleToggleActive(distributor)} 
+                    disabled={loading.toggle === distributor.id}
                     className={`p-2 ${
                       distributor.is_active ? 'bg-orange-500 hover:bg-orange-600' : 'bg-green-500 hover:bg-green-600'
-                    } text-white rounded-lg transition-all`} 
+                    } text-white rounded-lg transition-all disabled:opacity-50`} 
                     title={distributor.is_active ? 'Deactivate' : 'Activate'}
                   >
-                    {distributor.is_active ? <Ban className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
+                    {loading.toggle === distributor.id ? <Loader2 className="w-4 h-4 animate-spin" /> : distributor.is_active ? <Ban className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
                   </button>
                   <button 
                     onClick={() => handleEdit(distributor)} 
@@ -214,9 +228,10 @@ export default function DistributorsManagement() {
                   </button>
                   <button 
                     onClick={() => handleDelete(distributor)} 
-                    className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all"
+                    disabled={loading.delete === distributor.id}
+                    className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all disabled:opacity-50"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    {loading.delete === distributor.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                   </button>
                 </div>
               </div>

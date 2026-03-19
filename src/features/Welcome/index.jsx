@@ -6,6 +6,7 @@ import OTPInput from '../../components/OTPInput'
 import FeatureCarousel from './FeatureCarousel'
 import Logo from '../../components/Logo'
 import { ArrowRight, ArrowLeft, Lock, Package, Shield, Eye, EyeOff, Info, Briefcase, Bell, Database, Zap, Sun, Moon } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 const PARTICLES = Array.from({ length: 28 }, (_, i) => ({
   id: i,
@@ -32,13 +33,14 @@ const Welcome = () => {
     distributorSendOTP, distributorVerifyOTP, distributorSignup,
   } = useAuth()
 
-  const [loginType, setLoginType] = useState('staff')
+  const [loginType, setLoginType] = useState(null)
   const [isNewUser, setIsNewUser] = useState(false)
   const [step, setStep] = useState('credentials')
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [otp, setOtp] = useState('')
+  const [resetToken, setResetToken] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [countdown, setCountdown] = useState(0)
@@ -110,7 +112,93 @@ const Welcome = () => {
 
   const resetForm = () => {
     setStep('credentials'); setOtp(''); setError('')
-    setIsNewUser(false); setConfirmPassword('')
+    setIsNewUser(false); setConfirmPassword(''); setResetToken('')
+  }
+
+  const handleRoleSelect = (role) => {
+    setLoginType(role)
+    resetForm()
+  }
+
+  const handleBackToRoles = () => {
+    setLoginType(null)
+    resetForm()
+  }
+
+  const handleForgotPassword = async () => {
+    if (!phone) { setError('Please enter your phone number'); return }
+    setError('')
+    setLoading(true)
+    try {
+      const userTypeMap = { staff: 'staff', admin: 'admin', distributor: 'distributor' }
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+      const response = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, user_type: userTypeMap[loginType] })
+      })
+      if (!response.ok) throw new Error('Failed to send reset OTP')
+      setStep('reset-otp')
+      setCountdown(30)
+    } catch (err) {
+      setError(err.message || 'Failed to send reset OTP')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleVerifyResetOTP = async (e) => {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+    try {
+      const userTypeMap = { staff: 'staff', admin: 'admin', distributor: 'distributor' }
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+      const response = await fetch(`${API_BASE_URL}/api/auth/verify-reset-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, otp, user_type: userTypeMap[loginType] })
+      })
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.detail || 'Invalid OTP')
+      setResetToken(data.reset_token)
+      setStep('new-password')
+    } catch (err) {
+      setError(err.message || 'Failed to verify OTP')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleResetPassword = async (e) => {
+    e.preventDefault()
+    if (password !== confirmPassword) { setError('Passwords do not match'); return }
+    if (password.length < 6) { setError('Password must be at least 6 characters'); return }
+    setError('')
+    setLoading(true)
+    try {
+      const userTypeMap = { staff: 'staff', admin: 'admin', distributor: 'distributor' }
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+      const response = await fetch(`${API_BASE_URL}/api/auth/reset-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reset_token: resetToken, new_password: password, user_type: userTypeMap[loginType] })
+      })
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.detail || 'Failed to reset password')
+      setPassword('')
+      setConfirmPassword('')
+      setStep('credentials')
+      setError('')
+      toast.success('Password reset successfully! Please login with your new password.', {
+        duration: 4000,
+        position: 'top-right',
+      })
+    } catch (err) {
+      setError(err.message || 'Failed to reset password')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const roleIndex = ROLES.findIndex(r => r.key === loginType)
@@ -466,7 +554,7 @@ const Welcome = () => {
               </div>
             </div>
 
-            {/* ── Right: Login Card ── */}
+            {/* ── Right: Role Selection or Login Card ── */}
             <div
               className={`w-full max-w-md mx-auto ${mounted ? 'appear-r' : 'opacity-0'}`}
               style={{ animationDelay: '0.15s' }}
@@ -483,48 +571,70 @@ const Welcome = () => {
                   transition: 'background 0.4s ease, border-color 0.4s ease',
                 }}
               >
-                {/* Card header */}
-                <div className="mb-7 text-center">
-                  <p className="text-xs font-semibold tracking-widest uppercase mb-1" style={{ color: lm ? '#94a3b8' : '#64748b' }}>Welcome Back</p>
-                  <h3 className="text-xl font-bold" style={{ color: lm ? '#1e293b' : '#ffffff', transition: 'color 0.4s ease' }}>Sign in to LedgerX</h3>
-                </div>
+                {!loginType ? (
+                  // Role Selection Screen
+                  <div className="step-enter">
+                    <div className="mb-8 text-center">
+                      <p className="text-xs font-semibold tracking-widest uppercase mb-1" style={{ color: lm ? '#94a3b8' : '#64748b' }}>Welcome to</p>
+                      <h3 className="text-2xl font-bold" style={{ color: lm ? '#1e293b' : '#ffffff', transition: 'color 0.4s ease' }}>LedgerX</h3>
+                    </div>
 
-                {/* Role selector — sliding pill */}
-                <div className="mb-6">
-                  <p className="text-center text-[10px] font-semibold tracking-widest uppercase mb-3" style={{ color: lm ? '#94a3b8' : '#475569' }}>Select Your Role</p>
-                  <div
-                    className="relative grid grid-cols-3 p-1 rounded-2xl"
-                    style={{
-                      background: lm ? 'rgba(241,245,255,0.9)' : 'rgba(2,8,20,0.7)',
-                      border: lm ? '1px solid rgba(59,130,246,0.12)' : '1px solid rgba(255,255,255,0.06)',
-                      transition: 'background 0.4s ease',
-                    }}
-                  >
-                    {/* Sliding pill */}
-                    <div
-                      className="absolute top-1 bottom-1 rounded-xl transition-all duration-300"
-                      style={{
-                        width: 'calc(33.333% - 3px)',
-                        left: `calc(${roleIndex * 33.333}% + 1.5px)`,
-                        background: 'linear-gradient(135deg, rgba(59,130,246,0.25), rgba(99,102,241,0.25))',
-                        border: '1px solid rgba(59,130,246,0.35)',
-                        boxShadow: '0 0 18px rgba(59,130,246,0.18)',
-                      }}
-                    />
-                    {ROLES.map(({ key, label, sub, Icon }) => (
-                      <button
-                        key={key}
-                        type="button"
-                        onClick={() => { setLoginType(key); resetForm() }}
-                        className="relative z-10 flex flex-col items-center py-3 px-1 rounded-xl transition-colors duration-200 group"
-                      >
-                        <Icon className={`mb-1 transition-colors duration-200 ${loginType === key ? 'text-blue-400' : 'text-slate-400 group-hover:text-slate-500'}`} style={{ width: '18px', height: '18px' }} />
-                        <span className="text-xs font-semibold transition-colors duration-200" style={{ color: loginType === key ? (lm ? '#1e293b' : '#ffffff') : '#94a3b8' }}>{label}</span>
-                        <span className="text-[10px] leading-none mt-0.5" style={{ color: lm ? '#94a3b8' : '#475569' }}>{sub}</span>
-                      </button>
-                    ))}
+                    <p className="text-center text-sm font-semibold tracking-wide uppercase mb-5" style={{ color: lm ? '#64748b' : '#94a3b8' }}>Select Your Role</p>
+
+                    <div className="space-y-3">
+                      {ROLES.map(({ key, label, sub, Icon }) => (
+                        <button
+                          key={key}
+                          type="button"
+                          onClick={() => handleRoleSelect(key)}
+                          className="w-full flex items-center gap-4 p-4 rounded-xl transition-all duration-200 group"
+                          style={{
+                            background: lm ? 'rgba(241,245,255,0.6)' : 'rgba(2,8,20,0.5)',
+                            border: lm ? '1px solid rgba(59,130,246,0.15)' : '1px solid rgba(255,255,255,0.08)',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = lm ? 'rgba(59,130,246,0.08)' : 'rgba(59,130,246,0.12)'
+                            e.currentTarget.style.borderColor = 'rgba(59,130,246,0.3)'
+                            e.currentTarget.style.transform = 'translateX(4px)'
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = lm ? 'rgba(241,245,255,0.6)' : 'rgba(2,8,20,0.5)'
+                            e.currentTarget.style.borderColor = lm ? 'rgba(59,130,246,0.15)' : 'rgba(255,255,255,0.08)'
+                            e.currentTarget.style.transform = 'translateX(0)'
+                          }}
+                        >
+                          <div className="flex items-center justify-center w-12 h-12 rounded-xl" style={{ background: 'rgba(59,130,246,0.1)' }}>
+                            <Icon className="w-6 h-6 text-blue-400" />
+                          </div>
+                          <div className="flex-1 text-left">
+                            <div className="text-base font-semibold" style={{ color: lm ? '#1e293b' : '#ffffff' }}>{label}</div>
+                            <div className="text-xs" style={{ color: lm ? '#94a3b8' : '#64748b' }}>{sub}</div>
+                          </div>
+                          <ArrowRight className="w-5 h-5 text-slate-400 group-hover:text-blue-400 transition-colors" />
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  // Login Form
+                  <div>
+                    {/* Card header with back button */}
+                    <div className="mb-7">
+                      <button
+                        type="button"
+                        onClick={handleBackToRoles}
+                        className="inline-flex items-center gap-1.5 text-sm mb-4 transition-colors"
+                        style={{ color: lm ? '#64748b' : '#94a3b8' }}
+                        onMouseEnter={(e) => e.currentTarget.style.color = '#3b82f6'}
+                        onMouseLeave={(e) => e.currentTarget.style.color = lm ? '#64748b' : '#94a3b8'}
+                      >
+                        <ArrowLeft className="w-4 h-4" /> Back to roles
+                      </button>
+                      <div className="text-center">
+                        <p className="text-xs font-semibold tracking-widest uppercase mb-1" style={{ color: lm ? '#94a3b8' : '#64748b' }}>Welcome Back</p>
+                        <h3 className="text-xl font-bold" style={{ color: lm ? '#1e293b' : '#ffffff', transition: 'color 0.4s ease' }}>Sign in as {ROLES.find(r => r.key === loginType)?.label}</h3>
+                      </div>
+                    </div>
 
                 {/* Step: credentials */}
                 {step === 'credentials' && (
@@ -551,9 +661,20 @@ const Welcome = () => {
                     {(loginType === 'admin' || loginType === 'super_admin' || loginType === 'staff' || loginType === 'distributor') && (
                       <>
                         <div>
-                          <label className="block text-xs font-medium mb-1.5" style={{ color: lm ? '#64748b' : '#94a3b8' }}>
-                            {isNewUser ? 'Set Password' : 'Password'}
-                          </label>
+                          <div className="flex items-center justify-between mb-1.5">
+                            <label className="block text-xs font-medium" style={{ color: lm ? '#64748b' : '#94a3b8' }}>
+                              {isNewUser ? 'Set Password' : 'Password'}
+                            </label>
+                            {!isNewUser && (
+                              <button
+                                type="button"
+                                onClick={handleForgotPassword}
+                                className="text-xs font-medium text-blue-400 hover:text-blue-300 transition-colors"
+                              >
+                                Forgot?
+                              </button>
+                            )}
+                          </div>
                           <div className="relative">
                             <input
                               type={showPassword ? 'text' : 'password'}
@@ -650,7 +771,131 @@ const Welcome = () => {
                   </form>
                 )}
 
-                {/* Step: OTP */}
+                {/* Step: reset-otp */}
+                {step === 'reset-otp' && (
+                  <form onSubmit={handleVerifyResetOTP} className="step-enter space-y-5">
+                    <div className="text-center">
+                      <div className="relative w-20 h-20 mx-auto mb-4">
+                        <div className="spin-ring absolute inset-0 rounded-full" style={{ background: 'conic-gradient(from 0deg, transparent 55%, rgba(99,102,241,0.5) 75%, rgba(59,130,246,0.8) 92%, transparent 100%)' }} />
+                        <div className="absolute inset-[3px] rounded-full flex items-center justify-center" style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.25)' }}>
+                          <Lock className="lock-icon w-8 h-8 text-blue-400" />
+                        </div>
+                      </div>
+                      <h3 className="font-bold text-lg mb-1" style={{ color: lm ? '#1e293b' : '#ffffff', transition: 'color 0.4s ease' }}>Reset Password</h3>
+                      <p className="text-sm" style={{ color: lm ? '#64748b' : '#94a3b8' }}>OTP sent to <span style={{ color: lm ? '#475569' : '#cbd5e1' }}>{phone}</span></p>
+                      <button
+                        type="button"
+                        onClick={resetForm}
+                        className="inline-flex items-center gap-1 text-blue-400 text-xs hover:text-blue-300 transition-colors mt-2"
+                      >
+                        <ArrowLeft className="w-3 h-3" /> Back to login
+                      </button>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium mb-3 text-center" style={{ color: lm ? '#64748b' : '#94a3b8' }}>Enter 6-digit OTP</label>
+                      <OTPInput value={otp} onChange={setOtp} length={6} />
+                    </div>
+
+                    {error && (
+                      <div className="px-4 py-3 rounded-xl text-sm" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', color: lm ? '#991b1b' : '#fca5a5' }}>
+                        {error}
+                      </div>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={loading || otp.length !== 6}
+                      className="cta-btn w-full text-white py-3.5 rounded-xl font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                      {loading ? 'Verifying…' : 'Verify OTP'}
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+
+                    <div className="text-center">
+                      {countdown > 0 ? (
+                        <p className="text-sm" style={{ color: lm ? '#64748b' : '#94a3b8' }}>Resend OTP in <span className="font-medium tabular-nums" style={{ color: lm ? '#475569' : '#cbd5e1' }}>{countdown}s</span></p>
+                      ) : (
+                        <button type="button" onClick={handleForgotPassword} className="text-blue-400 text-sm hover:text-blue-300 font-medium transition-colors">
+                          Resend OTP
+                        </button>
+                      )}
+                    </div>
+                  </form>
+                )}
+
+                {/* Step: new-password */}
+                {step === 'new-password' && (
+                  <form onSubmit={handleResetPassword} className="step-enter space-y-4">
+                    <div className="text-center mb-5">
+                      <h3 className="font-bold text-lg mb-1" style={{ color: lm ? '#1e293b' : '#ffffff', transition: 'color 0.4s ease' }}>Set New Password</h3>
+                      <p className="text-sm" style={{ color: lm ? '#64748b' : '#94a3b8' }}>Create a strong password for your account</p>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium mb-1.5" style={{ color: lm ? '#64748b' : '#94a3b8' }}>New Password</label>
+                      <div className="relative">
+                        <input
+                          type={showPassword ? 'text' : 'password'}
+                          value={password}
+                          onChange={e => setPassword(e.target.value)}
+                          placeholder="Enter new password (min 6 chars)"
+                          className="input-field w-full px-4 py-3 pr-11 rounded-xl text-sm"
+                          style={{ color: lm ? '#1e293b' : '#ffffff' }}
+                          required
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
+                          style={{ color: lm ? '#94a3b8' : '#64748b' }}
+                        >
+                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium mb-1.5" style={{ color: lm ? '#64748b' : '#94a3b8' }}>Confirm Password</label>
+                      <div className="relative">
+                        <input
+                          type={showConfirmPassword ? 'text' : 'password'}
+                          value={confirmPassword}
+                          onChange={e => setConfirmPassword(e.target.value)}
+                          placeholder="Re-enter new password"
+                          className="input-field w-full px-4 py-3 pr-11 rounded-xl text-sm"
+                          style={{ color: lm ? '#1e293b' : '#ffffff' }}
+                          required
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
+                          style={{ color: lm ? '#94a3b8' : '#64748b' }}
+                        >
+                          {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    {error && (
+                      <div className="px-4 py-3 rounded-xl text-sm" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', color: lm ? '#991b1b' : '#fca5a5' }}>
+                        {error}
+                      </div>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="cta-btn w-full text-white py-3.5 rounded-xl font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                      {loading ? 'Resetting…' : 'Reset Password'}
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </form>
+                )}
+
+                {/* Step: otp */}
                 {step === 'otp' && (
                   <form onSubmit={handleVerifyOTP} className="step-enter space-y-5">
                     <div className="text-center">
@@ -703,6 +948,8 @@ const Welcome = () => {
                       )}
                     </div>
                   </form>
+                )}
+                  </div>
                 )}
               </div>
 

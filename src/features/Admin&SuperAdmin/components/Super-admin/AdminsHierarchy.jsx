@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { superAdminApi } from '../../services/admin&superAminApi';
-import { ChevronDown, ChevronRight, Users, Store, User, Edit2, Trash2, Eye, EyeOff, Briefcase, AlertTriangle, CheckCircle, XCircle, Ban } from 'lucide-react';
+import { ChevronDown, ChevronRight, Users, Store, User, Edit2, Trash2, Eye, EyeOff, Briefcase, AlertTriangle, CheckCircle, XCircle, Ban, Loader2 } from 'lucide-react';
 import ConfirmDialog from '../../../../components/ConfirmDialog';
 
 export default function AdminsHierarchy() {
@@ -12,6 +12,13 @@ export default function AdminsHierarchy() {
   const [editingShop, setEditingShop] = useState(null);
   const [editingStaff, setEditingStaff] = useState(null);
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, type: null, entity: null, meta: null });
+  const [loading, setLoading] = useState({ 
+    dashboard: false, 
+    updateAdmin: null, 
+    updateShop: null, 
+    updateStaff: null, 
+    action: null 
+  });
   const [formData, setFormData] = useState({ full_name: '', email: '', phone: '', is_active: true });
   const [shopFormData, setShopFormData] = useState({ shop_name: '', address: '', phone: '', is_active: true });
   const [staffFormData, setStaffFormData] = useState({ name: '', phone: '', email: '', role: 'staff', is_active: true });
@@ -19,41 +26,53 @@ export default function AdminsHierarchy() {
   useEffect(() => { loadDashboard(); }, []);
 
   const loadDashboard = async () => {
+    setLoading(prev => ({ ...prev, dashboard: true }));
     try {
       const data = await superAdminApi.getDashboard();
       setDashboard(data);
     } catch (err) {
       alert(err.message);
+    } finally {
+      setLoading(prev => ({ ...prev, dashboard: false }));
     }
   };
 
   const handleUpdate = async (adminId) => {
+    setLoading(prev => ({ ...prev, updateAdmin: adminId }));
     try {
       await superAdminApi.updateAdmin(adminId, formData);
       setEditingAdmin(null);
       loadDashboard();
     } catch (err) {
       alert(err.message);
+    } finally {
+      setLoading(prev => ({ ...prev, updateAdmin: null }));
     }
   };
 
   const handleUpdateShop = async (shopId) => {
+    setLoading(prev => ({ ...prev, updateShop: shopId }));
     try {
       await superAdminApi.updateShop(shopId, shopFormData);
       setEditingShop(null);
       loadDashboard();
     } catch (err) {
       alert(err.message);
+    } finally {
+      setLoading(prev => ({ ...prev, updateShop: null }));
     }
   };
 
   const handleUpdateStaff = async (staffId) => {
+    setLoading(prev => ({ ...prev, updateStaff: staffId }));
     try {
       await superAdminApi.updateStaff(staffId, staffFormData);
       setEditingStaff(null);
       loadDashboard();
     } catch (err) {
       alert(err.message);
+    } finally {
+      setLoading(prev => ({ ...prev, updateStaff: null }));
     }
   };
 
@@ -86,6 +105,7 @@ export default function AdminsHierarchy() {
   const confirmAction = async () => {
     const { type, entity, meta } = confirmDialog;
     setConfirmDialog({ isOpen: false, type: null, entity: null, meta: null });
+    setLoading(prev => ({ ...prev, action: entity.id }));
     try {
       if (type === 'deleteAdmin') {
         const result = await superAdminApi.deleteAdmin(entity.id);
@@ -104,6 +124,8 @@ export default function AdminsHierarchy() {
       loadDashboard();
     } catch (err) {
       alert(err.message);
+    } finally {
+      setLoading(prev => ({ ...prev, action: null }));
     }
   };
 
@@ -122,7 +144,10 @@ export default function AdminsHierarchy() {
     setStaffFormData({ name: staff.name, phone: staff.phone, email: staff.email || '', role: staff.role, is_active: staff.is_active });
   };
 
-  if (!dashboard) return <div className="text-center py-8 text-sm md:text-base">Loading...</div>;
+  if (!dashboard) return <div className="text-center py-8 text-sm md:text-base flex items-center justify-center gap-2">
+    {loading.dashboard && <Loader2 className="w-5 h-5 animate-spin" />}
+    Loading...
+  </div>;
 
   return (
     <div className="space-y-4 md:space-y-6">
@@ -211,7 +236,10 @@ export default function AdminsHierarchy() {
                               Active
                             </label>
                             <div className="flex gap-2">
-                              <button onClick={() => handleUpdate(admin.id)} className="bg-green-500 text-white px-3 py-1 rounded text-xs">Save</button>
+                              <button onClick={() => handleUpdate(admin.id)} disabled={loading.updateAdmin === admin.id} className="bg-green-500 text-white px-3 py-1 rounded text-xs disabled:opacity-50 flex items-center gap-1">
+                                {loading.updateAdmin === admin.id && <Loader2 className="w-3 h-3 animate-spin" />}
+                                Save
+                              </button>
                               <button onClick={() => setEditingAdmin(null)} className="bg-gray-500 text-white px-3 py-1 rounded text-xs">Cancel</button>
                             </div>
                           </div>
@@ -242,14 +270,14 @@ export default function AdminsHierarchy() {
                               </div>
                             </div>
                             <div className="flex gap-2">
-                              <button onClick={() => handleToggleAdmin(admin, org.organization_id)} className={`p-1.5 ${admin.is_active ? 'bg-orange-500 hover:bg-orange-600' : 'bg-green-500 hover:bg-green-600'} text-white rounded-lg transition-all`} title={admin.is_active ? 'Deactivate' : 'Activate'}>
-                                {admin.is_active ? <Ban className="w-3.5 h-3.5" /> : <CheckCircle className="w-3.5 h-3.5" />}
+                              <button onClick={() => handleToggleAdmin(admin, org.organization_id)} disabled={loading.action === admin.id} className={`p-1.5 ${admin.is_active ? 'bg-orange-500 hover:bg-orange-600' : 'bg-green-500 hover:bg-green-600'} text-white rounded-lg transition-all disabled:opacity-50`} title={admin.is_active ? 'Deactivate' : 'Activate'}>
+                                {loading.action === admin.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : admin.is_active ? <Ban className="w-3.5 h-3.5" /> : <CheckCircle className="w-3.5 h-3.5" />}
                               </button>
                               <button onClick={() => startEdit(admin)} className="p-1.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all">
                                 <Edit2 className="w-3.5 h-3.5" />
                               </button>
-                              <button onClick={() => handleDelete(admin, org.organization_id)} className="p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all">
-                                <Trash2 className="w-3.5 h-3.5" />
+                              <button onClick={() => handleDelete(admin, org.organization_id)} disabled={loading.action === admin.id} className="p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all disabled:opacity-50">
+                                {loading.action === admin.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
                               </button>
                             </div>
                           </div>
@@ -282,7 +310,10 @@ export default function AdminsHierarchy() {
                                   Active
                                 </label>
                                 <div className="flex gap-2">
-                                  <button onClick={() => handleUpdateShop(shop.id)} className="bg-green-500 text-white px-3 py-1 rounded text-xs">Save</button>
+                                  <button onClick={() => handleUpdateShop(shop.id)} disabled={loading.updateShop === shop.id} className="bg-green-500 text-white px-3 py-1 rounded text-xs disabled:opacity-50 flex items-center gap-1">
+                                    {loading.updateShop === shop.id && <Loader2 className="w-3 h-3 animate-spin" />}
+                                    Save
+                                  </button>
                                   <button onClick={() => setEditingShop(null)} className="bg-gray-500 text-white px-3 py-1 rounded text-xs">Cancel</button>
                                 </div>
                               </div>
@@ -303,14 +334,14 @@ export default function AdminsHierarchy() {
                                   <p className="text-xs text-gray-500">Created by: {shop.created_by_admin}</p>
                                 </div>
                                 <div className="flex gap-2">
-                                  <button onClick={() => handleToggleShop(shop)} className={`p-1.5 ${shop.is_active ? 'bg-orange-500 hover:bg-orange-600' : 'bg-green-500 hover:bg-green-600'} text-white rounded-lg transition-all`} title={shop.is_active ? 'Deactivate' : 'Activate'}>
-                                    {shop.is_active ? <Ban className="w-3.5 h-3.5" /> : <CheckCircle className="w-3.5 h-3.5" />}
+                                  <button onClick={() => handleToggleShop(shop)} disabled={loading.action === shop.id} className={`p-1.5 ${shop.is_active ? 'bg-orange-500 hover:bg-orange-600' : 'bg-green-500 hover:bg-green-600'} text-white rounded-lg transition-all disabled:opacity-50`} title={shop.is_active ? 'Deactivate' : 'Activate'}>
+                                    {loading.action === shop.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : shop.is_active ? <Ban className="w-3.5 h-3.5" /> : <CheckCircle className="w-3.5 h-3.5" />}
                                   </button>
                                   <button onClick={() => startEditShop(shop)} className="p-1.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all">
                                     <Edit2 className="w-3.5 h-3.5" />
                                   </button>
-                                  <button onClick={() => handleDeleteShop(shop)} className="p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all">
-                                    <Trash2 className="w-3.5 h-3.5" />
+                                  <button onClick={() => handleDeleteShop(shop)} disabled={loading.action === shop.id} className="p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all disabled:opacity-50">
+                                    {loading.action === shop.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
                                   </button>
                                 </div>
                               </div>
@@ -339,7 +370,10 @@ export default function AdminsHierarchy() {
                                           Active
                                         </label>
                                         <div className="flex gap-2">
-                                          <button onClick={() => handleUpdateStaff(staff.id)} className="bg-green-500 text-white px-3 py-1 rounded text-xs">Save</button>
+                                          <button onClick={() => handleUpdateStaff(staff.id)} disabled={loading.updateStaff === staff.id} className="bg-green-500 text-white px-3 py-1 rounded text-xs disabled:opacity-50 flex items-center gap-1">
+                                            {loading.updateStaff === staff.id && <Loader2 className="w-3 h-3 animate-spin" />}
+                                            Save
+                                          </button>
                                           <button onClick={() => setEditingStaff(null)} className="bg-gray-500 text-white px-3 py-1 rounded text-xs">Cancel</button>
                                         </div>
                                       </div>
@@ -370,14 +404,14 @@ export default function AdminsHierarchy() {
                                           </div>
                                         </div>
                                         <div className="flex gap-2">
-                                          <button onClick={() => handleToggleStaff(staff)} className={`p-1.5 ${staff.is_active ? 'bg-orange-500 hover:bg-orange-600' : 'bg-green-500 hover:bg-green-600'} text-white rounded-lg transition-all`} title={staff.is_active ? 'Deactivate' : 'Activate'}>
-                                            {staff.is_active ? <Ban className="w-3.5 h-3.5" /> : <CheckCircle className="w-3.5 h-3.5" />}
+                                          <button onClick={() => handleToggleStaff(staff)} disabled={loading.action === staff.id} className={`p-1.5 ${staff.is_active ? 'bg-orange-500 hover:bg-orange-600' : 'bg-green-500 hover:bg-green-600'} text-white rounded-lg transition-all disabled:opacity-50`} title={staff.is_active ? 'Deactivate' : 'Activate'}>
+                                            {loading.action === staff.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : staff.is_active ? <Ban className="w-3.5 h-3.5" /> : <CheckCircle className="w-3.5 h-3.5" />}
                                           </button>
                                           <button onClick={() => startEditStaff(staff)} className="p-1.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all">
                                             <Edit2 className="w-3.5 h-3.5" />
                                           </button>
-                                          <button onClick={() => handleDeleteStaff(staff)} className="p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all">
-                                            <Trash2 className="w-3.5 h-3.5" />
+                                          <button onClick={() => handleDeleteStaff(staff)} disabled={loading.action === staff.id} className="p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all disabled:opacity-50">
+                                            {loading.action === staff.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
                                           </button>
                                         </div>
                                       </div>

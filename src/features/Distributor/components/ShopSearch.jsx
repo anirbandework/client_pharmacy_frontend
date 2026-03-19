@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Search, FileText, Building2, Phone, Mail, FileCheck, Plus } from 'lucide-react';
+import { Search, FileText, Building2, Phone, Mail, FileCheck, Plus, Loader2 } from 'lucide-react';
 import { distributorApi } from '../services/api';
 
 export default function ShopSearch({ setSelectedShopForInvoice, setShowCreateInvoice }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [searching, setSearching] = useState(false);
+  const [creatingInvoice, setCreatingInvoice] = useState({});
 
   const handleSearch = async (query) => {
     setSearchQuery(query);
@@ -26,13 +27,19 @@ export default function ShopSearch({ setSelectedShopForInvoice, setShowCreateInv
   };
 
   const handleCreateInvoiceForShop = (shop) => {
+    setCreatingInvoice(prev => ({ ...prev, [shop.id]: true }));
     setSelectedShopForInvoice(shop);
     setShowCreateInvoice(true);
+    // Reset loading state after a short delay
+    setTimeout(() => setCreatingInvoice(prev => ({ ...prev, [shop.id]: false })), 500);
   };
 
   const handleCreateInvoiceForNew = () => {
+    setCreatingInvoice(prev => ({ ...prev, 'new': true }));
     setSelectedShopForInvoice({ is_registered: false });
     setShowCreateInvoice(true);
+    // Reset loading state after a short delay
+    setTimeout(() => setCreatingInvoice(prev => ({ ...prev, 'new': false })), 500);
   };
 
   return (
@@ -105,10 +112,11 @@ export default function ShopSearch({ setSelectedShopForInvoice, setShowCreateInv
                     </div>
                     <button
                       onClick={() => handleCreateInvoiceForShop(shop)}
-                      className="ml-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 text-sm"
+                      disabled={creatingInvoice[shop.id]}
+                      className="ml-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 text-sm disabled:opacity-50"
                     >
-                      <FileText className="w-4 h-4" />
-                      Create Invoice
+                      {creatingInvoice[shop.id] ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
+                      {creatingInvoice[shop.id] ? 'Opening...' : 'Create Invoice'}
                     </button>
                   </div>
                 </div>
@@ -120,10 +128,11 @@ export default function ShopSearch({ setSelectedShopForInvoice, setShowCreateInv
               <p className="text-gray-500 mb-4">No registered shops found</p>
               <button
                 onClick={handleCreateInvoiceForNew}
-                className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 flex items-center gap-2 mx-auto"
+                disabled={creatingInvoice['new']}
+                className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 flex items-center gap-2 mx-auto disabled:opacity-50"
               >
-                <Plus className="w-5 h-5" />
-                Create Invoice for New Shop
+                {creatingInvoice['new'] ? <Loader2 className="w-5 h-5 animate-spin" /> : <Plus className="w-5 h-5" />}
+                {creatingInvoice['new'] ? 'Opening...' : 'Create Invoice for New Shop'}
               </button>
             </div>
           )}
@@ -140,10 +149,11 @@ export default function ShopSearch({ setSelectedShopForInvoice, setShowCreateInv
           </p>
           <button
             onClick={handleCreateInvoiceForNew}
-            className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 flex items-center gap-2 mx-auto"
+            disabled={creatingInvoice['new']}
+            className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 flex items-center gap-2 mx-auto disabled:opacity-50"
           >
-            <Plus className="w-5 h-5" />
-            Create Invoice for New Shop
+            {creatingInvoice['new'] ? <Loader2 className="w-5 h-5 animate-spin" /> : <Plus className="w-5 h-5" />}
+            {creatingInvoice['new'] ? 'Opening...' : 'Create Invoice for New Shop'}
           </button>
         </div>
       )}

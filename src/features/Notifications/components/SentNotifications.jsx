@@ -2,8 +2,11 @@ import { useState, useEffect } from 'react';
 import { notificationsApi } from '../services/notificationsApi';
 import { Eye, TrendingUp } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useTheme } from '../../../contexts/ThemeContext';
+import { t } from '../../../theme';
 
 export default function SentNotifications({ shopCode }) {
+  const { isDark } = useTheme();
   const [notifications, setNotifications] = useState([]);
   const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);
@@ -42,24 +45,24 @@ export default function SentNotifications({ shopCode }) {
     return colors[type] || colors.info;
   };
 
-  if (loading) return <div className="text-center py-8">Loading...</div>;
+  if (loading) return <div style={{ color: t.text.secondary(isDark) }} className="text-center py-8">Loading...</div>;
 
   return (
     <div className="space-y-4">
       {notifications.map(notif => {
         const stat = stats[notif.id];
         return (
-          <div key={notif.id} className="bg-white p-4 rounded-xl shadow-lg border border-slate-200">
+          <div key={notif.id} style={t.card(isDark)} className="p-4 rounded-xl shadow-lg">
             <div className="flex flex-col sm:flex-row justify-between items-start gap-3 mb-2">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1 flex-wrap">
-                  <h3 className="font-bold text-gray-800 text-sm md:text-base">{notif.title}</h3>
+                  <h3 style={{ color: t.text.primary(isDark) }} className="font-bold text-sm md:text-base">{notif.title}</h3>
                   <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getTypeColor(notif.type)}`}>
                     {notif.type}
                   </span>
                 </div>
-                <p className="text-xs md:text-sm text-gray-600 mb-2">{notif.message}</p>
-                <div className="flex items-center gap-4 text-xs text-gray-500 flex-wrap">
+                <p style={{ color: t.text.secondary(isDark) }} className="text-xs md:text-sm mb-2">{notif.message}</p>
+                <div style={{ color: t.text.muted(isDark) }} className="flex items-center gap-4 text-xs flex-wrap">
                   <span>Target: {notif.target_type}</span>
                   <span>{new Date(notif.created_at).toLocaleString()}</span>
                   {notif.expires_at && <span>Expires: {new Date(notif.expires_at).toLocaleString()}</span>}

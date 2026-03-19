@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { adminApi } from '../../services/admin&superAminApi';
-import { Ban, CheckCircle, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react';
+import { Ban, CheckCircle, AlertTriangle, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import ConfirmDialog from '../../../../components/ConfirmDialog';
 
 export default function ShopsManagement({ isDark = false }) {
@@ -9,6 +9,7 @@ export default function ShopsManagement({ isDark = false }) {
   const [editingShop, setEditingShop] = useState(null);
   const [expandedShops, setExpandedShops] = useState({});
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, shop: null });
+  const [loading, setLoading] = useState({ submit: false, toggle: null, load: false });
   const [formData, setFormData] = useState({
     shop_name: '', shop_code: '', address: '', phone: '', email: '',
     license_number: '', gst_number: ''
@@ -17,16 +18,20 @@ export default function ShopsManagement({ isDark = false }) {
   useEffect(() => { loadShops(); }, []);
 
   const loadShops = async () => {
+    setLoading(prev => ({ ...prev, load: true }));
     try {
       const data = await adminApi.getShops();
       setShops(data);
     } catch (err) {
       alert(err.message);
+    } finally {
+      setLoading(prev => ({ ...prev, load: false }));
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(prev => ({ ...prev, submit: true }));
     try {
       if (editingShop) {
         await adminApi.updateShop(editingShop.id, formData);
@@ -39,6 +44,8 @@ export default function ShopsManagement({ isDark = false }) {
       loadShops();
     } catch (err) {
       alert(err.message);
+    } finally {
+      setLoading(prev => ({ ...prev, submit: false }));
     }
   };
 
@@ -55,11 +62,14 @@ export default function ShopsManagement({ isDark = false }) {
   const confirmToggleActive = async () => {
     const shop = confirmDialog.shop;
     setConfirmDialog({ isOpen: false, shop: null });
+    setLoading(prev => ({ ...prev, toggle: shop.id }));
     try {
       await adminApi.updateShop(shop.id, { is_active: !shop.is_active });
       loadShops();
     } catch (err) {
       alert(err.message);
+    } finally {
+      setLoading(prev => ({ ...prev, toggle: null }));
     }
   };
 
@@ -108,7 +118,8 @@ export default function ShopsManagement({ isDark = false }) {
               <input placeholder="e.g., 22AAAAA0000A1Z5" value={formData.gst_number} onChange={(e) => setFormData({...formData, gst_number: e.target.value})} className="border-2 border-gray-200 p-2 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 w-full text-sm md:text-base transition-all" />
             </div>
           </div>
-          <button type="submit" className="mt-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-2 rounded-lg shadow-lg hover:shadow-xl transition-all text-sm md:text-base">
+          <button type="submit" disabled={loading.submit} className="mt-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-2 rounded-lg shadow-lg hover:shadow-xl transition-all text-sm md:text-base disabled:opacity-50 flex items-center gap-2">
+            {loading.submit && <Loader2 className="w-4 h-4 animate-spin" />}
             {editingShop ? 'Update' : 'Create'} Shop
           </button>
         </form>
@@ -141,8 +152,8 @@ export default function ShopsManagement({ isDark = false }) {
                 )}
               </div>
               <div className="flex gap-2 w-full sm:w-auto">
-                <button onClick={() => handleToggleActive(shop)} className={`${shop.is_active ? 'bg-gradient-to-r from-orange-600 to-red-600' : 'bg-gradient-to-r from-green-600 to-emerald-600'} text-white px-3 py-1.5 rounded-lg text-xs md:text-sm hover:shadow-lg transition-all flex items-center gap-1 justify-center flex-1 sm:flex-initial`}>
-                  {shop.is_active ? <><Ban className="w-3 h-3" /> Deactivate</> : <><CheckCircle className="w-3 h-3" /> Activate</>}
+                <button onClick={() => handleToggleActive(shop)} disabled={loading.toggle === shop.id} className={`${shop.is_active ? 'bg-gradient-to-r from-orange-600 to-red-600' : 'bg-gradient-to-r from-green-600 to-emerald-600'} text-white px-3 py-1.5 rounded-lg text-xs md:text-sm hover:shadow-lg transition-all flex items-center gap-1 justify-center flex-1 sm:flex-initial disabled:opacity-50`}>
+                  {loading.toggle === shop.id ? <Loader2 className="w-3 h-3 animate-spin" /> : shop.is_active ? <><Ban className="w-3 h-3" /> Deactivate</> : <><CheckCircle className="w-3 h-3" /> Activate</>}
                 </button>
                 <button onClick={() => handleEdit(shop)} className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 py-1.5 rounded-lg text-xs md:text-sm hover:shadow-lg transition-all flex-1 sm:flex-initial">Edit</button>
               </div>

@@ -1,9 +1,12 @@
 import React, { useState } from 'react'
 import { feedbackAPI } from '../services/feedbackApi'
-import { X, Star, Smile, Meh, Frown, Angry, Laugh, Rocket, Bug, Lightbulb, AlertCircle, Heart, Bookmark, ThumbsUp, ThumbsDown, Send } from 'lucide-react'
+import { X, Star, Smile, Meh, Frown, Angry, Laugh, Rocket, Bug, Lightbulb, AlertCircle, Heart, Bookmark, ThumbsUp, ThumbsDown, Send, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { useTheme } from '../../../contexts/ThemeContext'
+import { t } from '../../../theme'
 
 const FeedbackFormModal = ({ isOpen, onClose }) => {
+  const { isDark } = useTheme()
   const [mood, setMood] = useState('')
   const [type, setType] = useState('')
   const [title, setTitle] = useState('')
@@ -11,6 +14,7 @@ const FeedbackFormModal = ({ isOpen, onClose }) => {
   const [rating, setRating] = useState(5)
   const [recommend, setRecommend] = useState(true)
   const [submitted, setSubmitted] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
 
   const moods = [
     { value: 'excited', icon: Laugh, label: 'Excited', color: 'bg-green-100 hover:bg-green-200 text-green-700' },
@@ -30,6 +34,7 @@ const FeedbackFormModal = ({ isOpen, onClose }) => {
   ]
 
   const handleSubmit = async () => {
+    setSubmitting(true)
     try {
       await feedbackAPI.submitFeedback({
         feedback_type: type,
@@ -47,6 +52,8 @@ const FeedbackFormModal = ({ isOpen, onClose }) => {
       }, 2000)
     } catch (error) {
       // Global error handler will show toast
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -64,14 +71,14 @@ const FeedbackFormModal = ({ isOpen, onClose }) => {
   if (submitted) {
     return (
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
-        <div className="bg-gradient-to-br from-green-50/95 to-emerald-50/95 backdrop-blur-2xl border border-green-200/50 rounded-2xl shadow-2xl p-8 w-96 text-center">
+        <div style={t.glassCard(isDark)} className="rounded-2xl shadow-2xl p-8 w-96 text-center">
           <div className="flex justify-center mb-4">
-            <div className="bg-gradient-to-br from-green-400/20 to-green-600/20 backdrop-blur-xl p-4 rounded-full">
-              <ThumbsUp className="w-12 h-12 text-green-600" />
+            <div className="bg-green-500/20 backdrop-blur-xl p-4 rounded-full">
+              <ThumbsUp className="w-12 h-12 text-green-600 dark:text-green-400" />
             </div>
           </div>
-          <h3 className="text-2xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-2">Thank You!</h3>
-          <p className="text-gray-600">Your feedback helps us improve!</p>
+          <h3 style={{ color: t.text.primary(isDark) }} className="text-2xl font-bold mb-2">Thank You!</h3>
+          <p style={{ color: t.text.secondary(isDark) }}>Your feedback helps us improve!</p>
         </div>
       </div>
     )
@@ -79,17 +86,17 @@ const FeedbackFormModal = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-gradient-to-br from-purple-50/95 to-pink-50/95 backdrop-blur-2xl border border-purple-200/50 rounded-2xl shadow-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+      <div style={t.glassCard(isDark)} className="rounded-2xl shadow-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Share Your Thoughts</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 hover:bg-gray-100/50 p-1 rounded-lg transition-all">
+          <h3 style={{ color: t.text.primary(isDark) }} className="text-xl font-bold">Share Your Thoughts</h3>
+          <button onClick={onClose} style={{ color: t.text.muted(isDark), transition: 'color 0.4s ease' }} className="hover:opacity-70 p-1 rounded-lg transition-all">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         <div className="space-y-4">
           <div>
-            <p className="text-sm font-medium text-gray-700 mb-2">How are you feeling?</p>
+            <p style={{ color: t.text.primary(isDark) }} className="text-sm font-medium mb-2">How are you feeling?</p>
             <div className="flex gap-2">
               {moods.map((m) => (
                 <button
@@ -105,17 +112,18 @@ const FeedbackFormModal = ({ isOpen, onClose }) => {
           </div>
 
           <div>
-            <p className="text-sm font-medium text-gray-700 mb-2">What's this about?</p>
+            <p style={{ color: t.text.primary(isDark) }} className="text-sm font-medium mb-2">What's this about?</p>
             <div className="grid grid-cols-3 gap-2">
-              {types.map((t) => (
+              {types.map((typeItem) => (
                 <button
-                  key={t.value}
-                  onClick={() => setType(t.value)}
-                  className={`p-3 rounded-xl text-center transition-all ${type === t.value ? 'bg-gradient-to-br from-purple-500/20 to-pink-500/20 ring-2 ring-purple-500 shadow-lg' : 'bg-white/50 hover:bg-white/80'}`}
+                  key={typeItem.value}
+                  onClick={() => setType(typeItem.value)}
+                  style={type === typeItem.value ? { background: 'rgba(99,102,241,0.15)', border: '2px solid #6366f1' } : t.innerRow(isDark)}
+                  className="p-3 rounded-xl text-center transition-all hover:opacity-80"
                 >
-                  <t.icon className="w-6 h-6 mx-auto mb-1 text-gray-700" />
-                  <div className="text-xs font-medium">{t.title}</div>
-                  <div className="text-xs text-gray-500">{t.desc}</div>
+                  <typeItem.icon style={{ color: t.text.primary(isDark) }} className="w-6 h-6 mx-auto mb-1" />
+                  <div style={{ color: t.text.primary(isDark) }} className="text-xs font-medium">{typeItem.title}</div>
+                  <div style={{ color: t.text.secondary(isDark) }} className="text-xs">{typeItem.desc}</div>
                 </button>
               ))}
             </div>
@@ -126,7 +134,8 @@ const FeedbackFormModal = ({ isOpen, onClose }) => {
             placeholder="Give it a catchy title..."
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full px-3 py-2 bg-white/50 backdrop-blur-xl border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
+            style={t.input(isDark)}
+            className="w-full px-3 py-2 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
           />
 
           <textarea
@@ -134,11 +143,12 @@ const FeedbackFormModal = ({ isOpen, onClose }) => {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             rows={4}
-            className="w-full px-3 py-2 bg-white/50 backdrop-blur-xl border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none resize-none transition-all"
+            style={t.input(isDark)}
+            className="w-full px-3 py-2 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none resize-none transition-all"
           />
 
           <div>
-            <p className="text-sm font-medium text-gray-700 mb-2">Rate your experience</p>
+            <p style={{ color: t.text.primary(isDark) }} className="text-sm font-medium mb-2">Rate your experience</p>
             <div className="flex gap-1 justify-center">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
@@ -152,8 +162,8 @@ const FeedbackFormModal = ({ isOpen, onClose }) => {
             </div>
           </div>
 
-          <div className="flex items-center justify-between p-3 bg-white/50 backdrop-blur-xl rounded-lg border border-gray-200">
-            <span className="text-sm font-medium text-gray-700">Would you recommend?</span>
+          <div style={t.innerRow(isDark)} className="flex items-center justify-between p-3 rounded-lg">
+            <span style={{ color: t.text.primary(isDark) }} className="text-sm font-medium">Would you recommend?</span>
             <button
               onClick={() => setRecommend(!recommend)}
               className={`px-4 py-2 rounded-full font-medium transition-all flex items-center gap-2 ${recommend ? 'bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg shadow-green-500/30' : 'bg-gray-200 text-gray-700'}`}
@@ -168,11 +178,11 @@ const FeedbackFormModal = ({ isOpen, onClose }) => {
 
           <button
             onClick={handleSubmit}
-            disabled={!mood || !type || !title || !message}
+            disabled={!mood || !type || !title || !message || submitting}
             className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-lg font-semibold shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center gap-2"
           >
-            <Send className="w-4 h-4" />
-            Send Feedback
+            {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+            {submitting ? 'Sending...' : 'Send Feedback'}
           </button>
         </div>
       </div>

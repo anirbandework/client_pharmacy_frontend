@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Settings, Save, Edit2, Upload } from 'lucide-react'
+import { Settings, Save, Edit2, Upload, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { billingAdminAPI } from '../../services/admin_billing_apis'
 
@@ -281,7 +281,7 @@ const AdminBillConfigManager = ({ selectedShop = null }) => {
               disabled={loading}
               className="w-full bg-gradient-to-r from-primary-500 to-primary-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2"
             >
-              <Save className="w-5 h-5" />
+              {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
               {loading ? 'Saving...' : 'Save Configuration'}
             </button>
           </form>

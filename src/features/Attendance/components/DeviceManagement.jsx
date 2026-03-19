@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { attendanceAPI } from '../services/attendanceApi'
-import { Smartphone, Plus } from 'lucide-react'
+import { Smartphone, Plus, Loader2 } from 'lucide-react'
 
 const DeviceManagement = () => {
   const [devices, setDevices] = useState([])
   const [showForm, setShowForm] = useState(false)
+  const [loading, setLoading] = useState({ submit: false, load: false })
   const [formData, setFormData] = useState({ mac_address: '', device_name: '' })
 
   useEffect(() => {
@@ -12,16 +13,20 @@ const DeviceManagement = () => {
   }, [])
 
   const fetchDevices = async () => {
+    setLoading(prev => ({ ...prev, load: true }))
     try {
       const res = await attendanceAPI.getMyDevices()
       setDevices(res.data)
     } catch (error) {
       console.error(error)
+    } finally {
+      setLoading(prev => ({ ...prev, load: false }))
     }
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setLoading(prev => ({ ...prev, submit: true }))
     try {
       await attendanceAPI.registerDevice(formData)
       alert('Device registered!')
@@ -30,6 +35,8 @@ const DeviceManagement = () => {
       fetchDevices()
     } catch (error) {
       alert(error.response?.data?.detail || 'Registration failed')
+    } finally {
+      setLoading(prev => ({ ...prev, submit: false }))
     }
   }
 
@@ -56,7 +63,8 @@ const DeviceManagement = () => {
             <label className="block text-xs font-medium text-gray-600 mb-1">Device Name</label>
             <input type="text" value={formData.device_name} onChange={(e) => setFormData({ ...formData, device_name: e.target.value })} placeholder="My iPhone" required className="w-full px-3 py-2 text-sm border rounded-lg" />
           </div>
-          <button type="submit" className="w-full bg-primary-600 text-white text-sm font-semibold py-2 rounded-lg hover:bg-primary-700">
+          <button type="submit" disabled={loading.submit} className="w-full bg-primary-600 text-white text-sm font-semibold py-2 rounded-lg hover:bg-primary-700 disabled:opacity-50 flex items-center justify-center gap-2">
+            {loading.submit && <Loader2 className="w-4 h-4 animate-spin" />}
             Register Device
           </button>
         </form>
