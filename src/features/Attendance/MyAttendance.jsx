@@ -1,6 +1,7 @@
 import React from 'react'
 import { Toaster } from 'react-hot-toast'
 import Layout from '../../components/Layout'
+import LockedModuleGuard from '../../components/LockedModuleGuard'
 import PasswordProtectedRoute from '../../components/PasswordProtectedRoute'
 import StaffAttendance from './components/StaffAttendance'
 import { Clock } from 'lucide-react'
@@ -23,7 +24,9 @@ const MyAttendance = () => {
               </div>
             </div>
           </div>
-          <StaffAttendance />
+          <LockedModuleGuard moduleKey="attendance_staff" moduleName="My Attendance" moduleIcon={Clock}>
+            <StaffAttendance />
+          </LockedModuleGuard>
         </div>
       </PasswordProtectedRoute>
     </Layout>
